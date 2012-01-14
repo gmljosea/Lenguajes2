@@ -4,6 +4,19 @@
 
 A modo de borrador ...
 
+## Consideraciones lexicas
+
+Las palabras reservadas del lenguaje no pueden ser usadas como identificadores
+(de variables, funciones etc) y son las siguientes:
+
+    if else for in step while int char bool float array string box union 
+    void ...
+
+Los identificadores son secuencias de caracteres alfanumericos, numericos o 
+el simbolo *underscore* (_). Debe comenzar con al menos un caracter 
+alfanumerico.    
+
+
 ##Tipos
 
 Los tipos que manejará el lenguaje son:
@@ -30,11 +43,11 @@ Especial:
 
 sintaxis:
 
-       **if** cond **{**
+       if cond {
           instrucciones
-       **}else{**
+       }else{
           instrucciones
-       **}**
+       }
 
 Se puede obviar la parte del else si se quiere.
 las instrucciones dentro del if son opcionales?
@@ -43,9 +56,9 @@ las instrucciones dentro del if son opcionales?
 
 sintaxis:
 
-       **for** var **in** num..num2 **step** num3**{**
+       for var in num..num2 step num3{
            instrucciones 
-       **}**
+       }
 
 la variable *var* no podra ser modificada por el usuario dentro del bloque 
 del for. Los limites del for y el aumento (*num*, *num2*, *num3*) pueden ser
@@ -62,18 +75,40 @@ del la iteracion.
 
 sintaxis:
 
-       **while** cond**{**
+       while cond{
           ...
-       **}**
+       }
 
+## Declaracion y Asignacion de variables 
+
+Sintaxis de la declaracion de variables:
+
+    tipo nombreVar
+
+El tipo debe ser uno de los mencionados en la seccion de Tipos excepto *void*.
+Tambien se puede inicializar la variable en la misma linea si se desea, sin 
+embargo si no es inicializada por el usuario no tendra ningun valor 
+predeterminado.
+
+Ejemplo de declaracion y asignacion simultanea:
+
+    tipo nombreVar= expresion
+
+En el caso de la inicializacion de un arreglo se tiene la siguiente sintaxis:
+
+    array nombre[num] of tipo
+
+Nuevamente el tipo del contenido del array debe ser cualquiera de los mencionados
+en la seccion de tipos exceptuando el tipo void.  
+ 
 ## Pasaje de parametros 
 
 Las funciones en DeVaNix poseen la sisguiente sintaxis:
 
-       tipo nombreFunc **(**tipo arg1, tipo2 arg2 ... **){**
+       tipo nombreFunc (tipo arg1, tipo2 arg2 ... ){
           ...
-          [**return** exp]
-       **}**
+          [return exp]
+       }
 
 La instruccion **return** es obligatoria por cualquier camino
  cuando el tipo de la funcion es void. 
@@ -86,9 +121,9 @@ reservado **$** antes del tipo del argumento.
 
 ejemplo:
 
-       **int** calcularTotal**($**int monto, **$**char modo**){**
+       int calcularTotal($int monto, $char modo){
           ...
-       **}**
+       }
 
 Usar el simbolo **$** para tipos no escalares se considera como un error de 
 compilacion.
@@ -100,10 +135,10 @@ de la variable del lado izquierdo de una asignacion.
 
 ejemplo:
 
-       void rentarPelicula**($$**pelicula peli, **$$**cliente client1**){**
+       void rentarPelicula($$pelicula peli, $$cliente client1){
           ...
-          peli**=** peli2     **##** Error de compilación !! 
-       **}**
+          peli= peli2     ## Error de compilación !! 
+       }
 
 los bloques de las funciones pueden ser declaradas en cualquier orden y son 
 visibles para cualquier otra funcion o bloque declarado en el mismo nivel de 
