@@ -16,6 +16,7 @@ Los identificadores son secuencias de caracteres alfanumericos, numericos o
 el simbolo *underscore* (_). Debe comenzar con al menos un caracter 
 alfanumerico.    
 
+; { } ( ) + * / % [ ] = 
 
 ##Tipos
 
@@ -90,7 +91,7 @@ Tambien se puede inicializar la variable en la misma linea si se desea, sin
 embargo si no es inicializada por el usuario no tendra ningun valor 
 predeterminado.
 
-Ejemplo de declaracion y asignacion simultanea:
+Sintaxis de declaracion y asignacion simultanea:
 
     tipo nombreVar= expresion
 
@@ -99,11 +100,23 @@ En el caso de la inicializacion de un arreglo se tiene la siguiente sintaxis:
     array nombre[num] of tipo
 
 Nuevamente el tipo del contenido del array debe ser cualquiera de los mencionados
-en la seccion de tipos exceptuando el tipo void.  
+en la seccion de tipos exceptuando el tipo void.
+
+Inicializacion del array
+
+**Delclaraciones simultaneas:** DeVaNix permite el uso de las declaraciones 
+simultaneas, es decir, mas de una variable puede ser declarada en la misma 
+linea. Por ejemplo:
+
+    float num,a,b ;
+
+El lenguaje también soporta la declaración y asignación simultánea ??
+
+    int a,b,c= 5,6,7 ; ?
  
 ## Pasaje de parametros 
 
-Las funciones en DeVaNix poseen la sisguiente sintaxis:
+Las funciones en *DeVaNix* poseen la sisguiente sintaxis:
 
        tipo nombreFunc (tipo arg1, tipo2 arg2 ... ){
           ...
@@ -146,8 +159,3 @@ alcance.
 
 El caracter utilizado para la separacion de instrucciones sera el caracter 
 punto y coma (**;**) o new line.
-  
-
-
-
-
