@@ -1,24 +1,50 @@
-#    -> Definicion del lenguaje DeVaNix <- 
+# Lenguaje Devanix
+
+* * *
+Notas de JA
+Cosas por discutir:
+*   Estructura de los programas?
+*   Donde se pueden declarar tipos box y cuál es su alcance?
 
 * * *
 
-A modo de borrador ...
+En este curso escribiremos un compilador para un sencillo lenguaje de programación
+imperativo. 
+La sintaxis del lenguaje se inspira fuertemente en la del lenguaje C.
 
-## Consideraciones lexicas
+## Consideraciones léxicas
 
 Las palabras reservadas del lenguaje no pueden ser usadas como identificadores
-(de variables, funciones etc) y son las siguientes:
+(de variables, funciones, etc) y son las siguientes:
 
-    if else for in step while int char bool float array string box union 
-    void ...
+    if else for in step while int char bool float array string box 
+    void variant true false of
 
-Los identificadores son secuencias de caracteres alfanumericos, numericos o 
-el simbolo *underscore* (_). Debe comenzar con al menos un caracter 
-alfanumerico.    
+Los identificadores son secuencias de caracteres alfanumericos o 
+el símbolo *underscore* (_), y no pueden comenzar por un caracter numérico.
 
-; { } ( ) + * / % [ ] = 
+    -- Nota: definir sensibilidad a mayúsculas.
+    -- Nota: cómo escribimos números? Me parece razonable incluir decimal, binario y hexadecimal.
+             podemos hacer binario: b1010101 , hex: x0FE132
+	     Que tal permitir separar grupos de 3 dígitos con un espacio? Vale para pto. flotante
+    -- Nota: pto. flotante. A mi me basta que para escribirlos el formato sea: DDD.DDD, donde D = digito,
+             y no sean opcionales a ningún lado del punto.
+    -- Nota: cómo escribir strings? A mi me gusta como se hace en C.
 
-##Tipos
+Los comentarios de una línea se comienzan con **-.** y cubren el resto de la línea.
+Los comentarios multilínea se comienzan con **--.** y se terminan con **.--**.
+
+.. ; { } ( ) + * / % [ ] =
+
+## Gramática
+
+Esto viene cuando estemos más avanzados en el diseño.
+
+## Estructura del programa
+
+## Reglas de alcance
+
+## Tipos
 
 Los tipos que manejará el lenguaje son:
 
@@ -34,128 +60,172 @@ Compuestos:
 *    **array**
 *    **string**
 *    **box**
-*    **union**
 
 Especial:
 
 *    **void**
 
-##Condicional
+## Intrucciones
 
-sintaxis:
+Las instrucciones disponibles en Devanix son:
 
-       if cond {
+*   Asignación
+*   Declaración de variable
+*   Selección condicional **if**/**else**
+*   Iteración acotada **for** .. **in**
+*   Iteración condicional **while**
+*   Llamada a función de tipo void \*
+*   Declaración de **box** \*
+
+\* Lo estoy agregando a lo loco, tenemos que discutirlo.
+
+El caracter utilizado para la separación de instrucciones sera el punto y coma 
+(**;**) o el salto de línea.
+
+## Estructuras de control
+
+### Condicional
+
+Sintaxis:
+
+       if condición {
           instrucciones
-       }else{
+       } else {
           instrucciones
        }
 
+La condición debe ser una expresión de tipo booleano.
 Se puede obviar la parte del else si se quiere.
-las instrucciones dentro del if son opcionales?
 
-##Iteracion acotada 
+### Iteración acotada 
 
-sintaxis:
+Sintaxis:
 
-       for var in num..num2 step num3{
+       for var in num..num2 step num3 {
            instrucciones 
        }
 
-la variable *var* no podra ser modificada por el usuario dentro del bloque 
-del for. Los limites del for y el aumento (*num*, *num2*, *num3*) pueden ser
-expresiones y serán evaluadas una sola vez antes del primer ciclo. Debe evitar
-que las expresiones tengan efectos de borde debido a que la evaluacion de las 
-expresiones (*num*,*num2*,*num3*) no garantiza ningun orden en particular.
+*   La variable **var** se declara automáticamente de tipo **int** y solo es visible
+    dentro del bloque de la iteración.
+*   La variable **var** no puede ser modificada por el programador así que se
+    considera un error intentar asignarla o pasarla por referencia a una función.
+*   Los limites del **for** y el aumento (**num**, **num2**, **num3**) pueden ser
+    expresiones y serán evaluadas una sola vez antes del primer ciclo.
+    Debe evitar que las expresiones tengan efectos de borde debido a que la
+    evaluacion de las expresiones (*num*,*num2*,*num3*) no garantiza ningun orden
+    en particular.
+*   El aumento debe ser un numero de tipo **int** y a su vez debe ser positivo.
+*   Los límites se chequean antes de comenzar la primera iteración.
+    En caso de que los límites sean vacíos(**num < num2**) no se ejecutará ningún
+    ciclo.
 
-*num3* debe ser un numero de tipo **int** y a su vez debe ser positivo.
+Existe una variante de esta estructura que permite iterar sobre arreglos de manera
+sencilla:
 
-En caso de que los limites sean vacios(*num<num2*) no se ejecutara ningun ciclo
-del la iteracion.
+    for var in arreglo {
+        instrucciones
+    }
 
-## Iteraciones condicionadas 
+La variable *var* asume el tipo del tipo contenido por el arreglo.
+El ciclo se ejecuta una vez por cada elemento del arreglo, con la variable *var*
+asumiendo el valor de la posición correspondiente del arreglo.
 
-sintaxis:
+### Iteración condicional
 
-       while cond{
+Sintaxis:
+
+       while cond {
           ...
        }
+       
+*   La condición **cond** debe ser una expresión de tipo booleano.
+*   La condición se chequea al comienzo de cada iteración.
 
-## Declaracion y Asignacion de variables 
+## Variables 
 
-Sintaxis de la declaracion de variables:
+    -- Nota: falta definir cómo asignar a arreglos y box.
+       Yo apoyaría la idea de definir una expresión de tipo arreglo
+       y otra de tipo box. Ej:
+       array bla[5] of int = {1,2,3,4,5}
+       Variables globales y sus implicaciones?
 
-    tipo nombreVar
+### Variables de tipos básicos y **box**
 
-El tipo debe ser uno de los mencionados en la seccion de Tipos excepto *void*.
-Tambien se puede inicializar la variable en la misma linea si se desea, sin 
-embargo si no es inicializada por el usuario no tendra ningun valor 
-predeterminado.
+Sintaxis para variables de tipos básicos:
 
-Sintaxis de declaracion y asignacion simultanea:
+    tipo nombreVar              -. Declaración sin inicialización
+    tipo nombreVar = expresion  -. Declaración con inicialización
+    
+*   El tipo debe ser cualquier tipo básico o nombre de **box** definido por el 
+    usuario.
+*   Si no es inicializada por el usuario no tendrá ningun valor predeterminado y no
+    se podrá predecir qué valor asumirá.
+*   El tipo de la expresión debe coincidir con el tipo de la declaración.
 
-    tipo nombreVar= expresion
+Devanix permite el uso de declaraciones simultáneas, es decir, más de una variable
+puede ser declarada en la misma línea. También es posible inicializarlas
+simultáneamente. Por ejemplo:
 
-En el caso de la inicializacion de un arreglo se tiene la siguiente sintaxis:
+    float num,a,b
+    int a,b,c = 5,6,7
+    
+    -- Nota: qué pasa con los efectos de borde?
+
+### Variables de tipo **array**
+
+Sintaxis:
 
     array nombre[num] of tipo
+    array nombre[num] of tipo = expresión
 
-Nuevamente el tipo del contenido del array debe ser cualquiera de los mencionados
-en la seccion de tipos exceptuando el tipo void.
+*   El tipo del contenido del array debe ser cualquier tipo básico o nombre de **box**
+    definido por el usuario.
 
-Inicializacion del array
+## Funciones
 
-**Delclaraciones simultaneas:** DeVaNix permite el uso de las declaraciones 
-simultaneas, es decir, mas de una variable puede ser declarada en la misma 
-linea. Por ejemplo:
-
-    float num,a,b ;
-
-El lenguaje también soporta la declaración y asignación simultánea ??
-
-    int a,b,c= 5,6,7 ; ?
- 
-## Pasaje de parametros 
-
-Las funciones en *DeVaNix* poseen la sisguiente sintaxis:
+Las funciones en *Devanix* poseen la siguiente sintaxis:
 
        tipo nombreFunc (tipo arg1, tipo2 arg2 ... ){
-          ...
+          instrucciones
           [return exp]
        }
 
-La instruccion **return** es obligatoria por cualquier camino
- cuando el tipo de la funcion es void. 
+La instrucción **return** es obligatoria por cualquier camino
+cuando el tipo de la función no es **void**. 
 
-El pasaje de parametros es de dos modalidades: Para los tipos escalares se 
-tiene que el pasaje es por valor y para los compuestos o estructurados el 
-pasaje se hace por referencia. Sin embargo el usuario tiene la opcion de 
-realizar el pasaje de tipos escalares por referencia usando el simbolo 
-reservado **$** antes del tipo del argumento.
+El pasaje de parametros es de dos modalidades: Para los tipos escalares el pasaje 
+es por valor y para los compuestos el pasaje es por referencia.
+Sin embargo el usuario tiene la opción de realizar el pasaje de tipos escalares por
+referencia usando el símbolo reservado **$** antes del tipo del argumento.
 
-ejemplo:
+Ejemplo:
 
        int calcularTotal($int monto, $char modo){
           ...
        }
 
-Usar el simbolo **$** para tipos no escalares se considera como un error de 
-compilacion.
+Usar el símbolo **$** para tipos no escalares produce un error de compilación.
 
-Para el pasaje en modo *sólo lectura* de los tipos estructurados se 
-proporciona el simbolo reservado **$$**. El pasaje a bajo nivel sigue siendo por
-referencia pero se considerara como error de compilacion si se usa el nombre 
-de la variable del lado izquierdo de una asignacion. 
+También es posible el pasaje en modo *sólo lectura* de los tipos compuestos, para
+lo cual se proporciona el simbolo reservado **$$**.
+El pasaje a bajo nivel sigue siendo por referencia pero se prohibe realizar una
+asignación sobre la variable y pasarla como referencia a otra función.
 
-ejemplo:
+Ejemplo:
 
-       void rentarPelicula($$pelicula peli, $$cliente client1){
+       void rentarPelicula($$pelicula peli, $$cliente client1) {
           ...
-          peli= peli2     ## Error de compilación !! 
+          peli = peli2     -. ¡Error de compilación!
        }
 
-los bloques de las funciones pueden ser declaradas en cualquier orden y son 
-visibles para cualquier otra funcion o bloque declarado en el mismo nivel de 
-alcance.
+Las funciones pueden ser declaradas en cualquier orden y son visibles para cualquier
+otra función declarada en el programa. El lenguaje permite recursión.
 
-El caracter utilizado para la separacion de instrucciones sera el caracter 
-punto y coma (**;**) o new line.
+## Compatibilidad y equivalencia de tipos
+
+## Asignación
+
+## Expresiones
+
+## Funciones de librería
+
