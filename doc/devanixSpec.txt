@@ -48,7 +48,7 @@ Esto viene cuando estemos más avanzados en el diseño.
 
 Los tipos que manejará el lenguaje son:
 
-Escalares :
+Escalares:
 
 *    **char** 
 *    **bool**
@@ -130,6 +130,8 @@ La variable *var* asume el tipo del tipo contenido por el arreglo.
 El ciclo se ejecuta una vez por cada elemento del arreglo, con la variable *var*
 asumiendo el valor de la posición correspondiente del arreglo.
 
+pregunta!!--> se puede modificar el arreglo mientras se recorre???
+
 ### Iteración condicional
 
 Sintaxis:
@@ -146,7 +148,7 @@ Sintaxis:
     -- Nota: falta definir cómo asignar a arreglos y box.
        Yo apoyaría la idea de definir una expresión de tipo arreglo
        y otra de tipo box. Ej:
-       array bla[5] of int = {1,2,3,4,5}
+       tipo array[5] bla = [1,2,3,4,5]
        Variables globales y sus implicaciones?
 
 ### Variables de tipos básicos y **box**
