@@ -41,12 +41,12 @@ Ejemplos de números:
     x:7DC          -. el mismo entero pero en base 16
     2012.01        -. número decimal
 
-    -- Nota: cómo escribir strings? A mi me gusta como se hace en C.
+    -- Nota: cómo escribir strings? como se hace en C.
 
 Los comentarios de una línea se comienzan con **-.** y cubren el resto de la línea.
 Los comentarios multilínea se comienzan con **--.** y se terminan con **.--**.
 
-.. ; { } ( ) + * / % [ ] =
+. ; { } ( ) + * / % [ ] = -. --. .- .-- _ :
 
 ## Gramática
 
