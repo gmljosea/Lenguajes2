@@ -18,7 +18,7 @@ Las palabras reservadas del lenguaje no pueden ser usadas como identificadores
 (de variables, funciones, etc) y son las siguientes:
 
     if else for in step while int char bool float array string box 
-    void variant true false of
+    void variant true false 
 
 Los identificadores son secuencias de caracteres alfanumericos o 
 el símbolo *underscore* (_), y no pueden comenzar por un caracter numérico.
@@ -187,18 +187,18 @@ puede ser declarada en la misma línea. También es posible inicializarlas
 simultáneamente. Por ejemplo:
 
     float num,a,b
-    int a,b,c = 5,6,7
+    int c,d,e = 5,6,7
     
-    -- Nota: qué pasa con los efectos de borde?
+    -- Nota: qué pasa con los efectos de borde? Comportamiento no determinado?
 
 ### Variables de tipo **array**
 
 Sintaxis:
 
-    array nombre[num] of tipo
-    array nombre[num] of tipo = expresión
+    tipo array[num] nombreVar
+    tipo array[num] nombreVar = expresión
 
-*   El tipo del contenido del array debe ser cualquier tipo básico o nombre de **box**
+*   El tipo del contenido del array debe ser cualquier tipo escalar, string o nombre de **box**
     definido por el usuario.
 
 ## Funciones
@@ -229,11 +229,12 @@ Usar el símbolo **$** para tipos no escalares produce un error de compilación.
 También es posible el pasaje en modo *sólo lectura* de los tipos compuestos, para
 lo cual se proporciona el simbolo reservado **$$**.
 El pasaje a bajo nivel sigue siendo por referencia pero se prohibe realizar una
-asignación sobre la variable y pasarla como referencia a otra función.
+asignación a la variable o pasarla como referencia a otra función.
 
 Ejemplo:
 
        void rentarPelicula($$pelicula peli, $$cliente client1) {
+          pelicula peli2
           ...
           peli = peli2     -. ¡Error de compilación!
        }
@@ -246,6 +247,49 @@ otra función declarada en el programa. El lenguaje permite recursión.
 ## Asignación
 
 ## Expresiones
+
+Las expresiones en Devanix son blah blah ...
+
+Los operadores proporcionados para cada tipo en el lenguaje Devanix se enumeran 
+a continuación. Estos sólo se pueden aplicar entre objetos del mismo tipo. Si
+desea, por ejemplo, realizar la suma entre un objeto de tipo int y otro float, debe 
+realizar la conversión explícita de alguno de los dos tipos para poder efectuar la adición.  
+ 
+
+### Para los tipos int y float
+
+Los operadores binarios son: 
+
+*    **+**  Operador para la suma 
+*    **-**  Operador para la resta 
+*    *****  Operador para la multiplicacion
+*    **/**  Operador para la división
+*    **%**  Operador para el modulo
+*    **=**  Operador para la igualdad
+*    **>**  Mayor que
+*    **>=** Mayor igual 
+*    **<**  Menor
+*    **<=** Menor igual
+
+Operador unario:
+
+*    **-** Menos unario.
+
+### Para el tipo bool 
+
+Los operadores binarios son:
+
+*    **and** Conjunción lógica
+*    **or**  Disyunción lógica
+*    **=**   Igualdad
+
+Operador unario:
+
+*    **not** Negación lógica 
+
+### Para los tipos array, string y char
+
+El operador binario que se proporciona para estos tipos es únicamente el de igualdad (**=**)
 
 ## Funciones de librería
 
