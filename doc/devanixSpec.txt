@@ -1,12 +1,6 @@
 # Lenguaje Devanix
 
 * * *
-Notas de JA
-Cosas por discutir:
-*   Estructura de los programas?
-*   Donde se pueden declarar tipos box y cuál es su alcance?
-
-* * *
 
 En este curso escribiremos un compilador para un sencillo lenguaje de programación
 imperativo llamado Devanix.
@@ -18,7 +12,7 @@ Las palabras reservadas del lenguaje no pueden ser usadas como identificadores
 (de variables, funciones, etc) y son las siguientes:
 
     if else for in step while int char bool float array string box 
-    void variant true false of
+    void variant true false
 
 Los identificadores son secuencias de caracteres alfanumericos o 
 el símbolo *underscore* (_), y no pueden comenzar por un caracter numérico.
@@ -82,6 +76,76 @@ Compuestos:
 Especial:
 
 *    **void**
+
+### Tipos **box**
+
+Los tipos **box** son el único mecanismo para que el usuario defina sus propios tipos.
+
+Un tipo **box** básico sin campos variantes se declara de la siguiente manera:
+
+    box nombre {
+        tipo variable
+	tipo variable
+	...
+    }
+
+Las variables pueden ser de cualquier tipo excepto void.
+
+Un tipo **box** con campos variantes se declara de la siguiente manera:
+
+    box nombre {
+       variant:
+        tipo variable
+	tipo variable
+	...
+    }
+    
+Se pueden agrupar campos variantes usando llaves para declarar que todas las variables
+del grupo están activas al mismo tiempo:
+
+    box nombre {
+       variant:
+        tipo variable1
+	...
+	{
+	    tipo variable2
+	    tipo variable3
+	    ...
+	}
+	tipo variablex
+	...
+    }
+    
+También se pueden combinar campos fijos con campos variantes:
+
+    box nombre {
+        tipo variable    -. campos fijos
+	tipo variable
+	...
+       variant:
+        tipo variable    -. campos variantes
+	tipo variable
+    }
+
+Por ejemplo, el usuario podría definir el siguiente tipo para representar elementos
+atómicos. De entre los campos variantes solo uno puede estar activo a la vez, en este
+caso está activo el campo **tiempo_de_vida** o el grupo de campos **molecula_comun**
+y **concentracion**.
+
+    box elemento {
+        char array[2] nombre
+	int numero_atomico
+	float peso_atomico
+	bool metalico
+	bool ocurrencia_natural
+       variant:
+        float tiempo_de_vida
+	{
+	    char array[10] molecula_comun
+	    float concentracion
+	}
+    }
+	    
 
 ## Intrucciones
 
