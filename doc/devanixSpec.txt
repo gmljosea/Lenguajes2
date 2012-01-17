@@ -9,7 +9,7 @@ Cosas por discutir:
 * * *
 
 En este curso escribiremos un compilador para un sencillo lenguaje de programación
-imperativo. 
+imperativo llamado Devanix.
 La sintaxis del lenguaje se inspira fuertemente en la del lenguaje C.
 
 ## Consideraciones léxicas
@@ -23,12 +23,30 @@ Las palabras reservadas del lenguaje no pueden ser usadas como identificadores
 Los identificadores son secuencias de caracteres alfanumericos o 
 el símbolo *underscore* (_), y no pueden comenzar por un caracter numérico.
 
-    -- Nota: definir sensibilidad a mayúsculas.
-    -- Nota: cómo escribimos números? Me parece razonable incluir decimal, binario y hexadecimal.
-             podemos hacer binario: b1010101 , hex: x0FE132
-	     Que tal permitir separar grupos de 3 dígitos con un espacio? Vale para pto. flotante
-    -- Nota: pto. flotante. A mi me basta que para escribirlos el formato sea: DDD.DDD, donde D = digito,
-             y no sean opcionales a ningún lado del punto.
+Los identificadores son sensibles a mayúsculas, es decir, los nombres **ejemplo**,
+**Ejemplo**, **EJEMPLO** y **EjEmpLo** son todos distintos.
+
+Los números enteros se pueden escribir en base decimal, base binaria o base
+hexadecimal.
+Los números en base decimal son cualquier secuencia de dígitos entre 0 y 9.
+Los números binarios se escriben comenzando con **b:** seguido de caracteres 0 o 1.
+Los números hexadecimales se escriben comenzando con **x:** seguido de dígitos
+del 0 al 9 y los caracteres alfabéticos desde la letra A hasta la F, sin
+importar si son mayúsculas o minúsculas.
+
+Los números decimales (entiéndase como números con parte fraccionaria, no como
+números en base decimal) se pueden escribir únicamente en base decimal.
+Consisten de una secuencia no vacía de dígitos del 0 al 9 para la parte entera,
+un punto (**.**), y una secuencia no vacía de dñígitos del 0 al 9 para la parte
+fraccionaria.
+
+Ejemplos de números:
+
+    2012           -. entero en base decimal
+    b:11111011100  -. el mismo entero pero en base 2
+    x:7DC          -. el mismo entero pero en base 16
+    2012.01        -. número decimal
+
     -- Nota: cómo escribir strings? A mi me gusta como se hace en C.
 
 Los comentarios de una línea se comienzan con **-.** y cubren el resto de la línea.
