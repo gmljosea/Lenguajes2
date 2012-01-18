@@ -3,6 +3,7 @@
 using namespace std;
 %}
 
+plus \+
 
 %%
 
@@ -39,6 +40,21 @@ variant { cout << "token variant";}
 true { cout << "token true";}
 
 false {cout  << "token false";}
+
+\+ cout << "token plus"
+- cout << "token minus"
+\* cout << "token times"
+\/ cout << "token div"
+% cout << "token mod"
+
+\{ cout << "token Lbrace"
+\} cout << "token Rbrace"
+\[ cout << "token Lbraket"
+\] cout << "token Rbraket"
+\( cout << "token Lparent"
+\) cout << "token Rparent"
+
+
 
 %%
 
