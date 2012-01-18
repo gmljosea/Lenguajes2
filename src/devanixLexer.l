@@ -1,44 +1,49 @@
 %option noyywrap c++
 %{
-# include <math.h>
+using namespace std;
 %}
 
 
 %%
 
-if cout << "token if"
+if { cout << "token if";}
 
-else cout << "token else"
+else { cout << "token else";}
 
-for cout << "token for"
+for { cout << "token for";}
 
-in cout << "token in"
+in  {cout << "token in";}
 
-step cout << "token step"
+step { cout << "token step";}
 
-while cout << "while"
+while { cout << "while";}
 
-int cout << "token int"
+int { cout << "token int";}
 
-char cout << "token char"
+char { cout << "token char";}
 
-bool cout << "token bool"
+bool { cout << "token bool";}
 
-float cout << "token float"
+float { cout << "token float";}
 
-array cout << "token array"
+array { cout << "token array";}
 
-string cout << "token string"
+string { cout << "token string";}
 
-box cout << "token box"
+box { cout << "token box";}
 
-void cout << "token void"
+void { cout << "token void";}
 
-variant cout << "token variant"
+variant { cout << "token variant";}
 
-true cout << "token true"
+true { cout << "token true";}
 
-false << "token false"
+false {cout  << "token false";}
 
+%%
 
-
+int main() {
+    FlexLexer* lexer = new yyFlexLexer;
+    while(lexer->yylex() != 0);
+    return 0;
+}
