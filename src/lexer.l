@@ -12,6 +12,7 @@ NumHex  x:[0-9A-Fa-f]+
 NumFlot [0-9]+.[0-9]+
 ComentL -\..*
 ComentB --\.(.|\n)*\.--
+STRING  \".*\"
 
 %%
 
@@ -76,6 +77,7 @@ not  std::cout << "token not";
 \$ std::cout << "token dollar";
 
 {ID} std::cout << "token id";
+{STRING} std::cout << "token conststring";
 {ComentL} std::cout << "comentario";
 {ComentB} std::cout << "comentario de bloque";
 {NumDec} std::cout << "Num base decimal";
