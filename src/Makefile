@@ -1,11 +1,18 @@
-all: lex.yy.o
-	g++ lex.yy.o -o lexer -lfl
+all: lexer.o parser.o
+	g++ lexer.o parser.o -o devanix
 
-lex.yy.o: lex.yy.cc
-	g++ -c -o lex.yy.o lex.yy.cc
+lexer.o: lexer.cc parser.cc
+	g++ -c -o lexer.o lexer.cc
 
-lex.yy.cc: devanixLexer.l
-	flex++ devanixLexer.l
+lexer.cc: lexer.l
+	flex -o lexer.cc lexer.l
+
+parser.o: parser.cc
+	g++ -c -o parser.o parser.cc
+
+parser.cc: parser.y
+	bison --defines=parser.h -o parser.cc parser.y
+
 
 clean:
-	rm lex.yy.* parser
+	rm lexer.cc parser.cc parser.h *.o devanix
