@@ -4,9 +4,7 @@
 + map
 + rec cola
 + bool difuso
-+ ; terminador?
 + break no hace daño. next/continue. restart
-+ 
 
 * * *
 
@@ -208,6 +206,11 @@ Sintaxis:
 *   Los límites se chequean antes de comenzar la primera iteración.
     En caso de que los límites sean vacíos(**num < num2**) no se ejecutará ningún
     ciclo.
+*   Dentro del bloque **for** se puede usar la palabra reservada **break**, para
+    finalizar la iteración.
+*   También se puede usar la palabra reservada **next**. Su efecto es "saltar"
+    las instrucciones que le siguen para entrar a la siguiente iteracion del mismo
+    for.   
 
 Existe una variante de esta estructura que permite iterar sobre arreglos de manera
 sencilla:
@@ -216,9 +219,11 @@ sencilla:
         instrucciones
     }
 
-La variable *var* asume el tipo del tipo contenido por el arreglo.
-El ciclo se ejecuta una vez por cada elemento del arreglo, con la variable *var*
-asumiendo el valor de la posición correspondiente del arreglo.
+*    La variable *var* asume el tipo del tipo contenido por el arreglo.
+*    El ciclo se ejecuta una vez por cada elemento del arreglo, con la variable *var*
+     asumiendo el valor de la posición correspondiente del arreglo.
+*    Se pueden usar las palabras reservadas **break** y **netx**, estos actuan 
+     igual que para el for.
 
 pregunta!!--> se puede modificar el arreglo mientras se recorre???
 
@@ -232,6 +237,9 @@ Sintaxis:
        
 *   La condición **cond** debe ser una expresión de tipo booleano.
 *   La condición se chequea al comienzo de cada iteración.
+*   Es permitido utilizar las palabras reservadas **break** y **next**
+
+DESCRIBIR LAS ETIQUETAS 
 
 ## Variables 
 
@@ -243,7 +251,7 @@ Sintaxis:
 
 ### Variables de tipos básicos y **box**
 
-Sintaxis para variables de tipos básicos:
+Sintaxis para la declaración de variables de tipos básicos:
 
     tipo nombreVar              -. Declaración sin inicialización
     tipo nombreVar = expresion  -. Declaración con inicialización
@@ -258,8 +266,14 @@ Devanix permite el uso de declaraciones simultáneas, es decir, más de una vari
 puede ser declarada en la misma línea. También es posible inicializarlas
 simultáneamente. Por ejemplo:
 
-    float num,a,b
-    int c,d,e = 5,6,7
+    float num,a,b;
+    int c = 5,d = 6, e = 5;
+    int c,d,e= 5,6,5;
+    int c,d,e= 1
+
+    c,d= 1,2 
+    c=1,d=2 no 
+ 
     
     -- Nota: qué pasa con los efectos de borde? Comportamiento no determinado?
 
