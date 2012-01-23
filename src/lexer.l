@@ -16,13 +16,13 @@ STRING  \".*\"
 
 %%
 
-if { return TK_IF;}
+if { std::cout << "token if"; return TK_IF;}
 
-else { std::cout << "token else";}
+else { std::cout << "token else"; return TK_ELSE;}
 
 for { std::cout << "token for";}
 
-in  {std::cout << "token in";}
+in  {std::cout << "token in"; return TK_IN;}
 
 step { std::cout << "token step";}
 
@@ -66,8 +66,8 @@ and  std::cout << "token and";
 or  std::cout << "token or";
 not  std::cout << "token not";
 
-\{ std::cout << "token Lbrace";
-\} std::cout << "token Rbrace";
+\{ { std::cout << "token Lbrace"; return TK_LBRACE; }
+\} { std::cout << "token Rbrace"; return TK_RBRACE; }
 \[ std::cout << "token Lbraket";
 \] std::cout << "token Rbraket";
 \( std::cout << "token Lparent";
