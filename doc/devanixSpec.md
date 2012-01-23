@@ -20,7 +20,7 @@ Las palabras reservadas del lenguaje no pueden ser usadas como identificadores
 (de variables, funciones, etc) y son las siguientes:
 
     if else for in step while int char bool float array string box 
-    void variant true false
+    void variant: true false
 
 Los identificadores son secuencias de caracteres alfanumericos o 
 el símbolo *underscore* (_), y no pueden comenzar por un caracter numérico.
@@ -54,7 +54,7 @@ Ejemplos de números:
 Los comentarios de una línea se comienzan con **-.** y cubren el resto de la línea.
 Los comentarios multilínea se comienzan con **--.** y se terminan con **.--**.
 
-. ; { } ( ) + * / % [ ] = -. --. .- .-- _ :
+. ; { } ( ) + * / % [ ] = -. --.  .-- _ :
 
 ## Gramática
 
