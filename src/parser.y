@@ -9,12 +9,11 @@ extern FILE *yyin;
 
 %}
 
-/*
 %union {
   int ival;
   double fval;
   std::string *str;
-  };*/
+};
 
 // Tokens de palabras reservadas
 %token TK_IF          "if"
@@ -54,15 +53,15 @@ extern FILE *yyin;
 %token TK_DDOLLAR     "$$" // No se me ocurre un mejor nombre
 
 // Token identificador (de variable, función o box)
-%token TK_ID
+%token <str> TK_ID
 
 // Token de un string cualquiera encerrado entre comillas
  // No confundirse con TK_STRING que se refiere a la palabra reservada 'string'
-%token TK_CONSTSTRING
+%token <str> TK_CONSTSTRING
 
 // Tokens de constantes numéricas
-%token TK_CONSTINT
-%token TK_CONSTFLOAT
+%token <ival> TK_CONSTINT
+%token <fval> TK_CONSTFLOAT
 
 %% /* Gramática */
 
