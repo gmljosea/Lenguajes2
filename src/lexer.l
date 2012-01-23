@@ -73,13 +73,13 @@ not  std::cout << "token not";
 \( std::cout << "token Lparent";
 \) std::cout << "token Rparent";
 
-\$$ std::cout << "token ddollar";
+\$\$ std::cout << "token ddollar";
 \$ std::cout << "token dollar";
 
 {ID} std::cout << "token id";
 {STRING} std::cout << "token conststring";
-{ComentL} std::cout << "comentario";
-{ComentB} std::cout << "comentario de bloque";
+{ComentL} 
+{ComentB}
 {NumDec} std::cout << "Num base decimal";
 {NumBin} std::cout << "Num base Binaria";
 {NumHex} std::cout << "Num base Hexadecimal";
