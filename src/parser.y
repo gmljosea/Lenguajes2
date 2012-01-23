@@ -30,9 +30,10 @@ extern FILE *yyin;
 %token TK_STRING      "string"
 %token TK_BOX         "box"
 %token TK_VOID        "void"
-%token TK_VARIANT     "variant"
+%token TK_VARIANT     "variant:"
 %token TK_TRUE        "true"
 %token TK_FALSE       "false"
+%token TK_RETURN      "return"
 
 // Tokens de símbolos especiales
 
@@ -41,6 +42,14 @@ extern FILE *yyin;
 %token TK_TIMES       "*"
 %token TK_DIV         "/"
 %token TK_MOD         "%"
+%token TK_EQU         "="
+%token TK_LT          "<"
+%token TK_GT          ">"
+%token TK_GTE         ">="
+%token TK_LTE         "<="
+%token TK_AND         "and"
+%token TK_OR          "or"
+%token TK_NOT         "not"
 
 %token TK_LBRACE      "{"
 %token TK_RBRACE      "}"
@@ -48,9 +57,10 @@ extern FILE *yyin;
 %token TK_RBRACKET    "]"
 %token TK_LPARENT     "("
 %token TK_RPARENT     ")"
+%token TK_SCOLON      ";"
 
 %token TK_DOLLAR      "$"
-%token TK_DDOLLAR     "$$" // No se me ocurre un mejor nombre
+%token TK_DDOLLAR     "$$"
 
 // Token identificador (de variable, función o box)
 %token <str> TK_ID
@@ -80,11 +90,29 @@ if:
 
 expr:
    TK_ID
- | TK_CONSTNUM
+ | TK_CONSTINT
  | TK_CONSTFLOAT
  | TK_TRUE
  | TK_FALSE
 
+dec: 
+   tipo list_items TK_SCOLON
+   {std::cout << "declaracion"}
+
+list_items:
+    item 
+   |list_items "," item
+
+item: 
+   TK_ID 
+   | TK_ID "=" expr
+
+tipo:
+   "int"
+   | "char"
+   | "bool"
+   | "float"
+ 
 %%
 
 void yyerror (char const *s) {
