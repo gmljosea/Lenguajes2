@@ -79,6 +79,11 @@ if:
    { std::cout << "Encontre un if con else" << std::endl }
 
 expr:
+   TK_ID
+ | TK_CONSTNUM
+ | TK_CONSTFLOAT
+ | TK_TRUE
+ | TK_FALSE
 
 %%
 
