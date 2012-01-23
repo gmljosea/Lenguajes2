@@ -1,5 +1,13 @@
 # Lenguaje Devanix
 
++ potencia, base,exponente nan 
++ map
++ rec cola
++ bool difuso
++ ; terminador?
++ break no hace daño. next/continue. restart
++ 
+
 * * *
 
 En este curso escribiremos un compilador para un sencillo lenguaje de programación
@@ -161,7 +169,7 @@ Las instrucciones disponibles en Devanix son:
 
 \* Lo estoy agregando a lo loco, tenemos que discutirlo.
 
-El caracter utilizado para la separación de instrucciones sera el punto y coma 
+El caracter utilizado para la terminación de instrucciones sera el punto y coma 
 (**;**) o el salto de línea.
 
 ## Estructuras de control
@@ -357,3 +365,7 @@ El operador binario que se proporciona para estos tipos es únicamente el de igu
 
 ## Funciones de librería
 
++ todo lo que este en este documento de diseño sera evaluado para la primera entrega 
++ No se va a evaluar la suma etc etc
++ no listas aun
++ aclarar que puede devolver una funcion
