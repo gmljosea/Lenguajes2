@@ -52,6 +52,10 @@ false {std::cout  << "token false"; return TK_FALSE;}
 
 return {std::cout << "token return"; return TK_RETURN;}
 
+break {std::cout << "token break"; return TK_BREAK;}
+
+next  {std::cout << "token next"; return TK_NEXT;}
+
 \+  {std::cout << "token plus";return TK_PLUS;}
 -   {std::cout << "token minus";return TK_MINUS;}
 \*  {std::cout << "token times";return TK_TIMES;}

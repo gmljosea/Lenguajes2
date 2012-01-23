@@ -34,6 +34,8 @@ extern FILE *yyin;
 %token TK_TRUE        "true"
 %token TK_FALSE       "false"
 %token TK_RETURN      "return"
+%token TK_BREAK       "break"
+%token TK_NEXT        "next"
 
 // Tokens de símbolos especiales
 
@@ -59,6 +61,8 @@ extern FILE *yyin;
 %token TK_RPARENT     ")"
 %token TK_SCOLON      ";"
 
+%token TK_DPERIOD     ".."
+
 %token TK_DOLLAR      "$"
 %token TK_DDOLLAR     "$$"
 
@@ -81,12 +85,23 @@ stmts:
 
 statement:
    if
-
+ | while
+ | for
+ 
 if:
    "if" expr "{" stmts "}"
-   { std::cout << "Encontre un if sin else" << std::endl }
+   { std::cout << "Encontré un if sin else" << std::endl }
  | "if" expr "{" stmts "}" "else" "{" stmts "}"
-   { std::cout << "Encontre un if con else" << std::endl }
+   { std::cout << "Encontré un if con else" << std::endl }
+
+while:
+   "while" expr "{" stmts "}"
+   { std::cout << "Encontré un while" << std::endl }
+
+for:
+   "for" TK_ID "in" expr ".." expr // for con paso default
+ | "for" TK_ID "in" expr ".." expr "step" expr //for con paso
+ | "for" TK_ID "in" TK_ID   //foreach de arreglos
 
 expr:
    TK_ID
