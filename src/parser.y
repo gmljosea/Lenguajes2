@@ -1,9 +1,11 @@
 %{
+#include <cstdio>
 #include <iostream>
 #include <string>
 
 int yylex (void);
 void yyerror (char const *);
+extern FILE *yyin;
 
 %}
 
@@ -64,7 +66,20 @@ void yyerror (char const *);
 
 %% /* Gramática */
 
-program: /*empty*/
+stmts:
+   /* empty */
+ | stmts statement
+
+statement:
+   if
+
+if:
+   "if" expr "{" stmts "}"
+   { std::cout << "Encontre un if sin else" << std::endl }
+ | "if" expr "{" stmts "}" "else" "{" stmts "}"
+   { std::cout << "Encontre un if con else" << std::endl }
+
+expr:
 
 %%
 
@@ -74,6 +89,8 @@ void yyerror (char const *s) {
 
 // Por ahora el main está aquí, pero luego hay que moverlo
 int main (int argc, char **argv) {
-  // Poner código para poder pasarle un archivo
+  if (argc == 2) {
+    yyin = fopen(argv[1], "r");
+  }
   return yyparse();
 }
