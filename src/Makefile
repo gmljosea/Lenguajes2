@@ -9,7 +9,7 @@ lexer.cc: lexer.l
 parser.o: parser.cc
 
 parser.cc: parser.y
-	bison --defines=parser.h -o parser.cc parser.y
+	bison --defines=parser.hh -o parser.cc parser.y
 
 clean:
-	rm lexer.cc parser.cc parser.h *.o devanix
+	rm lexer.cc parser.cc parser.hh *.o devanix
