@@ -3,9 +3,16 @@
 #include <iostream>
 #include <string>
 
+#include "expression.hh"
+#include "statement.hh"
+
 int yylex (void);
 void yyerror (char const *);
 extern FILE *yyin;
+
+int current_scope() {
+  return 0;
+}
 
 %}
 
@@ -13,6 +20,9 @@ extern FILE *yyin;
   int ival;
   double fval;
   std::string *str;
+  Statement *stmt;
+  Block *blk;
+  Expression *exp;
 };
 
 // Tokens de palabras reservadas
@@ -77,31 +87,53 @@ extern FILE *yyin;
 %token <ival> TK_CONSTINT
 %token <fval> TK_CONSTFLOAT
 
+%type <stmt> statement if while for
+%type <blk> block stmts
+%type <exp> expr
+
 %% /* Gramática */
 
+/*
+Nota: para engranar el sistema de leblanc-cook, se modifica block para que maneje
+apropiadamente los alcances.
+*/
+
+block: "{" stmts "}"  { $$ = $2; }
+
 stmts:
-   /* empty */
- | stmts statement
+   statement        { $$ = new Block(current_scope(), $1); }
+ | stmts statement  { $1->push_back($2); $$ = $1; }
 
 statement:
-   if
+  ";"       { $$ = new Null(); }
+ | if
  | while
  | for
- 
+ | dec
+/*
+Problema:
+dec es un declaración de variables. Como una sola declaración puede tener varias
+instrucciones, las cosas se pueden volver complicadas.
+Quizás sea más fácil envolver la cosa en un tipo Declaration que adentro liste
+las asignaciones (luego al recorrer el árbol se podría aplanar estas asignaciones)
+*/
+
 if:
-   "if" expr "{" stmts "}"
-   { std::cout << "Encontré un if sin else" << std::endl }
- | "if" expr "{" stmts "}" "else" "{" stmts "}"
-   { std::cout << "Encontré un if con else" << std::endl }
+   "if" expr block
+   { std::cout << "Encontré un if sin else" << std::endl;
+     $$ = new If($2, $3);}
+ | "if" expr block "else" block
+   { std::cout << "Encontré un if con else" << std::endl;
+     $$ = new If($2, $3, $5); }
 
 while:
-   "while" expr "{" stmts "}"
+   "while" expr block
    { std::cout << "Encontré un while" << std::endl }
 
 for:
-   "for" TK_ID "in" expr ".." expr // for con paso default
- | "for" TK_ID "in" expr ".." expr "step" expr //for con paso
- | "for" TK_ID "in" TK_ID   //foreach de arreglos
+   "for" TK_ID "in" expr ".." expr block// for con paso default
+ | "for" TK_ID "in" expr ".." expr "step" expr block //for con paso
+ | "for" TK_ID "in" TK_ID block  //foreach de arreglos
 
 expr:
    TK_ID
@@ -111,7 +143,7 @@ expr:
  | TK_FALSE
 
 dec: 
-   tipo list_items TK_SCOLON
+   tipo list_items ";"
    {std::cout << "declaracion"}
 
 list_items:

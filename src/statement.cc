@@ -1,90 +1,34 @@
-#include <list>
 #include "expression.hh"
+#include "statement.hh"
 
-// Nos basamos en el ejemplo del Apéndice A del Compilers para diseñar nuestras
-// clases.
-
-/**
- * Representa una instrucción o una secuencia de instrucciones en el lenguaje
- * Devanix.
- */
-class Statement {
-  // El número de contexto asignado durante el parseo.
-  int scope_number;
-  // Apunta a la instrucción que contiene a esta. Si nadie la contiene entonces
-  // es null.
-  Statement *enclosing;
-
-public:
-  Statement(int scope) {
-    this.scope_number = scope;
-  }
-};
-
-class Null : public Statement {
-};
-
-class Sequence : public Statement {
-  Statement *stmt1;
-  Statement *stmt2;
-};
-
-class MultipleAsignment : public Statement {
-  list<BasicAsignment> *asgs;
-};
-
-class SingleAsignment : public Statement {
-  Variable *var;
-  ArrayIndex *acc;
-  Expression *exp;
+Statement::Statement() {
+  this->enclosing = NULL;
 }
 
-class Selection : public Statement {
-};
-
-class If : public Selection {
-  Expression *cond;
-  Statement *stmt;
-};
-
-class Else : Selection {
-  Expression *cond;
-  Statement *stmt_true;
-  Statement *stmt_false;
+void Null::print(int nesting) {
+  //bla
 }
 
-class Iteration : Statement {
-  // Etiqueta (para el break y next)
-};
+// Constructor de If
+If::If(Expression *cond, Block *block_true, Block *block_false) {
+  this->cond = cond;
+  this->block_true = block_true;
+  this->block_false = block_false;
+}
 
-class IntegerFor : Iteration {
-  Expression *lowerb;
-  Expression *upperb;
-  Expression *step;
-  Statement *stmt;
-  // Símbolo de la variable de iteración
-};
+void If::print(int nesting) {
+  //bla
+}
 
-class ArrayFor : Iteration {
-  // Símbolo de la variable de iteración
-  // Símbolo del arreglo
-  Statement *stmt;
-};
+Block::Block(int scope_number, Statement *stmt) {
+  this->scope_number = scope_number;
+  this->push_back(stmt);
+}
 
-class While : Iteration {
-  Expression *cond;
-  Statement *stmt;
-};
+void Block::push_back(Statement *stmt) {
+  this->stmts.push_back(stmt);
+}
 
-class Return : Statement {
-  Expression *exp;
-  // Símbolo de la función correspondiente
-};
-
-class Break : Statement {
-  // Etiqueta del ciclo a romper
-};
-
-class Next : Statement {
-  // Etiqueta del ciclo a continuar
-};
+void Block::print(int nesting) {
+  //bla
+}

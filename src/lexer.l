@@ -1,6 +1,7 @@
 %option noyywrap
 %{
 #include <iostream>
+#include "statement.hh"
 #include "parser.hh"
 int num_linea=0;
 %}
