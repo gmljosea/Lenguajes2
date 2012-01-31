@@ -87,7 +87,7 @@ int current_scope() {
 %token <ival> TK_CONSTINT
 %token <fval> TK_CONSTFLOAT
 
-%type <stmt> statement if while for
+%type <stmt> statement if while for dec
 %type <blk> block stmts
 %type <exp> expr
 
@@ -110,13 +110,6 @@ statement:
  | while
  | for
  | dec
-/*
-Problema:
-dec es un declaración de variables. Como una sola declaración puede tener varias
-instrucciones, las cosas se pueden volver complicadas.
-Quizás sea más fácil envolver la cosa en un tipo Declaration que adentro liste
-las asignaciones (luego al recorrer el árbol se podría aplanar estas asignaciones)
-*/
 
 if:
    "if" expr block
@@ -128,19 +121,24 @@ if:
 
 while:
    "while" expr block
-   { std::cout << "Encontré un while" << std::endl }
+   { std::cout << "Encontré un while" << std::endl;
+     $$ = new While($2, $3);}
 
 for:
-   "for" TK_ID "in" expr ".." expr block// for con paso default
- | "for" TK_ID "in" expr ".." expr "step" expr block //for con paso
- | "for" TK_ID "in" TK_ID block  //foreach de arreglos
+   "for" TK_ID "in" expr ".." expr block
+   { std::cout << "Encontré un for sin paso" << std::endl;
+     $$ = new BoundedFor($2, $4, $6, NULL, $7); }
+ | "for" TK_ID "in" expr ".." expr "step" expr block
+   { std::cout << "Encontré un for con paso" << std::endl;
+     $$ = new BoundedFor($2, $4, $6, $8, $9); }
+ /*| "for" TK_ID "in" TK_ID block  //foreach de arreglos*/
 
 expr:
-   TK_ID
- | TK_CONSTINT
- | TK_CONSTFLOAT
- | TK_TRUE
- | TK_FALSE
+   TK_ID          { $$ = new Expression(); }
+ | TK_CONSTINT   { $$ = new Expression(); }
+ | TK_CONSTFLOAT { $$ = new Expression(); }
+ | TK_TRUE { $$ = new Expression(); }
+ | TK_FALSE { $$ = new Expression(); }
 
 dec: 
    tipo list_items ";"
