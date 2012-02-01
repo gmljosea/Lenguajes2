@@ -1,3 +1,4 @@
+#include <iostream>
 #include "expression.hh"
 #include "statement.hh"
 
@@ -8,7 +9,7 @@ Statement::Statement() {
 }
 
 void Null::print(int nesting) {
-  //bla
+  std::cout << "Instrucción nula" << std::endl;
 }
 
 // Constructor de If
@@ -19,7 +20,11 @@ If::If(Expression *cond, Block *block_true, Block *block_false) {
 }
 
 void If::print(int nesting) {
-  //bla
+  std::cout << "Instrucción If" << std::endl;
+  block_true->print(nesting+1);
+  if (block_false != NULL) {
+    block_false->print(nesting+1);
+  }
 }
 
 // BoundedFor
@@ -34,6 +39,7 @@ BoundedFor::BoundedFor(std::string* varsym, Expression* lowerb,
 }
 
 void BoundedFor::print(int nesting) {
+  std::cout << "Instrucción For in" << std::endl;
 }
 
 // While
@@ -43,6 +49,7 @@ While::While(Expression* cond, Block* block) {
 }
 
 void While::print(int nesting) {
+  std::cout << "Instrucción while" << std::endl;
 }
 
 // Asignment
@@ -56,6 +63,7 @@ void Asignment::push_back(Lvalue* lvalue, Expression* exp) {
 }
 
 void Asignment::print(int nesting) {
+  std::cout << "Instrucción asignación" << std::endl;
 }
 
 // Declaration
@@ -66,6 +74,7 @@ void Declaration::push_back(Asignment* asg) {
 }
 
 void Declaration::print(int nesting) {
+  std::cout << "Instrucción declaración" << std::endl;
 }
 
 // Block
@@ -83,5 +92,9 @@ void Block::push_back(std::list<Statement*> stmts) {
 }
 
 void Block::print(int nesting) {
-  //bla
+  std::cout << "Bloque (contexto nº " << scope_number << "):" << std::endl;
+  for (std::list<Statement*>::iterator it = stmts.begin();
+       it != stmts.end(); it++) {
+    (*it)->print(nesting+1);
+  }
 }

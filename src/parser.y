@@ -9,6 +9,7 @@
 int yylex (void);
 void yyerror (char const *);
 extern FILE *yyin;
+ Block *ast; //evidentemente esto no es, pero es para ir viendo que resulta el parser
 
 int current_scope() {
   return 0;
@@ -69,6 +70,7 @@ int current_scope() {
 %token TK_RBRACKET    "]"
 %token TK_LPARENT     "("
 %token TK_RPARENT     ")"
+%token TK_COMMA       ","
 %token TK_SCOLON      ";"
 
 %token TK_DPERIOD     ".."
@@ -98,6 +100,37 @@ Nota: para engranar el sistema de leblanc-cook, se modifica block para que manej
 apropiadamente los alcances.
 */
 
+/*
+Nota: hacer que la grmática esté en inglés 100% y sea legible
+*/
+
+start:
+   block { ast = $1; } /* solo para propósitos de testing rapido */
+ | globals
+
+globals:
+   global
+ | globals global
+
+global:
+   /*globalvar*/
+  funtype TK_ID "(" params ")" block
+
+funtype: "void" | tipo
+
+params:
+   /* empty */
+ | paramlist
+
+paramlist:
+   passby tipo TK_ID
+ | paramlist "," passby tipo TK_ID
+
+passby:
+   /* empty */
+ | "$"
+ | "$$"
+
 block: "{" stmts "}"  { $$ = $2; }
 
 stmts:
@@ -110,6 +143,8 @@ statement:
  | while
  | for
  | dec
+ | asignment ";"
+ | expr ";" /* Temporal, hay que discutir esto */
 
 if:
    "if" expr block
@@ -140,6 +175,12 @@ expr:
  | TK_TRUE { $$ = new Expression(); }
  | TK_FALSE { $$ = new Expression(); }
 
+asignment:
+   lvalue "=" expr
+ | lvalue "," asignment "," expr
+
+lvalue: TK_ID
+
 dec: 
    tipo list_items ";"
    {std::cout << "declaracion"}
@@ -148,7 +189,7 @@ list_items:
     item 
    |list_items "," item
 
-item: 
+item:
    TK_ID 
    | TK_ID "=" expr
 
@@ -157,7 +198,7 @@ tipo:
    | "char"
    | "bool"
    | "float"
- 
+
 %%
 
 void yyerror (char const *s) {
@@ -169,5 +210,7 @@ int main (int argc, char **argv) {
   if (argc == 2) {
     yyin = fopen(argv[1], "r");
   }
-  return yyparse();
+  yyparse();
+  ast->print(0);
+  return 0;
 }

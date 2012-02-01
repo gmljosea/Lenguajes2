@@ -57,6 +57,7 @@ break {std::cout << "token break"; return TK_BREAK;}
 
 next  {std::cout << "token next"; return TK_NEXT;}
 
+\.\. {std::cout << "token dperiod"; return TK_DPERIOD;}
 \+  {std::cout << "token plus";return TK_PLUS;}
 -   {std::cout << "token minus";return TK_MINUS;}
 \*  {std::cout << "token times";return TK_TIMES;}
@@ -78,6 +79,7 @@ not {std::cout << "token not"; return TK_NOT;}
 \( { std::cout << "token Lparent"; return TK_LPARENT;}
 \) { std::cout << "token Rparent"; return TK_RPARENT;}
 ;  { std::cout << "token SCOLON"; return TK_SCOLON;}
+,  { std::cout << "token COMMA"; return TK_COMMA;}
 
 \$\$ {std::cout << "token ddollar"; return TK_DOLLAR;}
 \$   {std::cout << "token dollar"; return TK_DDOLLAR;}
