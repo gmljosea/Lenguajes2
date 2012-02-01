@@ -1,14 +1,15 @@
-#include "symbol.hh"
 #include <string>
+#include <iostream>
+#include "symbol.hh"
 
-Symbol::Symbol(string id){
+Symbol::Symbol(std::string id){
   this->id=id;
 }
 
-SymFunction::SymFunction(string id): Symbol(id){
+SymFunction::SymFunction(std::string id) : Symbol(id){
   std::cout << "SymFunction creado";
 }
 
-SymFunction::SymFunction(string id): Symbol(id){
-  std::cout << "SymFunction creado";
+SymVar::SymVar(std::string id) : Symbol(id){
+  std::cout << "SymVar creado";
 }

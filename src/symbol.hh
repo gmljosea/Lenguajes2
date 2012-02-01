@@ -5,18 +5,18 @@ class Symbol{
 private:
   std::string id;
 public:
-  Symbol (string id);
+  Symbol (std::string id);
 
-}
+};
 
 // Clase SymFunction hereda de Symbol
 class SymFunction: public Symbol{
 public:
-  SymFunction ();
-}
+  SymFunction (std::string id);
+};
 
 // Clase SymVar hereda de Symbol 
 class SymVar: public Symbol{
 public:
-  SymVar ();
-}
+  SymVar (std::string id);
+};
