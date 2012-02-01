@@ -6,7 +6,7 @@ expression.o: expression.cc
 statement.o: statement.cc
 
 symbol.o: symbol.cc
-
+	g++ -std=c++0x -c symbol.cc
 lexer.o: lexer.cc parser.cc
 
 lexer.cc: lexer.l
