@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include "expression.hh"
 #include "statement.hh"
 
@@ -9,7 +10,8 @@ Statement::Statement() {
 }
 
 void Null::print(int nesting) {
-  std::cout << "Instrucción nula" << std::endl;
+  std::string padding(nesting*2,' ');
+  std::cout << padding << "Nop" << std::endl;
 }
 
 // Constructor de If
@@ -20,9 +22,14 @@ If::If(Expression *cond, Block *block_true, Block *block_false) {
 }
 
 void If::print(int nesting) {
-  std::cout << "Instrucción If" << std::endl;
+  std::string padding(nesting*2, ' ');
+  std::cout << padding << "If" << std::endl;
+  std::cout << padding << " Condición:" << std::endl;
+  cond->print(nesting+1);
+  std::cout << padding << " Caso verdadero:" << std::endl;
   block_true->print(nesting+1);
   if (block_false != NULL) {
+    std::cout << padding << " Caso falso:" << std::endl;
     block_false->print(nesting+1);
   }
 }
@@ -92,7 +99,9 @@ void Block::push_back(std::list<Statement*> stmts) {
 }
 
 void Block::print(int nesting) {
-  std::cout << "Bloque (contexto nº " << scope_number << "):" << std::endl;
+  std::string padding(nesting*2, ' ');
+  std::cout << padding << "Bloque (contexto nº " << scope_number << "):"
+	    << std::endl;
   for (std::list<Statement*>::iterator it = stmts.begin();
        it != stmts.end(); it++) {
     (*it)->print(nesting+1);
