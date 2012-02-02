@@ -1,4 +1,9 @@
-%{
+%defines
+%output "parser.cc"
+%define api.pure
+%locations
+
+%code requires {
 #include <cstdio>
 #include <iostream>
 #include <string>
@@ -6,16 +11,19 @@
 #include "expression.hh"
 #include "statement.hh"
 
-int yylex (void);
+}
+
+%code {
+
+int yylex(YYSTYPE*,YYLTYPE*);
 void yyerror (char const *);
 extern FILE *yyin;
- Block *ast; //evidentemente esto no es, pero es para ir viendo que resulta el parser
-
+Block *ast; //evidentemente esto no es, pero es para ir viendo que resulta el parser
 int current_scope() {
   return 0;
 }
 
-%}
+}
 
 %union {
   int ival;
@@ -134,7 +142,9 @@ passby:
 block: "{" stmts "}"  { $$ = $2; }
 
 stmts:
-   statement        { $$ = new Block(current_scope(), $1); }
+   statement        { $$ = new Block(current_scope(), $1);
+     std::cout << "Ubicacion " << @1.first_line << ":" << @1.first_column
+	       << " a " << @1.last_line << ":" << @1.last_column << std::endl;}
  | stmts statement  { $1->push_back($2); $$ = $1; }
 
 statement:

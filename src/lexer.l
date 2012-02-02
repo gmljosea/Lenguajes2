@@ -1,9 +1,26 @@
-%option noyywrap
+%option yylineno
+%option noyywrap bison-locations
+%option outfile="lexer.cc"
 %{
 #include <iostream>
-#include "statement.hh"
 #include "parser.hh"
-int num_linea=0;
+
+int yycolumn = 1;
+int lastline = 1;
+
+#define YY_USER_ACTION update_yylloc(yylloc);
+
+void update_yylloc(YYLTYPE *yylloc) {
+  yylloc->first_line = yylloc->last_line = yylineno;
+  if (lastline < yylineno) {
+     lastline = yylineno;
+     yycolumn = 1;
+  }
+  yylloc->first_column = yycolumn;
+  yylloc->last_column = yycolumn+yyleng-1;
+  yycolumn += yyleng;
+  std::cout << yylloc->first_line << ":" << yylloc->first_column << "," << yylloc->last_line << ":" << yylloc->last_column << std::endl;
+}
 %}
 
 ID      [_a-zA-Z][_a-zA-Z0-9]*
@@ -17,27 +34,27 @@ STRING  \".*\"
 
 %%
 
-if { std::cout << "token if"; return TK_IF;}
+if { std::cout << "token if" << std::endl; return TK_IF;}
 
-else { std::cout << "token else"; return TK_ELSE;}
+else { std::cout << "token else"  << std::endl; return TK_ELSE;}
 
-for { std::cout << "token for"; return TK_FOR;}
+for { std::cout << "token for"  << std::endl; return TK_FOR;}
 
-in  {std::cout << "token in"; return TK_IN;}
+in  {std::cout << "token in" << std::endl; return TK_IN;}
 
-step { std::cout << "token step"; return TK_STEP;}
+step { std::cout << "token step" << std::endl; return TK_STEP;}
 
-while { std::cout << "while"; return TK_WHILE;}
+while { std::cout << "while" << std::endl; return TK_WHILE;}
 
-int { std::cout << "token int"; return TK_INT;}
+int { std::cout << "token int" << std::endl; return TK_INT;}
 
-char { std::cout << "token char"; return TK_CHAR;}
+char { std::cout << "token char" << std::endl; return TK_CHAR;}
 
-bool { std::cout << "token bool"; return TK_BOOL;}
+bool { std::cout << "token bool" << std::endl; return TK_BOOL;}
 
-float { std::cout << "token float"; return TK_FLOAT;}
+float { std::cout << "token float" << std::endl; return TK_FLOAT;}
 
-array { std::cout << "token array"; return TK_ARRAY;}
+array { std::cout << "token array" << std::endl; return TK_ARRAY;}
 
 string { std::cout << "token string"; return TK_STRING;}
 
@@ -92,6 +109,8 @@ not {std::cout << "token not"; return TK_NOT;}
 {NumBin}  {std::cout << "Num base Binaria"; return TK_CONSTINT;}
 {NumHex}  {std::cout << "Num base Hexadecimal"; TK_CONSTINT;}
 {NumFlot} {std::cout << "Num flotante";return TK_CONSTFLOAT;}
+[[:blank:]]+
+\n { yycolumn--;}
 
 
 %%

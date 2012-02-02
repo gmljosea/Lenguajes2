@@ -1,6 +1,6 @@
 .PHONY = clean
 
-SRC = $(wildcard *.cc) parser.cc lexer.cc
+SRC = lexer.cc parser.cc $(wildcard *.cc)
 OBJ = $(SRC:.cc=.o)
 DEP = $(SRC:.cc=.d)
 CXXFLAGS = -MMD -std=c++0x
@@ -8,11 +8,11 @@ CXXFLAGS = -MMD -std=c++0x
 devanix: $(OBJ)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
-lexer.cc: lexer.l
-	flex -o lexer.cc lexer.l
+lexer.cc: lexer.l parser.hh
+	flex --yylineno -o lexer.cc lexer.l
 
 parser.hh parser.cc: parser.y
-	bison --defines=parser.hh -o parser.cc parser.y
+	bison parser.y
 
 -include $(DEP)
 
