@@ -1,10 +1,12 @@
-devanix: lexer.o parser.o statement.o expression.o
-	g++ lexer.o parser.o statement.o expression.o -o devanix
+devanix: lexer.o parser.o statement.o expression.o symbol.o
+	g++ lexer.o parser.o statement.o expression.o symbol.o -o devanix
 
 expression.o: expression.cc
 
 statement.o: statement.cc
 
+symbol.o: symbol.cc
+	g++ -std=c++0x -c symbol.cc
 lexer.o: lexer.cc parser.cc
 
 lexer.cc: lexer.l
