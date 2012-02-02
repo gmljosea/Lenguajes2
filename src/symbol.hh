@@ -9,6 +9,7 @@ private:
   int numScope;
 public:
   Symbol (std::string id);
+  std::string getId();
 
 };
 
@@ -29,12 +30,16 @@ public:
 
 class SymTable{
 private:
-  std::unordered_map<std::string,Symbol*> hash;
+  std::unordered_map<std::string,Symbol*> tabla;
   int nextscope;
   std::stack<int> duracell;
 public:
   SymTable();
   void insert(Symbol sym);
-  void lookup(Symbol sym);
-  void lookup_global();
+  Symbol lookup(std::string nombreID,int linea,int columna);
+  Symbol lookup_global(std::string);
+  int current_scope();
+  int leave_scope();
+  int enter_scope(int scope);
+  
 };
