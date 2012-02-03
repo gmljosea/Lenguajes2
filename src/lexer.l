@@ -111,6 +111,7 @@ not {std::cout << "token not"; return TK_NOT;}
 {NumFlot} {std::cout << "Num flotante";return TK_CONSTFLOAT;}
 [[:blank:]]+
 \n { yycolumn--;}
+. {std::cout << "Caracter no reconocido:'"<< yytext <<"'"<< std::endl; }
 
-
+  /*Queda pendiente lo de tratar a los strings bien*/
 %%
