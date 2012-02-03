@@ -9,7 +9,7 @@ devanix: $(OBJ)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 lexer.cc: lexer.l parser.hh
-	flex --yylineno -o lexer.cc lexer.l
+	flex lexer.l
 
 parser.hh parser.cc: parser.y
 	bison parser.y

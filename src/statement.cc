@@ -9,6 +9,18 @@ Statement::Statement() {
   this->enclosing = NULL;
 }
 
+void Statement::setEnclosing(Statement* stmt) {
+  this->enclosing = stmt;
+}
+
+void Statement::setLocation(int first_line, int first_column, int last_line,
+			    int last_column) {
+  this->first_line = first_line;
+  this->first_column = first_column;
+  this->last_line = last_line;
+  this->last_column = last_column;
+}
+
 void Null::print(int nesting) {
   std::string padding(nesting*2,' ');
   std::cout << padding << "Nop" << std::endl;

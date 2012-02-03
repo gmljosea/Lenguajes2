@@ -15,9 +15,28 @@ class Statement;
 class Statement {
 private:
   Statement *enclosing;
+  // Ubicación en el archivo
+  int first_line, first_column;
+  int last_line, last_column;
 public:
   Statement ();
+  void setEnclosing(Statement *stmt);
+  void setLocation(int first_line, int first_column, int last_line,
+		   int last_column);
   virtual void print(int) = 0;
+};
+
+// Que Block sea Statement permite que eventualmente podamos definir un bloque
+// como una instrucción cualquiera sin mucho esfuerzo
+class Block : public Statement {
+private:
+  std::list<Statement*> stmts;
+  int scope_number;
+public:
+  Block (int, Statement*);
+  void push_back(Statement *stmt);
+  void push_back(std::list<Statement*> stmts);
+  virtual void print(int);
 };
 
 // Representa una instrucción vacía, o sea, que no hace nada
@@ -77,17 +96,6 @@ public:
   Declaration ();
   void push_back(Asignment* asg);
   virtual void print(int nesting);
-};
-
-class Block {
-private:
-  std::list<Statement*> stmts;
-  int scope_number;
-public:
-  Block (int, Statement*);
-  void push_back(Statement *stmt);
-  void push_back(std::list<Statement*> stmts);
-  virtual void print(int);
 };
 
 #endif

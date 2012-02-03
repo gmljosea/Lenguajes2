@@ -1,117 +1,165 @@
-%option yylineno
-%option noyywrap bison-locations
+%option yylineno noyywrap bison-locations
 %option outfile="lexer.cc"
+
 %{
 #include <iostream>
 #include "parser.hh"
 
-int yycolumn = 1;
-int lastline = 1;
+#define YY_USER_ACTION lexer::set_yylloc(yylloc);
 
-#define YY_USER_ACTION update_yylloc(yylloc);
+namespace lexer {
+  int yycolumn = 1;
+  int lastline = 1;
 
-void update_yylloc(YYLTYPE *yylloc) {
-  yylloc->first_line = yylloc->last_line = yylineno;
-  if (lastline < yylineno) {
-     lastline = yylineno;
-     yycolumn = 1;
+  /**
+   * LLena los campos de yylloc con la ubicación actual del token que se está
+   * procesando. Utiliza las variables globales yycolumn, yylineno y lastline.
+   * Basado en el Cap.8 del libro Flex & Bison
+   */
+  void set_yylloc(YYLTYPE *yylloc) {
+    yylloc->first_line = yylloc->last_line = yylineno;
+    if (lastline < yylineno) {
+      lastline = yylineno;
+      yycolumn = 1;
+    }
+    yylloc->first_column = yycolumn;
+    yylloc->last_column = yycolumn+yyleng-1;
+    yycolumn += yyleng;
   }
-  yylloc->first_column = yycolumn;
-  yylloc->last_column = yycolumn+yyleng-1;
-  yycolumn += yyleng;
-  std::cout << yylloc->first_line << ":" << yylloc->first_column << "," << yylloc->last_line << ":" << yylloc->last_column << std::endl;
+
+  void trace(std::string rule, std::string yytext, YYLTYPE* yylloc) {
+    std::cout << "Token " << rule << " (" << yytext << ") en "
+              << yylloc->first_line << ":" << yylloc->first_column << std::endl;
+  }
+
+  void error(std::string error, std::string yytext, YYLTYPE* yylloc) {
+    std::cout << "Error de lexer: " << error << "(" << yytext << ") en "
+              << yylloc->first_line << ":" << yylloc->first_column << std::endl;
+  }
 }
+
 %}
 
 ID      [_a-zA-Z][_a-zA-Z0-9]*
-NumDec  [0-9]+
-NumBin  b:[0-1]+
-NumHex  x:[0-9A-Fa-f]+
-NumFlot [0-9]+.[0-9]+
-ComentL -\..*
-ComentB --\.(.|\n)*\.--
-STRING  \".*\"
+DecNum  [1-9][0-9]*
+BinNum  b:[0-1]+
+HexNum  x:[0-9A-Fa-f]+
+Float   [0-9]+.[0-9]+
+LineComment  "-.".*
+ /* BlockComment "--."(.|\n)*".--"*/
+String \".*\"
+
+%x BlockComm
 
 %%
 
-if { std::cout << "token if" << std::endl; return TK_IF;}
+ /* Palabrasd reservadas */
+if      { lexer::trace("if", yytext, yylloc); return TK_IF;}
 
-else { std::cout << "token else"  << std::endl; return TK_ELSE;}
+else    { lexer::trace("else", yytext, yylloc); return TK_ELSE;}
 
-for { std::cout << "token for"  << std::endl; return TK_FOR;}
+for     { lexer::trace("for", yytext, yylloc); return TK_FOR;}
 
-in  {std::cout << "token in" << std::endl; return TK_IN;}
+in      { lexer::trace("in", yytext, yylloc); return TK_IN;}
 
-step { std::cout << "token step" << std::endl; return TK_STEP;}
+step    { lexer::trace("step", yytext, yylloc); return TK_STEP;}
 
-while { std::cout << "while" << std::endl; return TK_WHILE;}
+while   { lexer::trace("while", yytext, yylloc); return TK_WHILE;}
 
-int { std::cout << "token int" << std::endl; return TK_INT;}
+int     { lexer::trace("int", yytext, yylloc); return TK_INT;}
 
-char { std::cout << "token char" << std::endl; return TK_CHAR;}
+char    { lexer::trace("char", yytext, yylloc); return TK_CHAR;}
 
-bool { std::cout << "token bool" << std::endl; return TK_BOOL;}
+bool    { lexer::trace("bool", yytext, yylloc); return TK_BOOL;}
 
-float { std::cout << "token float" << std::endl; return TK_FLOAT;}
+float   { lexer::trace("float", yytext, yylloc); return TK_FLOAT;}
 
-array { std::cout << "token array" << std::endl; return TK_ARRAY;}
+array   { lexer::trace("array", yytext, yylloc); return TK_ARRAY;}
 
-string { std::cout << "token string"; return TK_STRING;}
+string  { lexer::trace("string", yytext, yylloc); return TK_STRING;}
 
-box { std::cout << "token box"; return TK_BOX;}
+box     { lexer::trace("box", yytext, yylloc); return TK_BOX;}
 
-void { std::cout << "token void";return TK_VOID;}
+void    { lexer::trace("void", yytext, yylloc); return TK_VOID;}
+ /* Le quité los : a variant para convertirlos luego en un token. */
+variant { lexer::trace("variant", yytext, yylloc); return TK_VARIANT;}
 
-variant: { std::cout << "token variant";return TK_VARIANT;}
+true    { lexer::trace("true", yytext, yylloc); return TK_TRUE;}
 
-true { std::cout << "token true";return TK_TRUE;}
+false   { lexer::trace("false", yytext, yylloc); return TK_FALSE;}
 
-false {std::cout  << "token false"; return TK_FALSE;}
+return  { lexer::trace("return", yytext, yylloc); return TK_RETURN;}
 
-return {std::cout << "token return"; return TK_RETURN;}
+break   { lexer::trace("break", yytext, yylloc); return TK_BREAK;}
 
-break {std::cout << "token break"; return TK_BREAK;}
+next    { lexer::trace("next", yytext, yylloc); return TK_NEXT;}
 
-next  {std::cout << "token next"; return TK_NEXT;}
+ /* Operadores */
+\+  { lexer::trace("+", yytext, yylloc); return TK_PLUS;}
+-   { lexer::trace("-", yytext, yylloc); return TK_MINUS;}
+\*  { lexer::trace("*", yytext, yylloc); return TK_TIMES;}
+\/  { lexer::trace("/", yytext, yylloc); return TK_TIMES;}
+%   { lexer::trace("%", yytext, yylloc); return TK_DIV;}
+=   { lexer::trace("=", yytext, yylloc); return TK_EQU;}
+\<  { lexer::trace("<", yytext, yylloc); return TK_LT;}
+\>  { lexer::trace(">", yytext, yylloc); return TK_GT;}
+\>= { lexer::trace(">=", yytext, yylloc); return TK_GTE;}
+\<= { lexer::trace("<=", yytext, yylloc); return TK_LTE;}
+and { lexer::trace("and", yytext, yylloc); return TK_AND;}
+or  { lexer::trace("or", yytext, yylloc); return TK_OR;}
+not { lexer::trace("not", yytext, yylloc); return TK_NOT;}
 
-\.\. {std::cout << "token dperiod"; return TK_DPERIOD;}
-\+  {std::cout << "token plus";return TK_PLUS;}
--   {std::cout << "token minus";return TK_MINUS;}
-\*  {std::cout << "token times";return TK_TIMES;}
-\/  {std::cout << "token div"; return TK_TIMES;}
-%   {std::cout << "token mod"; return TK_DIV;}
-=   {std::cout << "token EQU"; return TK_EQU;}
-\<  {std::cout << "token LT"; return TK_LT;}
-\>  {std::cout << "token GT"; return TK_GT;}
-\>= {std::cout << "token GTE"; return TK_GTE;}
-\<= {std::cout << "token LTE"; return TK_LTE;}
-and {std::cout << "token and"; return TK_AND;}
-or  {std::cout << "token or"; return TK_OR;}
-not {std::cout << "token not"; return TK_NOT;}
+ /* Delimitadores de bloques, instrucciones y listas de cosas */
+\{ { lexer::trace("{", yytext, yylloc); return TK_LBRACE; }
+\} { lexer::trace("}", yytext, yylloc); return TK_RBRACE; }
+\[ { lexer::trace("[", yytext, yylloc); return TK_LBRACKET;}
+\] { lexer::trace("]", yytext, yylloc); return TK_RBRACKET;}
+\( { lexer::trace("(", yytext, yylloc); return TK_LPARENT;}
+\) { lexer::trace(")", yytext, yylloc); return TK_RPARENT;}
+;  { lexer::trace(";", yytext, yylloc); return TK_SCOLON;}
+,  { lexer::trace(",", yytext, yylloc); return TK_COMMA;}
 
-\{ { std::cout << "token Lbrace"; return TK_LBRACE; }
-\} { std::cout << "token Rbrace"; return TK_RBRACE; }
-\[ { std::cout << "token Lbraket"; return TK_LBRACKET;}
-\] { std::cout << "token Rbraket"; return TK_RBRACKET;}
-\( { std::cout << "token Lparent"; return TK_LPARENT;}
-\) { std::cout << "token Rparent"; return TK_RPARENT;}
-;  { std::cout << "token SCOLON"; return TK_SCOLON;}
-,  { std::cout << "token COMMA"; return TK_COMMA;}
+ /* Símbolos especiales misceláneos */
+\.\. { lexer::trace("..", yytext, yylloc); return TK_DPERIOD;}
+\$\$ { lexer::trace("$", yytext, yylloc); return TK_DOLLAR;}
+\$   { lexer::trace("$$", yytext, yylloc); return TK_DDOLLAR;}
+:    { lexer::trace(":", yytext, yylloc); return TK_COLON; }
 
-\$\$ {std::cout << "token ddollar"; return TK_DOLLAR;}
-\$   {std::cout << "token dollar"; return TK_DDOLLAR;}
+ /* Símbolos con valor semántico: strings, identificadores y números*/
+{ID}      { lexer::trace("identificador", yytext, yylloc); return TK_ID;}
+{String}  { lexer::trace("string", yytext, yylloc); return TK_CONSTSTRING;}
+{DecNum}  { lexer::trace("entero base decimal", yytext, yylloc);
+            return TK_CONSTINT; }
+{BinNum}  { lexer::trace("entero base binaria", yytext, yylloc);
+            return TK_CONSTINT; }
+{HexNum}  { lexer::trace("entero base hexadecimal", yytext, yylloc);
+            return TK_CONSTINT; }
+{Float}   { lexer::trace("punto flotante", yytext, yylloc);
+            return TK_CONSTFLOAT; }
 
-{ID}      {std::cout << "token id";return TK_ID;}
-{STRING}  {std::cout << "token conststring"; return TK_CONSTSTRING;}
-{ComentL} 
-{ComentB}
-{NumDec}  {std::cout << "Num base decimal"; return TK_CONSTINT;}
-{NumBin}  {std::cout << "Num base Binaria"; return TK_CONSTINT;}
-{NumHex}  {std::cout << "Num base Hexadecimal"; TK_CONSTINT;}
-{NumFlot} {std::cout << "Num flotante";return TK_CONSTFLOAT;}
-[[:blank:]]+
-\n { yycolumn--;}
-. {std::cout << "Caracter no reconocido:'"<< yytext <<"'"<< std::endl; }
+ /* Comerse los comentarios, tomado del manual de Flex */
+{LineComment} ;
+
+ /* Esto lo hice así porque según el manual de Flex si se usa yylineno es más
+    eficiente evitar que las reglas puedan matchear más de un salto de línea.
+    Y convenientemente el manual tenía un ejemplo de como matchear comentarios
+    multilínea. */
+"--."      BEGIN(BlockComm);
+
+<BlockComm>".--"      BEGIN(0);
+<BlockComm>[^"."\n]+ ;
+<BlockComm>"."[^-]   ;
+<BlockComm>\n
+
+[[:blank:]]+ ;
+\n { lexer::yycolumn--;}
+   /* Esta regla modifica yycolumn porque cuando se ejecuta, flex ya actualizó
+      la variable yylineno, entonces la función set_yylloc() cuenta el salto de
+      línea como el primer caracter de cada línea, dañando la ubicación de los
+      otros tokens */
+
+ /* Detectar caracteres raros */
+. { lexer::error("caracter no reconocido", yytext, yylloc); }
 
   /*Queda pendiente lo de tratar a los strings bien*/
 %%

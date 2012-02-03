@@ -10,11 +10,11 @@
 
 #include "expression.hh"
 #include "statement.hh"
-
+  
 }
 
 %code {
-
+  
 int yylex(YYSTYPE*,YYLTYPE*);
 void yyerror (char const *);
 extern FILE *yyin;
@@ -23,6 +23,11 @@ int current_scope() {
   return 0;
 }
 
+void setLocation(Statement* stmt, YYLTYPE* yylloc) {
+  stmt->setLocation(yylloc->first_line, yylloc->first_column, yylloc->last_line,
+		    yylloc->last_column);
+}
+ 
 }
 
 %union {
@@ -85,6 +90,7 @@ int current_scope() {
 
 %token TK_DOLLAR      "$"
 %token TK_DDOLLAR     "$$"
+%token TK_COLON       ":"
 
 // Token identificador (de variable, función o box)
 %token <str> TK_ID
@@ -139,13 +145,11 @@ passby:
  | "$"
  | "$$"
 
-block: "{" stmts "}"  { $$ = $2; }
+block: "{" stmts "}"  { setLocation($2,&@$); $$ = $2; }
 
 stmts:
-   statement        { $$ = new Block(current_scope(), $1);
-     std::cout << "Ubicacion " << @1.first_line << ":" << @1.first_column
-	       << " a " << @1.last_line << ":" << @1.last_column << std::endl;}
- | stmts statement  { $1->push_back($2); $$ = $1; }
+   statement        { $$ = new Block(current_scope(), $1); $1->setEnclosing($$);}
+ | stmts statement  { $1->push_back($2); $2->setEnclosing($1); $$ = $1; }
 
 statement:
   ";"       { $$ = new Null(); }
@@ -159,10 +163,16 @@ statement:
 if:
    "if" expr block
    { std::cout << "Encontré un if sin else" << std::endl;
-     $$ = new If($2, $3);}
+     $$ = new If($2, $3);
+     $3->setEnclosing($$);
+     setLocation($$,&@$);}
+
  | "if" expr block "else" block
    { std::cout << "Encontré un if con else" << std::endl;
-     $$ = new If($2, $3, $5); }
+     $$ = new If($2, $3, $5); 
+     $3->setEnclosing($$); 
+     $5->setEnclosing($$);
+     setLocation($$, &@$);}
 
 while:
    "while" expr block
