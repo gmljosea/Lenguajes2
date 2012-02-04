@@ -2,6 +2,7 @@
 #include <stack>
 #include <unordered_map>
 
+
 // Clase abstracta que representa un objeto de la tabla de simbolos 
 class Symbol{
 private:
@@ -30,7 +31,7 @@ public:
 
 class SymTable{
 private:
-  std::unordered_map<std::string,Symbol*> tabla;
+  std::unordered_multimap<std::string,Symbol*> tabla;
   int nextscope;
   std::stack<int> duracell;
 public:

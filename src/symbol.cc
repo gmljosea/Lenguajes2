@@ -2,6 +2,7 @@
 #include <iostream>
 #include "symbol.hh"
 
+typedef std::unordered_multimap<std::string,Symbol*> symtable;
 
 Symbol::Symbol(std::string id){
   this->id=id;
@@ -32,7 +33,7 @@ int SymTable::current_scope(){
 }
 
 void SymTable::insert(Symbol sym){
-  this->tabla[sym.getId()]= &sym;
+  this->tabla.insert(symtable::value_type(sym.getId(),&sym));
 }
 
 int SymTable::leave_scope(){
