@@ -46,10 +46,19 @@ void If::print(int nesting) {
   }
 }
 
+// Iteration
+Iteration::Iteration(std::string* label) {
+  this->label = label;
+}
+
+std::string* Iteration::getLabel() {
+  return this->label;
+}
+
 // BoundedFor
-BoundedFor::BoundedFor(std::string* varsym, Expression* lowerb,
-		       Expression* upperb, Expression* step,
-		       Block* block) {
+BoundedFor::BoundedFor(std::string* label, std::string* varsym,
+		       Expression* lowerb, Expression* upperb, 
+		       Expression* step, Block* block) : Iteration(label) {
   this->varsym = varsym;
   this->lowerb = lowerb;
   this->upperb = upperb;
@@ -62,7 +71,8 @@ void BoundedFor::print(int nesting) {
 }
 
 // While
-While::While(Expression* cond, Block* block) {
+While::While(std::string* label, Expression* cond, Block* block)
+  : Iteration(label) {
   this->cond = cond;
   this->block = block;
 }
@@ -72,13 +82,15 @@ void While::print(int nesting) {
 }
 
 // Asignment
-Asignment::Asignment(Lvalue* lvalue, Expression* exp) {
-  this->push_back(lvalue, exp);
+Asignment::Asignment() {
 }
 
-void Asignment::push_back(Lvalue* lvalue, Expression* exp) {
-  this->lvalue.push_back(lvalue);
-  this->exp.push_back(exp);
+void Asignment::push_back_lvalue(Lvalue* lvalue) {
+  this->lvalues.push_back(lvalue);
+}
+
+void Asignment::push_back_exp(Expression* exp) {
+  this->exps.push_back(exp);
 }
 
 void Asignment::print(int nesting) {
@@ -118,4 +130,26 @@ void Block::print(int nesting) {
        it != stmts.end(); it++) {
     (*it)->print(nesting+1);
   }
+}
+
+
+Break::Break(std::string* label) {
+  this->label = label;
+}
+
+void Break::print(int nesting) {
+}
+
+Next::Next(std::string* label) {
+  this->label = label;
+}
+
+void Next::print(int nesting) {
+}
+
+Return::Return(Expression *exp) {
+  this->exp = exp;
+}
+
+void Return::print(int nesting) {
 }

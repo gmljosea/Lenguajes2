@@ -177,15 +177,15 @@ if:
 while:
    "while" expr block
    { std::cout << "Encontré un while" << std::endl;
-     $$ = new While($2, $3);}
+     $$ = new While(NULL, $2, $3);}
 
 for:
    "for" TK_ID "in" expr ".." expr block
    { std::cout << "Encontré un for sin paso" << std::endl;
-     $$ = new BoundedFor($2, $4, $6, NULL, $7); }
+     $$ = new BoundedFor(NULL, $2, $4, $6, NULL, $7); }
  | "for" TK_ID "in" expr ".." expr "step" expr block
    { std::cout << "Encontré un for con paso" << std::endl;
-     $$ = new BoundedFor($2, $4, $6, $8, $9); }
+     $$ = new BoundedFor(NULL, $2, $4, $6, $8, $9); }
  /*| "for" TK_ID "in" TK_ID block  //foreach de arreglos*/
 
 expr:
