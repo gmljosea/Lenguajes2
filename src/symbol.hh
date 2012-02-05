@@ -31,9 +31,9 @@ public:
 
 class SymTable{
 private:
-  std::unordered_multimap<std::string,Symbol*> tabla;
+  std::unordered_multimap<std::string,Symbol*> table;
   int nextscope;
-  std::stack<int> duracell;
+  std::deque<int> stack;
 public:
   SymTable();
   void insert(Symbol sym);
