@@ -11,6 +11,7 @@ private:
 public:
   Symbol (std::string id);
   std::string getId();
+  int getnumScope();
 
 };
 
@@ -37,8 +38,8 @@ private:
 public:
   SymTable();
   void insert(Symbol sym);
-  Symbol lookup(std::string nombreID,int linea,int columna);
-  Symbol lookup_global(std::string);
+  Symbol* lookup(std::string nombreID,int linea,int columna);
+  Symbol* lookup_global(std::string);
   int current_scope();
   int leave_scope();
   int enter_scope(int scope);

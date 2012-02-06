@@ -12,6 +12,10 @@ std::string Symbol::getId(){
   return this->id;
 }
 
+int Symbol:: getnumScope(){
+  return this->numScope;
+}
+
 SymFunction::SymFunction(std::string id) : Symbol(id){
   std::cout << "SymFunction creado";
 }
@@ -45,28 +49,45 @@ int SymTable::enter_scope(int scope){
   this->stack.push_back(scope);
 }
 
-Symbol SymTable::lookup_global(std::string nombreID){
-  Symbol *best=NULL;
+Symbol* SymTable::lookup_global(std::string nombreID){
+  Symbol *sym=NULL;
+  std::pair<symtable::iterator, symtable::iterator> pair1;
+  pair1= this->table.equal_range(nombreID);
+  
+  for (; pair1.first != pair1.second; ++pair1.first){
+    if (pair1.first->second->getnumScope()==0)
+      sym= pair1.first->second;
+  }
+
+  if (sym!=NULL)
+    return sym;
+  else 
+    return NULL;
+}
+ 
+Symbol* SymTable::lookup(std::string nombreID,int linea,int columna){
+  /*Buscar en cualquier contexto*/
+ Symbol *best=NULL;
   Symbol *pervasive=NULL;
 
-  std::pair<symtable::iterator, symtable::iterator> pair;
-  pair= this->table.equal_range(nombreID);
+  std::pair<symtable::iterator, symtable::iterator> pair1;
+  pair1= this->table.equal_range(nombreID);
   
   /*Recorrer todos los nombres encontrados. Tomado del complemento
     del capitulo 3 del Scott*/ 
-  for (; pair.first != pair.second; ++pair.first){
-    /*  if (pair.first->numScope=0)
-      pervasive= pair.first;
+  for (; pair1.first != pair1.second; ++pair1.first){
+    if (pair1.first->second->getnumScope()==0)
+      pervasive= pair1.first->second;
     else{ 
       int i=this->stack.size()-1;
       for(i;i>0;i--){
-        if (this->stack[i]==pair.first->numScope){
-          best=pair.first;
+        if (this->stack[i]==pair1.first->second->getnumScope()){
+          best=pair1.first->second;
           break;
-        }else if(best!=-1 && this->stack[i]==best->numScope)
+        }else if(best!=NULL && this->stack[i]==best->getnumScope())
           break;       
       }    
-      }*/
+    }
   }
 
   if (best!=NULL)
@@ -76,11 +97,6 @@ Symbol SymTable::lookup_global(std::string nombreID){
   else 
     return NULL;
 
-}
-
-
-Symbol SymTable::lookup(std::string nombreID,int linea,int columna){
-  /*Buscar en cualquier contexto*/
 }
 
 
