@@ -98,13 +98,13 @@ void Asignment::print(int nesting) {
 }
 
 // Declaration
-Declaration::Declaration() {};
+VariableDec::VariableDec() {};
 
-void Declaration::push_back(Asignment* asg) {
+void VariableDec::push_back(Asignment* asg) {
   this->asigns.push_back(asg);
 }
 
-void Declaration::print(int nesting) {
+void VariableDec::print(int nesting) {
   std::cout << "Instrucción declaración" << std::endl;
 }
 

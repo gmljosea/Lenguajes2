@@ -104,13 +104,14 @@ public:
   // virtual void check();
 };
 
-class Declaration : public Statement {
+class VariableDec : public Statement {
 private:
   // Representa una declaración con múltiples variables
   // asignadas de una vez
   std::list<Asignment*> asigns;
+  bool isGlobal;
 public:
-  Declaration ();
+  VariableDec ();
   void push_back(Asignment* asg);
   virtual void print(int nesting);
   // virtual void check();
