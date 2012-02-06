@@ -125,6 +125,14 @@ funciones de tipos arreglo y box se convirtió en un chequeo de contexto. Result
 que separándolos a nivel de gramática daba conflicto reduce/reduce
 */
 
+/*
+Nota: la grmática para la 1º entrega debería estar lista. Falta probarla bien.
+Ahora intentar parsear algo probablemente va a producir un segfault. Eso lo
+voy arreglar pronto (la razón es la pila de { } vacíos que no instancian los
+AST que les toca y más arriba en el parseo se dereferencia una cosa que no es
+un objeto)
+*/
+
 /**
  * Un programa es una secuencia de declaraciones globales. Mínimo una de ellas
  * debe ser una función llamada 'main'.
@@ -138,7 +146,7 @@ globals:
 global:
    /* Declaración de una o más variables globales, posiblemente con asignación */
    variabledec
-   { /* Castear, extraer los Asignment y meterlos en program */ };
+   { /* Castear, extraer los Asignment y meterlos en program */ }
  | type TK_ID enterscope "(" params ")" funblock
    { /* leavescope y meter la función en la tabla de símbolos  */ }
 
@@ -260,6 +268,7 @@ type:
  | "char"
  | "bool"
  | "float"
+ | "void"
 
 vardec_items: // Devuelve una lista de pair<string,expr>
    vardec_item
