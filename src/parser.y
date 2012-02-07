@@ -160,7 +160,11 @@ global:
  | type TK_ID enterscope "(" params ")" funblock
    { program.symtable.leave_scope();
      /*SymFunction* sym = new SymFunction(...);
-     program.symtable.insert(sym); */ }
+     program.symtable.insert(sym); */
+     // Imprimo la función solo para debugging
+     std::cout << "Función '" << *$2 << "':" << std::endl;
+     $7->print(0);
+ }
 
  // ** Inicio (de la mayor parte de) gramática de la declaración de funciones
 params: // Debería devolver una lista de tuplas como dentro de SymFunction

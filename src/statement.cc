@@ -65,7 +65,22 @@ BoundedFor::BoundedFor(std::string* label, std::string* varsym,
 }
 
 void BoundedFor::print(int nesting) {
-  std::cout << "Instrucción For in" << std::endl;
+  std::string padding(nesting*2,' ');
+  std::cout << padding << "For in:" << std::endl;
+  if (label != NULL) {
+    std::cout << padding << " Etiqueta: " << *label << std::endl;
+  }
+  std::cout << padding << " Variable: " << *varsym << std::endl;
+  std::cout << padding << " Cota inferior:" << std::endl;
+  lowerb->print(nesting+1);
+  std::cout << padding << " Cota superior:" << std::endl;
+  upperb->print(nesting+1);
+  if (step != NULL) {
+    std::cout << padding << " Paso:" << std::endl;
+    step->print(nesting+1);
+  }
+  std::cout << padding << " Cuerpo:" << std::endl;
+  block->print(nesting+1);
 }
 
 // While
@@ -76,7 +91,15 @@ While::While(std::string* label, Expression* cond, Block* block)
 }
 
 void While::print(int nesting) {
-  std::cout << "Instrucción while" << std::endl;
+  std::string padding(nesting*2, ' ');
+  std::cout << padding << "While:" << std::endl;
+  if (label != NULL) {
+    std::cout << padding << " Etiqueta: " << *label << std::endl;
+  }
+  std::cout << padding << " Condición:" << std::endl;
+  cond->print(nesting+1);
+  std::cout << padding << " Cuerpo:" << std::endl;
+  block->print(nesting+1);
 }
 
 // Asignment

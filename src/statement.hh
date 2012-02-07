@@ -62,7 +62,7 @@ public:
 };
 
 class Iteration : public Statement {
-private:
+protected:
   std::string* label;
 public:
   Iteration (std::string* label);

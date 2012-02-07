@@ -128,7 +128,8 @@ not { lexer::trace("not", yytext, yylloc); return TK_NOT;}
 :    { lexer::trace(":", yytext, yylloc); return TK_COLON; }
 
  /* Símbolos con valor semántico: strings, identificadores y números*/
-{ID}      { lexer::trace("identificador", yytext, yylloc); return TK_ID;}
+{ID}      { lexer::trace("identificador", yytext, yylloc);
+            yylval->str = new std::string(yytext); return TK_ID;}
 {String}  { lexer::trace("string", yytext, yylloc); return TK_CONSTSTRING;}
 {Char}    { lexer::trace("char", yytext, yylloc); return TK_CHAR;}
 {DecNum}  { lexer::trace("entero base decimal", yytext, yylloc);
