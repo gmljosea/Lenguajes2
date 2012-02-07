@@ -3,8 +3,6 @@
 #include "expression.hh"
 #include "statement.hh"
 
-class Lvalue {};
-
 Statement::Statement() {
   this->enclosing = NULL;
 }
@@ -57,7 +55,7 @@ std::string* Iteration::getLabel() {
 
 // BoundedFor
 BoundedFor::BoundedFor(std::string* label, std::string* varsym,
-		       Expression* lowerb, Expression* upperb, 
+		       Expression* lowerb, Expression* upperb,
 		       Expression* step, Block* block) : Iteration(label) {
   this->varsym = varsym;
   this->lowerb = lowerb;
@@ -100,8 +98,9 @@ void Asignment::print(int nesting) {
 // Declaration
 VariableDec::VariableDec() {};
 
-void VariableDec::push_back(Asignment* asg) {
-  this->asigns.push_back(asg);
+void VariableDec::push_back(SymVar* sym, Expression* init) {
+  std::pair<SymVar*,Expression*> declaration(sym,init);
+  this->decs.push_back(declaration);
 }
 
 void VariableDec::print(int nesting) {
@@ -152,4 +151,11 @@ Return::Return(Expression *exp) {
 }
 
 void Return::print(int nesting) {
+}
+
+FunctionCall::FunctionCall(Expression* exp) {
+  this->exp = exp;
+}
+
+void FunctionCall::print(int nesting) {
 }

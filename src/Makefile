@@ -18,3 +18,6 @@ parser.hh parser.cc: parser.y
 
 clean:
 	rm $(OBJ) $(DEP) devanix parser.hh lexer.cc parser.cc
+
+check-syntax:
+	g++ $(CXXFLAGS) $(LINK_OPS) -o nul -S $(CHK_SOURCES)

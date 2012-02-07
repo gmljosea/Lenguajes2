@@ -7,10 +7,12 @@
 #include <cstdio>
 #include <iostream>
 #include <string>
+#include <list>
 
 #include "expression.hh"
 #include "statement.hh"
 #include "program.hh"
+#include "type.hh"
 
 }
 
@@ -40,6 +42,10 @@ void setLocation(Statement* stmt, YYLTYPE* yylloc) {
   Statement *stmt;
   Block *blk;
   Expression *exp;
+  Type *type;
+  std::list<Expression*> *exps;
+  std::list<Lvalue*> *lvalues;
+  Lvalue *lvalue;
 };
 
 // Tokens de palabras reservadas
@@ -108,8 +114,12 @@ void setLocation(Statement* stmt, YYLTYPE* yylloc) {
 
 %type <stmt> statement if while for variabledec asignment
 %type <blk> block stmts funblock
-%type <exp> expr
+%type <exp> expr funcallexp
 %type <str> label
+%type <type> type
+%type <lvalues> lvalues
+%type <lvalue> lvalue
+%type <exps> explist
 
 %% /* Gramática */
 
@@ -146,22 +156,26 @@ globals:
 global:
    /* Declaración de una o más variables globales, posiblemente con asignación */
    variabledec
-   { /* Castear, extraer los Asignment y meterlos en program */ }
+   { program.globalinits.push_back(dynamic_cast<VariableDec*> $1); }
  | type TK_ID enterscope "(" params ")" funblock
-   { /* leavescope y meter la función en la tabla de símbolos  */ }
+   { program.symtable.leave_scope();
+     /*SymFunction* sym = new SymFunction(...);
+     program.symtable.insert(sym); */ }
 
  // ** Inicio (de la mayor parte de) gramática de la declaración de funciones
-params: // Debería devolver una lista de SymVar
+params: // Debería devolver una lista de tuplas como dentro de SymFunction
    /* empty */
  | paramlist
 
-paramlist: // Debería devolver una lista de SymVar
-   passby type TK_ID // Chequear el valor de passby para instanciar corectamente
+paramlist:
+   passby type TK_ID
+   { /* Meter símbolo en la tabla y crear la lista de argumentos */ }
  | paramlist "," passby type TK_ID
+   { /* Meter símbolo en la tabla y agregarlo a la lista de argumentos */ }
 
-passby: // Debería pasar un entero flag
+passby:
    /* empty */
- | "$"
+ | "$" /* Implementar esto con un enum por favor */
  | "$$"
 
 funblock:
@@ -178,10 +192,11 @@ funblock:
  * instrucciones.
  */
 block:
-   "{" enterscope stmts "}"  { setLocation($3,&@$); $$ = $3; /* leavescope */}
+   "{" enterscope stmts "}"
+   { setLocation($3,&@$); $$ = $3; program.symtable.leave_scope(); }
 
 enterscope:
-   /* empty */ { /* abrir un nuevo alcance en la tabla de program */ }
+   /* empty */ { program.symtable.enter_scope(0); }
 
  // ** Produce una secuencia de instrucciones
 stmts:
@@ -200,13 +215,13 @@ statement:
  | if
  | while
  | for
- | variabledec
- | asignment
- | funcallexp ";" { /* Instanciar FuncCall */ }
- | "break" label ";" { }
- | "next" label ";" { }
- | "return" expr ";" { /* Return con expresión */ }
- | "return" ";"     { /* return de funcion void */ }
+ | variabledec { $$ = new VariableDec(); } /* Temporal */
+ | asignment   { $$ = new Asignment(); } /* Temporal */
+ | funcallexp ";" { $$ = new FunctionCall($1); }
+ | "break" label ";" { $$ = new Break($2); }
+ | "next" label ";" { $$ = new Next($2); }
+ | "return" expr ";" { $$ = new Return($2); }
+ | "return" ";"     { $$ = new Return(); }
 
 if:
    "if" expr block
@@ -242,33 +257,20 @@ label:
 
  // ** Inicio gramática de la asignación
 asignment: // Modificar clase Asignment para que reciba listas de rvalues y lvalues
-   lvalues "=" rvalues ";" { }
+   lvalues "=" explist ";" {   }
 
 lvalues: // Devuelve list<Lvalue*>
-   lvalue
- | lvalues "," lvalue
+   lvalue { $$ = new std::list<Lvalue*>(); $$->push_back($1); }
+ | lvalues "," lvalue { $1->push_back($3); $$ = $1; }
 
 lvalue: // Instanciar lvalue (falta hacer la clase)
-   TK_ID
+   TK_ID  { $$ = new Lvalue(); }
 
-rvalues: // Devuelve list<Expression*>
-   expr
- | rvalues "," expr
  // ** Fin gramática de la asignación
 
  // ** Inicio gramática de la declaración de variables
 variabledec:
    type vardec_items ";"
-   { std::cout << "declaracion" << std::endl;
-     /* Recorrer la lista para crear los símbolos y las asignaciones*/
-   }
-
-type:
-   "int"
- | "char"
- | "bool"
- | "float"
- | "void"
 
 vardec_items: // Devuelve una lista de pair<string,expr>
    vardec_item
@@ -277,22 +279,29 @@ vardec_items: // Devuelve una lista de pair<string,expr>
 vardec_item: // Devuelve un pair<string,expr>
    TK_ID
  | TK_ID "=" expr
+
+type:
+   "int"   { $$ = new Type(); }
+ | "char"  { $$ = new Type(); }
+ | "bool"  { $$ = new Type(); }
+ | "float" { $$ = new Type(); }
+ | "void"  { $$ = new Type(); }
  // ** Fin gramática de la declaración de variables
 
  // ** Inicio gramática de las expresiones
 expr:
    TK_ID          { $$ = new Expression(); }
- | TK_CONSTINT   { $$ = new Expression(); }
- | TK_CONSTFLOAT { $$ = new Expression(); }
- | TK_TRUE { $$ = new Expression(); }
- | TK_FALSE { $$ = new Expression(); }
+ | TK_CONSTINT    { $$ = new Expression(); }
+ | TK_CONSTFLOAT  { $$ = new Expression(); }
+ | TK_TRUE        { $$ = new Expression(); }
+ | TK_FALSE       { $$ = new Expression(); }
 
 funcallexp:
-   TK_ID "(" explist ")"
+   TK_ID "(" explist ")" { $$ = new Expression(); }
 
 explist:
-   expr
- | explist "," expr
+   expr    { $$ = new std::list<Expression*>(); $$->push_back($1); }
+ | explist "," expr { $1->push_back($3); $$ = $1; }
 
  // ** Fin gramática de las expresiones
 
