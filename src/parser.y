@@ -119,7 +119,7 @@ void setLocation(Statement* stmt, YYLTYPE* yylloc) {
 %type <type> type
 %type <lvalues> lvalues
 %type <lvalue> lvalue
-%type <exps> explist
+%type <exps> explist nonempty_explist
 
 %% /* Gramática */
 
@@ -222,8 +222,10 @@ statement:
  | variabledec { $$ = new VariableDec(); } /* Temporal */
  | asignment   { $$ = new Asignment(); } /* Temporal */
  | funcallexp ";" { $$ = new FunctionCall($1); }
- | "break" label ";" { $$ = new Break($2); }
- | "next" label ";" { $$ = new Next($2); }
+ | "break" TK_ID ";" { $$ = new Break($2); }
+ | "break" ";" { $$ = new Break(NULL); }
+ | "next" TK_ID ";" { $$ = new Next($2); }
+ | "next" ";" { $$ = new Next(NULL); }
  | "return" expr ";" { $$ = new Return($2); }
  | "return" ";"     { $$ = new Return(); }
 
@@ -304,6 +306,10 @@ funcallexp:
    TK_ID "(" explist ")" { $$ = new Expression(); }
 
 explist:
+   /* empty */
+ | nonempty_explist
+
+nonempty_explist:
    expr    { $$ = new std::list<Expression*>(); $$->push_back($1); }
  | explist "," expr { $1->push_back($3); $$ = $1; }
 

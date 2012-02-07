@@ -160,6 +160,12 @@ Break::Break(std::string* label) {
 }
 
 void Break::print(int nesting) {
+  std::string padding(nesting*2, ' ');
+  std::cout << padding << "Break";
+  if (label != NULL) {
+    std::cout << " (" << *label << ")";
+  }
+  std::cout << std::endl;
 }
 
 Next::Next(std::string* label) {
@@ -167,6 +173,12 @@ Next::Next(std::string* label) {
 }
 
 void Next::print(int nesting) {
+  std::string padding(nesting*2, ' ');
+  std::cout << padding << "Next";
+  if (label != NULL) {
+    std::cout << " (" << *label << ")";
+  }
+  std::cout << std::endl;
 }
 
 Return::Return(Expression *exp) {
@@ -174,6 +186,11 @@ Return::Return(Expression *exp) {
 }
 
 void Return::print(int nesting) {
+  std::string padding(nesting*2, ' ');
+  std::cout << padding << "Return" << std::endl;
+  if (exp != NULL) {
+    exp->print(nesting+1);
+  }
 }
 
 FunctionCall::FunctionCall(Expression* exp) {
@@ -181,4 +198,6 @@ FunctionCall::FunctionCall(Expression* exp) {
 }
 
 void FunctionCall::print(int nesting) {
+  std::string padding(nesting*2, ' ');
+  std::cout << padding << "Llamada a función" << std::endl;
 }
