@@ -47,7 +47,7 @@ HexNum  x:[0-9A-Fa-f]+
 Float   [0-9]+.[0-9]+
 LineComment  "-.".*
  /* BlockComment "--."(.|\n)*".--"*/
-Char "'"."'"
+Char "'"(.|"\n"|"\t"|"\'")"'"
 String \"([^\"\\\n]|\\n|\\t|\\\"|\\\\)*\"
 
 

@@ -1,4 +1,11 @@
 # Lenguaje Devanix
++ string no saltos de linea 
++ nombres de funciones 
++ Alias no
++ tipos basicos no pueden ser opacados 
++ variables globales lo q sea pero antes de usarlas, declararlas 
++ IO
+
 
 + potencia, base,exponente nan 
 + map
