@@ -4,8 +4,10 @@
 
 typedef std::unordered_multimap<std::string,Symbol*> symtable;
 
-Symbol::Symbol(std::string id){
+Symbol::Symbol(std::string id,int line,int col){
   this->id=id;
+  this->line= line;
+  this->col=col;
 }
 
 std::string Symbol::getId(){
@@ -16,13 +18,14 @@ int Symbol:: getnumScope(){
   return this->numScope;
 }
 
-SymFunction::SymFunction(std::string id) : Symbol(id){
+SymFunction::SymFunction(std::string id,int line, int col,Block *block,
+                         listSymPairs *arguments) : Symbol(id,line,col){
   std::cout << "SymFunction creado";
 }
 
-SymVar::SymVar(std::string id,int linea,int columna) : Symbol(id){
-  this->line= linea;
-  this->col=columna;
+SymVar::SymVar(std::string id,int line,int col,
+               bool isParam) : Symbol(id,line,col){
+  this->isParameter= isParam;
   std::cout << "SymVar creado";
 }
 
@@ -45,8 +48,8 @@ int SymTable::leave_scope(){
   this->stack.pop_back();
 }
 
-int SymTable::enter_scope(int scope){
-  this->stack.push_back(scope);
+int SymTable::enter_scope(){
+  this->stack.push_back((this->nextscope)++);
 }
 
 Symbol* SymTable::lookup_global(std::string nombreID){
@@ -65,7 +68,7 @@ Symbol* SymTable::lookup_global(std::string nombreID){
     return NULL;
 }
  
-Symbol* SymTable::lookup(std::string nombreID,int linea,int columna){
+Symbol* SymTable::lookup(std::string nombreID){
   /*Buscar en cualquier contexto*/
  Symbol *best=NULL;
   Symbol *pervasive=NULL;

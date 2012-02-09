@@ -17,8 +17,10 @@ private:
   std::string id;
   int numScope;
   Type type;
+  int line;
+  int col;
 public:
-  Symbol (std::string id);
+  Symbol (std::string id,int line,int col);
   std::string getId();
   int getnumScope();
 };
@@ -26,25 +28,28 @@ public:
 // Clase SymVar hereda de Symbol 
 class SymVar: public Symbol{
 private:
-  int line; // Realmente creo que esto debería ir en Symbol
-  int col;  // Quizás sea útil saber dónde se declaró una función, por ejemplo
+  bool isParameter;
 public:
-  SymVar (std::string id, int linea, int columna);
+  SymVar (std::string id, int line,int col,bool isParam);
 };
 
+/*Tipo de pasaje para los argumentos de funciones*/
 enum PassType {
-  normal, // Uso normal porque 'default' está reservado por C++ -.-
+ normal, // Uso normal porque 'default' está reservado por C++ -.-
  value,
  reference
 };
+
+typedef std::list<std::pair<PassType, SymVar*>> listSymPairs;
 
 // Clase SymFunction hereda de Symbol
 class SymFunction: public Symbol{
 private:
   Block *block;
-  std::list<std::pair<PassType, SymVar*>> arguments;
+  listSymPairs *arguments;
 public:
-  SymFunction (std::string id);
+  SymFunction (std::string id,int linea,int columna,
+               Block *block,listSymPairs *arguments );
 };
 
 class SymTable{
@@ -55,11 +60,11 @@ private:
 public:
   SymTable();
   void insert(Symbol sym);
-  Symbol* lookup(std::string nombreID,int linea,int columna);
-  Symbol* lookup_global(std::string);
+  Symbol* lookup(std::string nombreID);
+  Symbol* lookup_global(std::string nombreID);
   int current_scope();
   int leave_scope();
-  int enter_scope(int scope);
+  int enter_scope();
   
 };
 

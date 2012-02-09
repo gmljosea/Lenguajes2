@@ -144,8 +144,8 @@ un objeto)
 */
 
 /**
- * Un programa es una secuencia de declaraciones globales. Mínimo una de ellas
- * debe ser una función llamada 'main'.
+ * Un programa es una secuencia de declaraciones globales, sean variables,
+ * funciones o estructuras. Una de ellas debe ser una función llamada 'main'.
  */
 globals:
  /* En estas producciones no hay que hacer nada, la regla 'global' produce los
@@ -200,7 +200,7 @@ block:
    { setLocation($3,&@$); $$ = $3; program.symtable.leave_scope(); }
 
 enterscope:
-   /* empty */ { program.symtable.enter_scope(0); }
+   /* empty */ { program.symtable.enter_scope(); }
 
  // ** Produce una secuencia de instrucciones
 stmts:
