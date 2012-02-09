@@ -45,6 +45,8 @@ void setLocation(Statement* stmt, YYLTYPE* yylloc) {
   Type *type;
   std::list<Expression*> *exps;
   std::list<Lvalue*> *lvalues;
+  std::list<std::pair<SymVar*,Expression*>> *decls;
+  std::pair<SymVar*,Expression*> *decl;
   Lvalue *lvalue;
 };
 
@@ -69,6 +71,10 @@ void setLocation(Statement* stmt, YYLTYPE* yylloc) {
 %token TK_RETURN      "return"
 %token TK_BREAK       "break"
 %token TK_NEXT        "next"
+%token TK_WRITE       "write"
+%token TK_READ        "read"
+%token TK_RETRY       "retry"
+%token TK_WRITELN     "writeln"
 
 // Tokens de símbolos especiales
 
@@ -120,6 +126,8 @@ void setLocation(Statement* stmt, YYLTYPE* yylloc) {
 %type <lvalues> lvalues
 %type <lvalue> lvalue
 %type <exps> explist nonempty_explist
+%type <decls> vardec_items
+%type <decl> vardec_item
 
 %% /* Gramática */
 
@@ -219,8 +227,8 @@ statement:
  | if
  | while
  | for
- | variabledec { $$ = new VariableDec(); } /* Temporal */
- | asignment   { $$ = new Asignment(); } /* Temporal */
+ | variabledec
+ | asignment
  | funcallexp ";" { $$ = new FunctionCall($1); }
  | "break" TK_ID ";" { $$ = new Break($2); }
  | "break" ";" { $$ = new Break(NULL); }
@@ -228,6 +236,11 @@ statement:
  | "next" ";" { $$ = new Next(NULL); }
  | "return" expr ";" { $$ = new Return($2); }
  | "return" ";"     { $$ = new Return(); }
+ | "retry" ";" { $$ = new Retry(); }
+ | "write" nonempty_explist ";" { $$ = new Write(*$2,false); }
+ | "writeln" nonempty_explist ";" { $$ = new Write(*$2,true); }
+ | "read" lvalue ";"   { $$ = new Read($2,NULL); }
+ | "read" lvalue block { $$ = new Read($2,$3); }
 
 if:
    "if" expr block
@@ -263,7 +276,7 @@ label:
 
  // ** Inicio gramática de la asignación
 asignment: // Modificar clase Asignment para que reciba listas de rvalues y lvalues
-   lvalues "=" explist ";" {   }
+   lvalues "=" explist ";" { $$ = new Asignment(*$1, *$3);  }
 
 lvalues: // Devuelve list<Lvalue*>
    lvalue { $$ = new std::list<Lvalue*>(); $$->push_back($1); }
@@ -277,36 +290,53 @@ lvalue: // Instanciar lvalue (falta hacer la clase)
  // ** Inicio gramática de la declaración de variables
 variabledec:
    type vardec_items ";"
+   { for (std::pair<SymVar*,Expression*> p : *$2) {
+       // !!! Setear el tipo del símbolo
+       //p.first->setType($1);;
+     }
+     $$ = new VariableDec(*$1,*$2);
+   }
 
 vardec_items: // Devuelve una lista de pair<string,expr>
    vardec_item
+   { $$ = new std::list<std::pair<SymVar*,Expression*>>();
+     $$->push_back(*$1); }
  | vardec_items "," vardec_item
+   { $1->push_back(*$3); $$ = $1; }
 
 vardec_item: // Devuelve un pair<string,expr>
    TK_ID
+   { SymVar* sym = new SymVar(*$1, @1.first_line, @1.first_column,false);
+     // !!! Falta Agregar a tabla de símbolos
+     $$ = new std::pair<SymVar*,Expression*>(sym,NULL); }
  | TK_ID "=" expr
+   { SymVar* sym = new SymVar(*$1, @1.first_line, @1.first_column,false);
+     // !!! Falta agregar a tabla de símbolos
+     $$ = new std::pair<SymVar*,Expression*>(sym,$3); }
 
 type:
-   "int"   { $$ = new Type(); }
- | "char"  { $$ = new Type(); }
- | "bool"  { $$ = new Type(); }
- | "float" { $$ = new Type(); }
- | "void"  { $$ = new Type(); }
+   "int"   { $$ = new IntType(); }
+ | "char"  { $$ = new CharType(); }
+ | "bool"  { $$ = new BoolType(); }
+ | "float" { $$ = new FloatType(); }
+ | "void"  { $$ = new VoidType(); }
  // ** Fin gramática de la declaración de variables
 
  // ** Inicio gramática de las expresiones
 expr:
-   TK_ID          { $$ = new Expression(); }
- | TK_CONSTINT    { $$ = new Expression(); }
- | TK_CONSTFLOAT  { $$ = new Expression(); }
- | TK_TRUE        { $$ = new Expression(); }
- | TK_FALSE       { $$ = new Expression(); }
+   TK_ID          { $$ = new VarExp(); }
+ | TK_CONSTINT    { $$ = new IntExp(); }
+ | TK_CONSTFLOAT  { $$ = new FloatExp(); }
+ | TK_TRUE        { $$ = new BoolExp(); }
+ | TK_FALSE       { $$ = new BoolExp(); }
+ | TK_CONSTSTRING { $$ = new StringExp(); }
+ | funcallexp
 
 funcallexp:
-   TK_ID "(" explist ")" { $$ = new Expression(); }
+   TK_ID "(" explist ")" { $$ = new FunCallExp(); }
 
 explist:
-   /* empty */
+   /* empty */ { $$ = new std::list<Expression*>(); }
  | nonempty_explist
 
 nonempty_explist:

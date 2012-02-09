@@ -7,7 +7,13 @@
 #include "expression.hh"
 #include "symbol.hh"
 
-class Lvalue {};
+class Lvalue {
+private:
+  SymVar* variable;
+public:
+  Lvalue ();
+  Lvalue (SymVar* var);
+};
 
 class Block;
 class Statement;
@@ -98,9 +104,7 @@ private:
   std::list<Lvalue*> lvalues;
   std::list<Expression*> exps;
 public:
-  Asignment ();
-  void push_back_lvalue(Lvalue* lvalue);
-  void push_back_exp(Expression* exp);
+  Asignment (std::list<Lvalue*> lvalues, std::list<Expression*> exps);
   virtual void print(int nesting);
   // virtual void check();
 };
@@ -109,11 +113,12 @@ class VariableDec : public Statement {
 private:
   // Representa una declaración con múltiples variables
   // asignadas de una vez
-  std::list<std::pair<SymVar*,Expression*>> decs;
+  Type type;
+  std::list<std::pair<SymVar*,Expression*>> decls;
   bool isGlobal;
 public:
-  VariableDec ();
-  void push_back(SymVar* sym, Expression* init);
+  VariableDec (Type type, std::list<std::pair<SymVar*,Expression*>> decls);
+  void setGlobal(bool g);
   virtual void print(int nesting);
   // virtual void check();
 };
@@ -153,5 +158,29 @@ public:
   virtual void print(int nesting);
 };
 
+class Write : public Statement {
+private:
+  std::list<Expression*> exps;
+  bool isLn; // Representa si es Write o Writeln
+public:
+  Write (std::list<Expression*> exps, bool isLn);
+  virtual void print(int nesting);
+};
+
+class Read : public Statement {
+private:
+  Lvalue* lval;
+  Block* block;
+public:
+  Read (Lvalue* lval, Block* block);
+  virtual void print(int nesting);
+};
+
+class Retry : public Statement {
+private:
+  Read* read;
+public:
+  void setRead(Read* read);
+  virtual void print(int nesting);
+};
 #endif
-// Falta hacer IO!!!

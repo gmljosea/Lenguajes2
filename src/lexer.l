@@ -99,6 +99,14 @@ break   { lexer::trace("break", yytext, yylloc); return TK_BREAK;}
 
 next    { lexer::trace("next", yytext, yylloc); return TK_NEXT;}
 
+write   { lexer::trace("write", yytext, yylloc); return TK_WRITE;}
+
+read    { lexer::trace("read", yytext, yylloc); return TK_READ; }
+
+retry   { lexer::trace("retry", yytext, yylloc); return TK_RETRY; }
+
+writeln { lexer::trace("writeln", yytext, yylloc); return TK_WRITELN; }
+
  /* Operadores */
 \+  { lexer::trace("+", yytext, yylloc); return TK_PLUS;}
 -   { lexer::trace("-", yytext, yylloc); return TK_MINUS;}
