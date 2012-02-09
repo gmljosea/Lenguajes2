@@ -36,6 +36,9 @@ namespace lexer {
     std::cout << "Error de lexer: " << error << "(" << yytext << ") en "
               << yylloc->first_line << ":" << yylloc->first_column << std::endl;
   }
+
+  std::string treatString(std::string yytext){
+  }
 }
 
 %}
