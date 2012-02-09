@@ -3,8 +3,6 @@
 #include "expression.hh"
 #include "statement.hh"
 
-class Lvalue {};
-
 Statement::Statement() {
   this->enclosing = NULL;
 }
@@ -57,7 +55,7 @@ std::string* Iteration::getLabel() {
 
 // BoundedFor
 BoundedFor::BoundedFor(std::string* label, std::string* varsym,
-		       Expression* lowerb, Expression* upperb, 
+		       Expression* lowerb, Expression* upperb,
 		       Expression* step, Block* block) : Iteration(label) {
   this->varsym = varsym;
   this->lowerb = lowerb;
@@ -67,7 +65,22 @@ BoundedFor::BoundedFor(std::string* label, std::string* varsym,
 }
 
 void BoundedFor::print(int nesting) {
-  std::cout << "Instrucción For in" << std::endl;
+  std::string padding(nesting*2,' ');
+  std::cout << padding << "For in:" << std::endl;
+  if (label != NULL) {
+    std::cout << padding << " Etiqueta: " << *label << std::endl;
+  }
+  std::cout << padding << " Variable: " << *varsym << std::endl;
+  std::cout << padding << " Cota inferior:" << std::endl;
+  lowerb->print(nesting+1);
+  std::cout << padding << " Cota superior:" << std::endl;
+  upperb->print(nesting+1);
+  if (step != NULL) {
+    std::cout << padding << " Paso:" << std::endl;
+    step->print(nesting+1);
+  }
+  std::cout << padding << " Cuerpo:" << std::endl;
+  block->print(nesting+1);
 }
 
 // While
@@ -78,7 +91,15 @@ While::While(std::string* label, Expression* cond, Block* block)
 }
 
 void While::print(int nesting) {
-  std::cout << "Instrucción while" << std::endl;
+  std::string padding(nesting*2, ' ');
+  std::cout << padding << "While:" << std::endl;
+  if (label != NULL) {
+    std::cout << padding << " Etiqueta: " << *label << std::endl;
+  }
+  std::cout << padding << " Condición:" << std::endl;
+  cond->print(nesting+1);
+  std::cout << padding << " Cuerpo:" << std::endl;
+  block->print(nesting+1);
 }
 
 // Asignment
@@ -98,13 +119,14 @@ void Asignment::print(int nesting) {
 }
 
 // Declaration
-Declaration::Declaration() {};
+VariableDec::VariableDec() {};
 
-void Declaration::push_back(Asignment* asg) {
-  this->asigns.push_back(asg);
+void VariableDec::push_back(SymVar* sym, Expression* init) {
+  std::pair<SymVar*,Expression*> declaration(sym,init);
+  this->decs.push_back(declaration);
 }
 
-void Declaration::print(int nesting) {
+void VariableDec::print(int nesting) {
   std::cout << "Instrucción declaración" << std::endl;
 }
 
@@ -138,6 +160,12 @@ Break::Break(std::string* label) {
 }
 
 void Break::print(int nesting) {
+  std::string padding(nesting*2, ' ');
+  std::cout << padding << "Break";
+  if (label != NULL) {
+    std::cout << " (" << *label << ")";
+  }
+  std::cout << std::endl;
 }
 
 Next::Next(std::string* label) {
@@ -145,6 +173,12 @@ Next::Next(std::string* label) {
 }
 
 void Next::print(int nesting) {
+  std::string padding(nesting*2, ' ');
+  std::cout << padding << "Next";
+  if (label != NULL) {
+    std::cout << " (" << *label << ")";
+  }
+  std::cout << std::endl;
 }
 
 Return::Return(Expression *exp) {
@@ -152,4 +186,18 @@ Return::Return(Expression *exp) {
 }
 
 void Return::print(int nesting) {
+  std::string padding(nesting*2, ' ');
+  std::cout << padding << "Return" << std::endl;
+  if (exp != NULL) {
+    exp->print(nesting+1);
+  }
+}
+
+FunctionCall::FunctionCall(Expression* exp) {
+  this->exp = exp;
+}
+
+void FunctionCall::print(int nesting) {
+  std::string padding(nesting*2, ' ');
+  std::cout << padding << "Llamada a función" << std::endl;
 }

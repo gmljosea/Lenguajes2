@@ -5,8 +5,9 @@
 #include <string>
 #include <utility>
 #include "expression.hh"
+#include "symbol.hh"
 
-class Lvalue;
+class Lvalue {};
 
 class Block;
 class Statement;
@@ -61,7 +62,7 @@ public:
 };
 
 class Iteration : public Statement {
-private:
+protected:
   std::string* label;
 public:
   Iteration (std::string* label);
@@ -104,14 +105,15 @@ public:
   // virtual void check();
 };
 
-class Declaration : public Statement {
+class VariableDec : public Statement {
 private:
   // Representa una declaración con múltiples variables
   // asignadas de una vez
-  std::list<Asignment*> asigns;
+  std::list<std::pair<SymVar*,Expression*>> decs;
+  bool isGlobal;
 public:
-  Declaration ();
-  void push_back(Asignment* asg);
+  VariableDec ();
+  void push_back(SymVar* sym, Expression* init);
   virtual void print(int nesting);
   // virtual void check();
 };
@@ -142,14 +144,14 @@ public:
   Return (Expression* exp = NULL);
   virtual void print(int nesting);
 };
-/**
+
 class FunctionCall : public Statement {
 private:
   Expression *exp; // Cambiar por el tipo de expresión FunCallExp
 public:
-  FunCallStmt (Expression* exp);
+  FunctionCall (Expression* exp);
   virtual void print(int nesting);
-  };*/
+};
 
 #endif
 // Falta hacer IO!!!

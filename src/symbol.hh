@@ -1,33 +1,50 @@
-#include <string>
-#include <stack>
-#include <unordered_map>
+#ifndef DEVANIX_SYMBOLS
+#define DEVANIX_SYMBOLS
 
+#include <list>
+#include <stack>
+#include <string>
+#include <unordered_map>
+#include <utility>
+
+#include "type.hh"
+
+class Block;
 
 // Clase abstracta que representa un objeto de la tabla de simbolos 
-class Symbol{
+class Symbol {
 private:
   std::string id;
   int numScope;
+  Type type;
 public:
   Symbol (std::string id);
   std::string getId();
   int getnumScope();
-
-};
-
-// Clase SymFunction hereda de Symbol
-class SymFunction: public Symbol{
-public:
-  SymFunction (std::string id);
 };
 
 // Clase SymVar hereda de Symbol 
 class SymVar: public Symbol{
 private:
-  int line;
-  int col;
+  int line; // Realmente creo que esto debería ir en Symbol
+  int col;  // Quizás sea útil saber dónde se declaró una función, por ejemplo
 public:
-  SymVar (std::string id,int linea,int columna);
+  SymVar (std::string id, int linea, int columna);
+};
+
+enum PassType {
+  normal, // Uso normal porque 'default' está reservado por C++ -.-
+ value,
+ reference
+};
+
+// Clase SymFunction hereda de Symbol
+class SymFunction: public Symbol{
+private:
+  Block *block;
+  std::list<std::pair<PassType, SymVar*>> arguments;
+public:
+  SymFunction (std::string id);
 };
 
 class SymTable{
@@ -45,3 +62,5 @@ public:
   int enter_scope(int scope);
   
 };
+
+#endif
