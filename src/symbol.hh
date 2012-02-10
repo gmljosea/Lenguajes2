@@ -54,7 +54,8 @@ public:
 
 class SymTable{
 private:
-  std::unordered_multimap<std::string,Symbol*> table;
+  symtable varTable;
+  std::unordered_map<std::string,Symbol*> funcTable;
   int nextscope;
   std::deque<int> stack;
 public:

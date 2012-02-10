@@ -2,7 +2,6 @@
 #include <iostream>
 #include "symbol.hh"
 
-typedef std::unordered_multimap<std::string,Symbol*> symtable;
 
 Symbol::Symbol(std::string id,int line,int col){
   this->id=id;
@@ -39,9 +38,12 @@ int SymTable::current_scope(){
   return this->stack[stack.size()-1];
 }
 
-void SymTable::insert(Symbol sym){
-  /*Verificar si ya existe en el alcance*/
-  this->table.insert(symtable::value_type(sym.getId(),&sym));
+void SymTable::insert(SymVar sym){
+  this->varTable.insert(varSymtable::value_type(sym.getId(),&sym));
+}
+
+void SymTable::insert(SymFunction sym){
+  this->funTable.insert(funcSymtable::value_type(sym.getId(),&sym));
 }
 
 int SymTable::leave_scope(){
@@ -52,29 +54,22 @@ int SymTable::enter_scope(){
   this->stack.push_back((this->nextscope)++);
 }
 
-Symbol* SymTable::lookup_global(std::string nombreID){
-  Symbol *sym=NULL;
-  std::pair<symtable::iterator, symtable::iterator> pair1;
-  pair1= this->table.equal_range(nombreID);
+SymFunction* SymTable::lookup_function(std::string nombreID){
+  funcSymtable::iterator it= this->funcTable.find(nombreID);
   
-  for (; pair1.first != pair1.second; ++pair1.first){
-    if (pair1.first->second->getnumScope()==0)
-      sym= pair1.first->second;
-  }
-
-  if (sym!=NULL)
-    return sym;
+  if (it!= funcTable.end())
+    return it->second;
   else 
     return NULL;
 }
  
-Symbol* SymTable::lookup(std::string nombreID){
+SymVar* SymTable::lookup_variable(std::string nombreID){
   /*Buscar en cualquier contexto*/
- Symbol *best=NULL;
-  Symbol *pervasive=NULL;
+  SymVar *best=NULL;
+  SymVar *pervasive=NULL;
 
-  std::pair<symtable::iterator, symtable::iterator> pair1;
-  pair1= this->table.equal_range(nombreID);
+  std::pair<varSymtable::iterator, varSymtable::iterator> pair1;
+  pair1= this->varTable.equal_range(nombreID);
   
   /*Recorrer todos los nombres encontrados. Tomado del complemento
     del capitulo 3 del Scott*/ 
