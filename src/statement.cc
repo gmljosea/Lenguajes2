@@ -62,7 +62,7 @@ std::string* Iteration::getLabel() {
 }
 
 // BoundedFor
-BoundedFor::BoundedFor(std::string* label, std::string* varsym,
+BoundedFor::BoundedFor(std::string* label, SymVar* varsym,
 		       Expression* lowerb, Expression* upperb,
 		       Expression* step, Block* block) : Iteration(label) {
   this->varsym = varsym;
@@ -78,7 +78,7 @@ void BoundedFor::print(int nesting) {
   if (label != NULL) {
     std::cout << padding << " Etiqueta: " << *label << std::endl;
   }
-  std::cout << padding << " Variable: " << *varsym << std::endl;
+  //  std::cout << padding << " Variable: " << *varsym << std::endl;
   std::cout << padding << " Cota inferior:" << std::endl;
   lowerb->print(nesting+1);
   std::cout << padding << " Cota superior:" << std::endl;

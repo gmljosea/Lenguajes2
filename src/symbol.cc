@@ -18,9 +18,17 @@ int Symbol:: getnumScope(){
   return this->numScope;
 }
 
-SymFunction::SymFunction(std::string id,int line, int col,Block *block,
+void Symbol::setType(Type t) {
+  this->type = t;
+}
+
+SymFunction::SymFunction(std::string id,int line, int col,
                          listSymPairs *arguments) : Symbol(id,line,col){
   std::cout << "SymFunction creado";
+}
+
+void SymFunction::setBlock(Block* block) {
+  this->block = block;
 }
 
 SymVar::SymVar(std::string id,int line,int col,
@@ -52,7 +60,8 @@ int SymTable::enter_scope(){
   this->stack.push_back((this->nextscope)++);
 }
 
-Symbol* SymTable::lookup_global(std::string nombreID){
+// Esto realmente es lo que antes se llamaba lookup_global
+Symbol* SymTable::lookup_function(std::string nombreID){
   Symbol *sym=NULL;
   std::pair<symtable::iterator, symtable::iterator> pair1;
   pair1= this->table.equal_range(nombreID);
@@ -68,7 +77,7 @@ Symbol* SymTable::lookup_global(std::string nombreID){
     return NULL;
 }
  
-Symbol* SymTable::lookup(std::string nombreID){
+Symbol* SymTable::lookup_variable(std::string nombreID){
   /*Buscar en cualquier contexto*/
  Symbol *best=NULL;
   Symbol *pervasive=NULL;

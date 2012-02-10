@@ -22,6 +22,7 @@ private:
 public:
   Symbol (std::string id,int line,int col);
   std::string getId();
+  void setType(Type t);
   int getnumScope();
 };
 
@@ -36,7 +37,7 @@ public:
 /*Tipo de pasaje para los argumentos de funciones*/
 enum PassType {
  normal, // Uso normal porque 'default' está reservado por C++ -.-
- value,
+ readonly,
  reference
 };
 
@@ -48,8 +49,9 @@ private:
   Block *block;
   listSymPairs *arguments;
 public:
-  SymFunction (std::string id,int linea,int columna,
-               Block *block,listSymPairs *arguments );
+  SymFunction (std::string id, int linea, int columna,
+               listSymPairs *arguments);
+  void setBlock(Block* block);
 };
 
 class SymTable{
@@ -59,9 +61,9 @@ private:
   std::deque<int> stack;
 public:
   SymTable();
-  void insert(Symbol sym);
-  Symbol* lookup(std::string nombreID);
-  Symbol* lookup_global(std::string nombreID);
+  void insert(Symbol sym); // !!! Falta sobrecargar
+  Symbol* lookup_variable(std::string nombreID);
+  Symbol* lookup_function(std::string nombreID);
   int current_scope();
   int leave_scope();
   int enter_scope();

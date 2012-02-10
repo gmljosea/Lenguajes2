@@ -77,13 +77,13 @@ public:
 
 class BoundedFor : public Iteration {
 private:
-  std::string* varsym;
+  SymVar* varsym;
   Expression* lowerb;
   Expression* upperb;
   Expression* step;
   Block* block;
 public:
-  BoundedFor (std::string* label, std::string* varsym, Expression* lowerb,
+  BoundedFor (std::string* label, SymVar* varsym, Expression* lowerb,
 	      Expression* upperb, Expression* step, Block* block);
   virtual void print(int);
   // virtual void check();
