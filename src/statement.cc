@@ -3,6 +3,14 @@
 #include "expression.hh"
 #include "statement.hh"
 
+// Dummy, para que compile mientras tanto
+Lvalue::Lvalue() {
+}
+
+Lvalue::Lvalue(SymVar* var) {
+  this->variable = var;
+}
+
 Statement::Statement() {
   this->enclosing = NULL;
 }
@@ -54,7 +62,7 @@ std::string* Iteration::getLabel() {
 }
 
 // BoundedFor
-BoundedFor::BoundedFor(std::string* label, std::string* varsym,
+BoundedFor::BoundedFor(std::string* label, SymVar* varsym,
 		       Expression* lowerb, Expression* upperb,
 		       Expression* step, Block* block) : Iteration(label) {
   this->varsym = varsym;
@@ -70,7 +78,7 @@ void BoundedFor::print(int nesting) {
   if (label != NULL) {
     std::cout << padding << " Etiqueta: " << *label << std::endl;
   }
-  std::cout << padding << " Variable: " << *varsym << std::endl;
+  //  std::cout << padding << " Variable: " << *varsym << std::endl;
   std::cout << padding << " Cota inferior:" << std::endl;
   lowerb->print(nesting+1);
   std::cout << padding << " Cota superior:" << std::endl;
@@ -103,15 +111,9 @@ void While::print(int nesting) {
 }
 
 // Asignment
-Asignment::Asignment() {
-}
-
-void Asignment::push_back_lvalue(Lvalue* lvalue) {
-  this->lvalues.push_back(lvalue);
-}
-
-void Asignment::push_back_exp(Expression* exp) {
-  this->exps.push_back(exp);
+Asignment::Asignment(std::list<Lvalue*> lvalues, std::list<Expression*> exps) {
+  this->lvalues = lvalues;
+  this->exps = exps;
 }
 
 void Asignment::print(int nesting) {
@@ -119,12 +121,12 @@ void Asignment::print(int nesting) {
 }
 
 // Declaration
-VariableDec::VariableDec() {};
-
-void VariableDec::push_back(SymVar* sym, Expression* init) {
-  std::pair<SymVar*,Expression*> declaration(sym,init);
-  this->decs.push_back(declaration);
+VariableDec::VariableDec(Type type,
+			 std::list<std::pair<SymVar*,Expression*>> decls) {
+  this->decls = decls;
+  this->type = type;
 }
+
 
 void VariableDec::print(int nesting) {
   std::cout << "Instrucción declaración" << std::endl;
@@ -200,4 +202,30 @@ FunctionCall::FunctionCall(Expression* exp) {
 void FunctionCall::print(int nesting) {
   std::string padding(nesting*2, ' ');
   std::cout << padding << "Llamada a función" << std::endl;
+}
+
+Write::Write(std::list<Expression*> exps, bool isLn) {
+  this->exps = exps;
+  this->isLn = isLn;
+}
+
+void Write::print(int nesting) {
+  std::cout << "Write" << std::endl;
+}
+
+Read::Read(Lvalue* lval, Block* block) {
+  this->lval = lval;
+  this->block = block;
+}
+
+void Read::print(int nesting) {
+  std::cout << "Read" << std::endl;
+}
+
+void Retry::setRead(Read* read) {
+  this->read = read;
+}
+
+void Retry::print(int nesting) {
+  std::cout << "Retry" << std::endl;
 }

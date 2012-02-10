@@ -6,4 +6,22 @@ public:
   void print(int nesting);
 };
 
+class VarExp : public Expression {
+};
+
+class IntExp : public Expression {
+};
+
+class FloatExp : public Expression {
+};
+
+class BoolExp : public Expression {
+};
+
+class StringExp : public Expression {
+};
+
+class FunCallExp : public Expression {
+};
+
 #endif

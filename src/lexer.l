@@ -28,12 +28,12 @@ namespace lexer {
   }
 
   void trace(std::string rule, std::string yytext, YYLTYPE* yylloc) {
-    std::cout << "Token " << rule << " (" << yytext << ") en "
+    std::cerr << "Token " << rule << " (" << yytext << ") en "
               << yylloc->first_line << ":" << yylloc->first_column << std::endl;
   }
 
   void error(std::string error, std::string yytext, YYLTYPE* yylloc) {
-    std::cout << "Error de lexer: " << error << "(" << yytext << ") en "
+    std::cerr << "Error de lexer: " << error << "(" << yytext << ") en "
               << yylloc->first_line << ":" << yylloc->first_column << std::endl;
   }
 
@@ -98,6 +98,14 @@ return  { lexer::trace("return", yytext, yylloc); return TK_RETURN;}
 break   { lexer::trace("break", yytext, yylloc); return TK_BREAK;}
 
 next    { lexer::trace("next", yytext, yylloc); return TK_NEXT;}
+
+write   { lexer::trace("write", yytext, yylloc); return TK_WRITE;}
+
+read    { lexer::trace("read", yytext, yylloc); return TK_READ; }
+
+retry   { lexer::trace("retry", yytext, yylloc); return TK_RETRY; }
+
+writeln { lexer::trace("writeln", yytext, yylloc); return TK_WRITELN; }
 
  /* Operadores */
 \+  { lexer::trace("+", yytext, yylloc); return TK_PLUS;}

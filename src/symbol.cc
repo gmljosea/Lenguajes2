@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include "symbol.hh"
+#include "statement.hh"
 
 
 Symbol::Symbol(std::string id,int line,int col){
@@ -17,15 +18,41 @@ int Symbol:: getnumScope(){
   return this->numScope;
 }
 
-SymFunction::SymFunction(std::string id,int line, int col,Block *block,
+void Symbol::setType(Type t) {
+  this->type = t;
+}
+
+SymFunction::SymFunction(std::string id,int line, int col,
                          listSymPairs *arguments) : Symbol(id,line,col){
-  std::cout << "SymFunction creado";
+  this->arguments = arguments;
+}
+
+void SymFunction::print() {
+  std::cout << "Función " << id << " (" << line << ":" << col << ")" << std::endl;
+  std::cout << "  Tipo: ";
+  type.print();
+  if (arguments->empty()) {
+    std::cout << "  Sin argumentos" << std::endl;
+  } else {
+    std::cout << "  Argumentos:" << std::endl;
+    for (listSymPairs::iterator it = arguments->begin();
+	 it != arguments->end(); it++) {
+      // !!! Imprimir bien esto...
+      std::cout << "    Argumento bla" << std::endl;
+    }
+  }
+  // Imprimir bloque con nivel de anidamiento 1
+  block->print(1);
+}
+
+void SymFunction::setBlock(Block* block) {
+  this->block = block;
 }
 
 SymVar::SymVar(std::string id,int line,int col,
                bool isParam) : Symbol(id,line,col){
   this->isParameter= isParam;
-  std::cout << "SymVar creado";
+  //  std::cout << "SymVar creado";
 }
 
 SymTable::SymTable(){
@@ -54,6 +81,7 @@ int SymTable::enter_scope(){
   this->stack.push_back((this->nextscope)++);
 }
 
+
 SymFunction* SymTable::lookup_function(std::string nombreID){
   funcSymtable::iterator it= this->funcTable.find(nombreID);
   
@@ -63,6 +91,7 @@ SymFunction* SymTable::lookup_function(std::string nombreID){
     return NULL;
 }
  
+
 SymVar* SymTable::lookup_variable(std::string nombreID){
   /*Buscar en cualquier contexto*/
   SymVar *best=NULL;
