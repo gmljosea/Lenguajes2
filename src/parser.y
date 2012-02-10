@@ -40,8 +40,9 @@ void setLocation(Statement* stmt, YYLTYPE* yylloc) {
 }
 
 void pushLoopLabel(std::string label) {
-  for (std::string l : looplabels) {
-    if (l == label) {
+  for (std::list<std::string>::iterator it = looplabels.begin();
+       it != looplabels.end(); it++) {
+    if (*it == label) {
       std::cerr << "Etiqueta duplicada" << std::endl;
       program.isValid = false;
       break;
@@ -142,7 +143,7 @@ void popLoopLabel() {
 %token <fval> TK_CONSTFLOAT
 
 %type <stmt> statement if while for variabledec asignment
-%type <blk> stmts keepscope_block newscope_block
+%type <blk> stmts keepscope_block newscope_block else
 %type <exp> expr funcallexp step
 %type <str> label
 %type <type> type
@@ -173,16 +174,15 @@ global:
  | type TK_ID enterscope "(" args ")"
     { SymFunction* sym
        = new SymFunction(*$2, @2.first_line, @2.first_column, $5);
-      sym->setType(*$1);
+
       // !!! Meter en tabla de símbolos
       currentfun = sym;
     }
    keepscope_block leavescope
     {
+      currentfun->setType(*$1);
       currentfun->setBlock($8);
-     // Imprimo la función solo para debugging
-     std::cout << "Función '" << *$2 << "':" << std::endl;
-     $8->print(0);
+      program.functions.push_back(currentfun);
     }
 
  // ** Inicio (de la mayor parte de) gramática de la declaración de funciones
@@ -267,25 +267,21 @@ statement:
  | "read" lvalue ";"   { $$ = new Read($2,NULL); }
 
 if:
-   "if" expr newscope_block
-   { std::cout << "Encontré un if sin else" << std::endl;
-     $$ = new If($2, $3);
+   "if" expr newscope_block else
+   { $$ = new If($2, $3, $4);
      $3->setEnclosing($$);
      setLocation($$,&@$);}
 
- | "if" expr newscope_block "else" newscope_block
-   { std::cout << "Encontré un if con else" << std::endl;
-     $$ = new If($2, $3, $5);
-     $3->setEnclosing($$);
-     $5->setEnclosing($$);
-     setLocation($$, &@$);}
+else:
+  /* empty */ { $$ = NULL; }
+ |  "else" newscope_block
+     { $$ = $2; }
 
 while:
    label
      { if ($1) pushLoopLabel(*$1); }
    "while" expr newscope_block
-     { std::cout << "Encontré un while" << std::endl;
-       if ($1) popLoopLabel();
+     { if ($1) popLoopLabel();
        $$ = new While($1, $4, $5); }
 
 for:
@@ -294,8 +290,7 @@ for:
    "for" TK_ID "in" expr ".." expr step enterscope
      { /* Insertar TK_ID en la tabla con tipo Int */ }
    keepscope_block leavescope
-     { std::cout << "Encontré un for sin paso" << std::endl;
-       if ($1) popLoopLabel();
+     { if ($1) popLoopLabel();
        SymVar* loopvar = new SymVar(*$4, @4.first_line,
 				    @4.first_column, false);
        IntType it;
@@ -330,9 +325,10 @@ lvalue: // Instanciar lvalue (falta hacer la clase)
  // ** Inicio gramática de la declaración de variables
 variabledec:
    type vardec_items ";"
-   { for (std::pair<SymVar*,Expression*> p : *$2) {
+   { for (std::list<std::pair<SymVar*,Expression*>>::iterator it = $2->begin();
+	  it != $2->end(); it++) {
        // !!! Setear el tipo del símbolo
-       //p.first->setType($1);;
+       //first->setType($1);;
      }
      $$ = new VariableDec(*$1,*$2);
    }
@@ -397,6 +393,11 @@ int main (int argc, char **argv) {
     yyin = fopen(argv[1], "r");
   }
   yyparse();
-  // Pedirle cosas a Program
+
+  for (std::list<SymFunction*>::iterator it = program.functions.begin();
+       it != program.functions.end(); it++) {
+    (**it).print();
+  }
+
   return 0;
 }

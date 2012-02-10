@@ -13,7 +13,7 @@ class Block;
 
 // Clase abstracta que representa un objeto de la tabla de simbolos 
 class Symbol {
-private:
+protected:
   std::string id;
   int numScope;
   Type type;
@@ -51,6 +51,7 @@ private:
 public:
   SymFunction (std::string id, int linea, int columna,
                listSymPairs *arguments);
+  void print();
   void setBlock(Block* block);
 };
 

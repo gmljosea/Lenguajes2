@@ -28,12 +28,12 @@ namespace lexer {
   }
 
   void trace(std::string rule, std::string yytext, YYLTYPE* yylloc) {
-    std::cout << "Token " << rule << " (" << yytext << ") en "
+    std::cerr << "Token " << rule << " (" << yytext << ") en "
               << yylloc->first_line << ":" << yylloc->first_column << std::endl;
   }
 
   void error(std::string error, std::string yytext, YYLTYPE* yylloc) {
-    std::cout << "Error de lexer: " << error << "(" << yytext << ") en "
+    std::cerr << "Error de lexer: " << error << "(" << yytext << ") en "
               << yylloc->first_line << ":" << yylloc->first_column << std::endl;
   }
 

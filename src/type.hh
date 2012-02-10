@@ -2,6 +2,8 @@
 #define DEVANIX_TYPES
 
 class Type {
+public:
+  virtual void print();
 };
 
 class IntType : public Type {

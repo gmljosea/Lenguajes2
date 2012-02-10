@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include "symbol.hh"
+#include "statement.hh"
 
 typedef std::unordered_multimap<std::string,Symbol*> symtable;
 
@@ -24,7 +25,25 @@ void Symbol::setType(Type t) {
 
 SymFunction::SymFunction(std::string id,int line, int col,
                          listSymPairs *arguments) : Symbol(id,line,col){
-  std::cout << "SymFunction creado";
+  this->arguments = arguments;
+}
+
+void SymFunction::print() {
+  std::cout << "Función " << id << " (" << line << ":" << col << ")" << std::endl;
+  std::cout << "  Tipo: ";
+  type.print();
+  if (arguments->empty()) {
+    std::cout << "  Sin argumentos" << std::endl;
+  } else {
+    std::cout << "  Argumentos:" << std::endl;
+    for (listSymPairs::iterator it = arguments->begin();
+	 it != arguments->end(); it++) {
+      // !!! Imprimir bien esto...
+      std::cout << "    Argumento bla" << std::endl;
+    }
+  }
+  // Imprimir bloque con nivel de anidamiento 1
+  block->print(1);
 }
 
 void SymFunction::setBlock(Block* block) {
@@ -34,7 +53,7 @@ void SymFunction::setBlock(Block* block) {
 SymVar::SymVar(std::string id,int line,int col,
                bool isParam) : Symbol(id,line,col){
   this->isParameter= isParam;
-  std::cout << "SymVar creado";
+  //  std::cout << "SymVar creado";
 }
 
 SymTable::SymTable(){
