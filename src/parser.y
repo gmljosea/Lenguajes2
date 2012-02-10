@@ -394,6 +394,15 @@ int main (int argc, char **argv) {
   }
   yyparse();
 
+  std::cout << "-- Variables globales --" << std::endl << std::endl;
+
+  for (std::list<VariableDec*>::iterator it = program.globalinits.begin();
+       it != program.globalinits.end(); it++) {
+    (**it).print(0);
+  }
+
+  std::cout << std::endl << "-- Funciones definidas --" << std::endl << std::endl;
+
   for (std::list<SymFunction*>::iterator it = program.functions.begin();
        it != program.functions.end(); it++) {
     (**it).print();
