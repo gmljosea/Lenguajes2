@@ -70,7 +70,7 @@ void SymTable::insert(SymVar sym){
 }
 
 void SymTable::insert(SymFunction sym){
-  this->funTable.insert(funcSymtable::value_type(sym.getId(),&sym));
+  this->funcTable.insert(funcSymtable::value_type(sym.getId(),&sym));
 }
 
 int SymTable::leave_scope(){

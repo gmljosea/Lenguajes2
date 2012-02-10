@@ -55,17 +55,21 @@ public:
   void setBlock(Block* block);
 };
 
+typedef std::unordered_multimap<std::string,SymVar*> varSymtable;
+typedef std::unordered_map<std::string,SymFunction*> funcSymTable;
+
 class SymTable{
 private:
-  symtable varTable;
-  std::unordered_map<std::string,Symbol*> funcTable;
+  varSymtable varTable;
+  funcSymTable funcTable;
   int nextscope;
   std::deque<int> stack;
 public:
   SymTable();
-  void insert(Symbol sym); // !!! Falta sobrecargar
-  Symbol* lookup_variable(std::string nombreID);
-  Symbol* lookup_function(std::string nombreID);
+  void insert(SymVar sym);
+  void insert(SymFunction sym);
+  SymVar* lookup_variable(std::string nombreID);
+  SymFunction* lookup_function(std::string nombreID);
   int current_scope();
   int leave_scope();
   int enter_scope();
