@@ -51,7 +51,6 @@ void pushLoopLabel(std::string label, YYLTYPE* yylloc) {
     if (*it == label) {
       program.error("etiqueta '"+label+"' repetida.", yylloc->first_line,
 		    yylloc->first_column);
-      program.errorCount++;
       break;
     }
   }
@@ -69,8 +68,10 @@ void popLoopLabel() {
 bool functionRedeclared(std::string id, YYLTYPE yylloc) {
   SymFunction* symf = program.symtable.lookup_function(id);
   if (symf != NULL) {
-    program.error("redeclaración de función '"+id+"'", yylloc.first_line,
-		  yylloc.first_column);
+    std::string err = "redeclaración de función '"
+      +id+"' previamente declarada en "+std::to_string(symf->getLine())
+      +":"+std::to_string(symf->getColumn());
+    program.error(err, yylloc.first_line, yylloc.first_column);
     // !!! symf->setDuplicated(true);
     return true;
   }
@@ -80,8 +81,10 @@ bool functionRedeclared(std::string id, YYLTYPE yylloc) {
 bool variableRedeclared(std::string id, YYLTYPE yylloc) {
   SymVar* symv = program.symtable.lookup_variable(id);
   if (symv != NULL && symv->getnumScope() == program.symtable.current_scope()) {
-    program.error("redeclaración de variable '"+id+"'", yylloc.first_line,
-		  yylloc.first_column);
+    std::string err = "redeclaración de variable '"
+      +id+"' previamente declarada en "+std::to_string(symv->getLine())
+      +":"+std::to_string(symv->getColumn());
+    program.error(err, yylloc.first_line, yylloc.first_column);
     // !!! symv->setDuplicated(true);
     return true;
   }
@@ -244,7 +247,8 @@ nonempty_args:
   passby type TK_ID
     { $$ = new listSymPairs();
       if (!variableRedeclared(*$3, @3)) {
-	SymVar* arg = new SymVar(*$3, @3.first_line, @3.first_column, true);
+	SymVar* arg = new SymVar(*$3, @3.first_line, @3.first_column, true,
+				 program.symtable.current_scope());
 	arg->setType(*$2);
 	// !!! if ($1 == PassBy::readonly) arg->setReadonly(true);
 	program.symtable.insert(arg);
@@ -254,7 +258,8 @@ nonempty_args:
 
 | nonempty_args "," passby type TK_ID
     { if (!variableRedeclared(*$5, @5)) {
-        SymVar* arg = new SymVar(*$5, @5.first_line, @5.first_column, true);
+        SymVar* arg = new SymVar(*$5, @5.first_line, @5.first_column, true,
+				 program.symtable.current_scope());
 	arg->setType(*$4);
 	// !!! if ($3 == PassBy::readonly) arg->setReadonly(true);
 	program.symtable.insert(arg);
@@ -270,7 +275,13 @@ passby:
 
  /* Produce un Block (secuencia de instrucciones) */
 block:
-  "{" stmts "}" { setLocation($2,&@$); $$ = $2; }
+  "{" stmts "}"
+    { setLocation($2,&@$); $$ = $2; }
+| "{" "}"
+    { $$ = new Block(program.symtable.current_scope(),
+		     new Null());
+      setLocation($$, &@$);
+    }
 
  /* Regla dummy para abrir un nuevo contexto en la tabla de símbolos */
 enterscope:
@@ -355,7 +366,8 @@ for:
   "for" TK_ID "in" expr ".." expr step enterscope
     { /* Meter variable de iteración en la tabla antes de revisar las
          instrucciones */
-      SymVar* loopvar = new SymVar(*$4, @4.first_line, @4.first_column, false);
+      SymVar* loopvar = new SymVar(*$4, @4.first_line, @4.first_column, false,
+				   program.symtable.current_scope());
       IntType it;
       loopvar->setType(it);
       // !!! loopvar->setReadonly(true);
@@ -435,7 +447,8 @@ vardec_items:
 vardec_item:
   TK_ID
     { if (!variableRedeclared(*$1, @1)) {
-        SymVar* sym = new SymVar(*$1, @1.first_line, @1.first_column,false);
+        SymVar* sym = new SymVar(*$1, @1.first_line, @1.first_column,false,
+				 program.symtable.current_scope());
 	program.symtable.insert(sym);
 	$$ = new std::pair<SymVar*,Expression*>(sym,NULL);
       } else {
@@ -444,7 +457,8 @@ vardec_item:
     }
 | TK_ID "=" expr
     { if (!variableRedeclared(*$1, @1)) {
-        SymVar* sym = new SymVar(*$1, @1.first_line, @1.first_column,false);
+        SymVar* sym = new SymVar(*$1, @1.first_line, @1.first_column,false,
+				 program.symtable.current_scope());
 	program.symtable.insert(sym);
 	$$ = new std::pair<SymVar*,Expression*>(sym,$3);
       } else {

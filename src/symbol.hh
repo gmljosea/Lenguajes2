@@ -24,6 +24,8 @@ public:
   std::string getId();
   void setType(Type t);
   int getnumScope();
+  int getLine();
+  int getColumn();
 };
 
 // Clase SymVar hereda de Symbol 
@@ -31,7 +33,7 @@ class SymVar: public Symbol{
 private:
   bool isParameter;
 public:
-  SymVar (std::string id, int line,int col,bool isParam);
+  SymVar (std::string id, int line,int col,bool isParam, int scope);
 };
 
 /*Tipo de pasaje para los argumentos de funciones*/

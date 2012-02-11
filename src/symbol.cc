@@ -18,6 +18,14 @@ int Symbol:: getnumScope(){
   return this->numScope;
 }
 
+int Symbol::getLine() {
+  return this->line;
+}
+
+int Symbol::getColumn() {
+  return this->col;
+}
+
 void Symbol::setType(Type t) {
   this->type = t;
 }
@@ -50,7 +58,8 @@ void SymFunction::setBlock(Block* block) {
 }
 
 SymVar::SymVar(std::string id,int line,int col,
-               bool isParam) : Symbol(id,line,col){
+               bool isParam, int scope) : Symbol(id,line,col){
+  this->numScope = scope;
   this->isParameter= isParam;
   //  std::cout << "SymVar creado";
 }
@@ -66,10 +75,12 @@ int SymTable::current_scope(){
 }
 
 void SymTable::insert(SymVar *sym){
+  //std::cout << "insertando var "<<sym->getId()<<std::endl;
   this->varTable.insert(varSymtable::value_type(sym->getId(),sym));
 }
 
 void SymTable::insert(SymFunction *sym){
+  //  std::cout << "insertando fun "<<sym->getId()<<std::endl;
   this->funcTable.insert(funcSymtable::value_type(sym->getId(),sym));
 }
 
