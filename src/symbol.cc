@@ -37,8 +37,9 @@ void SymFunction::print() {
     std::cout << "  Argumentos:" << std::endl;
     for (listSymPairs::iterator it = arguments->begin();
 	 it != arguments->end(); it++) {
-      // !!! Imprimir bien esto...
-      std::cout << "    Argumento bla" << std::endl;
+      
+      std::cout << "    Argumento";
+      it->second->print();
     }
   }
   // Imprimir bloque con nivel de anidamiento 1
@@ -53,6 +54,10 @@ SymVar::SymVar(std::string id,int line,int col,
                bool isParam) : Symbol(id,line,col){
   this->isParameter= isParam;
   //  std::cout << "SymVar creado";
+}
+
+void SymVar::print(){
+  std::cout << id << "(" << line << ":" << col << ")"<< std::endl;
 }
 
 SymTable::SymTable(){
