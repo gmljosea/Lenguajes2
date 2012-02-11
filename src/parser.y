@@ -1,6 +1,6 @@
 %defines
 %output "parser.cc"
-%define api.pure
+
 %locations
 
 %code requires {
@@ -18,7 +18,7 @@
 
 %code {
 
-int yylex(YYSTYPE*,YYLTYPE*);
+int yylex();
 void yyerror (char const *);
 extern FILE *yyin;
 
@@ -45,7 +45,7 @@ void setLocation(Statement* stmt, YYLTYPE* yylloc) {
  * hay o no error, igual se empila la etiqueta, de manera que el parseo pueda
  * continuar normalmente.
  */
- void pushLoopLabel(std::string label, YYLTYPE* yylloc) {
+void pushLoopLabel(std::string label, YYLTYPE* yylloc) {
   for (std::list<std::string>::iterator it = looplabels.begin();
        it != looplabels.end(); it++) {
     if (*it == label) {
@@ -59,9 +59,18 @@ void setLocation(Statement* stmt, YYLTYPE* yylloc) {
 }
 
 /**
+ * Desempila una etiqueta de la pila de etiquetas, más nada.
  */
 void popLoopLabel() {
   looplabels.pop_front();
+}
+
+bool functionRedeclared(std::string id) {
+  SymFunction* symf = program.symtable.lookup_function(id);
+}
+
+bool variableRedeclared(std::string id) {
+
 }
 
 }
@@ -166,48 +175,56 @@ void popLoopLabel() {
 
 %% /* Gramática */
 
-/**
- * Un programa es una secuencia de declaraciones globales, sean variables,
- * funciones o estructuras. Una de ellas debe ser una función llamada 'main'.
- */
+ /* Produce un programa escrito en Devanix. Un programa es básicamente una
+    secuencia de declaraciones de funciones, variables globales y boxes. */
 globals:
- /* En estas producciones no hay que hacer nada, la regla 'global' produce los
-    efectos de borde deaseados */
-   global
- | globals global
+  global
+| globals global
 
+ /* Produce una declaración de función, variable global o box */
 global:
-   /* Declaración de una o más variables globales, posiblemente con asignación */
-   variabledec
-   { program.globalinits.push_back(dynamic_cast<VariableDec*> $1); }
- | type TK_ID enterscope "(" args ")"
-    { SymFunction* sym
-       = new SymFunction(*$2, @2.first_line, @2.first_column, $5);
+  variabledec
+    { program.globalinits.push_back(dynamic_cast<VariableDec*> $1); }
 
-      // !!! Meter en tabla de símbolos
+| type TK_ID enterscope "(" args ")"
+    { SymFunction* sym = new SymFunction(*$2, @2.first_line,
+					 @2.first_column, $5);
       currentfun = sym;
+      if (!functionRedeclared(*$2)) {
+	/* Si una función se redeclara, no se inserta en la tabla de símbolos
+	   Pero si instanciamos el SymFunction y actualizamos la variable
+	   currentfun para por lo menos poder chequear los return.
+         */
+	program.symtable.insert(sym);
+      }
     }
-   keepscope_block leavescope
+  keepscope_block leavescope
     {
       currentfun->setType(*$1);
       currentfun->setBlock($8);
       program.functions.push_back(currentfun);
     }
 
- // ** Inicio (de la mayor parte de) gramática de la declaración de funciones
-args: // Debería devolver una lista de tuplas como dentro de SymFunction
-   /* empty */ { $$ = new listSymPairs(); }
- | nonempty_args
+ /* Produce una lista de declaraciones de argumentos de una función,
+    posiblemente vacía. */
+args:
+  /* empty */
+    { $$ = new listSymPairs(); }
+| nonempty_args
 
+ /* Produce una lista de declaraciones de argumentos de una función con al menos
+    un argumento. */
 nonempty_args:
-   passby type TK_ID
-   { /* !!! Meter símbolo en la tabla y crear la lista de argumentos */
-     SymVar* arg = new SymVar(*$3, @3.first_line, @3.first_column, true);
+  passby type TK_ID
+    {
+     $$ = new listSymPairs();
+      if (!variableRedeclared(*$3)) {
+      SymVar* arg = new SymVar(*$3, @3.first_line, @3.first_column, true);
      arg->setType(*$2);
      //if ($1 == PassBy::readonly) arg->setReadonly(true);
-     $$ = new listSymPairs();
-     $$->push_back(std::pair<PassType,SymVar*>($1,arg)); }
- | nonempty_args "," passby type TK_ID
+     $$->push_back(std::pair<PassType,SymVar*>($1,arg));
+} }
+| nonempty_args "," passby type TK_ID
    { /* !!! Meter símbolo en la tabla y agregarlo a la lista de argumentos */
      SymVar* arg = new SymVar(*$5, @5.first_line, @5.first_column, true);
      arg->setType(*$4);

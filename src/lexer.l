@@ -1,12 +1,13 @@
-%option yylineno noyywrap bison-locations
+%option yylineno noyywrap
 %option outfile="lexer.cc"
 
 %{
 #include <iostream>
 #include "parser.hh"
 
-#define YY_USER_ACTION lexer::set_yylloc(yylloc);
+#define YY_USER_ACTION lexer::set_yylloc();
 
+extern YYLTYPE yylloc;
 extern Program program;
 
 namespace lexer {
@@ -18,20 +19,20 @@ namespace lexer {
    * procesando. Utiliza las variables globales yycolumn, yylineno y lastline.
    * Basado en el Cap.8 del libro Flex & Bison
    */
-  void set_yylloc(YYLTYPE *yylloc) {
-    yylloc->first_line = yylloc->last_line = yylineno;
+  void set_yylloc() {
+    yylloc.first_line = yylloc.last_line = yylineno;
     if (lastline < yylineno) {
       lastline = yylineno;
       yycolumn = 1;
     }
-    yylloc->first_column = yycolumn;
-    yylloc->last_column = yycolumn+yyleng-1;
+    yylloc.first_column = yycolumn;
+    yylloc.last_column = yycolumn+yyleng-1;
     yycolumn += yyleng;
   }
 
-  void trace(std::string rule, std::string yytext, YYLTYPE* yylloc) {
-    /*std::cerr << "Token " << rule << " (" << yytext << ") en "
-              << yylloc->first_line << ":" << yylloc->first_column << std::endl;*/
+  void trace(std::string rule, std::string yytext, YYLTYPE yylloc) {
+    std::cerr << "Token " << rule << " (" << yytext << ") en "
+              << yylloc.first_line << ":" << yylloc.first_column << std::endl;
   }
 
   std::string treatString(std::string yytext){
@@ -137,7 +138,7 @@ not { lexer::trace("not", yytext, yylloc); return TK_NOT;}
 
  /* Símbolos con valor semántico: strings, identificadores y números*/
 {ID}      { lexer::trace("identificador", yytext, yylloc);
-            yylval->str = new std::string(yytext); return TK_ID;}
+            yylval.str = new std::string(yytext); return TK_ID;}
 {String}  { lexer::trace("string", yytext, yylloc); return TK_CONSTSTRING;}
 {Char}    { lexer::trace("char", yytext, yylloc); return TK_CHAR;}
 {DecNum}  { lexer::trace("entero base decimal", yytext, yylloc);
@@ -173,7 +174,7 @@ not { lexer::trace("not", yytext, yylloc); return TK_NOT;}
  /* Detectar caracteres raros */
 . { program.errorCount++;
     program.error("caracter '"+std::string(yytext)+"' no reconocido.",
-                  yylloc->first_line, yylloc->first_column); }
+                  yylloc.first_line, yylloc.first_column); }
 
   /*Queda pendiente lo de tratar a los strings bien*/
 %%
