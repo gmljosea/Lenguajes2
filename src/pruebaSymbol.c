@@ -28,7 +28,18 @@ int main(){
     tabla.enter_scope();
     std::cout << "Alcance: " << tabla.current_scope()<<std::endl;
     SymVar varif("varif",27,2,false);
+    SymVar *var1= new SymVar("var1",28,2,false);
+    SymFunction func2("func2",29,1,NULL);
+    tabla.insert(&func2);
     tabla.insert(&varif);
+    tabla.insert(var1);
+    SymVar *lookvar1= tabla.lookup_variable("var1");
+    if(lookvar1!= NULL){
+      std::cout<< "lookvar1 encontrado" << std::endl;
+      lookvar1->print();
+      std::cout << lookvar1->getnumScope() << std::endl;
+    }
+   
     tabla.leave_scope();
   }
 
@@ -37,8 +48,9 @@ int main(){
   SymVar *var2b= tabla.lookup_variable("var2");
   SymFunction *func= tabla.lookup_function("func1");
 
- 
+  
   /* var1b->print();
      var2b->print();*/
+  std::cout << "Alcance de var1"<<var1b->getnumScope();
   func->print();
 }

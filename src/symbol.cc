@@ -72,6 +72,7 @@ int SymTable::current_scope(){
 
 void SymTable::insert(SymVar *sym){
   this->varTable.insert(varSymtable::value_type(sym->getId(),sym));
+
 }
 
 void SymTable::insert(SymFunction *sym){
