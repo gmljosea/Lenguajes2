@@ -14,7 +14,6 @@
 #include "program.hh"
 #include "statement.hh"
 #include "type.hh"
-
 }
 
 %code {
@@ -28,29 +27,39 @@ Program program;
 
 // Variables globales útiles para chequeos durante el parseo
 SymFunction* currentfun; // Función parseada actual
-std::list<std::string> looplabels; // Detectar etiquetas de iteración duplicadas
+std::list<std::string> looplabels;
 
-int current_scope() {
-  return 0;
-}
-
+/**
+ * Extrae los campos de yylloc y los utiliza para inicializar los campos
+ * de ubicación de un Statement cualquiera.
+ */
 void setLocation(Statement* stmt, YYLTYPE* yylloc) {
   stmt->setLocation(yylloc->first_line, yylloc->first_column, yylloc->last_line,
 		    yylloc->last_column);
 }
 
-void pushLoopLabel(std::string label) {
+/**
+ * Empila una etiqueta de iteración nueva en la pila, chequeando que no exista
+ * otra etiqueta con el mismo nombre ya empilada.
+ * Si ya existe una etiqueta, se cuenta como error semántico. Sin importar si
+ * hay o no error, igual se empila la etiqueta, de manera que el parseo pueda
+ * continuar normalmente.
+ */
+ void pushLoopLabel(std::string label, YYLTYPE* yylloc) {
   for (std::list<std::string>::iterator it = looplabels.begin();
        it != looplabels.end(); it++) {
     if (*it == label) {
-      std::cerr << "Etiqueta duplicada" << std::endl;
-      program.isValid = false;
+      program.error("etiqueta '"+label+"' repetida.", yylloc->first_line,
+		    yylloc->first_column);
+      program.errorCount++;
       break;
     }
   }
   looplabels.push_front(label);
 }
 
+/**
+ */
 void popLoopLabel() {
   looplabels.pop_front();
 }
@@ -238,7 +247,7 @@ leavescope:
  // ** Produce una secuencia de instrucciones
 stmts:
    statement
-   { $$ = new Block(current_scope(), $1);
+   { $$ = new Block(0, $1);
      $1->setEnclosing($$);
      setLocation($1, &@$);}
  | stmts statement
@@ -279,14 +288,14 @@ else:
 
 while:
    label
-     { if ($1) pushLoopLabel(*$1); }
+{ if ($1) pushLoopLabel(*$1, &yylloc); }
    "while" expr newscope_block
      { if ($1) popLoopLabel();
        $$ = new While($1, $4, $5); }
 
 for:
    label
-     { if ($1) pushLoopLabel(*$1); }
+ { if ($1) pushLoopLabel(*$1, &yylloc); }
    "for" TK_ID "in" expr ".." expr step enterscope
      { /* Insertar TK_ID en la tabla con tipo Int */ }
    keepscope_block leavescope
@@ -392,7 +401,17 @@ int main (int argc, char **argv) {
   if (argc == 2) {
     yyin = fopen(argv[1], "r");
   }
+
+  program.errorCount = 0;
+
   yyparse();
+
+  // Segunda vuelta haciendo chequeos semánticos
+
+  // Si hay muchos errores, no imprimir el árbol ni nada
+  if (program.errorCount > 0) {
+    return 1;
+  }
 
   std::cout << "-- Variables globales --" << std::endl << std::endl;
 

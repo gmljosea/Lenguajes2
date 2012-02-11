@@ -7,6 +7,8 @@
 
 #define YY_USER_ACTION lexer::set_yylloc(yylloc);
 
+extern Program program;
+
 namespace lexer {
   int yycolumn = 1;
   int lastline = 1;
@@ -28,13 +30,8 @@ namespace lexer {
   }
 
   void trace(std::string rule, std::string yytext, YYLTYPE* yylloc) {
-    std::cerr << "Token " << rule << " (" << yytext << ") en "
-              << yylloc->first_line << ":" << yylloc->first_column << std::endl;
-  }
-
-  void error(std::string error, std::string yytext, YYLTYPE* yylloc) {
-    std::cerr << "Error de lexer: " << error << "(" << yytext << ") en "
-              << yylloc->first_line << ":" << yylloc->first_column << std::endl;
+    /*std::cerr << "Token " << rule << " (" << yytext << ") en "
+              << yylloc->first_line << ":" << yylloc->first_column << std::endl;*/
   }
 
   std::string treatString(std::string yytext){
@@ -174,7 +171,9 @@ not { lexer::trace("not", yytext, yylloc); return TK_NOT;}
       otros tokens */
 
  /* Detectar caracteres raros */
-. { lexer::error("caracter no reconocido", yytext, yylloc); }
+. { program.errorCount++;
+    program.error("caracter '"+std::string(yytext)+"' no reconocido.",
+                  yylloc->first_line, yylloc->first_column); }
 
   /*Queda pendiente lo de tratar a los strings bien*/
 %%

@@ -2,6 +2,8 @@
 #define DEVANIX_PROGRAM
 
 #include <list>
+#include <string>
+
 #include "statement.hh"
 #include "symbol.hh"
 
@@ -10,8 +12,8 @@ struct Program {
   std::list<VariableDec*> globalinits;
   std::list<SymFunction*> functions;
 
-  bool isValid; // Si este programa no tiene errores
   int errorCount; // Número de errores encontrados
+  void error(std::string error, int line, int col);
 };
 
 #endif
