@@ -3,11 +3,7 @@
 #include "expression.hh"
 #include "statement.hh"
 
-// Dummy, para que compile mientras tanto
-Lvalue::Lvalue() {
-}
-
-Lvalue::Lvalue(SymVar* var) {
+NormalLvalue::NormalLvalue(SymVar* var) {
   this->variable = var;
 }
 
@@ -213,19 +209,10 @@ void Write::print(int nesting) {
   std::cout << "Write" << std::endl;
 }
 
-Read::Read(Lvalue* lval, Block* block) {
+Read::Read(Lvalue* lval) {
   this->lval = lval;
-  this->block = block;
 }
 
 void Read::print(int nesting) {
   std::cout << "Read" << std::endl;
-}
-
-void Retry::setRead(Read* read) {
-  this->read = read;
-}
-
-void Retry::print(int nesting) {
-  std::cout << "Retry" << std::endl;
 }

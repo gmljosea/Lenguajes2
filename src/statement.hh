@@ -7,12 +7,16 @@
 #include "expression.hh"
 #include "symbol.hh"
 
-class Lvalue {
+class Lvalue {};
+
+class NormalLvalue : public Lvalue {
 private:
   SymVar* variable;
 public:
-  Lvalue ();
-  Lvalue (SymVar* var);
+  NormalLvalue (SymVar* sym);
+};
+
+class BadLvalue : public Lvalue {
 };
 
 class Block;
@@ -170,17 +174,9 @@ public:
 class Read : public Statement {
 private:
   Lvalue* lval;
-  Block* block;
 public:
-  Read (Lvalue* lval, Block* block);
+  Read (Lvalue* lval);
   virtual void print(int nesting);
 };
 
-class Retry : public Statement {
-private:
-  Read* read;
-public:
-  void setRead(Read* read);
-  virtual void print(int nesting);
-};
 #endif
