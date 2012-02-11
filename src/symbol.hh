@@ -34,6 +34,7 @@ private:
   bool isParameter;
 public:
   SymVar (std::string id, int line,int col,bool isParam, int scope);
+  void print();
 };
 
 /*Tipo de pasaje para los argumentos de funciones*/

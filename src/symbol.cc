@@ -45,8 +45,9 @@ void SymFunction::print() {
     std::cout << "  Argumentos:" << std::endl;
     for (listSymPairs::iterator it = arguments->begin();
 	 it != arguments->end(); it++) {
-      // !!! Imprimir bien esto...
-      std::cout << "    Argumento bla" << std::endl;
+      
+      std::cout << "    Argumento";
+      it->second->print();
     }
   }
   // Imprimir bloque con nivel de anidamiento 1
@@ -64,6 +65,10 @@ SymVar::SymVar(std::string id,int line,int col,
   //  std::cout << "SymVar creado";
 }
 
+void SymVar::print(){
+  std::cout << id << "(" << line << ":" << col << ")"<< std::endl;
+}
+
 SymTable::SymTable(){
   this->nextscope=2;
   this->stack.push_back(0);
@@ -77,6 +82,7 @@ int SymTable::current_scope(){
 void SymTable::insert(SymVar *sym){
   //std::cout << "insertando var "<<sym->getId()<<std::endl;
   this->varTable.insert(varSymtable::value_type(sym->getId(),sym));
+
 }
 
 void SymTable::insert(SymFunction *sym){
