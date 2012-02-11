@@ -65,12 +65,12 @@ int SymTable::current_scope(){
   return this->stack[stack.size()-1];
 }
 
-void SymTable::insert(SymVar sym){
-  this->varTable.insert(varSymtable::value_type(sym.getId(),&sym));
+void SymTable::insert(SymVar *sym){
+  this->varTable.insert(varSymtable::value_type(sym->getId(),sym));
 }
 
-void SymTable::insert(SymFunction sym){
-  this->funcTable.insert(funcSymtable::value_type(sym.getId(),&sym));
+void SymTable::insert(SymFunction *sym){
+  this->funcTable.insert(funcSymtable::value_type(sym->getId(),sym));
 }
 
 int SymTable::leave_scope(){

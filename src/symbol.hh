@@ -56,18 +56,18 @@ public:
 };
 
 typedef std::unordered_multimap<std::string,SymVar*> varSymtable;
-typedef std::unordered_map<std::string,SymFunction*> funcSymTable;
+typedef std::unordered_map<std::string,SymFunction*> funcSymtable;
 
 class SymTable{
 private:
   varSymtable varTable;
-  funcSymTable funcTable;
+  funcSymtable funcTable;
   int nextscope;
   std::deque<int> stack;
 public:
   SymTable();
-  void insert(SymVar sym);
-  void insert(SymFunction sym);
+  void insert(SymVar *sym);
+  void insert(SymFunction *sym);
   SymVar* lookup_variable(std::string nombreID);
   SymFunction* lookup_function(std::string nombreID);
   int current_scope();
