@@ -130,7 +130,6 @@ bool variableRedeclared(std::string id, YYLTYPE yylloc) {
 %token TK_NEXT        "next"
 %token TK_WRITE       "write"
 %token TK_READ        "read"
-%token TK_RETRY       "retry"
 %token TK_WRITELN     "writeln"
 
 // Tokens de símbolos especiales

@@ -101,8 +101,6 @@ write   { lexer::trace("write", yytext, yylloc); return TK_WRITE;}
 
 read    { lexer::trace("read", yytext, yylloc); return TK_READ; }
 
-retry   { lexer::trace("retry", yytext, yylloc); return TK_RETRY; }
-
 writeln { lexer::trace("writeln", yytext, yylloc); return TK_WRITELN; }
 
  /* Operadores */
