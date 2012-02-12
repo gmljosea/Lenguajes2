@@ -416,7 +416,7 @@ lvalue:
       if (symv == NULL) {
         program.error("variable '"+*$1+"' no declarada", @1.first_line,
 		      @1.first_column);
-	$$ = new BadLvalue();
+	$$ = new BadLvalue(); // O un YYERROR?
       } else {
 	$$ = new NormalLvalue(symv);
       }
@@ -480,12 +480,22 @@ type:
     Por ahora las expresiones válidas son las constantes, las variables y las
     llamadas a funciones. */
 expr:
-  TK_ID          { $$ = new VarExp(); }
-| TK_CONSTINT    { $$ = new IntExp(); }
-| TK_CONSTFLOAT  { $$ = new FloatExp(); }
-| TK_TRUE        { $$ = new BoolExp(); }
-| TK_FALSE       { $$ = new BoolExp(); }
-| TK_CONSTSTRING { $$ = new StringExp(); }
+  TK_ID
+    { SymVar* symv = program.symtable.lookup_variable(*$1);
+      if (symv == NULL) {
+        program.error("variable '"+*$1+"' no declarada", @1.first_line,
+		      @1.first_column);
+	$$ = new BadExp();
+	// No sé si esto más bien debería ser un YYERROR
+      } else {
+	$$ = new VarExp(symv);
+      }
+    }
+| TK_CONSTINT    { $$ = new IntExp($1); }
+| TK_CONSTFLOAT  { $$ = new FloatExp($1); }
+| TK_TRUE        { $$ = new BoolExp(true); }
+| TK_FALSE       { $$ = new BoolExp(false); }
+| TK_CONSTSTRING { $$ = new StringExp(*$1); }
 | funcallexp
 
  /* Produce una llamada a función */
