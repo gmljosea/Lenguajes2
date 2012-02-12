@@ -500,7 +500,14 @@ expr:
 
  /* Produce una llamada a función */
 funcallexp:
-  TK_ID "(" explist ")" { $$ = new FunCallExp(*$3); }
+  TK_ID "(" explist ")"
+    { SymFunction* symf = program.symtable.lookup_function(*$1);
+      if (symf == NULL) {
+	$$ = new FunCallExp(*$3);
+      } else {
+	$$ = new FunCallExp(symf, *$3);
+      }
+    }
 
  /* Produce una lista potencialmente vacía de expresiones separadas por comas */
 explist:
@@ -533,6 +540,8 @@ int main (int argc, char **argv) {
   yyparse();
 
   // Segunda vuelta haciendo chequeos semánticos
+
+  // Chequear que existe una función llamada main()
 
   // Si hay muchos errores, no imprimir el árbol ni nada
   if (program.errorCount > 0) {

@@ -27,6 +27,14 @@ StringExp::StringExp(std::string str) {
   this->str = str;
 }
 
-FunCallExp::FunCallExp(std::list<Expression*> args) {
+FunCallExp::FunCallExp(SymFunction* symf, std::list<Expression*> args) {
+  this->symf = symf;
   this->args = args;
+  this->checkedFunction = true;
+}
+
+FunCallExp::FunCallExp(std::list<Expression*> args) {
+  this->symf = NULL;
+  this->args = args;
+  this->checkedFunction = false;
 }

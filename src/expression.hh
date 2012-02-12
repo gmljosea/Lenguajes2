@@ -51,8 +51,11 @@ public:
 
 class FunCallExp : public Expression {
 private:
+  SymFunction* symf;
   std::list<Expression*> args;
+  bool checkedFunction;
 public:
+  FunCallExp (SymFunction* symf, std::list<Expression*> args);
   FunCallExp (std::list<Expression*> args);
 };
 
