@@ -3,6 +3,9 @@
 
 %{
 #include <iostream>
+#include <stdexcept>
+#include <string>
+
 #include "parser.hh"
 
 #define YY_USER_ACTION lexer::set_yylloc();
@@ -60,9 +63,9 @@ namespace lexer {
 
 ID      [_a-zA-Z][_a-zA-Z0-9]*
 DecNum  [1-9][0-9]*
-BinNum  b:[0-1]+
-HexNum  x:[0-9A-Fa-f]+
-Float   [0-9]+.[0-9]+
+BinNum  "b:"[0-1]+
+HexNum  "x:"[0-9A-Fa-f]+
+Float   [0-9]+.[0-9]+([Ee][\-+]?[0-9]+)?
 LineComment  "-.".*
  /* BlockComment "--."(.|\n)*".--"*/
 Char "'"(.|\\n|\\t|\\'|\\\\)"'"
@@ -157,13 +160,47 @@ not { lexer::trace("not", yytext, yylloc); return TK_NOT;}
 {String}  { lexer::treatstring();
  lexer::trace("string", yytext, yylloc); return TK_CONSTSTRING;}
 {Char}    { lexer::trace("char", yytext, yylloc); return TK_CHAR;}
+
 {DecNum}  { lexer::trace("entero base decimal", yytext, yylloc);
-            return TK_CONSTINT; }
-{BinNum}  { lexer::trace("entero base binaria", yytext, yylloc);
-            return TK_CONSTINT; }
+            try {
+                yylval.ival = std::stoi(yytext, 0, 10);
+            } catch (std::out_of_range oor) {
+                program.error("constante '"+std::string(yytext)+"' demasiado grande.",
+                              yylloc.first_line, yylloc.first_column);
+                yylval.ival = 0;
+            }
+            return TK_CONSTINT;
+          }
+
+{BinNum} { lexer::trace("entero base binaria", yytext, yylloc);
+             try {
+                yylval.ival = std::stoi(yytext+2, 0, 2);
+            } catch (std::out_of_range oor) {
+                program.error("constante '"+std::string(yytext+2)+"' demasiado grande.",
+                              yylloc.first_line, yylloc.first_column);
+                yylval.ival = 0;
+            }
+            return TK_CONSTINT;
+          }
+
 {HexNum}  { lexer::trace("entero base hexadecimal", yytext, yylloc);
-            return TK_CONSTINT; }
+            try {
+                yylval.ival = std::stoi(yytext+2, 0, 16);
+            } catch (std::out_of_range oor) {
+                program.error("constante '"+std::string(yytext)+"' demasiado grande.",
+                              yylloc.first_line, yylloc.first_column);
+                yylval.ival = 0;
+            }
+            return TK_CONSTINT;
+          }
 {Float}   { lexer::trace("punto flotante", yytext, yylloc);
+             try {
+                yylval.fval = std::stof(yytext);
+            } catch (std::out_of_range oor) {
+                program.error("constante '"+std::string(yytext)+"' no se puede representar.",
+                              yylloc.first_line, yylloc.first_column);
+                yylval.fval = 0.0;
+            }
             return TK_CONSTFLOAT; }
 
  /* Comerse los comentarios, tomado del manual de Flex */
