@@ -46,12 +46,12 @@ void SymFunction::print() {
     for (listSymPairs::iterator it = arguments->begin();
 	 it != arguments->end(); it++) {
       
-      std::cout << "    Argumento";
+      std::cout << "    Argumento: ";
       it->second->print();
     }
   }
   // Imprimir bloque con nivel de anidamiento 1
-  block->print(1);
+  //block->print(1);
 }
 
 void SymFunction::setBlock(Block* block) {
@@ -66,7 +66,7 @@ SymVar::SymVar(std::string id,int line,int col,
 }
 
 void SymVar::print(){
-  std::cout << id << "(" << line << ":" << col << ")"<< std::endl;
+  std::cout << id << " (" << line << ":" << col << ")"<< std::endl;
 }
 
 SymTable::SymTable(){

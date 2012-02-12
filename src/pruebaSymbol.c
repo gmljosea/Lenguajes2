@@ -7,10 +7,14 @@ int main(){
   std::cout << "Alcance: " << tabla.current_scope()<<std::endl;
   
   /*Alcance mas externo, lugar en donde se declaran var globales y func*/
-  SymVar var1("var1",10,1,false);
-  SymVar var2("var2",11,1,false);
-  SymVar param1("param1",14,15,true);
-  SymVar param2("param2",14,19,true);
+  SymVar var1("var1",10,1,false,tabla.current_scope());
+  SymVar var2("var2",11,1,false,tabla.current_scope());
+  tabla.enter_scope();
+
+  /*Declarar funcion con sus parametros*/
+  SymVar param1("param1",14,15,true,tabla.current_scope());
+  SymVar param2("param2",14,19,true,tabla.current_scope());
+  tabla.leave_scope();
   listSymPairs offunc1;
   offunc1.push_back(std::pair<PassType,SymVar*>(PassType::normal,&param1));
   offunc1.push_back(std::pair<PassType,SymVar*>(PassType::reference,&param2));
@@ -27,12 +31,16 @@ int main(){
   if(true){
     tabla.enter_scope();
     std::cout << "Alcance: " << tabla.current_scope()<<std::endl;
-    SymVar varif("varif",27,2,false);
-    SymVar *var1= new SymVar("var1",28,2,false);
+    SymVar varif("varif",27,2,false,tabla.current_scope());
+
+    /*Variable que opaca a var1 del Alcance anterior*/
+    SymVar *var1= new SymVar("var1",28,2,false,tabla.current_scope());
+
     SymFunction func2("func2",29,1,NULL);
     tabla.insert(&func2);
     tabla.insert(&varif);
     tabla.insert(var1);
+
     SymVar *lookvar1= tabla.lookup_variable("var1");
     if(lookvar1!= NULL){
       std::cout<< "lookvar1 encontrado" << std::endl;
@@ -49,8 +57,8 @@ int main(){
   SymFunction *func= tabla.lookup_function("func1");
 
   
-  /* var1b->print();
-     var2b->print();*/
-  std::cout << "Alcance de var1"<<var1b->getnumScope();
+  var1b->print();
+  var2b->print();
+  std::cout << "Alcance de var1: "<< var1b->getnumScope() << std::endl;
   func->print();
 }
