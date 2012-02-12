@@ -35,7 +35,24 @@ namespace lexer {
               << yylloc.first_line << ":" << yylloc.first_column << std::endl;*/
   }
 
-  std::string treatString(std::string yytext){
+  void treatstring(){
+    std::string(yytext);
+    size_t pos;
+   
+    if((pos=yytext.find("\\n"))!=std::string::npos) 
+       yytext.replace(pos ,2,"\n");
+   
+    if((pos=yytext.find("\\t"))!=std::string::npos) 
+       yytext.replace(pos,2,"\t");
+
+    if((pos=yytext.find("\\\""))!=std::string::npos) 
+       yytext.replace(pos,2,"\"");
+    
+    if((pos=yytext.find("\\\\"))!=std::string::npos) 
+       yytext.replace(pos,2,"\\");
+
+    yytext.replace(0,1,"");
+    //yytext.replace(yytext.find_last_of("\""),1,"");
   }
 }
 
@@ -137,7 +154,8 @@ not { lexer::trace("not", yytext, yylloc); return TK_NOT;}
  /* Símbolos con valor semántico: strings, identificadores y números*/
 {ID}      { lexer::trace("identificador", yytext, yylloc);
             yylval.str = new std::string(yytext); return TK_ID;}
-{String}  { lexer::trace("string", yytext, yylloc); return TK_CONSTSTRING;}
+{String}  { lexer::treatstring();
+ lexer::trace("string", yytext, yylloc); return TK_CONSTSTRING;}
 {Char}    { lexer::trace("char", yytext, yylloc); return TK_CHAR;}
 {DecNum}  { lexer::trace("entero base decimal", yytext, yylloc);
             return TK_CONSTINT; }
@@ -174,5 +192,4 @@ not { lexer::trace("not", yytext, yylloc); return TK_NOT;}
     program.error("caracter '"+std::string(yytext)+"' no reconocido.",
                   yylloc.first_line, yylloc.first_column); }
 
-  /*Queda pendiente lo de tratar a los strings bien*/
 %%
