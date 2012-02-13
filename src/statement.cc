@@ -179,7 +179,8 @@ void Next::print(int nesting) {
   std::cout << std::endl;
 }
 
-Return::Return(Expression *exp) {
+Return::Return(SymFunction* symf, Expression *exp) {
+  this->symf = symf;
   this->exp = exp;
 }
 

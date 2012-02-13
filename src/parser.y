@@ -320,9 +320,9 @@ statement:
 | "next" ";"
     { $$ = new Next(NULL); }
 | "return" expr ";"
-    { $$ = new Return($2); }
+    { $$ = new Return(currentfun, $2); }
 | "return" ";"
-    { $$ = new Return(); }
+    { $$ = new Return(currentfun); }
 | "write" nonempty_explist ";"
     { $$ = new Write(*$2,false); }
 | "writeln" nonempty_explist ";"

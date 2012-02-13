@@ -168,12 +168,10 @@ public:
 class Return : public Statement {
 private:
   Expression* exp;
-  //* funblock; // Función que termina este return
+  SymFunction* symf; // Función que termina este return
 public:
-  Return (Expression* exp = NULL);
+  Return (SymFunction* symf, Expression* exp = NULL);
   virtual void print(int nesting);
-  // Hay que acomodar esto para que reciba de argumento un SymFunction
-  // (en el parser es el valor que se guarda en currentfun)
   // El chequeo es ver que la expresión concuerda con la función.
 };
 
