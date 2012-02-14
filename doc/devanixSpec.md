@@ -16,7 +16,7 @@ Las palabras reservadas del lenguaje no pueden ser usadas como identificadores
 
 Los símbolos reservados del lenguaje son los siguientes:
 
-    { } ( ) [ ] ; , .. $ $$ : + * / % = < > <= >= -. --.  .-- _ 
+    { } ( ) [ ] ; , .. $ $$ : + * / % = < > <= >= -. --.  .-- .  
 
 Los identificadores son secuencias de caracteres alfanumericos o 
 el símbolo *underscore* (_), y no pueden comenzar por un caracter numérico.
@@ -80,11 +80,11 @@ Escalares:
 Compuestos:
 
 *    **array**
-*    **string**
 *    **box**
 
 Especial:
 
+*    **string**
 *    **void**
 
 ### Tipos **box**

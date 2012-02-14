@@ -542,8 +542,11 @@ int main (int argc, char **argv) {
   // Segunda vuelta haciendo chequeos semánticos
 
   // Chequear que existe una función llamada main()
+  SymFunction *main= program.symtable.lookup_function("main");
+  if(main==NULL)
+    program.error("No se ha definido la función main.");
 
-  // Si hay muchos errores, no imprimir el árbol ni nada
+  // Si hay algun error, no imprimir el árbol.
   if (program.errorCount > 0) {
     return 1;
   }
