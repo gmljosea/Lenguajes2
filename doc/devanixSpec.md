@@ -4,7 +4,10 @@
 + Alias no
 + tipos basicos no pueden ser opacados 
 + variables globales lo q sea pero antes de usarlas, declararlas 
-+ IO
++ IO correo a novich
++ string overflow en read : truncar boleta
++ retry en read
+
 
 
 + potencia, base,exponente nan 
