@@ -1,11 +1,17 @@
-%option yylineno noyywrap bison-locations
+%option yylineno noyywrap
 %option outfile="lexer.cc"
 
 %{
 #include <iostream>
+#include <stdexcept>
+#include <string>
+
 #include "parser.hh"
 
-#define YY_USER_ACTION lexer::set_yylloc(yylloc);
+#define YY_USER_ACTION lexer::set_yylloc();
+
+extern YYLTYPE yylloc;
+extern Program program;
 
 namespace lexer {
   int yycolumn = 1;
@@ -16,28 +22,40 @@ namespace lexer {
    * procesando. Utiliza las variables globales yycolumn, yylineno y lastline.
    * Basado en el Cap.8 del libro Flex & Bison
    */
-  void set_yylloc(YYLTYPE *yylloc) {
-    yylloc->first_line = yylloc->last_line = yylineno;
+  void set_yylloc() {
+    yylloc.first_line = yylloc.last_line = yylineno;
     if (lastline < yylineno) {
       lastline = yylineno;
       yycolumn = 1;
     }
-    yylloc->first_column = yycolumn;
-    yylloc->last_column = yycolumn+yyleng-1;
+    yylloc.first_column = yycolumn;
+    yylloc.last_column = yycolumn+yyleng-1;
     yycolumn += yyleng;
   }
 
-  void trace(std::string rule, std::string yytext, YYLTYPE* yylloc) {
-    std::cout << "Token " << rule << " (" << yytext << ") en "
-              << yylloc->first_line << ":" << yylloc->first_column << std::endl;
+  void trace(std::string rule, std::string yytext, YYLTYPE yylloc) {
+    /*std::cerr << "Token " << rule << " (" << yytext << ") en "
+              << yylloc.first_line << ":" << yylloc.first_column << std::endl;*/
   }
 
-  void error(std::string error, std::string yytext, YYLTYPE* yylloc) {
-    std::cout << "Error de lexer: " << error << "(" << yytext << ") en "
-              << yylloc->first_line << ":" << yylloc->first_column << std::endl;
-  }
+  void treatstring(){
+    std::string(yytext);
+    size_t pos;
+   
+    if((pos=yytext.find("\\n"))!=std::string::npos) 
+       yytext.replace(pos ,2,"\n");
+   
+    if((pos=yytext.find("\\t"))!=std::string::npos) 
+       yytext.replace(pos,2,"\t");
 
-  std::string treatString(std::string yytext){
+    if((pos=yytext.find("\\\""))!=std::string::npos) 
+       yytext.replace(pos,2,"\"");
+    
+    if((pos=yytext.find("\\\\"))!=std::string::npos) 
+       yytext.replace(pos,2,"\\");
+
+    yytext.replace(0,1,"");
+    //yytext.replace(yytext.find_last_of("\""),1,"");
   }
 }
 
@@ -45,9 +63,9 @@ namespace lexer {
 
 ID      [_a-zA-Z][_a-zA-Z0-9]*
 DecNum  [1-9][0-9]*
-BinNum  b:[0-1]+
-HexNum  x:[0-9A-Fa-f]+
-Float   [0-9]+.[0-9]+
+BinNum  "b:"[0-1]+
+HexNum  "x:"[0-9A-Fa-f]+
+Float   [0-9]+.[0-9]+([Ee][\-+]?[0-9]+)?
 LineComment  "-.".*
  /* BlockComment "--."(.|\n)*".--"*/
 Char "'"(.|\\n|\\t|\\'|\\\\)"'"
@@ -103,8 +121,6 @@ write   { lexer::trace("write", yytext, yylloc); return TK_WRITE;}
 
 read    { lexer::trace("read", yytext, yylloc); return TK_READ; }
 
-retry   { lexer::trace("retry", yytext, yylloc); return TK_RETRY; }
-
 writeln { lexer::trace("writeln", yytext, yylloc); return TK_WRITELN; }
 
  /* Operadores */
@@ -140,16 +156,51 @@ not { lexer::trace("not", yytext, yylloc); return TK_NOT;}
 
  /* Símbolos con valor semántico: strings, identificadores y números*/
 {ID}      { lexer::trace("identificador", yytext, yylloc);
-            yylval->str = new std::string(yytext); return TK_ID;}
-{String}  { lexer::trace("string", yytext, yylloc); return TK_CONSTSTRING;}
+            yylval.str = new std::string(yytext); return TK_ID;}
+{String}  { lexer::treatstring();
+ lexer::trace("string", yytext, yylloc); return TK_CONSTSTRING;}
 {Char}    { lexer::trace("char", yytext, yylloc); return TK_CHAR;}
+
 {DecNum}  { lexer::trace("entero base decimal", yytext, yylloc);
-            return TK_CONSTINT; }
-{BinNum}  { lexer::trace("entero base binaria", yytext, yylloc);
-            return TK_CONSTINT; }
+            try {
+                yylval.ival = std::stoi(yytext, 0, 10);
+            } catch (std::out_of_range oor) {
+                program.error("constante '"+std::string(yytext)+"' demasiado grande.",
+                              yylloc.first_line, yylloc.first_column);
+                yylval.ival = 0;
+            }
+            return TK_CONSTINT;
+          }
+
+{BinNum} { lexer::trace("entero base binaria", yytext, yylloc);
+             try {
+                yylval.ival = std::stoi(yytext+2, 0, 2);
+            } catch (std::out_of_range oor) {
+                program.error("constante '"+std::string(yytext+2)+"' demasiado grande.",
+                              yylloc.first_line, yylloc.first_column);
+                yylval.ival = 0;
+            }
+            return TK_CONSTINT;
+          }
+
 {HexNum}  { lexer::trace("entero base hexadecimal", yytext, yylloc);
-            return TK_CONSTINT; }
+            try {
+                yylval.ival = std::stoi(yytext+2, 0, 16);
+            } catch (std::out_of_range oor) {
+                program.error("constante '"+std::string(yytext)+"' demasiado grande.",
+                              yylloc.first_line, yylloc.first_column);
+                yylval.ival = 0;
+            }
+            return TK_CONSTINT;
+          }
 {Float}   { lexer::trace("punto flotante", yytext, yylloc);
+             try {
+                yylval.fval = std::stof(yytext);
+            } catch (std::out_of_range oor) {
+                program.error("constante '"+std::string(yytext)+"' no se puede representar.",
+                              yylloc.first_line, yylloc.first_column);
+                yylval.fval = 0.0;
+            }
             return TK_CONSTFLOAT; }
 
  /* Comerse los comentarios, tomado del manual de Flex */
@@ -174,7 +225,8 @@ not { lexer::trace("not", yytext, yylloc); return TK_NOT;}
       otros tokens */
 
  /* Detectar caracteres raros */
-. { lexer::error("caracter no reconocido", yytext, yylloc); }
+. { program.errorCount++;
+    program.error("caracter '"+std::string(yytext)+"' no reconocido.",
+                  yylloc.first_line, yylloc.first_column); }
 
-  /*Queda pendiente lo de tratar a los strings bien*/
 %%

@@ -1,36 +1,94 @@
 %defines
 %output "parser.cc"
-%define api.pure
+
 %locations
 
 %code requires {
 #include <cstdio>
 #include <iostream>
-#include <string>
 #include <list>
+#include <set>
+#include <string>
 
 #include "expression.hh"
-#include "statement.hh"
 #include "program.hh"
+#include "statement.hh"
 #include "type.hh"
-
 }
 
 %code {
 
-int yylex(YYSTYPE*,YYLTYPE*);
+int yylex();
 void yyerror (char const *);
 extern FILE *yyin;
 
+// Resultado del parseo
 Program program;
 
-int current_scope() {
-  return 0;
-}
+// Variables globales útiles para chequeos durante el parseo
+SymFunction* currentfun; // Función parseada actual
+std::list<std::string> looplabels;
 
+/**
+ * Extrae los campos de yylloc y los utiliza para inicializar los campos
+ * de ubicación de un Statement cualquiera.
+ */
 void setLocation(Statement* stmt, YYLTYPE* yylloc) {
   stmt->setLocation(yylloc->first_line, yylloc->first_column, yylloc->last_line,
 		    yylloc->last_column);
+}
+
+/**
+ * Empila una etiqueta de iteración nueva en la pila, chequeando que no exista
+ * otra etiqueta con el mismo nombre ya empilada.
+ * Si ya existe una etiqueta, se cuenta como error semántico. Sin importar si
+ * hay o no error, igual se empila la etiqueta, de manera que el parseo pueda
+ * continuar normalmente.
+ */
+void pushLoopLabel(std::string label, YYLTYPE* yylloc) {
+  for (std::list<std::string>::iterator it = looplabels.begin();
+       it != looplabels.end(); it++) {
+    if (*it == label) {
+      program.error("etiqueta '"+label+"' repetida.", yylloc->first_line,
+		    yylloc->first_column);
+      break;
+    }
+  }
+  looplabels.push_front(label);
+}
+
+/**
+ * Desempila una etiqueta de la pila de etiquetas, más nada.
+ */
+void popLoopLabel() {
+  looplabels.pop_front();
+}
+
+// Nota: mejorar para que muestra la ubicación de la declaración previa
+bool functionRedeclared(std::string id, YYLTYPE yylloc) {
+  SymFunction* symf = program.symtable.lookup_function(id);
+  if (symf != NULL) {
+    std::string err = "redeclaración de función '"
+      +id+"' previamente declarada en "+std::to_string(symf->getLine())
+      +":"+std::to_string(symf->getColumn());
+    program.error(err, yylloc.first_line, yylloc.first_column);
+    // !!! symf->setDuplicated(true);
+    return true;
+  }
+  return false;
+}
+
+bool variableRedeclared(std::string id, YYLTYPE yylloc) {
+  SymVar* symv = program.symtable.lookup_variable(id);
+  if (symv != NULL && symv->getnumScope() == program.symtable.current_scope()) {
+    std::string err = "redeclaración de variable '"
+      +id+"' previamente declarada en "+std::to_string(symv->getLine())
+      +":"+std::to_string(symv->getColumn());
+    program.error(err, yylloc.first_line, yylloc.first_column);
+    // !!! symv->setDuplicated(true);
+    return true;
+  }
+  return false;
 }
 
 }
@@ -48,6 +106,8 @@ void setLocation(Statement* stmt, YYLTYPE* yylloc) {
   std::list<std::pair<SymVar*,Expression*>> *decls;
   std::pair<SymVar*,Expression*> *decl;
   Lvalue *lvalue;
+  PassType passtype;
+  listSymPairs *argsdec;
 };
 
 // Tokens de palabras reservadas
@@ -73,7 +133,6 @@ void setLocation(Statement* stmt, YYLTYPE* yylloc) {
 %token TK_NEXT        "next"
 %token TK_WRITE       "write"
 %token TK_READ        "read"
-%token TK_RETRY       "retry"
 %token TK_WRITELN     "writeln"
 
 // Tokens de símbolos especiales
@@ -119,8 +178,8 @@ void setLocation(Statement* stmt, YYLTYPE* yylloc) {
 %token <fval> TK_CONSTFLOAT
 
 %type <stmt> statement if while for variabledec asignment
-%type <blk> block stmts funblock
-%type <exp> expr funcallexp
+%type <blk> stmts block else
+%type <exp> expr funcallexp step
 %type <str> label
 %type <type> type
 %type <lvalues> lvalues
@@ -128,222 +187,341 @@ void setLocation(Statement* stmt, YYLTYPE* yylloc) {
 %type <exps> explist nonempty_explist
 %type <decls> vardec_items
 %type <decl> vardec_item
+%type <passtype> passby
+%type <argsdec> args nonempty_args
 
 %% /* Gramática */
 
-/*
-Nota: para engranar el sistema de leblanc-cook, se modifica block para que maneje
-apropiadamente los alcances.
-Update: puse las reglas vacías 'enterscope' para hacer esto.
-*/
+// Nota: estoy marcando las áreas que faltan por hacer con !!!
 
 /*
-Nota: chequear que no se declare una variable de tipo void, ni que se declaren
-funciones de tipos arreglo y box se convirtió en un chequeo de contexto. Resulta
-que separándolos a nivel de gramática daba conflicto reduce/reduce
-*/
-
-/*
-Nota: la grmática para la 1º entrega debería estar lista. Falta probarla bien.
-Ahora intentar parsear algo probablemente va a producir un segfault. Eso lo
-voy arreglar pronto (la razón es la pila de { } vacíos que no instancian los
-AST que les toca y más arriba en el parseo se dereferencia una cosa que no es
-un objeto)
-*/
-
-/**
- * Un programa es una secuencia de declaraciones globales, sean variables,
- * funciones o estructuras. Una de ellas debe ser una función llamada 'main'.
+ * NOTA IMPORTANTE
+ * Las reglas utilizan las variables numeradas de bison ($1, $2, etc)
+ * en vez de las mucho más legibles variables nombradas ($expr, $if, etc)
+ * Esto es porque por alguna bizarra razón bison se niega a reconocer
+ * las variables nombradas y los [ ], y no compila.
  */
+
+ /* Produce un programa escrito en Devanix. Un programa es básicamente una
+    secuencia de declaraciones de funciones, variables globales y boxes. */
 globals:
- /* En estas producciones no hay que hacer nada, la regla 'global' produce los
-    efectos de borde deaseados */
-   global
- | globals global
+  global
+| globals global
 
+ /* Produce una declaración de función, variable global o box */
 global:
-   /* Declaración de una o más variables globales, posiblemente con asignación */
-   variabledec
-   { program.globalinits.push_back(dynamic_cast<VariableDec*> $1); }
- | type TK_ID enterscope "(" params ")" funblock
-   { program.symtable.leave_scope();
-     /*SymFunction* sym = new SymFunction(...);
-     program.symtable.insert(sym); */
-     // Imprimo la función solo para debugging
-     std::cout << "Función '" << *$2 << "':" << std::endl;
-     $7->print(0);
- }
+  variabledec
+    { program.globalinits.push_back(dynamic_cast<VariableDec*> $1); }
 
- // ** Inicio (de la mayor parte de) gramática de la declaración de funciones
-params: // Debería devolver una lista de tuplas como dentro de SymFunction
-   /* empty */
- | paramlist
+| type TK_ID enterscope "(" args ")"
+    { /* Si una función se redeclara, no se inserta en la tabla de símbolos,
+         Pero si instanciamos el SymFunction y actualizamos la variable
+         currentfun para por lo menos poder chequear los return.
+       */
+      SymFunction* sym = new SymFunction(*$2, @2.first_line,
+					 @2.first_column, $5);
+      // Este código a mitad de la regla permite que los return sepan
+      // en qué función se encuentran con ver la variable currentfun
+      currentfun = sym;
+      if (!functionRedeclared(*$2, @2)) {
+	program.symtable.insert(sym);
+      }
+    }
+  block leavescope
+    {
+      currentfun->setType(*$1);
+      currentfun->setBlock($8);
+      program.functions.push_back(currentfun);
+    }
 
-paramlist:
-   passby type TK_ID
-   { /* Meter símbolo en la tabla y crear la lista de argumentos */ }
- | paramlist "," passby type TK_ID
-   { /* Meter símbolo en la tabla y agregarlo a la lista de argumentos */ }
+ /* Produce una lista de declaraciones de argumentos de una función,
+    posiblemente vacía. */
+args:
+  /* empty */
+    { $$ = new listSymPairs(); }
+| nonempty_args
+
+ /* Produce una lista de declaraciones de argumentos de una función con al menos
+    un argumento. */
+nonempty_args:
+  passby type TK_ID
+    { $$ = new listSymPairs();
+      if (!variableRedeclared(*$3, @3)) {
+	SymVar* arg = new SymVar(*$3, @3.first_line, @3.first_column, true,
+				 program.symtable.current_scope());
+	arg->setType(*$2);
+	// !!! if ($1 == PassBy::readonly) arg->setReadonly(true);
+	program.symtable.insert(arg);
+	$$->push_back(std::pair<PassType,SymVar*>($1,arg));
+      }
+    }
+
+| nonempty_args "," passby type TK_ID
+    { if (!variableRedeclared(*$5, @5)) {
+        SymVar* arg = new SymVar(*$5, @5.first_line, @5.first_column, true,
+				 program.symtable.current_scope());
+	arg->setType(*$4);
+	// !!! if ($3 == PassBy::readonly) arg->setReadonly(true);
+	program.symtable.insert(arg);
+	$1->push_back(std::pair<PassType,SymVar*>($3,arg));
+      }
+      $$ = $1;
+    }
 
 passby:
-   /* empty */
- | "$" /* Implementar esto con un enum por favor */
- | "$$"
+  /* empty */  { $$ = PassType::normal; }
+| "$"          { $$ = PassType::reference; }
+| "$$"         { $$ = PassType::readonly; }
 
-funblock:
- /* Igual que la regla 'block', pero no abre un alcance.
-    Esto porque como es un bloque de función, el alcance que le corresponde
-    fue abierto antes de llegar a esta regla (para meter los símbolos de los
-    parámetros) */
-   "{" stmts "}" { setLocation($2,&@$); $$ = $2; }
-
- // ** Fin gramática de la declaración de funciones
-
-/**
- * Un bloque es un entorno de referencia único junto a una secuencia de
- * instrucciones.
- */
+ /* Produce un Block (secuencia de instrucciones) */
 block:
-   "{" enterscope stmts "}"
-   { setLocation($3,&@$); $$ = $3; program.symtable.leave_scope(); }
+  "{" stmts "}"
+    { setLocation($2,&@$); $$ = $2; }
+| "{" "}"
+    { $$ = new Block(program.symtable.current_scope(),
+		     new Null());
+      setLocation($$, &@$);
+    }
 
+ /* Regla dummy para abrir un nuevo contexto en la tabla de símbolos */
 enterscope:
    /* empty */ { program.symtable.enter_scope(); }
 
- // ** Produce una secuencia de instrucciones
+ /* Regla dummy para desempilar un contexto en la tabla de símbolos */
+leavescope:
+   /* empty */ { program.symtable.leave_scope(); }
+
+ /* Produce una secuencia de instrucciones (Statement) */
 stmts:
-   statement
-   { $$ = new Block(current_scope(), $1);
-     $1->setEnclosing($$);
-     setLocation($1, &@$);}
- | stmts statement
-   { $1->push_back($2);
-     $2->setEnclosing($1);
-     setLocation($2, &@$);
-     $$ = $1; }
+  statement
+    { $$ = new Block(program.symtable.current_scope(), $1);
+      $1->setEnclosing($$);
+      setLocation($1, &@$);
+    }
+| stmts statement
+    { $1->push_back($2);
+      $2->setEnclosing($1);
+      setLocation($2, &@$);
+      $$ = $1;
+    }
 
+ /* Produce una instrucción del lenguaje */
 statement:
-  ";"       { $$ = new Null(); }
- | if
- | while
- | for
- | variabledec
- | asignment
- | funcallexp ";" { $$ = new FunctionCall($1); }
- | "break" TK_ID ";" { $$ = new Break($2); }
- | "break" ";" { $$ = new Break(NULL); }
- | "next" TK_ID ";" { $$ = new Next($2); }
- | "next" ";" { $$ = new Next(NULL); }
- | "return" expr ";" { $$ = new Return($2); }
- | "return" ";"     { $$ = new Return(); }
- | "retry" ";" { $$ = new Retry(); }
- | "write" nonempty_explist ";" { $$ = new Write(*$2,false); }
- | "writeln" nonempty_explist ";" { $$ = new Write(*$2,true); }
- | "read" lvalue ";"   { $$ = new Read($2,NULL); }
- | "read" lvalue block { $$ = new Read($2,$3); }
+  ";"
+    { $$ = new Null(); }
+| funcallexp ";"
+    { $$ = new FunctionCall($1); }
+| "break" TK_ID ";"
+    { $$ = new Break($2); }
+| "break" ";"
+    { $$ = new Break(NULL); }
+| "next" TK_ID ";"
+    { $$ = new Next($2); }
+| "next" ";"
+    { $$ = new Next(NULL); }
+| "return" expr ";"
+    { $$ = new Return(currentfun, $2); }
+| "return" ";"
+    { $$ = new Return(currentfun); }
+| "write" nonempty_explist ";"
+    { $$ = new Write(*$2,false); }
+| "writeln" nonempty_explist ";"
+    { $$ = new Write(*$2,true); }
+| "read" lvalue ";"
+    { $$ = new Read($2); }
+| if
+| while
+| for
+| variabledec
+| asignment
 
+ /* Produce una instrucción If, con o sin bloque else */
 if:
-   "if" expr block
-   { std::cout << "Encontré un if sin else" << std::endl;
-     $$ = new If($2, $3);
-     $3->setEnclosing($$);
-     setLocation($$,&@$);}
+  "if" expr enterscope block leavescope else
+    { $$ = new If($2, $4, $6);
+      $4->setEnclosing($$);
+      setLocation($$,&@$);
+    }
 
- | "if" expr block "else" block
-   { std::cout << "Encontré un if con else" << std::endl;
-     $$ = new If($2, $3, $5);
-     $3->setEnclosing($$);
-     $5->setEnclosing($$);
-     setLocation($$, &@$);}
+ /* Produce un Block que representa el 'else' de un If, podrºía ser vacío */
+else:
+  /* empty */ { $$ = NULL; }
+| "else" enterscope block leavescope
+    { $$ = $3; }
 
+ /* Produce una instrucción While, duh */
 while:
-   label "while" expr block
-   { std::cout << "Encontré un while" << std::endl;
-     $$ = new While($1, $3, $4);}
+  label // Chequear la etiqueta antes de seguir procesando el while
+    { if ($1) pushLoopLabel(*$1, &yylloc); }
+  "while" expr enterscope block leavescope
+    { if ($1) popLoopLabel();
+      $$ = new While($1, $4, $6);
+    }
 
+ /* Produce un For, ya sea un for de enteros o un foreach sobre un array.
+    El for de enteros puede o no tener un paso (step) definido. */
 for:
-   label "for" TK_ID "in" expr ".." expr block
-   { std::cout << "Encontré un for sin paso" << std::endl;
-     $$ = new BoundedFor($1, $3, $5, $7, NULL, $8); }
- | label "for" TK_ID "in" expr ".." expr "step" expr block
-   { std::cout << "Encontré un for con paso" << std::endl;
-     $$ = new BoundedFor($1, $3, $5, $7, $9, $10); }
- /*| "for" TK_ID "in" TK_ID block  //foreach de arreglos*/
+  label // Chequear la etiqueta antes de seguir procesando el For
+    { if ($1) pushLoopLabel(*$1, &yylloc); }
+  "for" TK_ID "in" expr ".." expr step enterscope
+    { /* Meter variable de iteración en la tabla antes de revisar las
+         instrucciones */
+      SymVar* loopvar = new SymVar(*$4, @4.first_line, @4.first_column, false,
+				   program.symtable.current_scope());
+      IntType it;
+      loopvar->setType(it);
+      // !!! loopvar->setReadonly(true);
+      program.symtable.insert(loopvar);
+    }
+  block
+    { if ($1) popLoopLabel();
+      /* Esto es bastante chimbo, pero es la manera menos chimba que se me
+	 ocurrió de volver a conseguir el SymVar de la iteración para
+         poder instanciar el For.
+         La otra manera sería llevar una pila de variables de iteración. */
+      SymVar* loopvar = program.symtable.lookup_variable(*$4);
+      $$ = new BoundedFor($1, loopvar, $6, $8, $9, $12);
+    }
 
+ /* Produce la parte opcional del For 'step' */
+step:
+  /* empty */  { $$ = NULL; }
+| "step" expr  { $$ = $2; }
+
+ /* Produce la etiqueta opcional de los For y While */
 label:
-   /* empty */  { $$ = NULL; }
- | TK_ID ":"    { $$ = $1; }
+  /* empty */  { $$ = NULL; }
+| TK_ID ":"    { $$ = $1; }
 
- // ** Inicio gramática de la asignación
-asignment: // Modificar clase Asignment para que reciba listas de rvalues y lvalues
-   lvalues "=" explist ";" { $$ = new Asignment(*$1, *$3);  }
+ /* Produce una instrucción Asignación */
+asignment:
+  lvalues "=" explist ";"
+    { $$ = new Asignment(*$1, *$3);  }
 
-lvalues: // Devuelve list<Lvalue*>
-   lvalue { $$ = new std::list<Lvalue*>(); $$->push_back($1); }
- | lvalues "," lvalue { $1->push_back($3); $$ = $1; }
+ /* Produce una lista de l-values separados por comas */
+lvalues:
+  lvalue
+    { $$ = new std::list<Lvalue*>();
+      $$->push_back($1);
+    }
+| lvalues "," lvalue
+    { $1->push_back($3);
+      $$ = $1;
+    }
 
-lvalue: // Instanciar lvalue (falta hacer la clase)
-   TK_ID  { $$ = new Lvalue(); }
+ /* Produce un Lvalue */
+lvalue:
+  TK_ID
+    { SymVar* symv = program.symtable.lookup_variable(*$1);
+      if (symv == NULL) {
+        program.error("variable '"+*$1+"' no declarada", @1.first_line,
+		      @1.first_column);
+	$$ = new BadLvalue(); // O un YYERROR?
+      } else {
+	$$ = new NormalLvalue(symv);
+      }
+    }
 
- // ** Fin gramática de la asignación
-
- // ** Inicio gramática de la declaración de variables
+ /* Produce una instrucción Declaración de variables */
 variabledec:
-   type vardec_items ";"
-   { for (std::pair<SymVar*,Expression*> p : *$2) {
-       // !!! Setear el tipo del símbolo
-       //p.first->setType($1);;
-     }
-     $$ = new VariableDec(*$1,*$2);
-   }
+  type vardec_items ";"
+    { for (std::list<std::pair<SymVar*,Expression*>>::iterator it = $2->begin();
+	   it != $2->end(); it++) {
+	(*it).first->setType(*$1);
+      }
+      $$ = new VariableDec(*$1,*$2);
+    }
+ /* Produce una lista de declaraciones de variables */
+vardec_items:
+  vardec_item
+    { $$ = new std::list<std::pair<SymVar*,Expression*>>();
+      if ($1) $$->push_back(*$1);
+    }
+| vardec_items "," vardec_item
+    { if ($1) $1->push_back(*$3);
+      $$ = $1;
+    }
 
-vardec_items: // Devuelve una lista de pair<string,expr>
-   vardec_item
-   { $$ = new std::list<std::pair<SymVar*,Expression*>>();
-     $$->push_back(*$1); }
- | vardec_items "," vardec_item
-   { $1->push_back(*$3); $$ = $1; }
+ /* Produce una declaración de variable, la cual es un par que asocia la
+    variable con su expresión de inicialización, la cual es opcional */
+vardec_item:
+  TK_ID
+    { if (!variableRedeclared(*$1, @1)) {
+        SymVar* sym = new SymVar(*$1, @1.first_line, @1.first_column,false,
+				 program.symtable.current_scope());
+	program.symtable.insert(sym);
+	$$ = new std::pair<SymVar*,Expression*>(sym,NULL);
+      } else {
+        $$ = NULL;
+      }
+    }
+| TK_ID "=" expr
+    { if (!variableRedeclared(*$1, @1)) {
+        SymVar* sym = new SymVar(*$1, @1.first_line, @1.first_column,false,
+				 program.symtable.current_scope());
+	program.symtable.insert(sym);
+	$$ = new std::pair<SymVar*,Expression*>(sym,$3);
+      } else {
+        $$ = NULL;
+      }
+    }
 
-vardec_item: // Devuelve un pair<string,expr>
-   TK_ID
-   { SymVar* sym = new SymVar(*$1, @1.first_line, @1.first_column,false);
-     // !!! Falta Agregar a tabla de símbolos
-     $$ = new std::pair<SymVar*,Expression*>(sym,NULL); }
- | TK_ID "=" expr
-   { SymVar* sym = new SymVar(*$1, @1.first_line, @1.first_column,false);
-     // !!! Falta agregar a tabla de símbolos
-     $$ = new std::pair<SymVar*,Expression*>(sym,$3); }
-
+ /* Produce un tipo válido del lenguajes. Por ahora solo los tipos básicos. */
 type:
    "int"   { $$ = new IntType(); }
  | "char"  { $$ = new CharType(); }
  | "bool"  { $$ = new BoolType(); }
  | "float" { $$ = new FloatType(); }
  | "void"  { $$ = new VoidType(); }
- // ** Fin gramática de la declaración de variables
 
- // ** Inicio gramática de las expresiones
+ // ** Gramática de las expresiones
+
+ /* Produce una expresión.
+    Por ahora las expresiones válidas son las constantes, las variables y las
+    llamadas a funciones. */
 expr:
-   TK_ID          { $$ = new VarExp(); }
- | TK_CONSTINT    { $$ = new IntExp(); }
- | TK_CONSTFLOAT  { $$ = new FloatExp(); }
- | TK_TRUE        { $$ = new BoolExp(); }
- | TK_FALSE       { $$ = new BoolExp(); }
- | TK_CONSTSTRING { $$ = new StringExp(); }
- | funcallexp
+  TK_ID
+    { SymVar* symv = program.symtable.lookup_variable(*$1);
+      if (symv == NULL) {
+        program.error("variable '"+*$1+"' no declarada", @1.first_line,
+		      @1.first_column);
+	$$ = new BadExp();
+	// No sé si esto más bien debería ser un YYERROR
+      } else {
+	$$ = new VarExp(symv);
+      }
+    }
+| TK_CONSTINT    { $$ = new IntExp($1); }
+| TK_CONSTFLOAT  { $$ = new FloatExp($1); }
+| TK_TRUE        { $$ = new BoolExp(true); }
+| TK_FALSE       { $$ = new BoolExp(false); }
+| TK_CONSTSTRING { $$ = new StringExp(*$1); }
+| funcallexp
 
+ /* Produce una llamada a función */
 funcallexp:
-   TK_ID "(" explist ")" { $$ = new FunCallExp(); }
+  TK_ID "(" explist ")"
+    { SymFunction* symf = program.symtable.lookup_function(*$1);
+      if (symf == NULL) {
+	$$ = new FunCallExp(*$3);
+      } else {
+	$$ = new FunCallExp(symf, *$3);
+      }
+    }
 
+ /* Produce una lista potencialmente vacía de expresiones separadas por comas */
 explist:
-   /* empty */ { $$ = new std::list<Expression*>(); }
- | nonempty_explist
+  /* empty */  { $$ = new std::list<Expression*>(); }
+| nonempty_explist
 
+ /* Produce una lista no vacía de expresiones separadas por comas */
 nonempty_explist:
-   expr    { $$ = new std::list<Expression*>(); $$->push_back($1); }
- | explist "," expr { $1->push_back($3); $$ = $1; }
-
- // ** Fin gramática de las expresiones
+  expr
+    { $$ = new std::list<Expression*>();
+      $$->push_back($1); }
+| explist "," expr
+    { $1->push_back($3);
+      $$ = $1; }
 
 %%
 
@@ -356,7 +534,33 @@ int main (int argc, char **argv) {
   if (argc == 2) {
     yyin = fopen(argv[1], "r");
   }
+
+  program.errorCount = 0;
+
   yyparse();
-  // Pedirle cosas a Program
+
+  // Segunda vuelta haciendo chequeos semánticos
+
+  // Chequear que existe una función llamada main()
+
+  // Si hay muchos errores, no imprimir el árbol ni nada
+  if (program.errorCount > 0) {
+    return 1;
+  }
+
+  std::cout << "-- Variables globales --" << std::endl << std::endl;
+
+  for (std::list<VariableDec*>::iterator it = program.globalinits.begin();
+       it != program.globalinits.end(); it++) {
+    (**it).print(0);
+  }
+
+  std::cout << std::endl << "-- Funciones definidas --" << std::endl << std::endl;
+
+  for (std::list<SymFunction*>::iterator it = program.functions.begin();
+       it != program.functions.end(); it++) {
+    (**it).print();
+  }
+
   return 0;
 }

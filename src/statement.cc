@@ -3,11 +3,7 @@
 #include "expression.hh"
 #include "statement.hh"
 
-// Dummy, para que compile mientras tanto
-Lvalue::Lvalue() {
-}
-
-Lvalue::Lvalue(SymVar* var) {
+NormalLvalue::NormalLvalue(SymVar* var) {
   this->variable = var;
 }
 
@@ -62,7 +58,7 @@ std::string* Iteration::getLabel() {
 }
 
 // BoundedFor
-BoundedFor::BoundedFor(std::string* label, std::string* varsym,
+BoundedFor::BoundedFor(std::string* label, SymVar* varsym,
 		       Expression* lowerb, Expression* upperb,
 		       Expression* step, Block* block) : Iteration(label) {
   this->varsym = varsym;
@@ -78,7 +74,7 @@ void BoundedFor::print(int nesting) {
   if (label != NULL) {
     std::cout << padding << " Etiqueta: " << *label << std::endl;
   }
-  std::cout << padding << " Variable: " << *varsym << std::endl;
+  //  std::cout << padding << " Variable: " << *varsym << std::endl;
   std::cout << padding << " Cota inferior:" << std::endl;
   lowerb->print(nesting+1);
   std::cout << padding << " Cota superior:" << std::endl;
@@ -183,7 +179,8 @@ void Next::print(int nesting) {
   std::cout << std::endl;
 }
 
-Return::Return(Expression *exp) {
+Return::Return(SymFunction* symf, Expression *exp) {
+  this->symf = symf;
   this->exp = exp;
 }
 
@@ -213,19 +210,10 @@ void Write::print(int nesting) {
   std::cout << "Write" << std::endl;
 }
 
-Read::Read(Lvalue* lval, Block* block) {
+Read::Read(Lvalue* lval) {
   this->lval = lval;
-  this->block = block;
 }
 
 void Read::print(int nesting) {
   std::cout << "Read" << std::endl;
-}
-
-void Retry::setRead(Read* read) {
-  this->read = read;
-}
-
-void Retry::print(int nesting) {
-  std::cout << "Retry" << std::endl;
 }
