@@ -1,18 +1,4 @@
 # Lenguaje Devanix
-+ string no saltos de linea 
-+ nombres de funciones 
-+ Alias no
-+ tipos basicos no pueden ser opacados 
-+ variables globales lo q sea pero antes de usarlas, declararlas 
-+ IO
-
-
-+ potencia, base,exponente nan 
-+ map
-+ rec cola
-+ bool difuso
-+ break no hace daño. next/continue. restart
-
 * * *
 
 En este curso escribiremos un compilador para un sencillo lenguaje de programación
@@ -25,7 +11,12 @@ Las palabras reservadas del lenguaje no pueden ser usadas como identificadores
 (de variables, funciones, etc) y son las siguientes:
 
     if else for in step while int char bool float array string box 
-    void variant: true false
+    void variant true false return break next write write writeln
+    read and or not
+
+Los símbolos reservados del lenguaje son los siguientes:
+
+    { } ( ) [ ] ; , .. $ $$ : + * / % = < > <= >= -. --.  .-- _ 
 
 Los identificadores son secuencias de caracteres alfanumericos o 
 el símbolo *underscore* (_), y no pueden comenzar por un caracter numérico.
@@ -35,7 +26,8 @@ Los identificadores son sensibles a mayúsculas, es decir, los nombres **ejemplo
 
 Los números enteros se pueden escribir en base decimal, base binaria o base
 hexadecimal.
-Los números en base decimal son cualquier secuencia de dígitos entre 0 y 9.
+Los números en base decimal son cualquier secuencia de dígitos entre 0 y 9 que 
+comience con un dígito entre 1 y 9.
 Los números binarios se escriben comenzando con **b:** seguido de caracteres 0 o 1.
 Los números hexadecimales se escriben comenzando con **x:** seguido de dígitos
 del 0 al 9 y los caracteres alfabéticos desde la letra A hasta la F, sin
@@ -44,8 +36,11 @@ importar si son mayúsculas o minúsculas.
 Los números decimales (entiéndase como números con parte fraccionaria, no como
 números en base decimal) se pueden escribir únicamente en base decimal.
 Consisten de una secuencia no vacía de dígitos del 0 al 9 para la parte entera,
-un punto (**.**), y una secuencia no vacía de dñígitos del 0 al 9 para la parte
-fraccionaria.
+un punto (**.**), una secuencia no vacía de dñígitos del 0 al 9 para la parte
+fraccionaria, opcionalmente, después de esta segunda cadena de dígitos se puede
+agregar el exponente "E" ó "e" seguido de uno o más dígitos del 0 al 9 que pueden
+a su vez tener un símbolo de + ó - si es un número positivo o negativo respectivamente. El exponente significa que el número que lo antecede se multiplica por diez (10) 
+elevado al número que lo precede.
 
 Ejemplos de números:
 
@@ -53,19 +48,21 @@ Ejemplos de números:
     b:11111011100  -. el mismo entero pero en base 2
     x:7DC          -. el mismo entero pero en base 16
     2012.01        -. número decimal
-
-    -- Nota: cómo escribir strings? como se hace en C.
+    20.1201e2      -. el mismo decimal con exponente
 
 Los comentarios de una línea se comienzan con **-.** y cubren el resto de la línea.
 Los comentarios multilínea se comienzan con **--.** y se terminan con **.--**.
 
-. ; { } ( ) + * / % [ ] = -. --.  .-- _ :
-
 ## Gramática
 
-Esto viene cuando estemos más avanzados en el diseño.
-
 ## Estructura del programa
+
+La estructura de un programa en Devanix en general se puede dividir en dos partes 
+prinipales. Primero el bloque de código más externo, que define las variables
+globales y funciones.Este bloque de codigo debe contener al menos una función cuyo
+nombre sea "main" y su tipo sea **int**. El lenguaje no permite funciones anidadas
+por lo que este bloque es el único lugar en donde se pueden declarar.   
+
 
 ## Reglas de alcance
 
