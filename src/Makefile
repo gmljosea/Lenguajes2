@@ -3,7 +3,7 @@
 SRC = lexer.cc parser.cc $(wildcard *.cc)
 OBJ = $(SRC:.cc=.o)
 DEP = $(SRC:.cc=.d)
-CXXFLAGS = -MMD -std=c++0x
+CXXFLAGS = -g -MMD -std=c++0x
 
 devanix: $(OBJ)
 	$(CXX) $(CXXFLAGS) $^ -o $@

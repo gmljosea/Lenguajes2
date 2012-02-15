@@ -70,6 +70,7 @@ void SymFunction::print() {
   std::cout << "Función " << id << " (" << line << ":" << col << ")" << std::endl;
   std::cout << "  Tipo: ";
   type->print();
+  std::cout << std::endl;
   if (arguments->empty()) {
     std::cout << "  Sin argumentos" << std::endl;
   } else {

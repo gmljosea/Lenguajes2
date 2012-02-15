@@ -23,6 +23,11 @@ VarExp::VarExp(SymVar* symv) {
   this->symv = symv;
 }
 
+void VarExp::print(int nesting) {
+  std::string padding(nesting*2, ' ');
+  std::cout << padding << symv->getId() << std::endl;
+}
+
 Type* VarExp::getType() {
   return symv->getType();
 }
@@ -35,6 +40,11 @@ Type* IntExp::getType(){
   return &(this->type);
 }
 
+void IntExp::print(int nesting) {
+  std::string padding(nesting*2, ' ');
+  std::cout << padding << value << std::endl;
+}
+
 FloatExp::FloatExp(float value) {
   this->value = value;
 }
@@ -43,12 +53,26 @@ Type* FloatExp::getType() {
   return &(this->type);
 }
 
+void FloatExp::print(int nesting) {
+  std::string padding(nesting*2, ' ');
+  std::cout << padding << value << std::endl;
+}
+
 BoolExp::BoolExp(bool value) {
   this->value = value;
 }
 
 Type* BoolExp::getType() {
   return &(this->type);
+}
+
+void BoolExp::print(int nesting) {
+  std::string padding(nesting*2, ' ');
+  if (value) {
+    std::cout << padding << "true" << std::endl;
+  } else {
+    std::cout << padding << "false" << std::endl;
+  }
 }
 
 StringExp::StringExp(std::string str) {

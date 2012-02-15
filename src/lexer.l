@@ -158,8 +158,9 @@ not { lexer::trace("not", yytext, yylloc); return TK_NOT;}
 {ID}      { lexer::trace("identificador", yytext, yylloc);
             yylval.str = new std::string(yytext); return TK_ID;}
 {String}  { lexer::treatstring();
- lexer::trace("string", yytext, yylloc); return TK_CONSTSTRING;}
-{Char}    { lexer::trace("char", yytext, yylloc); 
+            lexer::trace("string", yytext, yylloc);
+            yylval.str = new std::string(yytext); return TK_CONSTSTRING;}
+{Char}    { lexer::trace("char", yytext, yylloc);
             yylval.str = new std::string(yytext); return TK_CONSTCHAR;}
 
 {DecNum}  { lexer::trace("entero base decimal", yytext, yylloc);

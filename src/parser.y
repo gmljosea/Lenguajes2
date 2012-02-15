@@ -373,7 +373,7 @@ for:
       // !!! loopvar->setReadonly(true);
       program.symtable.insert(loopvar);
     }
-  block
+  block leavescope
     { if ($1) popLoopLabel();
       /* Esto es bastante chimbo, pero es la manera menos chimba que se me
 	 ocurrió de volver a conseguir el SymVar de la iteración para
@@ -529,7 +529,8 @@ nonempty_explist:
 %%
 
 void yyerror (char const *s) {
-  std::cerr << "Error: " << s << std::endl;
+  program.error(s, yylloc.first_line, yylloc.first_column);
+  exit(1);
 }
 
 // Por ahora el main está aquí, pero luego hay que moverlo

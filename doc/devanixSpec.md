@@ -220,8 +220,8 @@ en la primera línea del bloque de la función.
 
 Sintaxis para la declaración de variables de tipos básicos:
 
-    tipo nombreVar              -. Declaración sin inicialización
-    tipo nombreVar = expresion  -. Declaración con inicialización
+    tipo nombreVar ;              -. Declaración sin inicialización
+    tipo nombreVar = expresion ;  -. Declaración con inicialización
 
 *   El tipo debe ser cualquier tipo escalar, **string** o nombre de **box**
     definido por el usuario.
@@ -240,8 +240,8 @@ inicializarlas simultáneamente. Por ejemplo:
 
 Las sintaxis de variables de tipo array varía ligeramente:
 
-    tipo array[num] nombreVar
-    tipo array[num] nombreVar = expresión
+    tipo array[num] nombreVar ;
+    tipo array[num] nombreVar = expresión ;
 
 *   El tipo del contenido del array debe ser cualquier tipo escalar, **string**
     o nombre de **box** definido por el usuario.
@@ -295,12 +295,18 @@ solo lectura.
 Ejemplo:
 
        void rentarPelicula($$pelicula peli, $$cliente client1) {
-          pelicula peli2
+          pelicula peli2;
           ...
-          peli = peli2     -. ¡Error de compilación!
+          peli = peli2;    -. ¡Error de compilación!
        }
 
 Se admite recursión.
+
+La instrucción **return** permite finalizar la ejecución de la función y
+devolver un valor. Si la función es void, se omite la expresión. Por ejemplo:
+
+    return 1;  -. Retornar el valor entero 1
+    return;    -. Cuando la función es void, se omite la expresión
 
 ## Invocación de funciones
 

@@ -21,7 +21,7 @@ public:
   /**
    * Imprime por stdout una representación de esta expresión.
    */
-  void print(int nesting);
+  virtual void print(int nesting);
 
   /**
    * Determina si esta expresión tiene sentido.
@@ -63,6 +63,7 @@ private:
 public:
   VarExp(SymVar* symv);
   virtual Type* getType();
+  virtual void print(int nesting);
 };
 
 /**
@@ -75,6 +76,7 @@ private:
 public:
   IntExp(int value);
   virtual Type* getType();
+  virtual void print(int nesting);
 };
 
 /**
@@ -87,6 +89,7 @@ private:
 public:
   FloatExp(float value);
   virtual Type* getType();
+  virtual void print(int nesting);
 };
 
 /**
@@ -99,6 +102,7 @@ private:
 public:
   BoolExp(bool value);
   virtual Type* getType();
+  virtual void print(int nesting);
 };
 
 /**

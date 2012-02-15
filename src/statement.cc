@@ -32,7 +32,7 @@ Type* NormalLvalue::getType() {
 
 void NormalLvalue::print(int nesting) {
   std::string padding(nesting*2, ' ');
-  std::cout << padding << "Lvalue" << std::endl;
+  std::cout << padding << variable->getId() << std::endl;
 }
 
 bool BadLvalue::isBad() {
@@ -119,7 +119,7 @@ void If::check(){
   if(!(*(this->cond->getType()) == i ))
     program.error("condicion debe ser de tipo 'bool'",this->first_line,this->first_column);
   this->block_true->check();
-  this->block_false->check();
+  if (this->block_false != NULL) this->block_false->check();
 }
 
 void If::print(int nesting) {
