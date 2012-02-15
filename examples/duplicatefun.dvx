@@ -1,0 +1,19 @@
+--.
+Este archivo debe quejarse porque se redeclaró una función
+.--
+
+void something() {
+
+}
+
+void something() {
+
+}
+
+void something(bool z) {
+
+}
+
+int main() {
+  writeln "Sup";
+}

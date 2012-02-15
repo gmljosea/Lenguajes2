@@ -1,0 +1,12 @@
+--.
+Esto explota porque hay etiquetas duplicadas en una pila de iteraciones
+.--
+
+int main() {
+  loop1: while true {
+    loop1: while true {
+       break loop1;
+    }
+
+  }
+}

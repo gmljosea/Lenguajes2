@@ -1,0 +1,7 @@
+--.
+Explota porque las constantes son mucho más grandes de lo que entra en 32 bits
+.--
+int main() {
+  int a = 9999999999999999999999999999999999999999999999999999999999;
+  float b = 1.2e-200;
+}

@@ -1,0 +1,52 @@
+--.
+Aquí intento demostrar todo lo que hay en la gramática de devanix por ahora
+.--
+
+void print(int a, int b) {
+  write a,b;
+}
+
+int a,b,c=1;
+
+void hello() {
+  string a = "Hello";
+  write a, "World!";
+}
+
+bool d = false;
+
+int main() {
+ while true {
+
+  }
+
+  int bla,ble;
+  bla,ble = 1,100;
+
+  for i in bla..ble {
+      for i in bla..ble step 10 {
+        ;;;;
+        next;
+      }
+  }
+
+  if true {
+    write "Do something";
+  } else {
+    writeln "Do something else";
+  }
+
+  bool w,x;
+  loop1: while w {
+    loop2: while x {
+      break loop2;
+    }
+    break;
+  }
+
+  int z;
+  read z;
+
+  return 1;
+}
+

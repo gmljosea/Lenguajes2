@@ -1,0 +1,19 @@
+--.
+Esto funciona.
+Hay variable globales, a está anidada muchas veces
+.--
+int a;
+
+int main() {
+  int a = 1;
+  while true {
+    int a;
+    a = 50;
+    if true {
+      bool a = false;
+      if a {
+        char a;
+      }
+    }
+  }
+}

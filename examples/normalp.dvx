@@ -1,0 +1,12 @@
+--.
+Caso pequeño normal, todo funciona.
+
+.--
+int main() {
+  int a, b = 1;
+  a = 2;
+  a,b = 1,2;
+  read a;
+  write "Hola Mundo!";
+  writeln a,b;
+}
