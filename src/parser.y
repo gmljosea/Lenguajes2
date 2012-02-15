@@ -472,6 +472,7 @@ type:
  | "char"  { $$ = new CharType(); }
  | "bool"  { $$ = new BoolType(); }
  | "float" { $$ = new FloatType(); }
+ | "string" {$$= new StringType();}
  | "void"  { $$ = new VoidType(); }
 
  // ** Gramática de las expresiones
@@ -543,8 +544,20 @@ int main (int argc, char **argv) {
 
   // Chequear que existe una función llamada main()
   SymFunction *main= program.symtable.lookup_function("main");
-  if(main==NULL)
-    program.error("No se ha definido la función main.");
+  if(main==NULL){
+    std::cerr << "Error: No se ha definido la función main." << std::endl;
+  }else{
+    int line= main->getLine();
+    int col= main->getColumn();
+    // Si existe, verificar que no tenga agumentos y que sea tipo int
+    if(main->getArgumentCount()!=0){
+      program.error("la funcion main no debe tener argumentos",line,col);
+    }
+    IntType i;
+    if(!(*(main->getType()) == i)){
+      program.error("La funcion main debe ser de tipo 'int'",line,col);
+    }
+  }
 
   // Si hay algun error, no imprimir el árbol.
   if (program.errorCount > 0) {
