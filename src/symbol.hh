@@ -90,6 +90,7 @@ public:
   int current_scope();
   int leave_scope();
   int enter_scope();
+  void print();
   
 };
 
