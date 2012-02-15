@@ -57,8 +57,6 @@ namespace lexer {
 
     int tam= yylval.str->size()-1;
     yylval.str->erase(tam,1);
-
-   std::cout << *(yylval.str) << std::endl;
   }
 }
 
