@@ -34,28 +34,29 @@ namespace lexer {
   }
 
   void trace(std::string rule, std::string yytext, YYLTYPE yylloc) {
-    /*std::cerr << "Token " << rule << " (" << yytext << ") en "
+   /* std::cerr << "Token " << rule << " (" << yytext << ") en "
               << yylloc.first_line << ":" << yylloc.first_column << std::endl;*/
   }
 
   void treatstring(){
-    std::string(yytext);
     size_t pos;
-   
-    if((pos=yytext.find("\\n"))!=std::string::npos) 
-       yytext.replace(pos ,2,"\n");
-   
-    if((pos=yytext.find("\\t"))!=std::string::npos) 
-       yytext.replace(pos,2,"\t");
 
-    if((pos=yytext.find("\\\""))!=std::string::npos) 
-       yytext.replace(pos,2,"\"");
-    
-    if((pos=yytext.find("\\\\"))!=std::string::npos) 
-       yytext.replace(pos,2,"\\");
+    if((pos=yylval.str->find("\\n"))!=std::string::npos) 
+       yylval.str->replace(pos ,2,"\n"); 
 
-    yytext.replace(0,1,"");
-    //yytext.replace(yytext.find_last_of("\""),1,"");
+    if((pos=yylval.str->find("\\t"))!=std::string::npos) 
+       yylval.str->replace(pos,2,"\t");
+
+    if((pos=yylval.str->find("\\\""))!=std::string::npos) 
+       yylval.str->replace(pos,2,"\"");
+
+    if((pos=yylval.str->find("\\\\"))!=std::string::npos) 
+       yylval.str->replace(pos,2,"\\");
+
+    yylval.str->replace(0,1,"");
+
+    int tam= yylval.str->size()-1;
+    yylval.str->erase(tam,1);
   }
 }
 
@@ -153,13 +154,14 @@ not { lexer::trace("not", yytext, yylloc); return TK_NOT;}
 \$\$ { lexer::trace("$$", yytext, yylloc); return TK_DOLLAR;}
 \$   { lexer::trace("$", yytext, yylloc); return TK_DDOLLAR;}
 :    { lexer::trace(":", yytext, yylloc); return TK_COLON; }
+\.   { lexer::trace(".",yytext,yylloc); return TK_DOT;}
 
  /* Símbolos con valor semántico: strings, identificadores y números*/
 {ID}      { lexer::trace("identificador", yytext, yylloc);
             yylval.str = new std::string(yytext); return TK_ID;}
-{String}  { lexer::treatstring();
-            lexer::trace("string", yytext, yylloc);
-            yylval.str = new std::string(yytext); return TK_CONSTSTRING;}
+{String}  { lexer::trace("string", yytext, yylloc);
+            yylval.str = new std::string(yytext);
+            lexer::treatstring(); return TK_CONSTSTRING;}
 {Char}    { lexer::trace("char", yytext, yylloc);
             yylval.str = new std::string(yytext); return TK_CONSTCHAR;}
 

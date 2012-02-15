@@ -45,7 +45,7 @@ int Symbol::getColumn() {
   return this->col;
 }
 
-/**********************************/
+/***********************************/
 /* Metodos de la clase SymFunction*/
 /**********************************/
 
@@ -180,6 +180,18 @@ SymVar* SymTable::lookup_variable(std::string nombreID){
     return pervasive;
   else 
     return NULL;
+
+}
+
+void SymTable::print(){
+
+  std::cout << std::endl << "**** Tabla de simbolos ****" << std::endl<< std::endl;
+  std::cout << "Variables:" << std::endl;
+ 
+  for(varSymtable::iterator it= this->varTable.begin(); 
+      it!= this->varTable.end(); it++){
+    (*it).second->print();
+  }
 
 }
 

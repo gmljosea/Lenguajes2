@@ -351,7 +351,15 @@ Return::Return(SymFunction* symf, Expression *exp) {
   this->exp = exp;
 }
 
-void Return::check(){}
+void Return::check(){
+  if(this->exp!= NULL){
+    if(!(*(this->exp->getType())== *(this->symf->getType())))
+      program.error("return devuelve tipo incompatible",this->first_line,this->first_column);
+  }else{
+    VoidType t;
+    if(!(*(this->symf->getType()) == t))
+      program.error("return esperaba 'void'", this->first_line, this->first_column);} 
+}
 
 void Return::print(int nesting) {
   std::string padding(nesting*2, ' ');

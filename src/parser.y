@@ -159,6 +159,7 @@ bool variableRedeclared(std::string id, YYLTYPE yylloc) {
 %token TK_RPARENT     ")"
 %token TK_COMMA       ","
 %token TK_SCOLON      ";"
+%token TK_DOT         "."
 
 %token TK_DPERIOD     ".."
 
@@ -583,6 +584,8 @@ int main (int argc, char **argv) {
        it != program.functions.end(); it++) {
     (**it).print();
   }
+
+  program.symtable.print();
 
   return 0;
 }
