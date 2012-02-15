@@ -38,6 +38,7 @@ public:
    * Se asume que el usuario no va a modificar ni borrar este objeto.
    */
   virtual Type* getType() = 0;
+
 };
 
 /**
@@ -148,6 +149,7 @@ public:
   FunCallExp (SymFunction* symf, std::list<Expression*> args);
   FunCallExp (std::string name, std::list<Expression*> args);
   virtual Type* getType();
+  virtual void check();
 };
 
 #endif

@@ -163,11 +163,11 @@ void BoundedFor::check(){
     program.error("limite inferior debe ser de tipo 'int'",this->first_line,this->first_column);
 
   if(!(*(this->upperb->getType())==i))
-    program.error("limite inferior debe ser de tipo 'int'",this->first_line,this->first_column);
+    program.error("limite superior debe ser de tipo 'int'",this->first_line,this->first_column);
     
   if(this->step!=NULL){
     if(!(*(this->upperb->getType())==i))
-      program.error("limite inferior debe ser de tipo 'int'",this->first_line,this->first_column);
+      program.error("el paso debe ser de tipo 'int'",this->first_line,this->first_column);
   }
   this->block->check();
       
@@ -375,7 +375,10 @@ FunctionCall::FunctionCall(Expression* exp) {
   this->exp = exp;
 }
 
-void FunctionCall::check(){}
+void FunctionCall::check() {
+  FunCallExp* fce = dynamic_cast<FunCallExp*>(exp);
+  fce->check();
+}
 
 void FunctionCall::print(int nesting) {
   std::string padding(nesting*2, ' ');

@@ -1,6 +1,9 @@
 #include <iostream>
 #include <string>
 #include "expression.hh"
+#include "program.hh"
+
+extern Program program;
 
 void Expression::print(int nesting) {
   std::string padding(nesting*2, ' ');
@@ -111,4 +114,14 @@ Type* FunCallExp::getType() {
   }
   // !!! return this->symf->getType();
   return new VoidType();
+}
+
+void FunCallExp::check() {
+  if (checkedFunction) return;
+  SymFunction* symf = program.symtable.lookup_function(name);
+  if (symf == NULL) {
+    program.error("llamada a función no declarada '"+name+"'", 0, 0);
+  } else {
+    checkedFunction = true;
+  }
 }

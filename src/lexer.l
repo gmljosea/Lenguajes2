@@ -34,7 +34,7 @@ namespace lexer {
   }
 
   void trace(std::string rule, std::string yytext, YYLTYPE yylloc) {
-   /* std::cerr << "Token " << rule << " (" << yytext << ") en "
+   /*std::cerr << "Token " << rule << " (" << yytext << ") en "
               << yylloc.first_line << ":" << yylloc.first_column << std::endl;*/
   }
 

@@ -1,0 +1,8 @@
+int bla(int a, int b) {
+
+}
+
+int main() {
+  bla(1,2);
+  something();
+}

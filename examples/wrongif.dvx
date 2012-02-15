@@ -1,0 +1,9 @@
+int main() {
+  int a;
+  if a { }
+  if 122 { }
+  if "hola" { }
+  if true { }
+  bool z;
+  if z { }
+}

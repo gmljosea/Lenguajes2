@@ -296,9 +296,10 @@ leavescope:
  /* Produce una secuencia de instrucciones (Statement) */
 stmts:
   statement
-    { $$ = new Block(program.symtable.current_scope(), $1);
-      $1->setEnclosing($$);
+    { Block* b = new Block(program.symtable.current_scope(), $1);
+      $1->setEnclosing(b);
       setLocation($1, &@1);
+      $$ = b;
     }
 | stmts statement
     { $1->push_back($2);
@@ -342,7 +343,6 @@ if:
   "if" expr enterscope block leavescope else
     { $$ = new If($2, $4, $6);
       $4->setEnclosing($$);
-      setLocation($$,&@$);
     }
 
  /* Produce un Block que representa el 'else' de un If, podrºía ser vacío */
@@ -357,6 +357,12 @@ while:
     { if ($1) pushLoopLabel(*$1, &yylloc); }
   "while" expr enterscope block leavescope
     { if ($1) popLoopLabel();
+      if ($1 == NULL) {
+	@$.first_line = @3.first_line;
+	@$.first_column = @3.first_column;
+	@$.last_line = @7.last_line;
+	@$.last_column = @7.last_column;
+      }
       $$ = new While($1, $4, $6);
     }
 
@@ -381,6 +387,12 @@ for:
          poder instanciar el For.
          La otra manera sería llevar una pila de variables de iteración. */
       SymVar* loopvar = program.symtable.lookup_variable(*$4);
+      if ($1 == NULL) {
+	@$.first_line = @3.first_line;
+	@$.first_column = @3.first_column;
+	@$.last_line = @13.last_line;
+	@$.last_column = @13.last_column;
+      }
       $$ = new BoundedFor($1, loopvar, $6, $8, $9, $12);
     }
 

@@ -1,0 +1,7 @@
+void bla() {
+  return 5;
+}
+
+int ble() {
+  return;
+}

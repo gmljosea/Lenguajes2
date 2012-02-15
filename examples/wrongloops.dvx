@@ -1,0 +1,5 @@
+int main() {
+  bool a,c,d;
+  for i in a..c step d { }
+  while 3 { }
+}
