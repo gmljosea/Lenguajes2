@@ -66,10 +66,11 @@ FunCallExp::FunCallExp(SymFunction* symf, std::list<Expression*> args) {
   this->checkedFunction = true;
 }
 
-FunCallExp::FunCallExp(std::list<Expression*> args) {
+FunCallExp::FunCallExp(std::string name, std::list<Expression*> args) {
   this->symf = NULL;
   this->args = args;
   this->checkedFunction = false;
+  this->name = name;
 }
 
 Type* FunCallExp::getType() {

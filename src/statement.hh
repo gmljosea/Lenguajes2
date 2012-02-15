@@ -7,66 +7,120 @@
 #include "expression.hh"
 #include "symbol.hh"
 
-/* Chequeos inusuales:
-- Que las funciones, si no son void, tengan return apropiado en todos sus caminos.
-
+/**
+ * Este archivo define las clases que representan una instrucción del lenguaje
+ * Devanix y que son usadas en la construcción del árbol de sintaxis.
+ * La clase Statemente es la base de la cual derivan las instrucciones
+ * específicas del lenguaje.
+ *
+ * La clase Lvalue no es una instrucción y merece estar en otro archivo.
+ * Eventualmente será movida.
  */
-class Lvalue {};
 
+/**
+ * Representa una dirección asignable.
+ * Es utilizada por la clase Asignment para representar las variables que van a
+ * ser modificadas.
+ */
+class Lvalue {
+public:
+  /**
+   * Determina si tiene sentido revisar este Lvalue.
+   * Un error de programador, por ejemplo asignar una variable no declarada,
+   * conduce a que se instancian Lvalues sin sentido durante el parsing.
+   * Durante el chequeo de contexto es necesario verificar la validez del Lvalue
+   * antes de realizar otras operaciones sobre él.
+   */
+  virtual bool isBad();
+
+  /**
+   * Devuelve un apuntador al tipo de este Lvalue.
+   * Se asume que el usuario no va a destruir ni modificar el tipo.
+   */
+  virtual Type* getType(); // = 0
+
+  /* Notas:
+   * Esta clase debería ser abstracta. Actualmente no lo es porque originalmente
+   * no lo era, y cambiarlo ahorita podría darnos errores que no queremos tratar
+   * antes de la primera entrega.
+   */
+};
+
+/**
+ * Representa la dirección de una variable cualquier sin modificadores de acceso.
+ * Por ejemplo, una variable de tipo básico, o un arreglo sin usar [].
+ */
 class NormalLvalue : public Lvalue {
 private:
+  // Símbolo de la variable asignada
   SymVar* variable;
 public:
   NormalLvalue (SymVar* sym);
+  virtual Type* getType();
 };
 
+/**
+ * Representa un Lvalue que no tiene sentido, usualmente porque el programador
+ * intentó asignar una variable no declarada.
+ */
 class BadLvalue : public Lvalue {
+public:
+  virtual bool isBad();
+  virtual Type* getType();
 };
 
-class Block;
-class Statement;
-
-// Clase abstracta que representa una instrucción
+/**
+ * Representa una instrucción en Devanix.
+ */
 class Statement {
 private:
+  // Instrucción que anida a esta
   Statement *enclosing;
   // Ubicación en el archivo
   int first_line, first_column;
   int last_line, last_column;
 public:
   Statement ();
+  // Establece la instrucción que anida a esta.
   void setEnclosing(Statement *stmt);
+  // Devuelve la instrucción que anida a esta.
   Statement* getEnclosing();
+  // Establece la ubicación en el archivo de la instrucción.
   void setLocation(int first_line, int first_column, int last_line,
 		   int last_column);
+  // Imprime recursivamente esta instrucción y sus hijos.
   virtual void print(int) = 0;
-  // virtual void check() = 0;
 };
 
-// Que Block sea Statement permite que eventualmente podamos definir un bloque
-// como una instrucción cualquiera sin mucho esfuerzo
+/**
+ * Representa una secuencia de instrucciones.
+ * Aunque en la especificación del lenguaje no se menciona el bloque como una
+ * instrucción, implementarla como una permita que eventualmente podamos
+ * permitir cosas como bloques arbitrarios o condicionales e iteraciones
+ * de una sola instrucción sin usar llaves, sin dar muchas vueltas.
+ */
 class Block : public Statement {
 private:
   std::list<Statement*> stmts;
-  int scope_number;
+  int scope_number; // Número de alcance asignado
 public:
   Block (int, Statement*);
+  // Encola una instrucción
   void push_back(Statement *stmt);
+  // Encola una lista de instrucciones
   void push_back(std::list<Statement*> stmts);
   virtual void print(int);
-  // virtual void check();
-  // El check es solo hacerle check() a todas las subinstrucciones
-  // Si la función es de tipo void(), el bloque debe terminar con un
 };
 
-// Representa una instrucción vacía, o sea, que no hace nada
+// Representa una instrucción vacía
 class Null : public Statement {
 public:
   virtual void print(int);
-  // virtual void check();
-  // El check no hace nada aqui
 };
 
+/**
+ * Representa una selección condicional (un If), con o sin bloque else.
+ */
 class If : public Statement {
 private:
   Expression *cond;
@@ -75,10 +129,13 @@ private:
 public:
   If (Expression*, Block*, Block* bf = NULL);
   virtual void print(int);
-  // virtual void check();
-  // Ver que la expr. sea de tipo bool, y chequear los bloques
 };
 
+/**
+ * Clase abstracta que representa una iteración.
+ * Por ahora la única razón para hacerlo es que todas las iteraciones
+ * pueden llevar una etiqueta que puede usarse con break o next.
+ */
 class Iteration : public Statement {
 protected:
   std::string* label;
@@ -87,6 +144,10 @@ public:
   std::string* getLabel();
 };
 
+/**
+ * Representa una iteración acotada por un rango de enteros, el
+ * for i in x..y del lenguaje, con o sin 'step'.
+ */
 class BoundedFor : public Iteration {
 private:
   SymVar* varsym;
@@ -98,12 +159,11 @@ public:
   BoundedFor (std::string* label, SymVar* varsym, Expression* lowerb,
 	      Expression* upperb, Expression* step, Block* block);
   virtual void print(int);
-  // virtual void check();
-  // chequear que las exp. sean int y chequear el bloque
-  // La variable de iteración se chequea implícitamente porque debe instanciarse
-  // con el flag 'readonly' prendido.
 };
 
+/**
+ * Representa una iteración condicional, el While.
+ */
 class While : public Iteration {
 private:
   Expression* cond;
@@ -115,6 +175,12 @@ public:
   // chequear que cond sea de tipo bool y chequear el bloque
 };
 
+/**
+ * Representa una asignación, múltiple o simple.
+ * Para manejar la asignación múltiple se usan dos listas, una de
+ * l-values y otra de expresiones. Cuando una asignación es sencilla,
+ * cada lista debe tener tamaño 1.
+ */
 class Asignment : public Statement {
 private:
   std::list<Lvalue*> lvalues;
@@ -122,49 +188,65 @@ private:
 public:
   Asignment (std::list<Lvalue*> lvalues, std::list<Expression*> exps);
   virtual void print(int nesting);
-  // virtual void check();
-  // Chequear que las listas sean del mismo tamaño, y cada par lvalue-expr.
-  // sean del mismo tipo
 };
 
+/**
+ * Representa una declaración de variables.
+ * Se representa como una instrucción en sí misma porque a veces se puede
+ * inicializar una variable justo al declararla, lo cual tiene una semántica
+ * distinta a una asignación normal, y por lo tanto los chequeos son distintos.
+ * Si no hay inicializaciones, esta instrucción se debe comportar como la
+ * instrucción vacía.
+ */
 class VariableDec : public Statement {
 private:
-  // Representa una declaración con múltiples variables
-  // asignadas de una vez
   Type type;
+  // Se representa con una lista de pares símbolo-inicialización.
+  // Si no se inicializa, el lado de expresión es NULL
   std::list<std::pair<SymVar*,Expression*>> decls;
+  // Determina si es una declaración de variable global.
   bool isGlobal;
 public:
   VariableDec (Type type, std::list<std::pair<SymVar*,Expression*>> decls);
+  // Marca esta declaración como de caracter global.
+  // Esto cambia la semántica de la instrucción y los chequeos que deben realizarse.
   void setGlobal(bool g);
   virtual void print(int nesting);
-  // virtual void check();
-  // Chequear que la exp. sean del tipo Type
 };
 
+/**
+ * Representa la instrucción break, con o sin etiqueta.
+ */
 class Break : public Statement {
 private:
+  // Iteración que afecta esta instrucción.
+  // Esto inicialmente es NULL y se actualiza después del parsing.
   Iteration* loop;
+  // Etiqueta de la iteración. Si no tiene es NULL.
   std::string* label;
 public:
   Break (std::string* label = NULL);
   virtual void print(int nesting);
-  // Subir el apuntador *enclosing y castear hasta conseguir un Iteration
-  // apropiado (el primero que haga match del label) y actualizar la variable
-  // loop para que apunte allí. Explota si llega a la raíz del árbol y no hay
-  // Iteration que lo logre.
 };
 
+/**
+ * Representa la instrucción next, con o sin etiqueta.
+ */
 class Next : public Statement {
 private:
-  Iteration *loop;
+  // Iteración que afecta esta instrucción.
+  // Esto inicialmente es NULL y se actualiza después del parsing.
+  Iteration* loop;
+  // Etiqueta de la iteración. Si no tiene es NULL.
   std::string* label;
 public:
   Next (std::string* label = NULL);
   virtual void print(int nesting);
-  // Igualito que el Break
 };
 
+/**
+ * Representa la instrucción return, con o sin expresión.
+ */
 class Return : public Statement {
 private:
   Expression* exp;
@@ -172,18 +254,22 @@ private:
 public:
   Return (SymFunction* symf, Expression* exp = NULL);
   virtual void print(int nesting);
-  // El chequeo es ver que la expresión concuerda con la función.
 };
 
+/**
+ * Representa una llamada a función.
+ */
 class FunctionCall : public Statement {
 private:
   Expression *exp; // Cambiar por el tipo de expresión FunCallExp
 public:
   FunctionCall (Expression* exp);
   virtual void print(int nesting);
-  // Chequear que la llamada cuadre con la firma
 };
 
+/**
+ * Representa la instrucción write y writeln.
+ */
 class Write : public Statement {
 private:
   std::list<Expression*> exps;
@@ -191,16 +277,17 @@ private:
 public:
   Write (std::list<Expression*> exps, bool isLn);
   virtual void print(int nesting);
-  // Creo que no hay nada que chequear
 };
 
+/**
+ * Representa la instrucción read.
+ */
 class Read : public Statement {
 private:
   Lvalue* lval;
 public:
   Read (Lvalue* lval);
   virtual void print(int nesting);
-  // Creo que aqui tampoco hay nada que chequear
 };
 
 #endif

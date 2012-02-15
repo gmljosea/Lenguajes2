@@ -4,7 +4,7 @@
 enum TypeKind {
   Scalar,
   Void,
-  String // Tratarlo de manera especial
+  String
 };
 
 class Type {

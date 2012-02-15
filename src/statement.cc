@@ -3,8 +3,37 @@
 #include "expression.hh"
 #include "statement.hh"
 
+bool Lvalue::isBad() {
+  return false;
+}
+
+Type* Lvalue::getType() {
+  return NULL;
+  /* Dummy, nunca debería ser llamada porque teóricamente Lvalue es
+  abstracta. Pero cuando fue definida por primera vez no lo era, así
+  que capaz ahorita hay alguna variable por ahí que es un Lvalue por valor
+  y puede explotar si de repente hacemos Lvalue abstracta.
+  Luego se arregla */
+}
+
 NormalLvalue::NormalLvalue(SymVar* var) {
   this->variable = var;
+}
+
+Type* NormalLvalue::getType() {
+  return NULL;
+  // !!! return this->variable->getType();
+}
+
+bool BadLvalue::isBad() {
+  return true;
+}
+
+Type* BadLvalue::getType() {
+  return new VoidType();
+  /* Si que horrible. Es un memory leak y aparte devuelve tipo void, lo cual
+     tiene poco sentido, pero no se me ocurre algo mejor esta noche.
+   */
 }
 
 Statement::Statement() {
