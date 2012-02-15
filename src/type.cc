@@ -3,7 +3,6 @@
 #include "type.hh"
 
 void Type::print() {
-  std::cout << "algún tipo" << std::endl;
 }
 
 TypeKind Type::getTypeKind() {
@@ -45,6 +44,10 @@ bool ScalarType::operator==(Type& b) {
 
 IntType::IntType() {
   this->scalartype = ScalarKind::Integer;
+}
+
+void IntType::print() {
+  std::cout << "Tipo Int" << std::endl;
 }
 
 FloatType::FloatType() {

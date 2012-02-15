@@ -16,7 +16,7 @@ class Symbol {
 protected:
   std::string id;
   int numScope;
-  Type type;
+  Type* type;
   int line;
   int col;
   bool duplicated;
@@ -25,7 +25,7 @@ public:
   std::string getId();
   void setDuplicated(bool dup);
   bool isDuplicated();
-  void setType(Type t);
+  void setType(Type* t);
   Type *getType();
   int getnumScope();
   int getLine();
@@ -61,8 +61,8 @@ private:
 public:
   SymFunction (std::string id, int linea, int columna,
                listSymPairs *arguments);
- 
   void setBlock(Block* block);
+  Block* getBlock();
   int getArgumentCount();
   void print();
 };

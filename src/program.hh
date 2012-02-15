@@ -26,6 +26,10 @@ struct Program {
    * de este Program.
    */
   void error(std::string error, int line, int col);
+  /**
+   * Hace los chequeos en el albol sintactico (globalinits,functions) 
+   */
+  void check();
 };
 
 #endif

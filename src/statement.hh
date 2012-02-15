@@ -10,7 +10,7 @@
 /**
  * Este archivo define las clases que representan una instrucción del lenguaje
  * Devanix y que son usadas en la construcción del árbol de sintaxis.
- * La clase Statemente es la base de la cual derivan las instrucciones
+ * La clase Statement es la base de la cual derivan las instrucciones
  * específicas del lenguaje.
  *
  * La clase Lvalue no es una instrucción y merece estar en otro archivo.
@@ -39,7 +39,7 @@ public:
    */
   virtual Type* getType(); // = 0
 
-  /* Notas:
+  /* Notass:
    * Esta clase debería ser abstracta. Actualmente no lo es porque originalmente
    * no lo era, y cambiarlo ahorita podría darnos errores que no queremos tratar
    * antes de la primera entrega.
@@ -73,7 +73,7 @@ public:
  * Representa una instrucción en Devanix.
  */
 class Statement {
-private:
+protected:
   // Instrucción que anida a esta
   Statement *enclosing;
   // Ubicación en el archivo
@@ -90,12 +90,13 @@ public:
 		   int last_column);
   // Imprime recursivamente esta instrucción y sus hijos.
   virtual void print(int) = 0;
+  virtual void check()=0;
 };
 
 /**
  * Representa una secuencia de instrucciones.
  * Aunque en la especificación del lenguaje no se menciona el bloque como una
- * instrucción, implementarla como una permita que eventualmente podamos
+ * instrucción, implementarla como una permite que eventualmente podamos
  * permitir cosas como bloques arbitrarios o condicionales e iteraciones
  * de una sola instrucción sin usar llaves, sin dar muchas vueltas.
  */
@@ -110,11 +111,13 @@ public:
   // Encola una lista de instrucciones
   void push_back(std::list<Statement*> stmts);
   virtual void print(int);
+  virtual void check();
 };
 
 // Representa una instrucción vacía
 class Null : public Statement {
 public:
+  virtual void check();
   virtual void print(int);
 };
 
@@ -129,6 +132,7 @@ private:
 public:
   If (Expression*, Block*, Block* bf = NULL);
   virtual void print(int);
+  virtual void check();
 };
 
 /**
@@ -146,7 +150,7 @@ public:
 
 /**
  * Representa una iteración acotada por un rango de enteros, el
- * for i in x..y del lenguaje, con o sin 'step'.
+ * for i in x..y step z del lenguaje, con o sin 'step'.
  */
 class BoundedFor : public Iteration {
 private:
@@ -159,6 +163,7 @@ public:
   BoundedFor (std::string* label, SymVar* varsym, Expression* lowerb,
 	      Expression* upperb, Expression* step, Block* block);
   virtual void print(int);
+  virtual void check();
 };
 
 /**
@@ -171,7 +176,7 @@ private:
 public:
   While (std::string* label, Expression* cond, Block* block);
   virtual void print(int);
-  // virtual void check();
+  virtual void check();
   // chequear que cond sea de tipo bool y chequear el bloque
 };
 
@@ -188,6 +193,7 @@ private:
 public:
   Asignment (std::list<Lvalue*> lvalues, std::list<Expression*> exps);
   virtual void print(int nesting);
+  virtual void check();
 };
 
 /**
@@ -208,6 +214,7 @@ private:
   bool isGlobal;
 public:
   VariableDec (Type type, std::list<std::pair<SymVar*,Expression*>> decls);
+  virtual void check();
   // Marca esta declaración como de caracter global.
   // Esto cambia la semántica de la instrucción y los chequeos que deben realizarse.
   void setGlobal(bool g);
@@ -226,6 +233,7 @@ private:
   std::string* label;
 public:
   Break (std::string* label = NULL);
+  virtual void check();
   virtual void print(int nesting);
 };
 
@@ -241,6 +249,7 @@ private:
   std::string* label;
 public:
   Next (std::string* label = NULL);
+  virtual void check();
   virtual void print(int nesting);
 };
 
@@ -253,6 +262,7 @@ private:
   SymFunction* symf; // Función que termina este return
 public:
   Return (SymFunction* symf, Expression* exp = NULL);
+  virtual void check();
   virtual void print(int nesting);
 };
 
@@ -264,6 +274,7 @@ private:
   Expression *exp; // Cambiar por el tipo de expresión FunCallExp
 public:
   FunctionCall (Expression* exp);
+  virtual void check();
   virtual void print(int nesting);
 };
 
@@ -276,6 +287,7 @@ private:
   bool isLn; // Representa si es Write o Writeln
 public:
   Write (std::list<Expression*> exps, bool isLn);
+  virtual void check();
   virtual void print(int nesting);
 };
 
@@ -287,6 +299,7 @@ private:
   Lvalue* lval;
 public:
   Read (Lvalue* lval);
+  virtual void check();
   virtual void print(int nesting);
 };
 

@@ -229,7 +229,7 @@ global:
     }
   block leavescope
     {
-      currentfun->setType(*$1);
+      currentfun->setType($1);
       currentfun->setBlock($8);
       program.functions.push_back(currentfun);
     }
@@ -249,7 +249,7 @@ nonempty_args:
       if (!variableRedeclared(*$3, @3)) {
 	SymVar* arg = new SymVar(*$3, @3.first_line, @3.first_column, true,
 				 program.symtable.current_scope());
-	arg->setType(*$2);
+	arg->setType($2);
 	// !!! if ($1 == PassBy::readonly) arg->setReadonly(true);
 	program.symtable.insert(arg);
 	$$->push_back(std::pair<PassType,SymVar*>($1,arg));
@@ -260,7 +260,7 @@ nonempty_args:
     { if (!variableRedeclared(*$5, @5)) {
         SymVar* arg = new SymVar(*$5, @5.first_line, @5.first_column, true,
 				 program.symtable.current_scope());
-	arg->setType(*$4);
+	arg->setType($4);
 	// !!! if ($3 == PassBy::readonly) arg->setReadonly(true);
 	program.symtable.insert(arg);
 	$1->push_back(std::pair<PassType,SymVar*>($3,arg));
@@ -368,8 +368,7 @@ for:
          instrucciones */
       SymVar* loopvar = new SymVar(*$4, @4.first_line, @4.first_column, false,
 				   program.symtable.current_scope());
-      IntType it;
-      loopvar->setType(it);
+      loopvar->setType(new IntType());
       // !!! loopvar->setReadonly(true);
       program.symtable.insert(loopvar);
     }
@@ -427,7 +426,7 @@ variabledec:
   type vardec_items ";"
     { for (std::list<std::pair<SymVar*,Expression*>>::iterator it = $2->begin();
 	   it != $2->end(); it++) {
-	(*it).first->setType(*$1);
+	(*it).first->setType($1);
       }
       $$ = new VariableDec(*$1,*$2);
     }
@@ -468,7 +467,7 @@ vardec_item:
 
  /* Produce un tipo válido del lenguajes. Por ahora solo los tipos básicos. */
 type:
-   "int"   { $$ = new IntType(); }
+"int"   { $$ = new IntType();}
  | "char"  { $$ = new CharType(); }
  | "bool"  { $$ = new BoolType(); }
  | "float" { $$ = new FloatType(); }
@@ -504,7 +503,7 @@ funcallexp:
   TK_ID "(" explist ")"
     { SymFunction* symf = program.symtable.lookup_function(*$1);
       if (symf == NULL) {
-	$$ = new FunCallExp(*$3);
+	$$ = new FunCallExp(*$1, *$3);
       } else {
 	$$ = new FunCallExp(symf, *$3);
       }
@@ -555,6 +554,7 @@ int main (int argc, char **argv) {
     }
     IntType i;
     if(!(*(main->getType()) == i)){
+      main->getType()->print();
       program.error("La funcion main debe ser de tipo 'int'",line,col);
     }
   }

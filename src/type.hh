@@ -57,6 +57,7 @@ public:
 class IntType : public ScalarType {
 public:
   IntType ();
+  virtual void print();
 };
 
 class FloatType : public ScalarType {

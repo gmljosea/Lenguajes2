@@ -2,6 +2,9 @@
 #include <string>
 #include "expression.hh"
 #include "statement.hh"
+#include "program.hh"
+
+extern Program program;
 
 bool Lvalue::isBad() {
   return false;
@@ -36,6 +39,8 @@ Type* BadLvalue::getType() {
    */
 }
 
+/**** Statement ****/
+
 Statement::Statement() {
   this->enclosing = NULL;
 }
@@ -52,16 +57,61 @@ void Statement::setLocation(int first_line, int first_column, int last_line,
   this->last_column = last_column;
 }
 
+/***** Block *******/
+
+Block::Block(int scope_number, Statement *stmt) {
+  this->scope_number = scope_number;
+  this->push_back(stmt);
+}
+
+void Block::push_back(Statement *stmt) {
+  this->stmts.push_back(stmt);
+}
+
+void Block::push_back(std::list<Statement*> stmts) {
+  this->stmts.splice(this->stmts.end(), stmts);
+}
+
+void Block::check(){
+  for(std::list<Statement*>::iterator it = this->stmts.begin();
+      it != this->stmts.end(); it++){
+    (*it)->check();
+  }    
+}
+
+void Block::print(int nesting) {
+  std::string padding(nesting*2, ' ');
+  std::cout << padding << "Bloque (contexto nº " << scope_number << "):"
+	    << std::endl;
+  for (std::list<Statement*>::iterator it = stmts.begin();
+       it != stmts.end(); it++) {
+    (*it)->print(nesting+1);
+  }
+}
+
+/****** NULL *****/
+
+void Null::check(){}
+
 void Null::print(int nesting) {
   std::string padding(nesting*2,' ');
   std::cout << padding << "Nop" << std::endl;
 }
 
-// Constructor de If
+/******** If ******/
+
 If::If(Expression *cond, Block *block_true, Block *block_false) {
   this->cond = cond;
   this->block_true = block_true;
   this->block_false = block_false;
+}
+
+void If::check(){
+  BoolType i;
+  if(!(*(this->cond->getType()) == i ))
+    program.error("condicion debe ser de tipo 'bool'",this->first_line,this->first_column);
+  this->block_true->check();
+  this->block_false->check();
 }
 
 void If::print(int nesting) {
@@ -77,7 +127,8 @@ void If::print(int nesting) {
   }
 }
 
-// Iteration
+/******* Iteration ********/
+
 Iteration::Iteration(std::string* label) {
   this->label = label;
 }
@@ -86,7 +137,8 @@ std::string* Iteration::getLabel() {
   return this->label;
 }
 
-// BoundedFor
+/******** BoundedFor ********/
+
 BoundedFor::BoundedFor(std::string* label, SymVar* varsym,
 		       Expression* lowerb, Expression* upperb,
 		       Expression* step, Block* block) : Iteration(label) {
@@ -95,6 +147,22 @@ BoundedFor::BoundedFor(std::string* label, SymVar* varsym,
   this->upperb = upperb;
   this->step = step;
   this->block = block;
+}
+
+void BoundedFor::check(){
+  IntType i;
+  if(!(*(this->lowerb->getType())==i))
+    program.error("limite inferior debe ser de tipo 'int'",this->first_line,this->first_column);
+
+  if(!(*(this->upperb->getType())==i))
+    program.error("limite inferior debe ser de tipo 'int'",this->first_line,this->first_column);
+    
+  if(this->step!=NULL){
+    if(!(*(this->upperb->getType())==i))
+      program.error("limite inferior debe ser de tipo 'int'",this->first_line,this->first_column);
+  }
+  this->block->check();
+      
 }
 
 void BoundedFor::print(int nesting) {
@@ -116,11 +184,19 @@ void BoundedFor::print(int nesting) {
   block->print(nesting+1);
 }
 
-// While
+/********** WHILE *********/
+ 
 While::While(std::string* label, Expression* cond, Block* block)
   : Iteration(label) {
   this->cond = cond;
   this->block = block;
+}
+
+void While::check(){
+  BoolType t;
+  if(!(*(this->cond->getType())==t))
+    program.error("la condición del While debe ser de tipo 'int'",this->first_line,this->first_column);
+  this->block->check();
 }
 
 void While::print(int nesting) {
@@ -135,56 +211,65 @@ void While::print(int nesting) {
   block->print(nesting+1);
 }
 
-// Asignment
+/********* ASIGNMENT ***********/
+
 Asignment::Asignment(std::list<Lvalue*> lvalues, std::list<Expression*> exps) {
   this->lvalues = lvalues;
   this->exps = exps;
+}
+
+void Asignment::check(){
+  /*  lvalues 
+  exps
+tamaño 
+tipos cuadren por pares
+readonly
+isBad ignorar*/
+
+  if(this->lvalues.size()!=this->exps.size()){
+    program.error("el numero de variables es diferente al numero de expresiones del lado derecho",this->first_line,this->first_column);
+  }else{
+    std::list<Expression*>::iterator itExp = this->exps.begin();
+
+    for(std::list<Lvalue*>::iterator itLval= this->lvalues.begin() ;
+	itLval != this->lvalues.end() ; itLval++,itExp++){
+
+      //Falta hacer el chequeo de readonly
+      
+      if ((*itLval)->isBad() or (*itExp)->isBad()) continue;
+	
+      if (!( *((*itLval)->getType()) == (*(*itExp)->getType()) ))
+	program.error("los tipos no coinciden",this->first_line,this->first_column);
+    }
+  }
+
 }
 
 void Asignment::print(int nesting) {
   std::cout << "Instrucción asignación" << std::endl;
 }
 
-// Declaration
+/********** DECLARATION ********/
+
 VariableDec::VariableDec(Type type,
 			 std::list<std::pair<SymVar*,Expression*>> decls) {
   this->decls = decls;
   this->type = type;
 }
 
+void VariableDec::check(){}
 
 void VariableDec::print(int nesting) {
   std::cout << "Instrucción declaración" << std::endl;
 }
 
-// Block
-Block::Block(int scope_number, Statement *stmt) {
-  this->scope_number = scope_number;
-  this->push_back(stmt);
-}
-
-void Block::push_back(Statement *stmt) {
-  this->stmts.push_back(stmt);
-}
-
-void Block::push_back(std::list<Statement*> stmts) {
-  this->stmts.splice(this->stmts.end(), stmts);
-}
-
-void Block::print(int nesting) {
-  std::string padding(nesting*2, ' ');
-  std::cout << padding << "Bloque (contexto nº " << scope_number << "):"
-	    << std::endl;
-  for (std::list<Statement*>::iterator it = stmts.begin();
-       it != stmts.end(); it++) {
-    (*it)->print(nesting+1);
-  }
-}
-
+/*********** BREAK ************/
 
 Break::Break(std::string* label) {
   this->label = label;
 }
+
+void Break::check(){}
 
 void Break::print(int nesting) {
   std::string padding(nesting*2, ' ');
@@ -195,9 +280,13 @@ void Break::print(int nesting) {
   std::cout << std::endl;
 }
 
+/********** NEXT ************/
+
 Next::Next(std::string* label) {
   this->label = label;
 }
+
+void Next::check(){}
 
 void Next::print(int nesting) {
   std::string padding(nesting*2, ' ');
@@ -208,10 +297,14 @@ void Next::print(int nesting) {
   std::cout << std::endl;
 }
 
+/********** RETURN **********/
+
 Return::Return(SymFunction* symf, Expression *exp) {
   this->symf = symf;
   this->exp = exp;
 }
+
+void Return::check(){}
 
 void Return::print(int nesting) {
   std::string padding(nesting*2, ' ');
@@ -221,27 +314,39 @@ void Return::print(int nesting) {
   }
 }
 
+/******** FUNCTION CALL ********/
+
 FunctionCall::FunctionCall(Expression* exp) {
   this->exp = exp;
 }
+
+void FunctionCall::check(){}
 
 void FunctionCall::print(int nesting) {
   std::string padding(nesting*2, ' ');
   std::cout << padding << "Llamada a función" << std::endl;
 }
 
+/************ WRITE ************/
+
 Write::Write(std::list<Expression*> exps, bool isLn) {
   this->exps = exps;
   this->isLn = isLn;
 }
 
+void Write::check(){}
+
 void Write::print(int nesting) {
   std::cout << "Write" << std::endl;
 }
 
+/********** READ ************/
+
 Read::Read(Lvalue* lval) {
   this->lval = lval;
 }
+
+void Read::check(){}
 
 void Read::print(int nesting) {
   std::cout << "Read" << std::endl;

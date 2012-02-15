@@ -25,12 +25,12 @@ bool Symbol::isDuplicated(){
   return this->duplicated;
 }
 
-void Symbol::setType(Type t) {
+void Symbol::setType(Type* t) {
   this->type = t;
 }
 
 Type* Symbol::getType(){
-  return &(this->type);
+  return this->type;
 }
 
 int Symbol:: getnumScope(){
@@ -58,6 +58,10 @@ void SymFunction::setBlock(Block* block) {
   this->block = block;
 }
 
+Block* SymFunction::getBlock(){
+  return this->block;
+}
+
 int SymFunction::getArgumentCount(){
   return this->arguments->size();
 }
@@ -65,7 +69,7 @@ int SymFunction::getArgumentCount(){
 void SymFunction::print() {
   std::cout << "Función " << id << " (" << line << ":" << col << ")" << std::endl;
   std::cout << "  Tipo: ";
-  type.print();
+  type->print();
   if (arguments->empty()) {
     std::cout << "  Sin argumentos" << std::endl;
   } else {
