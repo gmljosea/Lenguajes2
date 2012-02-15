@@ -3,6 +3,9 @@
 #include "symbol.hh"
 #include "statement.hh"
 
+/*******************************/
+/* Metodos de la clase Symbol */
+/*****************************/
 
 Symbol::Symbol(std::string id,int line,int col){
   this->id=id;
@@ -12,6 +15,22 @@ Symbol::Symbol(std::string id,int line,int col){
 
 std::string Symbol::getId(){
   return this->id;
+}
+
+void Symbol::setDuplicated(bool dup){
+  this->duplicated=dup;
+}
+
+bool Symbol::isDuplicated(){
+  return this->duplicated;
+}
+
+void Symbol::setType(Type t) {
+  this->type = t;
+}
+
+Type* Symbol::getType(){
+  return &(this->type);
 }
 
 int Symbol:: getnumScope(){
@@ -26,13 +45,21 @@ int Symbol::getColumn() {
   return this->col;
 }
 
-void Symbol::setType(Type t) {
-  this->type = t;
-}
+/**********************************/
+/* Metodos de la clase SymFunction*/
+/**********************************/
 
 SymFunction::SymFunction(std::string id,int line, int col,
                          listSymPairs *arguments) : Symbol(id,line,col){
   this->arguments = arguments;
+}
+
+void SymFunction::setBlock(Block* block) {
+  this->block = block;
+}
+
+int SymFunction::getArgumentCount(){
+  return this->arguments->size();
 }
 
 void SymFunction::print() {
@@ -51,12 +78,12 @@ void SymFunction::print() {
     }
   }
   // Imprimir bloque con nivel de anidamiento 1
-  //block->print(1);
+  block->print(1);
 }
 
-void SymFunction::setBlock(Block* block) {
-  this->block = block;
-}
+/**********************************/
+/*** Metodos de la clase SymVar ***/
+/**********************************/
 
 SymVar::SymVar(std::string id,int line,int col,
                bool isParam, int scope) : Symbol(id,line,col){
@@ -67,6 +94,14 @@ SymVar::SymVar(std::string id,int line,int col,
 
 void SymVar::print(){
   std::cout << id << " (" << line << ":" << col << ")"<< std::endl;
+}
+
+void SymVar::setReadonly(bool readonly){
+  this->readonly= readonly;
+}
+
+bool SymVar::isReadonly(){
+  return this->readonly;
 }
 
 SymTable::SymTable(){
