@@ -24,8 +24,7 @@ VarExp::VarExp(SymVar* symv) {
 }
 
 Type* VarExp::getType() {
-  // !!!  return symv->getType();
-  return new VoidType();
+  return symv->getType();
 }
 
 IntExp::IntExp(int value) {

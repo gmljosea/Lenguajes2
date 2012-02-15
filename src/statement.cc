@@ -240,8 +240,9 @@ void Asignment::check(){
     
     if ((*itLval)->isBad() or (*itExp)->isBad()) continue;
     
-    if (!( *((*itLval)->getType()) == (*(*itExp)->getType()) ))
+    if (!( *((*itLval)->getType()) == (*(*itExp)->getType()) )) {
       program.error("los tipos no coinciden",this->first_line,this->first_column);
+    }
   }
 }
 
