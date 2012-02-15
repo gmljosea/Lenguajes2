@@ -30,12 +30,14 @@ class VoidType : public Type {
 public:
   VoidType ();
   virtual bool operator==(Type& b);
+  virtual void print();
 };
 
 class StringType : public Type {
 public:
   StringType ();
   virtual bool operator==(Type& b);
+  virtual void print();
 };
 
 enum ScalarKind {
@@ -63,16 +65,19 @@ public:
 class FloatType : public ScalarType {
 public:
   FloatType ();
+  virtual void print();
 };
 
 class CharType : public ScalarType {
 public:
   CharType ();
+  virtual void print();
 };
 
 class BoolType : public ScalarType {
 public:
   BoolType ();
+  virtual void print();
 };
 
 #endif

@@ -39,11 +39,17 @@ public:
    */
   virtual Type* getType(); // = 0
 
-  /* Notass:
+  /**
+   *
+   */
+  virtual void print(int nesting); // = 0
+
+  /* Notas:
    * Esta clase debería ser abstracta. Actualmente no lo es porque originalmente
    * no lo era, y cambiarlo ahorita podría darnos errores que no queremos tratar
    * antes de la primera entrega.
    */
+
 };
 
 /**
@@ -57,6 +63,7 @@ private:
 public:
   NormalLvalue (SymVar* sym);
   virtual Type* getType();
+  virtual void print(int nesting);
 };
 
 /**
@@ -67,6 +74,7 @@ class BadLvalue : public Lvalue {
 public:
   virtual bool isBad();
   virtual Type* getType();
+  virtual void print(int nesting);
 };
 
 /**
@@ -206,14 +214,14 @@ public:
  */
 class VariableDec : public Statement {
 private:
-  Type type;
+  Type* type;
   // Se representa con una lista de pares símbolo-inicialización.
   // Si no se inicializa, el lado de expresión es NULL
   std::list<std::pair<SymVar*,Expression*>> decls;
   // Determina si es una declaración de variable global.
   bool isGlobal;
 public:
-  VariableDec (Type type, std::list<std::pair<SymVar*,Expression*>> decls);
+  VariableDec (Type* type, std::list<std::pair<SymVar*,Expression*>> decls);
   virtual void check();
   // Marca esta declaración como de caracter global.
   // Esto cambia la semántica de la instrucción y los chequeos que deben realizarse.

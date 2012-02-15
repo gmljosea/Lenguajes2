@@ -19,13 +19,20 @@ Type* Lvalue::getType() {
   Luego se arregla */
 }
 
+void Lvalue::print(int n) {
+}
+
 NormalLvalue::NormalLvalue(SymVar* var) {
   this->variable = var;
 }
 
 Type* NormalLvalue::getType() {
-  return NULL;
-  // !!! return this->variable->getType();
+  return this->variable->getType();
+}
+
+void NormalLvalue::print(int nesting) {
+  std::string padding(nesting*2, ' ');
+  std::cout << padding << "Lvalue" << std::endl;
 }
 
 bool BadLvalue::isBad() {
@@ -39,7 +46,8 @@ Type* BadLvalue::getType() {
    */
 }
 
-/**** Statement ****/
+void BadLvalue::print(int n) {
+}
 
 Statement::Statement() {
   this->enclosing = NULL;
@@ -76,7 +84,7 @@ void Block::check(){
   for(std::list<Statement*>::iterator it = this->stmts.begin();
       it != this->stmts.end(); it++){
     (*it)->check();
-  }    
+  }
 }
 
 void Block::print(int nesting) {
@@ -219,39 +227,42 @@ Asignment::Asignment(std::list<Lvalue*> lvalues, std::list<Expression*> exps) {
 }
 
 void Asignment::check(){
-  /*  lvalues 
-  exps
-tamaño 
-tipos cuadren por pares
-readonly
-isBad ignorar*/
-
-  if(this->lvalues.size()!=this->exps.size()){
-    program.error("el numero de variables es diferente al numero de expresiones del lado derecho",this->first_line,this->first_column);
-  }else{
-    std::list<Expression*>::iterator itExp = this->exps.begin();
-
-    for(std::list<Lvalue*>::iterator itLval= this->lvalues.begin() ;
-	itLval != this->lvalues.end() ; itLval++,itExp++){
-
-      //Falta hacer el chequeo de readonly
-      
-      if ((*itLval)->isBad() or (*itExp)->isBad()) continue;
-	
-      if (!( *((*itLval)->getType()) == (*(*itExp)->getType()) ))
-	program.error("los tipos no coinciden",this->first_line,this->first_column);
-    }
+  if( lvalues.size() != exps.size() ) {
+    program.error("el numero de variables es diferente al numero de "
+		  "expresiones del lado derecho",
+		  this->first_line,this->first_column);
+    return;
   }
 
+  std::list<Expression*>::iterator itExp = this->exps.begin();
+  for(std::list<Lvalue*>::iterator itLval= this->lvalues.begin() ;
+      itLval != this->lvalues.end() ; itLval++,itExp++){
+    
+    if ((*itLval)->isBad() or (*itExp)->isBad()) continue;
+    
+    if (!( *((*itLval)->getType()) == (*(*itExp)->getType()) ))
+      program.error("los tipos no coinciden",this->first_line,this->first_column);
+  }
 }
 
 void Asignment::print(int nesting) {
-  std::cout << "Instrucción asignación" << std::endl;
+  std::string padding(nesting*2, ' ');
+  std::cout << padding << "Asignación" << std::endl;
+  std::cout << padding << " L-values:" << std::endl;
+  for (std::list<Lvalue*>::iterator it = lvalues.begin();
+       it != lvalues.end(); it++) {
+    (*it)->print(nesting+1);
+  }
+  std::cout << padding << " Expresiones:" << std::endl;
+  for (std::list<Expression*>::iterator it = exps.begin();
+       it != exps.end(); it++) {
+    (*it)->print(nesting+1);
+  }
 }
 
 /********** DECLARATION ********/
 
-VariableDec::VariableDec(Type type,
+VariableDec::VariableDec(Type* type,
 			 std::list<std::pair<SymVar*,Expression*>> decls) {
   this->decls = decls;
   this->type = type;
@@ -260,7 +271,21 @@ VariableDec::VariableDec(Type type,
 void VariableDec::check(){}
 
 void VariableDec::print(int nesting) {
-  std::cout << "Instrucción declaración" << std::endl;
+  std::string padding(nesting*2, ' ');
+  std::cout << padding << "Declaración de variables" << std::endl;
+  std::cout << padding << " Tipo: ";
+  type->print();
+  std::cout << std::endl;
+  for (std::list<std::pair<SymVar*,Expression*>>::iterator it = decls.begin();
+       it != decls.end(); it++) {
+    std::cout << padding << " " << (*it).first->getId();
+    if ((*it).second != NULL) {
+      std::cout << "=" << std::endl;
+      (*it).second->print(nesting+1);
+    } else {
+      std::cout << std::endl;
+    }
+  }
 }
 
 /*********** BREAK ************/
@@ -325,6 +350,7 @@ void FunctionCall::check(){}
 void FunctionCall::print(int nesting) {
   std::string padding(nesting*2, ' ');
   std::cout << padding << "Llamada a función" << std::endl;
+  exp->print(nesting+1);
 }
 
 /************ WRITE ************/
@@ -337,7 +363,17 @@ Write::Write(std::list<Expression*> exps, bool isLn) {
 void Write::check(){}
 
 void Write::print(int nesting) {
-  std::cout << "Write" << std::endl;
+  std::string padding(nesting*2, ' ');
+  std::cout << padding;
+  if (isLn) {
+    std::cout << "Writeln" << std::endl;
+  } else {
+    std::cout << "Write" << std::endl;
+  }
+  for (std::list<Expression*>::iterator it = exps.begin();
+       it != exps.end(); it++) {
+    (*it)->print(nesting+1);
+  }
 }
 
 /********** READ ************/
@@ -349,5 +385,7 @@ Read::Read(Lvalue* lval) {
 void Read::check(){}
 
 void Read::print(int nesting) {
-  std::cout << "Read" << std::endl;
+  std::string padding(nesting*2, ' ');
+  std::cout << padding << "Read" << std::endl;
+  lval->print(nesting+1);
 }

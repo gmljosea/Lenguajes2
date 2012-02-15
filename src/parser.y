@@ -394,7 +394,7 @@ label:
 
  /* Produce una instrucción Asignación */
 asignment:
-  lvalues "=" explist ";"
+  lvalues "=" nonempty_explist ";"
     { $$ = new Asignment(*$1, *$3);  }
 
  /* Produce una lista de l-values separados por comas */
@@ -428,7 +428,7 @@ variabledec:
 	   it != $2->end(); it++) {
 	(*it).first->setType($1);
       }
-      $$ = new VariableDec(*$1,*$2);
+      $$ = new VariableDec($1,*$2);
     }
  /* Produce una lista de declaraciones de variables */
 vardec_items:
@@ -471,7 +471,7 @@ type:
  | "char"  { $$ = new CharType(); }
  | "bool"  { $$ = new BoolType(); }
  | "float" { $$ = new FloatType(); }
- | "string" {$$= new StringType();}
+ | "string" { $$= new StringType();}
  | "void"  { $$ = new VoidType(); }
 
  // ** Gramática de las expresiones
@@ -517,9 +517,10 @@ explist:
  /* Produce una lista no vacía de expresiones separadas por comas */
 nonempty_explist:
   expr
-    { $$ = new std::list<Expression*>();
-      $$->push_back($1); }
-| explist "," expr
+  { std::list<Expression*> *l = new std::list<Expression*>();
+    l->push_back($1);
+    $$ = l;}
+| nonempty_explist "," expr
     { $1->push_back($3);
       $$ = $1; }
 

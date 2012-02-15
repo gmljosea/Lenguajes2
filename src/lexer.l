@@ -65,7 +65,7 @@ ID      [_a-zA-Z][_a-zA-Z0-9]*
 DecNum  [1-9][0-9]*
 BinNum  "b:"[0-1]+
 HexNum  "x:"[0-9A-Fa-f]+
-Float   [0-9]+.[0-9]+([Ee][\-+]?[0-9]+)?
+Float   [0-9]+\.[0-9]+([Ee][\-+]?[0-9]+)?
 LineComment  "-.".*
  /* BlockComment "--."(.|\n)*".--"*/
 Char "'"(.|\\n|\\t|\\'|\\\\)"'"

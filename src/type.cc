@@ -21,12 +21,20 @@ bool VoidType::operator==(Type& b) {
   return b.getTypeKind() == TypeKind::Void;
 }
 
+void VoidType::print() {
+  std::cout << "void";
+}
+
 StringType::StringType() {
   this->type = TypeKind::String;
 }
 
 bool StringType::operator==(Type& b) {
   return b.getTypeKind() == TypeKind::String;
+}
+
+void StringType::print() {
+  std::cout << "string";
 }
 
 ScalarType::ScalarType() {
@@ -47,17 +55,29 @@ IntType::IntType() {
 }
 
 void IntType::print() {
-  std::cout << "Tipo Int" << std::endl;
+  std::cout << "int";
 }
 
 FloatType::FloatType() {
   this->scalartype = ScalarKind::Float;
 }
 
+void FloatType::print() {
+  std::cout << "float";
+}
+
 CharType::CharType() {
   this->scalartype = ScalarKind::Char;
 }
 
+void CharType::print() {
+  std::cout << "char";
+}
+
 BoolType::BoolType() {
   this->scalartype = ScalarKind::Bool;
+}
+
+void BoolType::print() {
+  std::cout << "bool";
 }
