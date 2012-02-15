@@ -22,6 +22,7 @@ para probar el compilador.
 ### Entrega 1
 
 Hasta ahora el parser detecta:
+
 *   Variables o funciones declaradas dos veces en el mismo alcance.
 *   Uso de variables o funciones no declaradas
 *   Constantes enteras y flotantes muy grandes.
