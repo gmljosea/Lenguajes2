@@ -268,7 +268,28 @@ VariableDec::VariableDec(Type* type,
   this->type = type;
 }
 
-void VariableDec::check(){}
+void VariableDec::check(){
+  for(std::list<std::pair<SymVar*,Expression*>>::iterator it=this->decls.begin();
+      it!= this->decls.end(); it++){
+    // Si es una variable tipo string, chequear si se inicializo
+    StringType t;
+    if( *((*it).first->getType())== t )
+      if((*it).second==NULL){
+	program.error("variable de tipo 'string' debe ser inicializada al declarar ",((*it).first)->getLine(),((*it).first)->getColumn() );
+	continue;
+      }
+
+    /* Chequear que los tipos de las variables coincidan con
+       los tipos de las expresiones que le corresponden*/  
+    if((*it).second != NULL)
+      if(!(*((*it).first->getType()) == *((*it).second->getType()))){
+	std::string strError= "el tipo de la variable '"+((*it).first)->getId();
+	strError += "' no concuerda con el de la expresion asignada"; 
+	program.error(strError,((*it).first)->getLine(),((*it).first)->getColumn());
+      }
+
+    }
+}
 
 void VariableDec::print(int nesting) {
   std::string padding(nesting*2, ' ');

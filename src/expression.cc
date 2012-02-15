@@ -60,6 +60,14 @@ Type* StringExp::getType() {
   return &(this->type);
 }
 
+CharExp::CharExp(std::string ch) {
+  this->ch = ch;
+}
+
+Type* CharExp::getType() {
+  return &(this->type);
+}
+
 FunCallExp::FunCallExp(SymFunction* symf, std::list<Expression*> args) {
   this->symf = symf;
   this->args = args;

@@ -113,6 +113,15 @@ public:
   virtual Type* getType();
 };
 
+class CharExp : public Expression {
+private:
+  std::string ch; // cambiar a char
+  CharType type;
+public:
+  CharExp(std::string ch);
+  virtual Type* getType();
+};
+
 /**
  * Representa una llamada a función.
  */

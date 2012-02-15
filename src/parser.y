@@ -172,6 +172,7 @@ bool variableRedeclared(std::string id, YYLTYPE yylloc) {
 // Token de un string cualquiera encerrado entre comillas
  // No confundirse con TK_STRING que se refiere a la palabra reservada 'string'
 %token <str> TK_CONSTSTRING
+%token <str> TK_CONSTCHAR
 
 // Tokens de constantes numéricas
 %token <ival> TK_CONSTINT
@@ -467,7 +468,7 @@ vardec_item:
 
  /* Produce un tipo válido del lenguajes. Por ahora solo los tipos básicos. */
 type:
-"int"   { $$ = new IntType();}
+   "int"   { $$ = new IntType();}
  | "char"  { $$ = new CharType(); }
  | "bool"  { $$ = new BoolType(); }
  | "float" { $$ = new FloatType(); }
@@ -496,6 +497,7 @@ expr:
 | TK_TRUE        { $$ = new BoolExp(true); }
 | TK_FALSE       { $$ = new BoolExp(false); }
 | TK_CONSTSTRING { $$ = new StringExp(*$1); }
+| TK_CONSTCHAR   { $$ = new CharExp(*$1); }
 | funcallexp
 
  /* Produce una llamada a función */
