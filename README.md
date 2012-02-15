@@ -37,6 +37,7 @@ muestra la línea y columna como 0:0, porque ahorita la expresiones no guardan
 su ubicación.
 
 Chequeos que no estamos realizando:
+
 *    Número de argumentos y tipos en llamadas a funciones.
 *    Que el Break y Next estén dentro de una iteración, y cuando tengan
      etiqueta, que sea igual a la de alguna iteración más arriba.
