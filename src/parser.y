@@ -297,12 +297,12 @@ stmts:
   statement
     { $$ = new Block(program.symtable.current_scope(), $1);
       $1->setEnclosing($$);
-      setLocation($1, &@$);
+      setLocation($1, &@1);
     }
 | stmts statement
     { $1->push_back($2);
       $2->setEnclosing($1);
-      setLocation($2, &@$);
+      setLocation($2, &@2);
       $$ = $1;
     }
 
@@ -396,7 +396,7 @@ label:
  /* Produce una instrucción Asignación */
 asignment:
   lvalues "=" nonempty_explist ";"
-    { $$ = new Asignment(*$1, *$3);  }
+  { $$ = new Asignment(*$1, *$3); }
 
  /* Produce una lista de l-values separados por comas */
 lvalues:
