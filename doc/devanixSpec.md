@@ -213,7 +213,7 @@ y **concentracion**.
 
 Las variables se pueden declarar de cualquier tipo excepto **void**.
 
-Los argumentos declaradas de una función se comportan como variables declaradas
+Los argumentos declarados de una función se comportan como variables declaradas
 en la primera línea del bloque de la función.
 
 ### Declaración de variables
@@ -248,6 +248,7 @@ Las sintaxis de variables de tipo array varía ligeramente:
 *   **num** debe ser una constante entera en base decimal.
 
 Ejemplos:
+
     int array[20] a;     -. arreglo de 20 enteros
     float rarray[100] b; -. arreglo de 20 flotantes
 
@@ -271,6 +272,12 @@ Las funciones en *Devanix* poseen la siguiente sintaxis:
 
 El tipo de la función solo puede ser de un tipo escalar o **void**.
 
+Ejemplo:
+
+       int calcularTotal($int monto, $char modo) {
+          ...
+       }
+
 La instrucción **return** es obligatoria por cualquier camino cuando el tipo de
 la función no es **void**.
 
@@ -280,11 +287,7 @@ Sin embargo el usuario tiene la opción de realizar el pasaje de tipos escalares
 por referencia usando el símbolo reservado **$** antes del tipo del argumento.
 Usar el símbolo **$** con argumentos de tipo **box** es redundante.
 
-Ejemplo:
 
-       int calcularTotal($int monto, $char modo) {
-          ...
-       }
 
 También es posible el pasaje en modo *solo lectura* de los argumentos, para
 lo cual se proporciona el simbolo reservado **$$**.
@@ -362,7 +365,7 @@ Sintaxis:
        }
 
 La condición debe ser una expresión de tipo booleano.
-Se puede obviar la parte del else si se quiere.
+Se puede omitir la parte del else si se quiere.
 
 ### Iteración acotada
 
@@ -381,10 +384,11 @@ Sintaxis:
     Debe evitar que las expresiones tengan efectos de borde debido a que la
     evaluacion de las expresiones (*num*,*num2*,*num3*) no garantiza ningun orden
     en particular.
-*   El aumento debe ser un numero de tipo **int** y a su vez debe ser positivo.
+*   El aumento debe ser un número de tipo **int** y a su vez debe ser positivo.
 *   Los límites se chequean antes de comenzar la primera iteración.
     En caso de que los límites sean vacíos(**num < num2**) no se ejecutará ningún
     ciclo.
+*   **label** es una etiqueta opcional que será explicada en la sección **Etiquetas**. 
 
 Existe una variante de esta estructura que permite iterar sobre arreglos de
 manera sencilla:
@@ -393,10 +397,10 @@ manera sencilla:
         instrucciones
     }
 
-*    La variable *var* asume el tipo del tipo contenido por el arreglo.
+*    La variable **var** asume el tipo del tipo contenido por el arreglo.
 *    El ciclo se ejecuta una vez por cada elemento del arreglo, con la variable *var*
      asumiendo el valor de la posición correspondiente del arreglo.
-*    La variable *var* no es de solo lectura; se permite modificar los elementos
+*    La variable **var** no es de solo lectura; se permite modificar los elementos
      del arreglo.
 
 ### Iteración condicional
@@ -421,18 +425,18 @@ Cualquier iteración (While o For) se puede etiquetar. Por ejemplo:
 Se pueden anidar iteraciones, cada una con su etiqueta, pero todas las etiquetas
 deben ser distintas.
 
-Dentro de una iteración se pueden usar la instrucción **break** para finalizar
+Dentro de una iteración se puede usar la instrucción **break** para finalizar
 incondicionalmente la iteración. Por defecto un **break** rompe la iteración
 más interna que contiene el **break**. Opcionalmente, se puede hacer un
-**break** con etiqueta. En este caso se rompa la iteración más arriba cuya
+**break** con etiqueta. En este caso se rompe la iteración cuya
 etiqueta sea igual. Por ejemplo:
 
     loop1: while true {
       loop2: while true {
         ...
-	break;       -. rompe la iteración externa
+	break;       -. rompe la iteración interna
         ...
-	break loop1; -. rompe la iteración más externa
+	break loop1; -. rompe la iteración más externa (cuya etiqueta es loop1)
       }
     }
 
@@ -483,10 +487,6 @@ El operador binario que se proporciona para estos tipos es únicamente el de igu
 
 ## Funciones de librería
 
-+ todo lo que este en este documento de diseño sera evaluado para la primera entrega 
-+ No se va a evaluar la suma etc etc
-+ no listas aun
-+ aclarar que puede devolver una funcion
 
 ## Chequeos dinámicos
 
