@@ -21,10 +21,10 @@ para probar el compilador.
 
 La documentación del proyecto, generada con doxygen, se encuentra en la pagina:
 
-    http://ldc.usb.ve/~08-10323
+    [http://ldc.usb.ve/~08-10323]
 
-La documentación incluye la representación gráfica de la herencia de las clases 
-utilizadas en el proyecto.
+La documentación incluye la [representación gráfica](http://ldc.usb.ve/~08-10323/inherits.html)
+de la herencia de las clases utilizadas en el proyecto.
  
 
 ### Entrega 1
