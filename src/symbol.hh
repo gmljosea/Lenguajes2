@@ -11,7 +11,9 @@
 
 class Block;
 
-// Clase abstracta que representa un objeto de la tabla de simbolos 
+/**
+ * Clase abstracta que representa un objeto de la tabla de simbolos.
+ */ 
 class Symbol {
 protected:
   std::string id;
@@ -32,7 +34,9 @@ public:
   int getColumn();
 };
 
-// Clase SymVar hereda de Symbol 
+ /** 
+  * Clase SymVar hereda de Symbol. Representa una variable declarada.
+  */ 
 class SymVar: public Symbol{
 private:
   bool isParameter;
@@ -53,11 +57,13 @@ enum PassType {
 
 typedef std::list<std::pair<PassType, SymVar*>> listSymPairs;
 
-// Clase SymFunction hereda de Symbol
+/**
+ * Clase SymFunction hereda de Symbol. Representa una funcion declarada.
+ */
 class SymFunction: public Symbol{
 private:
   Block *block;
-  listSymPairs *arguments;
+  listSymPairs *arguments; // Lista de pares (tipo,identificador)
 public:
   SymFunction (std::string id, int linea, int columna,
                listSymPairs *arguments);

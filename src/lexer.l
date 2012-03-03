@@ -38,6 +38,10 @@ namespace lexer {
               << yylloc.first_line << ":" << yylloc.first_column << std::endl;*/
   }
 
+  /**
+   * Substituye las cadenas de caracteres del token conststring que representan
+   * caracteres escapados por su caracter correspondiente.
+   */
   void treatstring(){
     size_t pos;
 

@@ -64,7 +64,11 @@ void popLoopLabel() {
   looplabels.pop_front();
 }
 
-// Nota: mejorar para que muestra la ubicación de la declaración previa
+/**
+ * Recibe el nombre de una funcion y su yyloc.
+ * Devuelve true si determina que la función ya ha sido declarada antes,
+ * devuelve false si no ha sido declarada aún.
+ */
 bool functionRedeclared(std::string id, YYLTYPE yylloc) {
   SymFunction* symf = program.symtable.lookup_function(id);
   if (symf != NULL) {
@@ -78,6 +82,11 @@ bool functionRedeclared(std::string id, YYLTYPE yylloc) {
   return false;
 }
 
+/**
+ * Recibe el nombre de una variable y su yyloc.
+ * Devuelve true si determina que la variable ya ha sido declarada antes,
+ * devuelve false si no ha sido declarada aún.
+ */
 bool variableRedeclared(std::string id, YYLTYPE yylloc) {
   SymVar* symv = program.symtable.lookup_variable(id);
   if (symv != NULL && symv->getnumScope() == program.symtable.current_scope()) {
@@ -226,10 +235,10 @@ global:
       // en qué función se encuentran con ver la variable currentfun
       currentfun = sym;
       if (!functionRedeclared(*$2, @2)) {
-	program.symtable.insert(sym);
+        program.symtable.insert(sym);
       }
     }
-  block leavescope
+block leavescope
     {
       currentfun->setType($1);
       currentfun->setBlock($8);
