@@ -62,6 +62,7 @@ Para la descripción de la gramática se utilizará la notación de Backus-Naur
 opcional.
 
 *globals* ::=   *global*
+
               | *globals* *global*
 
 *global* ::=  *variabledec*
@@ -93,7 +94,7 @@ opcional.
 
 *while* ::= *label* **while** *expr* *block*
 
-*for* ::= label for** **TK_ID** **in** *expr* **..** 
+*for* ::= *label* **for** **TK_ID** **in** *expr* **..** *step*
 
 *step* ::=  λ
           | **step** *expr*
