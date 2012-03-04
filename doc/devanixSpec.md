@@ -55,9 +55,75 @@ Ejemplos de números:
 Los comentarios de una línea se comienzan con **-.** y cubren el resto de la línea.
 Los comentarios multilínea se comienzan con **--.** y se terminan con **.--**.
 
-## Gramática
+## Gramática (Under construction)
 
-!!! Coming soon
+Para la descripción de la gramática se utilizará la notación de Backus-Naur 
+(BNF). Los corchetes ("[" y "]") son utilizados para denotar que un símbolo es
+opcional.
+
+*globals* ::=   *global*
+              | *globals* *global*
+
+*global* ::=  *variabledec*
+             | *type* **TK_ID** "(" [*args*]* ")" *block*
+
+*args* ::=  [*passby*] *type* **TK_ID**
+            | *args* **,**  [*passby*] *type* **TK_ID**
+
+*passby* ::=  **$** | **$$**
+
+*block* ::=  **{** [*stmts*] **}**
+
+*stmts* ::=   *statement* 
+            | *stmts* *statement*
+
+*statement* ::=  **;** 
+                | *funcallexp* **;**
+                | **break** [**TK_ID**] **;**
+                | **next** [**TK_ID**] **;**
+                | **return** [*expr*] **;**
+                | **write** *explist* **;**
+                | **writeln** *explist* **;**
+                | **read** *lvalue* **;**
+                | *if* | *while* | *for* | *variabledec* | *asignment*
+
+*if* ::= **if** *expr* *block* [*else*]
+
+*else* ::= **else** *block*
+
+*while* ::= *label* **while** *expr* *block*
+
+*for* ::= label for** **TK_ID** **in** *expr* **..** 
+
+*step* ::=  λ
+          | **step** *expr*
+
+*label* ::=  λ
+           | **TK_ID** **:**
+
+*asignment* ::= *lvalues* **=** *explist* **;**
+
+*lvalues* ::= *lvalue*
+              | *lvalues* **,** *lvalue*
+
+*lvalue* ::= **TK_ID**
+
+*variabledec* ::= *type* (*vardec_item*)* **;**
+
+*vardec_item* ::= **TK_ID**
+                 | **TK_ID** **=** *expr*
+
+*type* ::= **int** | **char** | **bool** | **float**
+          | **string** | **void**
+
+*expr* ::= **TK_ID** | TK_CONSTINT | TK_CONSSTRING | TK_CONSCHAR 
+          | TK_CONSFLOAT | TK_TRUE | TK_FALSE | *funcallexp*
+
+*funcallexp* ::= **TK_ID** **(** [*explist*] **)**
+
+*explist* ::= *expr*
+             | *explist* **,** *expr*
+    
 
 ## Estructura del programa
 
