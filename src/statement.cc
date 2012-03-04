@@ -270,6 +270,7 @@ VariableDec::VariableDec(Type* type,
 }
 
 void VariableDec::check(){
+  // CUIDADO !! en la lista pueden existir NULLs 
   for(std::list<std::pair<SymVar*,Expression*>>::iterator it=this->decls.begin();
       it!= this->decls.end(); it++){
     // Si es una variable tipo string, chequear si se inicializo

@@ -145,22 +145,23 @@ Los bits serán reinterpretados y no hay garantías.
 Un tipo **box** básico sin campos variantes se declara de la siguiente manera:
 
     box nombre {
-        tipo variable
-	tipo variable
-	...
+        tipo variable [= expresion];
+	    tipo variable [= expresion];
+	    ...
     }
 
 Las variables pueden ser de cualquier tipo excepto void, inclusive otro box.
 No puede existir un campo del box que sea del mismo tipo que el propio box, pues
-sería una recursión infinita.
+sería una recursión infinita. En la parte variant no se permite utilizar campos 
+de tipo string.
 
 Un tipo **box** con campos variantes se declara de la siguiente manera:
 
     box nombre {
        variant:
-        tipo variable
-	tipo variable
-	...
+        tipo variable;
+	    tipo variable;
+	    ...
     }
 
 Se pueden agrupar campos variantes usando llaves para declarar que todas las variables
@@ -168,26 +169,26 @@ del grupo están activas al mismo tiempo:
 
     box nombre {
        variant:
-        tipo variable1
-	...
-	{
-	    tipo variable2
-	    tipo variable3
+       tipo variable1;
+	   ...
+	  {
+	    tipo variable2;
+	    tipo variable3;
 	    ...
-	}
-	tipo variablex
-	...
+	  }
+	   tipo variablex;
+	   ...
     }
 
 También se pueden combinar campos fijos con campos variantes:
 
     box nombre {
-        tipo variable    -. campos fijos
-	tipo variable
-	...
-       variant:
-        tipo variable    -. campos variantes
-	tipo variable
+        tipo variable[=expresion];    -. campos fijos
+	    tipo variable[=expresion];
+	    ...
+      variant:
+        tipo variable;    -. campos variantes
+	    tipo variable;
     }
 
 Por ejemplo, el usuario podría definir el siguiente tipo para representar elementos
@@ -196,17 +197,17 @@ caso está activo el campo **tiempo_de_vida** o el grupo de campos **molecula_co
 y **concentracion**.
 
     box elemento {
-        char array[2] nombre
-	int numero_atomico
-	float peso_atomico
-	bool metalico
-	bool ocurrencia_natural
-       variant:
-        float tiempo_de_vida
-	{
-	    char array[10] molecula_comun
-	    float concentracion
-	}
+        char array[2] nombre;
+	    int numero_atomico;
+	    float peso_atomico;
+	    bool metalico;
+	    bool ocurrencia_natural;
+     variant:
+        float tiempo_de_vida;
+	   {
+	    char array[10] molecula_comun;
+	    float concentracion;
+	   }
     }
 
 ## Variables

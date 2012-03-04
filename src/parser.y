@@ -76,7 +76,7 @@ bool functionRedeclared(std::string id, YYLTYPE yylloc) {
       +id+"' previamente declarada en "+std::to_string(symf->getLine())
       +":"+std::to_string(symf->getColumn());
     program.error(err, yylloc.first_line, yylloc.first_column);
-    // !!! symf->setDuplicated(true);
+    symf->setDuplicated(true);
     return true;
   }
   return false;
@@ -94,7 +94,7 @@ bool variableRedeclared(std::string id, YYLTYPE yylloc) {
       +id+"' previamente declarada en "+std::to_string(symv->getLine())
       +":"+std::to_string(symv->getColumn());
     program.error(err, yylloc.first_line, yylloc.first_column);
-    // !!! symv->setDuplicated(true);
+    symv->setDuplicated(true);
     return true;
   }
   return false;
@@ -245,8 +245,8 @@ block leavescope
       program.functions.push_back(currentfun);
     }
 
- /* Produce una lista de declaraciones de argumentos de una función,
-    posiblemente vacía. */
+ /* Produce una lista de declaraciones de argumentos (<PassType,SymVar*>)
+  * de una función, posiblemente vacía. */
 args:
   /* empty */
     { $$ = new listSymPairs(); }
@@ -258,12 +258,12 @@ nonempty_args:
   passby type TK_ID
     { $$ = new listSymPairs();
       if (!variableRedeclared(*$3, @3)) {
-	SymVar* arg = new SymVar(*$3, @3.first_line, @3.first_column, true,
+        SymVar* arg = new SymVar(*$3, @3.first_line, @3.first_column, true,
 				 program.symtable.current_scope());
-	arg->setType($2);
-	// !!! if ($1 == PassBy::readonly) arg->setReadonly(true);
-	program.symtable.insert(arg);
-	$$->push_back(std::pair<PassType,SymVar*>($1,arg));
+        arg->setType($2);
+        if ($1 == PassType::readonly) arg->setReadonly(true);
+        program.symtable.insert(arg);
+        $$->push_back(std::pair<PassType,SymVar*>($1,arg));
       }
     }
 
@@ -271,10 +271,10 @@ nonempty_args:
     { if (!variableRedeclared(*$5, @5)) {
         SymVar* arg = new SymVar(*$5, @5.first_line, @5.first_column, true,
 				 program.symtable.current_scope());
-	arg->setType($4);
-	// !!! if ($3 == PassBy::readonly) arg->setReadonly(true);
-	program.symtable.insert(arg);
-	$1->push_back(std::pair<PassType,SymVar*>($3,arg));
+        arg->setType($4);
+        if ($3 == PassType::readonly) arg->setReadonly(true);
+        program.symtable.insert(arg);
+        $1->push_back(std::pair<PassType,SymVar*>($3,arg));
       }
       $$ = $1;
     }
@@ -354,26 +354,26 @@ if:
       $4->setEnclosing($$);
     }
 
- /* Produce un Block que representa el 'else' de un If, podrºía ser vacío */
+ /* Produce un Block que representa el 'else' de un If, podría ser vacío */
 else:
   /* empty */ { $$ = NULL; }
 | "else" enterscope block leavescope
     { $$ = $3; }
 
  /* Produce una instrucción While, duh */
-while:
-  label // Chequear la etiqueta antes de seguir procesando el while
-    { if ($1) pushLoopLabel(*$1, &yylloc); }
-  "while" expr enterscope block leavescope
-    { if ($1) popLoopLabel();
-      if ($1 == NULL) {
-	@$.first_line = @3.first_line;
-	@$.first_column = @3.first_column;
-	@$.last_line = @7.last_line;
-	@$.last_column = @7.last_column;
-      }
-      $$ = new While($1, $4, $6);
-    }
+while: 
+ label  // Chequear la etiqueta antes de seguir procesando el while
+ { if ($1) pushLoopLabel(*$1, &yylloc); }
+ "while" expr enterscope block leavescope
+ { if ($1) popLoopLabel();
+   if ($1 == NULL) { 
+     @$.first_line = @3.first_line;
+     @$.first_column = @3.first_column;
+     @$.last_line = @7.last_line;
+     @$.last_column = @7.last_column;
+   }
+   $$ = new While($1, $4, $6);
+ }
 
  /* Produce un For, ya sea un for de enteros o un foreach sobre un array.
     El for de enteros puede o no tener un paso (step) definido. */
@@ -386,7 +386,7 @@ for:
       SymVar* loopvar = new SymVar(*$4, @4.first_line, @4.first_column, false,
 				   program.symtable.current_scope());
       loopvar->setType(new IntType());
-      // !!! loopvar->setReadonly(true);
+      loopvar->setReadonly(true);
       program.symtable.insert(loopvar);
     }
   block leavescope
@@ -395,12 +395,15 @@ for:
 	 ocurrió de volver a conseguir el SymVar de la iteración para
          poder instanciar el For.
          La otra manera sería llevar una pila de variables de iteración. */
+      /* Otra manera que se me ocurre es que el constructor de BoundedFor 
+       * no tenga como argumento el bloque, que se instancie en las acciones 
+       * de arriba, y en esta parte se haga un setBlock() */
       SymVar* loopvar = program.symtable.lookup_variable(*$4);
       if ($1 == NULL) {
-	@$.first_line = @3.first_line;
-	@$.first_column = @3.first_column;
-	@$.last_line = @13.last_line;
-	@$.last_column = @13.last_column;
+        @$.first_line = @3.first_line;
+        @$.first_column = @3.first_column;
+        @$.last_line = @13.last_line;
+        @$.last_column = @13.last_column;
       }
       $$ = new BoundedFor($1, loopvar, $6, $8, $9, $12);
     }
@@ -438,9 +441,9 @@ lvalue:
       if (symv == NULL) {
         program.error("variable '"+*$1+"' no declarada", @1.first_line,
 		      @1.first_column);
-	$$ = new BadLvalue(); // O un YYERROR?
+        $$ = new BadLvalue(); // O un YYERROR?
       } else {
-	$$ = new NormalLvalue(symv);
+        $$ = new NormalLvalue(symv);
       }
     }
 
@@ -449,17 +452,18 @@ variabledec:
   type vardec_items ";"
     { for (std::list<std::pair<SymVar*,Expression*>>::iterator it = $2->begin();
 	   it != $2->end(); it++) {
-	(*it).first->setType($1);
+        (*it).first->setType($1);
       }
       $$ = new VariableDec($1,*$2);
     }
+
  /* Produce una lista de declaraciones de variables */
 vardec_items:
   vardec_item
     { $$ = new std::list<std::pair<SymVar*,Expression*>>();
       if ($1) $$->push_back(*$1);
     }
-| vardec_items "," vardec_item
+  | vardec_items "," vardec_item
     { if ($1) $1->push_back(*$3);
       $$ = $1;
     }
@@ -471,24 +475,24 @@ vardec_item:
     { if (!variableRedeclared(*$1, @1)) {
         SymVar* sym = new SymVar(*$1, @1.first_line, @1.first_column,false,
 				 program.symtable.current_scope());
-	program.symtable.insert(sym);
-	$$ = new std::pair<SymVar*,Expression*>(sym,NULL);
+        program.symtable.insert(sym);
+        $$ = new std::pair<SymVar*,Expression*>(sym,NULL);
       } else {
         $$ = NULL;
       }
     }
-| TK_ID "=" expr
+ | TK_ID "=" expr
     { if (!variableRedeclared(*$1, @1)) {
         SymVar* sym = new SymVar(*$1, @1.first_line, @1.first_column,false,
 				 program.symtable.current_scope());
-	program.symtable.insert(sym);
-	$$ = new std::pair<SymVar*,Expression*>(sym,$3);
+        program.symtable.insert(sym);
+        $$ = new std::pair<SymVar*,Expression*>(sym,$3);
       } else {
         $$ = NULL;
       }
     }
 
- /* Produce un tipo válido del lenguajes. Por ahora solo los tipos básicos. */
+ /* Produce un tipo válido del lenguaje. Por ahora solo los tipos básicos. */
 type:
    "int"   { $$ = new IntType();}
  | "char"  { $$ = new CharType(); }
@@ -508,28 +512,28 @@ expr:
       if (symv == NULL) {
         program.error("variable '"+*$1+"' no declarada", @1.first_line,
 		      @1.first_column);
-	$$ = new BadExp();
+        $$ = new BadExp();
 	// No sé si esto más bien debería ser un YYERROR
       } else {
-	$$ = new VarExp(symv);
+        $$ = new VarExp(symv);
       }
     }
-| TK_CONSTINT    { $$ = new IntExp($1); }
-| TK_CONSTFLOAT  { $$ = new FloatExp($1); }
-| TK_TRUE        { $$ = new BoolExp(true); }
-| TK_FALSE       { $$ = new BoolExp(false); }
-| TK_CONSTSTRING { $$ = new StringExp(*$1); }
-| TK_CONSTCHAR   { $$ = new CharExp(*$1); }
-| funcallexp
+  | TK_CONSTINT    { $$ = new IntExp($1); }
+  | TK_CONSTFLOAT  { $$ = new FloatExp($1); }
+  | TK_TRUE        { $$ = new BoolExp(true); }
+  | TK_FALSE       { $$ = new BoolExp(false); }
+  | TK_CONSTSTRING { $$ = new StringExp(*$1); }
+  | TK_CONSTCHAR   { $$ = new CharExp(*$1); }
+  | funcallexp
 
  /* Produce una llamada a función */
 funcallexp:
   TK_ID "(" explist ")"
     { SymFunction* symf = program.symtable.lookup_function(*$1);
       if (symf == NULL) {
-	$$ = new FunCallExp(*$1, *$3);
+        $$ = new FunCallExp(*$1, *$3);
       } else {
-	$$ = new FunCallExp(symf, *$3);
+        $$ = new FunCallExp(symf, *$3);
       }
     }
 
