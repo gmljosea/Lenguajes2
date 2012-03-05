@@ -555,6 +555,16 @@ El operador binario que se proporciona para estos tipos es únicamente el de igu
 
 ## Funciones de librería
 
+Entre las funciones de librería que ofrece Devanix se encuentran las siguientes:
+
+Para conversiones explicitas:
+
+De 'int' a 'float' : inttofloat(int a)
+De 'float' a 'int' : floattoint(float b)
+De 'char' a 'int' : chartoint(char c)
+De 'int' a 'char' : inttochar(int d)
+
+### Entrada/Salida
 
 ## Chequeos dinámicos
 

@@ -567,6 +567,42 @@ int main (int argc, char **argv) {
 
   program.errorCount = 0;
 
+  // Agregar las funciones embebidas del lenguaje
+ 
+  //Argumentos Dummy de cada tipo
+  SymVar *argInt= new SymVar("a",0,0,true,0);
+  SymVar *argFloat= new SymVar("b",0,0,true,0);
+  SymVar *argChar= new SymVar("c",0,0,true,0);
+
+  /* De verdad hace falta agregarlos a la tabla? 
+  program.symtable.insert(argInt);
+  program.symtable.insert(argFloat);
+  program.symtable.insert(argChar);
+  */
+
+  // !!! Acomodar lo de los tipos
+  argInt->setType(new IntType());
+  argFloat->setType(new FloatType());
+  argChar->setType(new CharType());
+
+  listSymPairs *listargInt= new listSymPairs();
+  listSymPairs *listargFloat= new listSymPairs();
+  listSymPairs *listargChar= new listSymPairs();
+
+  listargInt->push_back(std::pair<PassType,SymVar*>(PassType::normal,argInt));
+  listargFloat->push_back(std::pair<PassType,SymVar*>(PassType::normal,argFloat));
+  listargChar->push_back(std::pair<PassType,SymVar*>(PassType::normal,argChar));
+
+  SymFunction *inttofloat= new SymFunction("inttofloat",0,0,listargInt);
+  SymFunction *floattoint= new SymFunction("floattoint",0,0,listargFloat);
+  SymFunction *chartoint= new SymFunction("chartofloat",0,0,listargChar);
+  SymFunction *inttochar= new SymFunction("floattochar",0,0,listargInt);
+
+  program.symtable.insert(inttofloat);
+  program.symtable.insert(floattoint);
+  program.symtable.insert(chartoint);
+  program.symtable.insert(inttochar);
+
   yyparse();
 
   // Segunda vuelta haciendo chequeos semánticos
