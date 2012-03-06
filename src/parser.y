@@ -598,6 +598,11 @@ int main (int argc, char **argv) {
   SymFunction *chartoint= new SymFunction("chartofloat",0,0,listargChar);
   SymFunction *inttochar= new SymFunction("floattochar",0,0,listargInt);
 
+  inttofloat->setType(new FloatType());
+  floattoint->setType(new IntType());
+  chartoint->setType(new IntType());
+  inttochar->setType(new CharType());
+
   program.symtable.insert(inttofloat);
   program.symtable.insert(floattoint);
   program.symtable.insert(chartoint);

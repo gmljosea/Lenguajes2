@@ -6,6 +6,11 @@ void print(int a, int b) {
   write a,b;
 }
 
+int calcular( int a, int b){
+  int c=6;
+  return c;
+}
+
 int a,b,c=1;
 
 void hello() {
@@ -16,6 +21,7 @@ void hello() {
 bool d = false;
 
 int main() {
+ int b= calcular(4,5);
  while true {
 
   }
@@ -26,6 +32,7 @@ int main() {
   for i in bla..ble {
       for i in bla..ble step 10 {
         ;;;;
+        -.float a= inttofloat(5);
         next;
       }
   }
