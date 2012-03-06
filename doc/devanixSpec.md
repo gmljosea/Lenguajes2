@@ -62,7 +62,6 @@ Para la descripción de la gramática se utilizará la notación de Backus-Naur
 opcional.
 
 *globals* ::=   *global*
-
               | *globals* *global*
 
 *global* ::=  *variabledec*
