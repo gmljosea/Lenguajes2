@@ -1,83 +1,130 @@
 #ifndef DEVANIX_TYPES
 #define DEVANIX_TYPES
 
-enum TypeKind {
-  Scalar,
-  Void,
-  String
-};
+#include <map>
+#include <string>
 
 class Type {
-protected:
-  TypeKind type;
 public:
-  TypeKind getTypeKind();
-  virtual void print();
+  virtual int getSize() = 0;
   virtual bool operator==(Type& b);
-  /*
-    Hay un problema. operator== debería ser abstracto, pero como en otros lados
-    hemos usado variables Type por valor, el compilador explota porque da
-    errores de que no s epuede instanciar una clase abstracta, lo cual tiene
-    sentido. Hay que arreglar los lugares donde usemos Type para que usen una
-    referencia a Type.
-    Por ahora lo dejo así y le pongo una implementación dummy para que compile
-    y nos ahorremos esos cambios para esta entrega.
-    C++ es complicado.
-   */
 };
 
-class VoidType : public Type {
+// Tipos básicos escalares
+class IntType : public Type {
+private:
+  const static int size = 4; // en bytes
+  IntType();
+  void operator=(IntType const&);
 public:
-  VoidType ();
-  virtual bool operator==(Type& b);
-  virtual void print();
+  static IntType& getInstance() {
+    static IntType instance;
+    return instance;
+  }
+};
+
+class FloatType : public Type {
+private:
+  const static int size = 4; // en bytes
+  FloatType();
+  void operator=(FloatType const&);
+public:
+  static FloatType& getInstance() {
+    static FloatType instance;
+    return instance;
+  }
+};
+
+class BoolType : public Type {
+private:
+  const static int size = 1; // en bytes
+  BoolType();
+  void operator=(BoolType const&);
+public:
+  static BoolType& getInstance() {
+    static BoolType instance;
+    return instance;
+  }
+};
+
+class CharType : public Type {
+private:
+  const static int size = 1; // en bytes
+  CharType();
+  void operator=(CharType const&);
+public:
+  static CharType& getInstance() {
+    static CharType instance;
+    return instance;
+  }
+};
+
+// Tipos especiales
+class VoidType : public Type {
+private:
+  const static int size = 0; // en bytes
+  VoidType();
+  void operator=(VoidType const&);
+public:
+  static VoidType& getInstance() {
+    static VoidType instance;
+    return instance;
+  }
 };
 
 class StringType : public Type {
+private:
+  int size;
 public:
-  StringType ();
-  virtual bool operator==(Type& b);
-  virtual void print();
+  StringType(int size);
 };
 
-enum ScalarKind {
-  Integer,
-  Float,
-  Char,
-  Bool
+class ErrorType : public Type {
+private:
+  const static int size = 0; // en bytes
+  VoidType();
+  void operator=(ErrorType const&);
+public:
+  static VoidType& getInstance() {
+    static VoidType instance;
+    return instance;
+  }
 };
 
-class ScalarType : public Type {
-protected:
-  ScalarKind scalartype;
+// Tipos compuestos
+class ArrayType : public Type {
+private:
+  Type* type;
+  int size;
 public:
-  ScalarType();
-  ScalarKind getScalarKind();
-  virtual bool operator==(Type& b);
+  ArrayType(Type* type, int size);
+  Type* getBaseType();
+  int getOffset(int pos); //offset de la posición pos
 };
 
-class IntType : public ScalarType {
+class BoxType : public Type {
+private:
+  struct BoxField {
+    std::string name;
+    int offset;
+    /* Type es null si el campo es un box que no se encontró en la tabla
+     * al momento de parsear. Cuando esto ocurre, el nombre del box se guarda
+     * en boxname para buscarlo luego en la 2da pasada.
+     */
+    Type* type;
+    std::string boxname;
+  };
+  std::String name;
+  std::map<std::string, BoxField> fixed_fields;
+  std::map<std::string, BoxField> variant_fields;
+  int size;
 public:
-  IntType ();
-  virtual void print();
-};
-
-class FloatType : public ScalarType {
-public:
-  FloatType ();
-  virtual void print();
-};
-
-class CharType : public ScalarType {
-public:
-  CharType ();
-  virtual void print();
-};
-
-class BoolType : public ScalarType {
-public:
-  BoolType ();
-  virtual void print();
+  BoxType(std::string name);
+  void addFixedField(Type* type, std::string name);
+  void addVariantField(Type* type, std::string name);
+  Type* getFieldType(std::string field);
+  int getFieldOffset(std::String field);
+  std::string getName();
 };
 
 #endif
