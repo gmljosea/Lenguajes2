@@ -5,103 +5,88 @@
 #include <string>
 
 class Type {
+protected:
+  int size;
+  int alignment;
 public:
-  virtual int getSize() = 0;
+  Type(int size, int alignment) : size(size), alignment(alignment) {};
+  virtual int getSize();
+  virtual int getAlignment();
   virtual bool operator==(Type& b);
 };
 
 // Tipos básicos escalares
 class IntType : public Type {
 private:
-  const static int size = 4; // en bytes
-  IntType();
+  IntType() : Type(4, 4) {};
   void operator=(IntType const&);
 public:
-  static IntType& getInstance() {
-    static IntType instance;
-    return instance;
-  }
+  static IntType& getInstance();
 };
 
 class FloatType : public Type {
 private:
-  const static int size = 4; // en bytes
-  FloatType();
+  FloatType() : Type(4, 4) {};
   void operator=(FloatType const&);
 public:
-  static FloatType& getInstance() {
-    static FloatType instance;
-    return instance;
-  }
+  static FloatType& getInstance();
 };
 
 class BoolType : public Type {
 private:
-  const static int size = 1; // en bytes
-  BoolType();
+  BoolType() : Type(1, 1) {};
   void operator=(BoolType const&);
 public:
-  static BoolType& getInstance() {
-    static BoolType instance;
-    return instance;
-  }
+  static BoolType& getInstance();
 };
 
 class CharType : public Type {
 private:
-  const static int size = 1; // en bytes
-  CharType();
+  CharType() : Type(1, 1) {};
   void operator=(CharType const&);
 public:
-  static CharType& getInstance() {
-    static CharType instance;
-    return instance;
-  }
+  static CharType& getInstance();
 };
 
 // Tipos especiales
 class VoidType : public Type {
 private:
-  const static int size = 0; // en bytes
-  VoidType();
+  VoidType() : Type(0, 0) {};
   void operator=(VoidType const&);
 public:
-  static VoidType& getInstance() {
-    static VoidType instance;
-    return instance;
-  }
+  static VoidType& getInstance();
 };
 
 class StringType : public Type {
-private:
-  int size;
 public:
-  StringType(int size);
+  StringType(int length) : Type(length, 1) {};
 };
 
 class ErrorType : public Type {
 private:
-  const static int size = 0; // en bytes
-  VoidType();
+  ErrorType() : Type(0, 0) {};
   void operator=(ErrorType const&);
 public:
-  static VoidType& getInstance() {
-    static VoidType instance;
-    return instance;
-  }
+  static ErrorType& getInstance();
 };
 
 // Tipos compuestos
 class ArrayType : public Type {
 private:
-  Type* type;
-  int size;
+  Type* basetype;
+  int length;
 public:
-  ArrayType(Type* type, int size);
+  ArrayType(Type* btype, int length) : basetype(btype), length(length),
+                                       Type(0,0) {};
+  virtual bool operator==(Type& t);
+  virtual int getSize();
+  virtual int getAlignment();
   Type* getBaseType();
+  int getLength();
   int getOffset(int pos); //offset de la posición pos
 };
 
+/*
 class BoxType : public Type {
 private:
   struct BoxField {
@@ -110,7 +95,7 @@ private:
     /* Type es null si el campo es un box que no se encontró en la tabla
      * al momento de parsear. Cuando esto ocurre, el nombre del box se guarda
      * en boxname para buscarlo luego en la 2da pasada.
-     */
+     /
     Type* type;
     std::string boxname;
   };
@@ -125,6 +110,6 @@ public:
   Type* getFieldType(std::string field);
   int getFieldOffset(std::String field);
   std::string getName();
-};
+};*/
 
 #endif

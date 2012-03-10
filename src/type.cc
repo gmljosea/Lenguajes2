@@ -2,82 +2,101 @@
 
 #include "type.hh"
 
-void Type::print() {
+// Type
+int Type::getSize() {
+  return this->size;
 }
 
-TypeKind Type::getTypeKind() {
-  return this->type;
+int Type::getAlignment() {
+  return this->alignment;
 }
 
 bool Type::operator==(Type& b) {
-  return false;
-};
-
-VoidType::VoidType() {
-  this->type = TypeKind::Void;
+  return this == &b;
 }
 
-bool VoidType::operator==(Type& b) {
-  return b.getTypeKind() == TypeKind::Void;
+// IntType
+IntType& IntType::getInstance() {
+  static IntType instance;
+  return instance;
 }
 
-void VoidType::print() {
-  std::cout << "void";
+// FloatType
+FloatType& FloatType::getInstance() {
+  static FloatType instance;
+  return instance;
 }
 
-StringType::StringType() {
-  this->type = TypeKind::String;
+// BoolType
+BoolType& BoolType::getInstance() {
+  static BoolType instance;
+  return instance;
 }
 
-bool StringType::operator==(Type& b) {
-  return b.getTypeKind() == TypeKind::String;
+// CharType
+CharType& CharType::getInstance() {
+  static CharType instance;
+  return instance;
 }
 
-void StringType::print() {
-  std::cout << "string";
+// VoidType
+VoidType& VoidType::getInstance() {
+  static VoidType instance;
+  return instance;
 }
 
-ScalarType::ScalarType() {
-  this->type = TypeKind::Scalar;
+// StringType
+
+// ErrorType
+ErrorType& ErrorType::getInstance() {
+  static ErrorType instance;
+  return instance;
 }
 
-ScalarKind ScalarType::getScalarKind() {
-  return this->scalartype;
+// ArrayType
+bool ArrayType::operator==(Type& t) {
+  ArrayType* ta;
+  if (dynamic_cast<ArrayType*>(&t)) {
+    return this->basetype == ta->getBaseType()
+      && this->length == ta->getLength();
+  } else {
+    return false;
+  }
 }
 
-bool ScalarType::operator==(Type& b) {
-  return b.getTypeKind() == TypeKind::Scalar
-    && dynamic_cast<ScalarType*>(&b)->getScalarKind() == this->scalartype;
+/**
+ * Como el tipo base de un array podría ser un box incompleto al momento
+ * de instanciar el array, entonces no podemos calcular el tamaño y
+ * alineación del arreglo en el constructor, entonces lo hacemos en las
+ * propias llamadas a getSize y getAlignment.
+ * La precondición es que se llamen cuando se esté seguro que el tipo base
+ * no es un box incompleto.
+ */
+int ArrayType::getSize() {
+  return this->basetype->getSize() * this->length;
 }
 
-IntType::IntType() {
-  this->scalartype = ScalarKind::Integer;
+int ArrayType::getAlignment() {
+  return this->basetype->getAlignment();
 }
 
-void IntType::print() {
-  std::cout << "int";
+Type* ArrayType::getBaseType() {
+  return this->basetype;
 }
 
-FloatType::FloatType() {
-  this->scalartype = ScalarKind::Float;
+int ArrayType::getLength() {
+  return this->length;
 }
 
-void FloatType::print() {
-  std::cout << "float";
+int ArrayType::getOffset(int pos) {
+  return this->basetype->getSize()*pos;
 }
 
-CharType::CharType() {
-  this->scalartype = ScalarKind::Char;
-}
+// BoxType
 
-void CharType::print() {
-  std::cout << "char";
-}
-
-BoolType::BoolType() {
-  this->scalartype = ScalarKind::Bool;
-}
-
-void BoolType::print() {
-  std::cout << "bool";
+int main() {
+  IntType& it = IntType::getInstance();
+  FloatType& it2 = FloatType::getInstance();
+  std::cout << it.getSize() << " " << it.getAlignment() <<
+    " " << (it == it2) << std::endl;
 }
