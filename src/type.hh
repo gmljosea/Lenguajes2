@@ -86,30 +86,31 @@ public:
   int getOffset(int pos); //offset de la posición pos
 };
 
-/*
+struct BoxField {
+  Type* type;
+  std::string name;
+  int offset;
+    bool braced;
+};
+
 class BoxType : public Type {
 private:
-  struct BoxField {
-    std::string name;
-    int offset;
-    /* Type es null si el campo es un box que no se encontró en la tabla
-     * al momento de parsear. Cuando esto ocurre, el nombre del box se guarda
-     * en boxname para buscarlo luego en la 2da pasada.
-     /
-    Type* type;
-    std::string boxname;
-  };
-  std::String name;
-  std::map<std::string, BoxField> fixed_fields;
-  std::map<std::string, BoxField> variant_fields;
-  int size;
+  std::string name;
+  std::map<std::string, BoxField*> fixed_fields;
+  std::map<std::string, BoxField*> variant_fields;
+  bool incomplete;
+protected:
+  bool reaches(BoxType& box);
 public:
-  BoxType(std::string name);
+  BoxType(std::string name, bool incomplete)
+    : name(name), incomplete(incomplete), Type(0,0) {};
   void addFixedField(Type* type, std::string name);
-  void addVariantField(Type* type, std::string name);
-  Type* getFieldType(std::string field);
-  int getFieldOffset(std::String field);
+  void addVariantField(Type* type, std::string name, bool braced);
+  BoxField* getField(std::string field);
+  void check();
+  bool isIncomplete();
+  void setIncomplete(bool ic);
   std::string getName();
-};*/
+};
 
 #endif

@@ -93,10 +93,54 @@ int ArrayType::getOffset(int pos) {
 }
 
 // BoxType
+void BoxType::addFixedField(Type* type, std::string name) {
+  BoxField* field = new BoxField();
+  field->type = type;
+  field->name = name;
+  field->offset = 0;
+  field->braced = false;
+  this->fixed_fields[name] = field;
+}
 
-int main() {
-  IntType& it = IntType::getInstance();
-  FloatType& it2 = FloatType::getInstance();
-  std::cout << it.getSize() << " " << it.getAlignment() <<
-    " " << (it == it2) << std::endl;
+void BoxType::addVariantField(Type* type, std::string name, bool braced) {
+  BoxField* field = new BoxField();
+  field->type = type;
+  field->name = name;
+  field->offset = 0;
+  field->braced = braced;
+  this->variant_fields[name] = field;
+}
+
+BoxField* BoxType::getField(std::string field) {
+  std::map<std::string, BoxField*>::iterator it = this->fixed_fields.find(field);
+  if (it != this->fixed_fields.end()) {
+    return it->second;
+  }
+
+  std::map<std::string, BoxField*>::iterator it2 = this->variant_fields.find(field);
+  if (it2 != this->variant_fields.end()) {
+    return it2->second;
+  }
+
+  return NULL;
+}
+
+bool BoxType::isIncomplete() {
+  return this->isIncomplete();
+}
+
+void BoxType::setIncomplete(bool ic) {
+  this->incomplete = ic;
+}
+
+std::string BoxType::getName() {
+  return this->name;
+}
+
+// !!!!!
+void BoxType::check() {
+}
+
+// !!!!!
+bool BoxType::reaches(BoxType& box) {
 }
