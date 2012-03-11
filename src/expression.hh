@@ -4,83 +4,139 @@
 #include "symbol.hh"
 #include "type.hh"
 
+// Clase base
 class Expression {
+protected:
+  Type* type;
+  int fline, fcol, lline, lcol;
+  Expression() : fline(0), fcol(0), lline(0), lcol(0), type(NULL) {};
 public:
   virtual void print(int nesting);
-  virtual bool isBad();
-  virtual Type* getType() = 0;
-};
+  void setLocation(int fline, int fcol, int lline, int lcol);
 
+  virtual void check();
+  virtual Type* getType();
+  virtual bool isBad(); // obsoleto
+
+  virtual Expression* reduce();
+  virtual bool isConstant();
+  virtual int getInteger();
+  virtual double getFloat();
+  virtual bool getBool();
+};
+/**
+ * Cosas antes de que se me olviden:
+ * El método check chequea los tipos
+ */
+
+// Expresión errónea (cuando se usa un símbolo que no existe)
 class BadExp : public Expression {
 public:
-  virtual bool isBad();
-  virtual Type* getType();
+  BadExp();
+  virtual bool isBad(); // obsoleto
 };
 
-// Expresiones base
+// Variable
 class VarExp : public Expression {
 private:
   SymVar* symv;
 public:
   VarExp(SymVar* symv);
-  virtual Type* getType();
   virtual void print(int nesting);
 };
 
-/**
- * Representa una expresión compuesta por una constante de tipo número entero.
- */
-class IntExp : public Expression {
+// Expresiones con valor constantes
+class Constant : public Expression {
+public:
+  virtual bool isConstant();
+};
+
+class IntExp : public Constant {
 private:
   int value;
 public:
   IntExp(int value);
-  virtual Type* getType();
   virtual void print(int nesting);
 };
 
-/**
- * Representa una expresión compuesta por una constante de tipo número decimal.
- */
-class FloatExp : public Expression {
+class FloatExp : public Constant {
 private:
   float value;
 public:
   FloatExp(float value);
-  virtual Type* getType();
   virtual void print(int nesting);
 };
 
-/**
- * Representa una expresión compuesta por una constante booleana (true o false)
- */
-class BoolExp : public Expression {
+class BoolExp : public Constant {
 private:
   bool value;
 public:
   BoolExp(bool value);
-  virtual Type* getType();
   virtual void print(int nesting);
 };
 
-/**
- * Representa una expresión compuesta por una cadena de caracteres entre comillas.
- */
-class StringExp : public Expression {
+class StringExp : public Constant {
 private:
   std::string str;
 public:
   StringExp(std::string str);
-  virtual Type* getType();
+  virtual void print(int nesting);
 };
 
-class CharExp : public Expression {
+class CharExp : public Constant {
 private:
   std::string ch; // cambiar a char
 public:
   CharExp(std::string ch);
-  virtual Type* getType();
+  virtual void print(int nesting);
 };
+
+/*
+class BinaryOp : public Expression {
+protected:
+  Expression* exp1, Expression* exp2;
+  std::string op;
+  BinaryOp(Expression* exp1, Expression* exp2) : exp1(exp1), exp2(exp2),
+						 op("") {};
+public:
+  virtual void print(int nesting);
+  }*/
+
+/*
+// Operadores lógicos AND, OR, NOT
+// Me baso en el ejemplo del Aho
+class Logical : public BinaryOp {
+protected:
+  Logical(Expression* e1, Expression* e2) : BinaryOp(e1,e2) {};
+public:
+  virtual void check();
+};
+
+class And : public Logical {
+public:
+  And(Expression* e1, Expression* e2) : Logical(e1,e2) {};
+};
+
+class Or : public Logical {
+public:
+  Or(Expression* e1, Expression* e2) : Logical(e1,e2) {};
+};
+
+class Not : public Logical {
+public:
+  Not(Expression* e) : Logical(e, e) {};
+  void print(int nesting);
+};
+
+class Relational : public Logical {
+protected:
+  Relational(Expression* e1, Expression* e2) : Logical(e1,e2) {};
+public:
+  virtual void check();
+  virtual void print(int nesting);
+  }; */
+
+
 
 /**
  * Representa una llamada a función.
@@ -105,17 +161,6 @@ public:
   FunCallExp (std::string name, std::list<Expression*> args);
   virtual Type* getType();
   virtual void check();
-};
-
-
-class SumExp : public Expression {
-private:
-  Expression* op1;
-  Expression* op2;
-public:
-  SumExp(Expression* op1, Expression* op2) : op1(op1), op2(op2) {};
-  virtual Type* getType();
-  virtual void print(int nesting);
 };
 
 #endif

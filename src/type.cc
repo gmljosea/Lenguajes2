@@ -51,6 +51,20 @@ VoidType& VoidType::getInstance() {
 }
 
 // StringType
+bool StringType::operator==(Type& t) {
+  return true;
+  StringType* ta;
+  if (ta = dynamic_cast<StringType*>(&t)) {
+    return this->size == ta->getSize();
+  } else {
+    return false;
+  }
+}
+
+void StringType::setLength(int length) {
+  this->size = length;
+}
+
 
 // ErrorType
 ErrorType& ErrorType::getInstance() {
@@ -61,7 +75,7 @@ ErrorType& ErrorType::getInstance() {
 // ArrayType
 bool ArrayType::operator==(Type& t) {
   ArrayType* ta;
-  if (dynamic_cast<ArrayType*>(&t)) {
+  if (ta = dynamic_cast<ArrayType*>(&t)) {
     return this->basetype == ta->getBaseType()
       && this->length == ta->getLength();
   } else {

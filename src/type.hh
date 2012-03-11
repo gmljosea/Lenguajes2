@@ -62,6 +62,8 @@ public:
 class StringType : public Type {
 public:
   StringType(int length) : Type(length, 1) {};
+  virtual bool operator==(Type& t);
+  void setLength(int length);
 };
 
 class ErrorType : public Type {

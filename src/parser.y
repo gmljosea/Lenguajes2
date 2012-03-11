@@ -527,7 +527,7 @@ expr:
   | TK_CONSTSTRING { $$ = new StringExp(*$1); }
   | TK_CONSTCHAR   { $$ = new CharExp(*$1); }
   | funcallexp
-  | expr "+" expr  { $$ = new SumExp($1,$3); }
+  | expr "+" expr  { $$ = $1; }
 
  /* Produce una llamada a función */
 funcallexp:
