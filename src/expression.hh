@@ -206,40 +206,26 @@ public:
   LessEq(Expression* e1, Expression* e2) : Relational(e1,e2,"<=") {};
 };
 
-/*
-// Operadores lógicos AND, OR, NOT
-// Me baso en el ejemplo del Aho
-class Logical : public BinaryOp {
-protected:
-  Logical(Expression* e1, Expression* e2) : BinaryOp(e1,e2) {};
+// Acceso a un arreglo
+class Index : public Expression {
+private:
+  Expression* array;
+  Expression* index;
 public:
-  virtual void check();
-};
-
-class And : public Logical {
-public:
-  And(Expression* e1, Expression* e2) : Logical(e1,e2) {};
-};
-
-class Or : public Logical {
-public:
-  Or(Expression* e1, Expression* e2) : Logical(e1,e2) {};
-};
-
-class Not : public Logical {
-public:
-  Not(Expression* e) : Logical(e, e) {};
+  Index(Expression* array, Expression* index)
+    : array(array), index(index) {};
   void print(int nesting);
 };
 
-class Relational : public Logical {
-protected:
-  Relational(Expression* e1, Expression* e2) : Logical(e1,e2) {};
+// Acceso a un campo de un box
+class Dot : public Expression {
+private:
+  Expression* box;
+  std::string field;
 public:
-  virtual void check();
-  virtual void print(int nesting);
-  }; */
-
+  Dot(Expression* box, std::string field) : box(box), field(field) {};
+  void print(int nesting);
+};
 
 
 /**

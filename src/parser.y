@@ -210,6 +210,7 @@ bool variableRedeclared(std::string id, YYLTYPE yylloc) {
 %left "+" "-"
 %left "*" "/" "%"
 %right NEG "not"
+%left "[" "."
 
 %% /* Gramática */
 
@@ -551,6 +552,8 @@ expr:
 | expr "!=" expr { $$ = new NotEqual($1,$3); }
 | expr "<" expr { $$ = new Less($1,$3); }
 | expr "<=" expr { $$ = new LessEq($1,$3); }
+| expr "[" expr "]" { $$ = new Index($1,$3); }
+| expr "." TK_ID { $$ = new Dot($1,*$3); }
 
  /* Produce una llamada a función */
 funcallexp:

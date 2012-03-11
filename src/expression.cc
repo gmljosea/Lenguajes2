@@ -145,7 +145,7 @@ void BinaryOp::print(int nesting) {
 
 // Sum
 void Sum::check() {
-  exp1->check();
+  /*  exp1->check();
   exp2->check();
   Type* t1 = this->exp1->getType();
   Type* t2 = this->exp2->getType();
@@ -157,11 +157,11 @@ void Sum::check() {
   // Errores
   program.error("Suma no cuadra", this->fline, this->fcol);
   this->type = &(ErrorType::getInstance());
-  return;
+  return;*/
 }
 
 Expression* Sum::reduce() {
-  this->exp1 = this->exp1->reduce();
+  /*this->exp1 = this->exp1->reduce();
   if (!exp1->isConstant()) return this;
   this->exp2 = this->exp2->reduce();
   if (!exp2->isConstant()) return this;
@@ -176,7 +176,7 @@ Expression* Sum::reduce() {
   delete exp1;
   delete exp2;
   delete this;
-  return result;
+  return result;*/
 }
 
 // Minus
@@ -191,6 +191,23 @@ void Not::print(int nesting) {
   std::string padding(nesting*2, ' ');
   std::cout << padding << "not" << std::endl;
   this->exp1->print(nesting+1);
+}
+
+// Index (operador [], acceso a arreglo)
+void Index::print(int nesting) {
+  std::string padding(nesting*2, ' ');
+  this->array->print(nesting+1);
+  std::cout << padding << "[" << std::endl;
+  this->index->print(nesting+1);
+  std::cout << padding << "]" << std::endl;
+}
+
+// Dot (operador ., acceso a un campo de un box)
+void Dot::print(int nesting) {
+  std::string padding(nesting*2, ' ');
+  this->box->print(nesting+1);
+  std::cout << padding << "." << std::endl
+	    << padding << "  " << field << std::endl;
 }
 
 // FunCall
