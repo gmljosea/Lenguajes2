@@ -120,6 +120,55 @@ public:
   virtual Expression* reduce();
 };
 
+class Substraction : public Arithmetic {
+public:
+  Substraction(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"-") {};
+};
+
+class Multiplication : public Arithmetic {
+public:
+  Multiplication(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"*") {};
+};
+
+class Division : public Arithmetic {
+public:
+  Division(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"/") {};
+};
+
+class Remainder : public Arithmetic {
+public:
+  Remainder(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"%") {};
+};
+
+class Minus : public Arithmetic {
+public:
+  Minus(Expression* e) : Arithmetic(e,e,"-") {};
+  void print(int nesting);
+};
+
+// Operadores lógicos AND, OR, NOT
+class Logical : public BinaryOp {
+public:
+  Logical(Expression* e1, Expression* e2, std::string op)
+    : BinaryOp(e1,e2,op) {};
+};
+
+class And : public Logical {
+public:
+  And(Expression* e1, Expression* e2) : Logical(e1,e2,"and") {};
+};
+
+class Or : public Logical {
+public:
+  Or(Expression* e1, Expression* e2) : Logical(e1,e2,"or") {};
+};
+
+class Not : public Logical {
+public:
+  Not(Expression* e) : Logical(e,e,"not") {};
+  void print(int nesting);
+};
+
 /*
 // Operadores lógicos AND, OR, NOT
 // Me baso en el ejemplo del Aho

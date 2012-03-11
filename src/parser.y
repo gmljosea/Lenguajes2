@@ -201,7 +201,11 @@ bool variableRedeclared(std::string id, YYLTYPE yylloc) {
 %type <passtype> passby
 %type <argsdec> args nonempty_args
 
-%left "+"
+%left "or"
+%left "and"
+%left "+" "-"
+%left "*" "/" "%"
+%right NEG "not"
 
 %% /* Gramática */
 
@@ -528,6 +532,15 @@ expr:
   | TK_CONSTCHAR   { $$ = new CharExp(*$1); }
   | funcallexp
   | expr "+" expr  { $$ = new Sum($1,$3); }
+| expr "-" expr { $$ = new Substraction($1,$3); }
+| expr "*" expr { $$ = new Multiplication($1,$3); }
+| expr "/" expr { $$ = new Division($1,$3); }
+| expr "%" expr { $$ = new Remainder($1,$3); }
+| "-" expr %prec NEG { $$ = new Minus($2); }
+| "(" expr ")" { $$ = $2; }
+| expr "and" expr { $$ = new And($1,$3); }
+| expr "or" expr { $$ = new Or($1,$3); }
+| "not" expr { $$ = new Not($2); }
 
  /* Produce una llamada a función */
 funcallexp:

@@ -179,6 +179,20 @@ Expression* Sum::reduce() {
   return result;
 }
 
+// Minus
+void Minus::print(int nesting) {
+  std::string padding(nesting*2, ' ');
+  std::cout << padding << "-" << std::endl;
+  this->exp1->print(nesting+1);
+}
+
+// Not
+void Not::print(int nesting) {
+  std::string padding(nesting*2, ' ');
+  std::cout << padding << "not" << std::endl;
+  this->exp1->print(nesting+1);
+}
+
 // FunCall
 FunCallExp::FunCallExp(SymFunction* symf, std::list<Expression*> args) {
   this->symf = symf;
