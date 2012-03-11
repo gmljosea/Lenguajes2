@@ -396,7 +396,13 @@ Write::Write(std::list<Expression*> exps, bool isLn) {
   this->isLn = isLn;
 }
 
-void Write::check(){}
+void Write::check(){
+  for (std::list<Expression*>::iterator it = exps.begin();
+       it != exps.end(); it++) {
+    (*it)->check();
+    *it = (*it)->reduce();
+  }
+}
 
 void Write::print(int nesting) {
   std::string padding(nesting*2, ' ');

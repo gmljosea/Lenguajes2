@@ -70,6 +70,10 @@ void IntExp::print(int nesting) {
   std::cout << padding << value << std::endl;
 }
 
+int IntExp::getInteger() {
+  return this->value;
+}
+
 
 // FloatExp
 FloatExp::FloatExp(float value) {
@@ -80,6 +84,10 @@ FloatExp::FloatExp(float value) {
 void FloatExp::print(int nesting) {
   std::string padding(nesting*2, ' ');
   std::cout << padding << value << std::endl;
+}
+
+double FloatExp::getFloat() {
+  return this->value;
 }
 
 
@@ -96,6 +104,10 @@ void BoolExp::print(int nesting) {
   } else {
     std::cout << padding << "false" << std::endl;
   }
+}
+
+bool BoolExp::getBool() {
+  return this->value;
 }
 
 
@@ -123,6 +135,50 @@ void CharExp::print(int nesting) {
 }
 
 
+// BinaryOp
+void BinaryOp::print(int nesting) {
+  std::string padding(nesting*2, ' ');
+  this->exp1->print(nesting+1);
+  std::cout << padding << this->op << std::endl;
+  this->exp2->print(nesting+1);
+}
+
+// Sum
+void Sum::check() {
+  exp1->check();
+  exp2->check();
+  Type* t1 = this->exp1->getType();
+  Type* t2 = this->exp2->getType();
+  if (*t1 == *t2 and
+      (*t1 == IntType::getInstance() or *t1 == FloatType::getInstance())) {
+    this->type = t1;
+    return;
+  }
+  // Errores
+  program.error("Suma no cuadra", this->fline, this->fcol);
+  this->type = &(ErrorType::getInstance());
+  return;
+}
+
+Expression* Sum::reduce() {
+  this->exp1 = this->exp1->reduce();
+  if (!exp1->isConstant()) return this;
+  this->exp2 = this->exp2->reduce();
+  if (!exp2->isConstant()) return this;
+
+  Expression* result;
+  if (*this->type == IntType::getInstance()) {
+    result = new IntExp(exp1->getInteger()+exp2->getInteger());
+  } else {
+    result = new FloatExp(exp1->getFloat()+exp2->getFloat());
+  }
+  //result->setLocation(exp1->fline,exp1->fcol,exp2->lline,exp2->lcol);
+  delete exp1;
+  delete exp2;
+  delete this;
+  return result;
+}
+
 // FunCall
 FunCallExp::FunCallExp(SymFunction* symf, std::list<Expression*> args) {
   this->symf = symf;
@@ -136,6 +192,7 @@ FunCallExp::FunCallExp(std::string name, std::list<Expression*> args) {
   this->checkedFunction = false;
   this->name = name;
 }
+
 
 Type* FunCallExp::getType() {
   if (!this->checkedFunction) {

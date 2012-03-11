@@ -57,6 +57,7 @@ private:
 public:
   IntExp(int value);
   virtual void print(int nesting);
+  virtual int getInteger();
 };
 
 class FloatExp : public Constant {
@@ -65,6 +66,7 @@ private:
 public:
   FloatExp(float value);
   virtual void print(int nesting);
+  virtual double getFloat();
 };
 
 class BoolExp : public Constant {
@@ -73,6 +75,7 @@ private:
 public:
   BoolExp(bool value);
   virtual void print(int nesting);
+  virtual bool getBool();
 };
 
 class StringExp : public Constant {
@@ -91,16 +94,31 @@ public:
   virtual void print(int nesting);
 };
 
-/*
+
 class BinaryOp : public Expression {
 protected:
-  Expression* exp1, Expression* exp2;
+  Expression* exp1;
+  Expression* exp2;
   std::string op;
-  BinaryOp(Expression* exp1, Expression* exp2) : exp1(exp1), exp2(exp2),
-						 op("") {};
+  BinaryOp(Expression* exp1, Expression* exp2, std::string op)
+    : exp1(exp1), exp2(exp2), op(op) {};
 public:
   virtual void print(int nesting);
-  }*/
+};
+
+// Operadores Aritméticos
+class Arithmetic : public BinaryOp {
+public:
+  Arithmetic(Expression* e1, Expression* e2, std::string op)
+    : BinaryOp(e1,e2,op) {};
+};
+
+class Sum : public Arithmetic {
+public:
+  Sum(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"+") {};
+  virtual void check();
+  virtual Expression* reduce();
+};
 
 /*
 // Operadores lógicos AND, OR, NOT
