@@ -15,6 +15,11 @@ bool Type::operator==(Type& b) {
   return this == &b;
 }
 
+// !!! Implementar esto como debe ser
+void Type::print() {
+  std::cout << "Algun tipo" << std::endl;
+}
+
 // IntType
 IntType& IntType::getInstance() {
   static IntType instance;

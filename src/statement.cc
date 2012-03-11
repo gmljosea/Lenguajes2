@@ -40,7 +40,7 @@ bool BadLvalue::isBad() {
 }
 
 Type* BadLvalue::getType() {
-  return new VoidType();
+  return &(ErrorType::getInstance());
   /* Si que horrible. Es un memory leak y aparte devuelve tipo void, lo cual
      tiene poco sentido, pero no se me ocurre algo mejor esta noche.
    */
@@ -115,7 +115,7 @@ If::If(Expression *cond, Block *block_true, Block *block_false) {
 }
 
 void If::check(){
-  BoolType i;
+  BoolType& i = BoolType::getInstance();
   if(!(*(this->cond->getType()) == i ))
     program.error("condicion debe ser de tipo 'bool'",this->first_line,this->first_column);
   this->block_true->check();
@@ -158,7 +158,7 @@ BoundedFor::BoundedFor(std::string* label, SymVar* varsym,
 }
 
 void BoundedFor::check(){
-  IntType i;
+  IntType& i = IntType::getInstance();
   if(!(*(this->lowerb->getType())==i))
     program.error("limite inferior debe ser de tipo 'int'",this->first_line,this->first_column);
 
@@ -201,7 +201,7 @@ While::While(std::string* label, Expression* cond, Block* block)
 }
 
 void While::check(){
-  BoolType t;
+  BoolType& t = BoolType::getInstance();
   if(!(*(this->cond->getType())==t))
     program.error("la condición del While debe ser de tipo 'int'",this->first_line,this->first_column);
   this->block->check();
@@ -274,7 +274,9 @@ void VariableDec::check(){
   for(std::list<std::pair<SymVar*,Expression*>>::iterator it=this->decls.begin();
       it!= this->decls.end(); it++){
     // Si es una variable tipo string, chequear si se inicializo
-    StringType t;
+    // !!! Super hack horrible
+    StringType tb(1);
+    StringType& t = tb;
     if( *((*it).first->getType())== t )
       if((*it).second==NULL){
 	program.error("variable de tipo 'string' debe ser inicializada al declarar ",((*it).first)->getLine(),((*it).first)->getColumn() );
@@ -357,7 +359,7 @@ void Return::check(){
     if(!(*(this->exp->getType())== *(this->symf->getType())))
       program.error("return devuelve tipo incompatible",this->first_line,this->first_column);
   }else{
-    VoidType t;
+    VoidType& t = VoidType::getInstance();
     if(!(*(this->symf->getType()) == t))
       program.error("return esperaba 'void'", this->first_line, this->first_column);} 
 }

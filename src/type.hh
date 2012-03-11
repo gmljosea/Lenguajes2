@@ -13,6 +13,7 @@ public:
   virtual int getSize();
   virtual int getAlignment();
   virtual bool operator==(Type& b);
+  virtual void print();
 };
 
 // Tipos básicos escalares

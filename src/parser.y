@@ -201,6 +201,8 @@ bool variableRedeclared(std::string id, YYLTYPE yylloc) {
 %type <passtype> passby
 %type <argsdec> args nonempty_args
 
+%left "+"
+
 %% /* Gramática */
 
 // Nota: estoy marcando las áreas que faltan por hacer con !!!
@@ -385,7 +387,7 @@ for:
          instrucciones */
       SymVar* loopvar = new SymVar(*$4, @4.first_line, @4.first_column, false,
 				   program.symtable.current_scope());
-      loopvar->setType(new IntType());
+      loopvar->setType(&(IntType::getInstance()));
       loopvar->setReadonly(true);
       program.symtable.insert(loopvar);
     }
@@ -494,12 +496,12 @@ vardec_item:
 
  /* Produce un tipo válido del lenguaje. Por ahora solo los tipos básicos. */
 type:
-   "int"   { $$ = new IntType();}
- | "char"  { $$ = new CharType(); }
- | "bool"  { $$ = new BoolType(); }
- | "float" { $$ = new FloatType(); }
- | "string" { $$= new StringType();}
- | "void"  { $$ = new VoidType(); }
+"int"    { $$ = &(IntType::getInstance()); }
+| "char"   { $$ = &(CharType::getInstance()); }
+| "bool"   { $$ = &(BoolType::getInstance()); }
+| "float"  { $$ = &(FloatType::getInstance()); }
+| "string" { $$ = new StringType(1);}
+| "void"   { $$ = &(VoidType::getInstance()); }
 
  // ** Gramática de las expresiones
 
@@ -525,6 +527,7 @@ expr:
   | TK_CONSTSTRING { $$ = new StringExp(*$1); }
   | TK_CONSTCHAR   { $$ = new CharExp(*$1); }
   | funcallexp
+  | expr "+" expr  { $$ = new SumExp($1,$3); }
 
  /* Produce una llamada a función */
 funcallexp:
@@ -580,10 +583,11 @@ int main (int argc, char **argv) {
   program.symtable.insert(argChar);
   */
 
-  // !!! Acomodar lo de los tipos
-  argInt->setType(new IntType());
-  argFloat->setType(new FloatType());
-  argChar->setType(new CharType());
+  // Bueno, hacer &() a los getInstance se está poniendo fastidioso
+  // pero ya me da fastidio cambiar las firmas de los getInstance - JA
+  argInt->setType(&(IntType::getInstance()));
+  argFloat->setType(&(FloatType::getInstance()));
+  argChar->setType(&(CharType::getInstance()));
 
   listSymPairs *listargInt= new listSymPairs();
   listSymPairs *listargFloat= new listSymPairs();
@@ -598,10 +602,10 @@ int main (int argc, char **argv) {
   SymFunction *chartoint= new SymFunction("chartofloat",0,0,listargChar);
   SymFunction *inttochar= new SymFunction("floattochar",0,0,listargInt);
 
-  inttofloat->setType(new FloatType());
-  floattoint->setType(new IntType());
-  chartoint->setType(new IntType());
-  inttochar->setType(new CharType());
+  inttofloat->setType(&(FloatType::getInstance()));
+  floattoint->setType(&(IntType::getInstance()));
+  chartoint->setType(&(IntType::getInstance()));
+  inttochar->setType(&(CharType::getInstance()));
 
   program.symtable.insert(inttofloat);
   program.symtable.insert(floattoint);
@@ -623,7 +627,7 @@ int main (int argc, char **argv) {
     if(main->getArgumentCount()!=0){
       program.error("la funcion main no debe tener argumentos",line,col);
     }
-    IntType i;
+    IntType& i = IntType::getInstance();
     if(!(*(main->getType()) == i)){
       main->getType()->print();
       program.error("La funcion main debe ser de tipo 'int'",line,col);
