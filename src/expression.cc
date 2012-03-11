@@ -19,7 +19,7 @@ bool BadExp::isBad() {
 }
 
 Type* BadExp::getType() {
-  return &(this->type);
+  return &(ErrorType::getInstance());
 }
 
 VarExp::VarExp(SymVar* symv) {
@@ -40,7 +40,7 @@ IntExp::IntExp(int value) {
 }
 
 Type* IntExp::getType(){
-  return &(this->type);
+  return &(IntType::getInstance());
 }
 
 void IntExp::print(int nesting) {
@@ -53,7 +53,7 @@ FloatExp::FloatExp(float value) {
 }
 
 Type* FloatExp::getType() {
-  return &(this->type);
+  return &(FloatType::getInstance());
 }
 
 void FloatExp::print(int nesting) {
@@ -66,7 +66,7 @@ BoolExp::BoolExp(bool value) {
 }
 
 Type* BoolExp::getType() {
-  return &(this->type);
+  return &(BoolType::getInstance());
 }
 
 void BoolExp::print(int nesting) {
@@ -82,8 +82,9 @@ StringExp::StringExp(std::string str) {
   this->str = str;
 }
 
+// !!! Nota, esto esta mal, lo hice solo para que compilara
 Type* StringExp::getType() {
-  return &(this->type);
+  return new StringType(1);
 }
 
 CharExp::CharExp(std::string ch) {
@@ -91,7 +92,7 @@ CharExp::CharExp(std::string ch) {
 }
 
 Type* CharExp::getType() {
-  return &(this->type);
+  return &(CharType::getInstance());
 }
 
 FunCallExp::FunCallExp(SymFunction* symf, std::list<Expression*> args) {
@@ -113,7 +114,7 @@ Type* FunCallExp::getType() {
     // Si no existe, devuelve VoidType
   }
   // !!! return this->symf->getType();
-  return new VoidType();
+  return &(VoidType::getInstance());
 }
 
 void FunCallExp::check() {
@@ -124,4 +125,17 @@ void FunCallExp::check() {
   } else {
     checkedFunction = true;
   }
+}
+
+// Suma
+Type* SumExp::getType() {
+  return &(IntType::getInstance());
+}
+
+// !!!! Nota: cambiar a un print de ops. binarios generalizado
+void SumExp::print(int nesting) {
+  std::string padding(nesting*2, ' ');
+  this->op1->print(nesting+1);
+  std::cout << padding << "+" << std::endl;
+  this->op2->print(nesting+1);
 }

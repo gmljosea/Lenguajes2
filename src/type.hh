@@ -1,83 +1,117 @@
 #ifndef DEVANIX_TYPES
 #define DEVANIX_TYPES
 
-enum TypeKind {
-  Scalar,
-  Void,
-  String
-};
+#include <map>
+#include <string>
 
 class Type {
 protected:
-  TypeKind type;
+  int size;
+  int alignment;
 public:
-  TypeKind getTypeKind();
-  virtual void print();
+  Type(int size, int alignment) : size(size), alignment(alignment) {};
+  virtual int getSize();
+  virtual int getAlignment();
   virtual bool operator==(Type& b);
-  /*
-    Hay un problema. operator== debería ser abstracto, pero como en otros lados
-    hemos usado variables Type por valor, el compilador explota porque da
-    errores de que no s epuede instanciar una clase abstracta, lo cual tiene
-    sentido. Hay que arreglar los lugares donde usemos Type para que usen una
-    referencia a Type.
-    Por ahora lo dejo así y le pongo una implementación dummy para que compile
-    y nos ahorremos esos cambios para esta entrega.
-    C++ es complicado.
-   */
+  virtual void print();
 };
 
-class VoidType : public Type {
+// Tipos básicos escalares
+class IntType : public Type {
+private:
+  IntType() : Type(4, 4) {};
+  void operator=(IntType const&);
 public:
-  VoidType ();
-  virtual bool operator==(Type& b);
-  virtual void print();
+  static IntType& getInstance();
+};
+
+class FloatType : public Type {
+private:
+  FloatType() : Type(4, 4) {};
+  void operator=(FloatType const&);
+public:
+  static FloatType& getInstance();
+};
+
+class BoolType : public Type {
+private:
+  BoolType() : Type(1, 1) {};
+  void operator=(BoolType const&);
+public:
+  static BoolType& getInstance();
+};
+
+class CharType : public Type {
+private:
+  CharType() : Type(1, 1) {};
+  void operator=(CharType const&);
+public:
+  static CharType& getInstance();
+};
+
+// Tipos especiales
+class VoidType : public Type {
+private:
+  VoidType() : Type(0, 0) {};
+  void operator=(VoidType const&);
+public:
+  static VoidType& getInstance();
 };
 
 class StringType : public Type {
 public:
-  StringType ();
-  virtual bool operator==(Type& b);
-  virtual void print();
+  StringType(int length) : Type(length, 1) {};
 };
 
-enum ScalarKind {
-  Integer,
-  Float,
-  Char,
-  Bool
+class ErrorType : public Type {
+private:
+  ErrorType() : Type(0, 0) {};
+  void operator=(ErrorType const&);
+public:
+  static ErrorType& getInstance();
 };
 
-class ScalarType : public Type {
+// Tipos compuestos
+class ArrayType : public Type {
+private:
+  Type* basetype;
+  int length;
+public:
+  ArrayType(Type* btype, int length) : basetype(btype), length(length),
+                                       Type(0,0) {};
+  virtual bool operator==(Type& t);
+  virtual int getSize();
+  virtual int getAlignment();
+  Type* getBaseType();
+  int getLength();
+  int getOffset(int pos); //offset de la posición pos
+};
+
+struct BoxField {
+  Type* type;
+  std::string name;
+  int offset;
+    bool braced;
+};
+
+class BoxType : public Type {
+private:
+  std::string name;
+  std::map<std::string, BoxField*> fixed_fields;
+  std::map<std::string, BoxField*> variant_fields;
+  bool incomplete;
 protected:
-  ScalarKind scalartype;
+  bool reaches(BoxType& box);
 public:
-  ScalarType();
-  ScalarKind getScalarKind();
-  virtual bool operator==(Type& b);
-};
-
-class IntType : public ScalarType {
-public:
-  IntType ();
-  virtual void print();
-};
-
-class FloatType : public ScalarType {
-public:
-  FloatType ();
-  virtual void print();
-};
-
-class CharType : public ScalarType {
-public:
-  CharType ();
-  virtual void print();
-};
-
-class BoolType : public ScalarType {
-public:
-  BoolType ();
-  virtual void print();
+  BoxType(std::string name, bool incomplete)
+    : name(name), incomplete(incomplete), Type(0,0) {};
+  void addFixedField(Type* type, std::string name);
+  void addVariantField(Type* type, std::string name, bool braced);
+  BoxField* getField(std::string field);
+  void check();
+  bool isIncomplete();
+  void setIncomplete(bool ic);
+  std::string getName();
 };
 
 #endif
