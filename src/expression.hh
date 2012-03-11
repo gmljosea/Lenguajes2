@@ -108,7 +108,7 @@ public:
 
 // Operadores Aritméticos
 class Arithmetic : public BinaryOp {
-public:
+protected:
   Arithmetic(Expression* e1, Expression* e2, std::string op)
     : BinaryOp(e1,e2,op) {};
 };
@@ -148,7 +148,7 @@ public:
 
 // Operadores lógicos AND, OR, NOT
 class Logical : public BinaryOp {
-public:
+protected:
   Logical(Expression* e1, Expression* e2, std::string op)
     : BinaryOp(e1,e2,op) {};
 };
@@ -167,6 +167,43 @@ class Not : public Logical {
 public:
   Not(Expression* e) : Logical(e,e,"not") {};
   void print(int nesting);
+};
+
+// Operadores relacionales
+class Relational : public Logical {
+protected:
+  Relational(Expression* e1, Expression* e2, std::string op)
+    : Logical(e1,e2,op) {};
+};
+
+class Greater : public Relational {
+public:
+  Greater(Expression* e1, Expression* e2) : Relational(e1,e2,">") {};
+};
+
+class GreaterEq : public Relational {
+public:
+  GreaterEq(Expression* e1, Expression* e2) : Relational(e1,e2,">=") {};
+};
+
+class Equal : public Relational {
+public:
+  Equal(Expression* e1, Expression* e2) : Relational(e1,e2,"=") {};
+};
+
+class NotEqual : public Relational {
+public:
+  NotEqual(Expression* e1, Expression* e2) : Relational(e1,e2,"!=") {};
+};
+
+class Less : public Relational {
+public:
+  Less (Expression* e1, Expression* e2) : Relational(e1,e2,"<") {};
+};
+
+class LessEq : public Relational {
+public:
+  LessEq(Expression* e1, Expression* e2) : Relational(e1,e2,"<=") {};
 };
 
 /*

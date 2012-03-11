@@ -135,6 +135,7 @@ writeln { lexer::trace("writeln", yytext, yylloc); return TK_WRITELN; }
 \/  { lexer::trace("/", yytext, yylloc); return TK_DIV;}
 %   { lexer::trace("%", yytext, yylloc); return TK_MOD;}
 =   { lexer::trace("=", yytext, yylloc); return TK_EQU;}
+!=  { lexer::trace("!=", yytext, yylloc); return TK_NEQ;}
 \<  { lexer::trace("<", yytext, yylloc); return TK_LT;}
 \>  { lexer::trace(">", yytext, yylloc); return TK_GT;}
 \>= { lexer::trace(">=", yytext, yylloc); return TK_GTE;}

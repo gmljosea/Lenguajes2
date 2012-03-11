@@ -152,6 +152,7 @@ bool variableRedeclared(std::string id, YYLTYPE yylloc) {
 %token TK_DIV         "/"
 %token TK_MOD         "%"
 %token TK_EQU         "="
+%token TK_NEQ         "!="
 %token TK_LT          "<"
 %token TK_GT          ">"
 %token TK_GTE         ">="
@@ -201,8 +202,11 @@ bool variableRedeclared(std::string id, YYLTYPE yylloc) {
 %type <passtype> passby
 %type <argsdec> args nonempty_args
 
+
 %left "or"
 %left "and"
+%left "=" "!="
+%left "<" "<=" ">=" ">"
 %left "+" "-"
 %left "*" "/" "%"
 %right NEG "not"
@@ -541,6 +545,12 @@ expr:
 | expr "and" expr { $$ = new And($1,$3); }
 | expr "or" expr { $$ = new Or($1,$3); }
 | "not" expr { $$ = new Not($2); }
+| expr ">" expr { $$ = new Greater($1,$3); }
+| expr ">=" expr { $$ = new GreaterEq($1,$3); }
+| expr "=" expr { $$ = new Equal($1,$3); }
+| expr "!=" expr { $$ = new NotEqual($1,$3); }
+| expr "<" expr { $$ = new Less($1,$3); }
+| expr "<=" expr { $$ = new LessEq($1,$3); }
 
  /* Produce una llamada a función */
 funcallexp:
