@@ -29,6 +29,14 @@ Program program;
 SymFunction* currentfun; // Función parseada actual
 std::list<std::string> looplabels;
 
+/* Como todos los box se pueden ver entre si, puede que dentro de un box
+   se declare una variable de un tipo box cuya declaracion aun no se ha 
+   encontrado, en este caso lo guardamos mientras en el hash de unknown 
+   con la condicion de que cuando se encuentre su definicion sea movido a
+   la tabla de simbolos*/ 
+ boxHash unknownBox;
+ funcSymtable unknownFunc;
+
 /**
  * Extrae los campos de yylloc y los utiliza para inicializar los campos
  * de ubicación de un Statement cualquiera.
