@@ -109,6 +109,10 @@ bool SymVar::isReadonly(){
   return this->readonly;
 }
 
+/************************************/
+/*** Metodos de la clase SymTable ***/
+/************************************/
+
 SymTable::SymTable(){
   this->nextscope=2;
   this->stack.push_back(0);
@@ -130,6 +134,10 @@ void SymTable::insert(SymFunction *sym){
   this->funcTable.insert(funcSymtable::value_type(sym->getId(),sym));
 }
 
+void SymTable::insert(BoxType *sym){
+  this->boxTable.insert(boxHash::value_type(sym->getName(),sym));
+}
+
 int SymTable::leave_scope(){
   this->stack.pop_back();
 }
@@ -148,6 +156,14 @@ SymFunction* SymTable::lookup_function(std::string nombreID){
     return NULL;
 }
  
+BoxType* SymTable::lookup_box(std::string nombreID){
+  boxHash::iterator it= this->boxTable.find(nombreID);
+  
+  if (it!= boxTable.end())
+    return it->second;
+  else 
+    return NULL;
+}
 
 SymVar* SymTable::lookup_variable(std::string nombreID){
   /*Buscar en cualquier contexto*/

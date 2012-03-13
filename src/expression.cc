@@ -5,25 +5,48 @@
 
 extern Program program;
 
+// Expression
 void Expression::print(int nesting) {
   std::string padding(nesting*2, ' ');
   std::cout << padding << "Expresión" << std::endl;
 }
 
-bool Expression::isBad() {
-  return false;
+void Expression::setLocation(int fline, int fcol, int lline, int lcol) {
+  this->fline = fline;
+  this->fcol = fcol;
+  this->lline = lline;
+  this->lcol = lcol;
+}
+
+void Expression::check() {
+  // Cada check chequea recursivamente las subexpresiones, si hay
+  // y setea el campo type de manera correspondiente
+  // Si no se hace check antes de getType, el tipo podría quedar nulo
+}
+
+Type* Expression::getType() { return this->type; }
+bool Expression::isBad() { return false; }
+Expression* Expression::reduce() { return this; }
+bool Expression::isConstant() { return false; }
+int Expression::getInteger() { return 0; }
+double Expression::getFloat() { return 0.0; }
+bool Expression::getBool() { return true; }
+
+
+// BadExp
+BadExp::BadExp() {
+  this->type = &(ErrorType::getInstance());
 }
 
 bool BadExp::isBad() {
   return true;
 }
 
-Type* BadExp::getType() {
-  return &(ErrorType::getInstance());
-}
 
+// VarExp
 VarExp::VarExp(SymVar* symv) {
   this->symv = symv;
+  this->type = symv->getType();
 }
 
 void VarExp::print(int nesting) {
@@ -31,16 +54,15 @@ void VarExp::print(int nesting) {
   std::cout << padding << symv->getId() << std::endl;
 }
 
-Type* VarExp::getType() {
-  return symv->getType();
-}
 
+// Constant
+bool Constant::isConstant() { return true; }
+
+
+// IntExp
 IntExp::IntExp(int value) {
   this->value = value;
-}
-
-Type* IntExp::getType(){
-  return &(IntType::getInstance());
+  this->type = &(IntType::getInstance());
 }
 
 void IntExp::print(int nesting) {
@@ -48,12 +70,11 @@ void IntExp::print(int nesting) {
   std::cout << padding << value << std::endl;
 }
 
+
+// FloatExp
 FloatExp::FloatExp(float value) {
   this->value = value;
-}
-
-Type* FloatExp::getType() {
-  return &(FloatType::getInstance());
+  this->type = &(FloatType::getInstance());
 }
 
 void FloatExp::print(int nesting) {
@@ -61,12 +82,11 @@ void FloatExp::print(int nesting) {
   std::cout << padding << value << std::endl;
 }
 
+
+// BoolExp
 BoolExp::BoolExp(bool value) {
   this->value = value;
-}
-
-Type* BoolExp::getType() {
-  return &(BoolType::getInstance());
+  this->type = &(BoolType::getInstance());
 }
 
 void BoolExp::print(int nesting) {
@@ -78,23 +98,32 @@ void BoolExp::print(int nesting) {
   }
 }
 
+
+// StringExp
 StringExp::StringExp(std::string str) {
   this->str = str;
+  this->type = new StringType(str.length());
 }
 
-// !!! Nota, esto esta mal, lo hice solo para que compilara
-Type* StringExp::getType() {
-  return new StringType(1);
+void StringExp::print(int nesting) {
+  std::string padding(nesting*2, ' ');
+  std::cout << padding << "\"" << this->str << "\"" << std::endl;
 }
 
+
+// CharExp
 CharExp::CharExp(std::string ch) {
   this->ch = ch;
+  this->type = &(CharType::getInstance());
 }
 
-Type* CharExp::getType() {
-  return &(CharType::getInstance());
+void CharExp::print(int nesting) {
+  std::string padding(nesting*2, ' ');
+  std::cout << padding << "'" << this->ch << "'" << std::endl;
 }
 
+
+// FunCall
 FunCallExp::FunCallExp(SymFunction* symf, std::list<Expression*> args) {
   this->symf = symf;
   this->args = args;
@@ -125,17 +154,4 @@ void FunCallExp::check() {
   } else {
     checkedFunction = true;
   }
-}
-
-// Suma
-Type* SumExp::getType() {
-  return &(IntType::getInstance());
-}
-
-// !!!! Nota: cambiar a un print de ops. binarios generalizado
-void SumExp::print(int nesting) {
-  std::string padding(nesting*2, ' ');
-  this->op1->print(nesting+1);
-  std::cout << padding << "+" << std::endl;
-  this->op2->print(nesting+1);
 }

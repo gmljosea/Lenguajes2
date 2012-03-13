@@ -1,7 +1,8 @@
 #ifndef DEVANIX_TYPES
 #define DEVANIX_TYPES
 
-#include <map>
+#include <list>
+#include <unordered_map>
 #include <string>
 
 class Type {
@@ -61,6 +62,8 @@ public:
 class StringType : public Type {
 public:
   StringType(int length) : Type(length, 1) {};
+  virtual bool operator==(Type& t);
+  void setLength(int length);
 };
 
 class ErrorType : public Type {
@@ -91,26 +94,32 @@ struct BoxField {
   Type* type;
   std::string name;
   int offset;
-    bool braced;
+  bool grouped;
+  int groupnum;
 };
 
 class BoxType : public Type {
 private:
   std::string name;
-  std::map<std::string, BoxField*> fixed_fields;
-  std::map<std::string, BoxField*> variant_fields;
+  std::unordered_map<std::string, BoxField*> fields_hash;
+  std::list<BoxField*> fixed_fields;
+  std::list<BoxField*> variant_fields;
   bool incomplete;
+  int groupcount;
 protected:
   bool reaches(BoxType& box);
 public:
   BoxType(std::string name, bool incomplete)
-    : name(name), incomplete(incomplete), Type(0,0) {};
+    : name(name), incomplete(incomplete), groupcount(0),
+      Type(0,0) {};
   void addFixedField(Type* type, std::string name);
-  void addVariantField(Type* type, std::string name, bool braced);
+  void addVariantField(Type* type, std::string name, bool grouped);
+  void startGrouping();
   BoxField* getField(std::string field);
   void check();
   bool isIncomplete();
   void setIncomplete(bool ic);
+  int getFieldCount();
   std::string getName();
 };
 
