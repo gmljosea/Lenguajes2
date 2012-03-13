@@ -96,6 +96,8 @@ struct BoxField {
   int offset;
   bool grouped;
   int groupnum;
+  int line;
+  int column;
 };
 
 class BoxType : public Type {
@@ -104,6 +106,8 @@ private:
   std::unordered_map<std::string, BoxField*> fields_hash;
   std::list<BoxField*> fixed_fields;
   std::list<BoxField*> variant_fields;
+  int line;
+  int column;
   bool incomplete;
   int groupcount;
 protected:
@@ -121,6 +125,10 @@ public:
   void setIncomplete(bool ic);
   int getFieldCount();
   std::string getName();
+  void setLine(int l);
+  void setColumn(int c);
+  int getLine();
+  int getColumn();
 };
 
 #endif

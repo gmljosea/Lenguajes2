@@ -163,6 +163,14 @@ std::string BoxType::getName() {
   return this->name;
 }
 
+int BoxType::getLine(){
+  return this->line;
+}
+
+int BoxType::getColumn(){
+  return this->column;
+}
+
 // !!!!!
 void BoxType::check() {
 }

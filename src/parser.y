@@ -28,6 +28,7 @@ Program program;
 // Variables globales útiles para chequeos durante el parseo
 SymFunction* currentfun; // Función parseada actual
 std::list<std::string> looplabels;
+std::string currentbox;
 
 /* Como todos los box se pueden ver entre si, puede que dentro de un box
    se declare una variable de un tipo box cuya declaracion aun no se ha 
@@ -108,6 +109,23 @@ bool variableRedeclared(std::string id, YYLTYPE yylloc) {
   return false;
 }
 
+/**
+ * Recibe el nombre de una box y su yyloc.
+ * Devuelve true si determina que tipo box ya ha sido declarado antes,
+ * devuelve false si no ha sido declarado aún.
+ */
+bool boxRedeclared(std::string id, YYLTYPE yylloc) {
+  BoxType* boxtype = program.symtable.lookup_box(id);
+  if (boxtype != NULL) {
+    std::string err = "redeclaración de tipo box '"
+      +id+"' previamente declarado en "+std::to_string(boxtype->getLine())
+      +":"+std::to_string(boxtype->getColumn());
+    program.error(err, yylloc.first_line, yylloc.first_column);
+    return true;
+  }
+  return false;
+}
+
 }
 
 %union {
@@ -125,6 +143,7 @@ bool variableRedeclared(std::string id, YYLTYPE yylloc) {
   Lvalue *lvalue;
   PassType passtype;
   listSymPairs *argsdec;
+  BoxType *box;
 };
 
 // Tokens de palabras reservadas
@@ -208,6 +227,7 @@ bool variableRedeclared(std::string id, YYLTYPE yylloc) {
 %type <decl> vardec_item
 %type <passtype> passby
 %type <argsdec> args nonempty_args
+%type <box> box
 
 %left "+"
 
@@ -254,6 +274,70 @@ block leavescope
       currentfun->setBlock($8);
       program.functions.push_back(currentfun);
     }
+| "box" TK_ID box "{" boxdecs variantpart "}"
+{
+  if(!boxRedeclared(*$2,@2)){
+    $3->setLine(@1.first_line);
+    $3->setColumn(@1.first_column);
+    program.symtable.insert($3);
+  }
+}
+
+box:
+  /*empty*/
+{
+  boxHash::iterator it= unknownBox.find(currentbox);
+  if(it!= unknownBox.end()){
+    it->second->setIncomplete(false);
+    $$= it->second;
+  }else{ 
+    $$= new BoxType(currentbox,false);
+  }
+}
+
+boxdecs:
+/*empty*/
+| nonempty_decs
+
+nonempty_decs:
+  type TK_ID ";" 
+  {
+    BoxField field= $<box>-2.getField(*$2);
+    if(field==NULL){
+      $<box>-2.addFixedField($1,*$2);
+    }else{
+      std::string err = "redeclaración de variable '"
+        +(*$2)+"' previamente declarada en "+std::to_string(field->line)
+      +":"+std::to_string(field->column);
+    program.error(err, @2.first_line, @2.first_column);
+    }
+      
+  }  
+| nonempty_decs type TK_ID ";"
+{
+ BoxField field= $<box>-2.getField(*$3);
+    if(field==NULL){
+      $<box>-2.addFixedField($2,*$3);
+    }else{
+      std::string err = "redeclaración de variable '"
+        +(*$3)+"' previamente declarada en "+std::to_string(field->line)
+      +":"+std::to_string(field->column);
+    program.error(err, @3.first_line, @3.first_column);
+    }
+} 
+
+variantpart:
+/*empty*/
+|nonempty_variant
+
+nonempty_variant:
+"variant" ":" boxdecs_variant
+
+boxdecs_variant:
+ "{" boxdecs "}" 
+|  boxdecs
+|  boxdecs_variant "{" boxdecs "}"
+|  boxdecs_variant boxdecs  
 
  /* Produce una lista de declaraciones de argumentos (<PassType,SymVar*>)
   * de una función, posiblemente vacía. */
