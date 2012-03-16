@@ -138,9 +138,10 @@ void BoxType::startGrouping() {
   this->groupcount++;
 }
 
+
 BoxField* BoxType::getField(std::string field) {
-  std::unordered_map<std::string, BoxField*>::iterator it
-    = this->fields_hash.find(field);
+  std::unordered_map<std::string, BoxField*>::iterator it;
+  it= this->fields_hash.find(field);
   if (it != this->fields_hash.end()) {
     return it->second;
   }

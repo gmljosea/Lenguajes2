@@ -6,6 +6,17 @@ void print(int a, int b) {
   write a,b;
 }
 
+box container{
+int a;
+string b;
+variant:
+int z;
+{
+char r;
+float b;
+}
+}
+
 int calcular( int a, int b){
   int c=6;
   return c;

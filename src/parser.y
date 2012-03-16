@@ -274,13 +274,15 @@ block leavescope
       currentfun->setBlock($8);
       program.functions.push_back(currentfun);
     }
-| "box" TK_ID box "{" boxdecs variantpart "}"
+| "box" TK_ID
+{currentbox= *$2;}
+ box "{" boxdecs variantpart "}"
 {
   std::cout << "definicion de box completada";
   if(!boxRedeclared(*$2,@2)){
-    $3->setLine(@1.first_line);
-    $3->setColumn(@1.first_column);
-    program.symtable.insert($3);
+    $4->setLine(@1.first_line);
+    $4->setColumn(@1.first_column);
+    program.symtable.insert($4);
   }
 }
 
@@ -305,7 +307,7 @@ boxdecs:
     /* Se agregan los campos del box usando el BoxType almacenado en
      la pila. Se accede a traves de $<box>-2 */
     std::cout << "voy a comenzar las lokeras";
-    BoxField *field= $<box>-2->getField(*$2);
+    BoxField *field= $<box>-1->getField(*$2);
     if(field==NULL){
       $<box>-2->addFixedField($1,*$2);
     }else{
