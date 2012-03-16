@@ -171,6 +171,14 @@ int BoxType::getColumn(){
   return this->column;
 }
 
+void BoxType::setLine(int l){
+  this->line=l;
+}
+
+void BoxType::setColumn(int c){
+  this->column=c;
+}
+
 // !!!!!
 void BoxType::check() {
 }

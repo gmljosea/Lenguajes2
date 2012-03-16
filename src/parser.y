@@ -284,7 +284,9 @@ block leavescope
 }
 
 box:
-  /*empty*/
+/*empty*/
+/* Regla dummy para crear el TypeBox en caso de que no exista en 
+   el hash de BoxTypes 'unknownBox'  */
 {
   boxHash::iterator it= unknownBox.find(currentbox);
   if(it!= unknownBox.end()){
@@ -296,15 +298,13 @@ box:
 }
 
 boxdecs:
-/*empty*/
-| nonempty_decs
-
-nonempty_decs:
   type TK_ID ";" 
   {
-    BoxField field= $<box>-2.getField(*$2);
+    /* Se agregan los campos del box usando el BoxType almacenado en
+     la pila. Se accede a traves de $<box>-2 */
+    BoxField *field= $<box>-2->getField(*$2);
     if(field==NULL){
-      $<box>-2.addFixedField($1,*$2);
+      $<box>-2->addFixedField($1,*$2);
     }else{
       std::string err = "redeclaración de variable '"
         +(*$2)+"' previamente declarada en "+std::to_string(field->line)
@@ -313,11 +313,11 @@ nonempty_decs:
     }
       
   }  
-| nonempty_decs type TK_ID ";"
+| boxdecs type TK_ID ";"
 {
- BoxField field= $<box>-2.getField(*$3);
+ BoxField *field= $<box>-2->getField(*$3);
     if(field==NULL){
-      $<box>-2.addFixedField($2,*$3);
+      $<box>-2->addFixedField($2,*$3);
     }else{
       std::string err = "redeclaración de variable '"
         +(*$3)+"' previamente declarada en "+std::to_string(field->line)
@@ -326,18 +326,70 @@ nonempty_decs:
     }
 } 
 
+
 variantpart:
 /*empty*/
-|nonempty_variant
+|"variant" ":" variantpart_decs
 
-nonempty_variant:
-"variant" ":" boxdecs_variant
+variantpart_decs:
+"{" variantdecs "}" /* Grave problema*/
+| "{" "}" /*Error*/
+|  type TK_ID ";" 
+{ 
+  BoxField *field= $<box>-5->getField(*$2);
+    if(field==NULL){
+      $<box>-5->addVariantField($1,*$2,false);
+    }else{
+      std::string err = "redeclaración de variable '"
+        +(*$2)+"' previamente declarada en "+std::to_string(field->line)
+      +":"+std::to_string(field->column);
+    program.error(err, @2.first_line, @2.first_column);
+    } 
+}
+|  variantpart_decs "{" variantdecs "}"
+|  variantpart_decs "{" "}" /*Error*/
+|  variantpart_decs type TK_ID ";"
+{
+  BoxField *field= $<box>-5->getField(*$3);
+  if(field==NULL){
+    $<box>-5->startGrouping();
+    $<box>-5->addVariantField($2,*$3,true);
+  }else{
+    std::string err = "redeclaración de variable '"
+      +(*$3)+"' previamente declarada en "+std::to_string(field->line)
+      +":"+std::to_string(field->column);
+    program.error(err, @3.first_line, @3.first_column);
+  } 
+}
 
-boxdecs_variant:
- "{" boxdecs "}" 
-|  boxdecs
-|  boxdecs_variant "{" boxdecs "}"
-|  boxdecs_variant boxdecs  
+ variantdecs:
+type TK_ID ";"
+{/*En esta regla se sabe que estamos en una agrupacion de campos union
+   por lo tanto hacemos pero no sabemos si es -5 o -6 -.- */
+  BoxField *field= $<box>-5->getField(*$2);
+    if(field==NULL){
+      $<box>-5->startGrouping();
+      $<box>-5->addVariantField($1,*$2,true);
+    }else{
+      std::string err = "redeclaración de variable '"
+        +(*$2)+"' previamente declarada en "+std::to_string(field->line)
+      +":"+std::to_string(field->column);
+    program.error(err, @2.first_line, @2.first_column);
+    } 
+}
+|variantdecs type TK_ID ";"
+{
+  BoxField *field= $<box>-5->getField(*$3);
+  if(field==NULL){
+    $<box>-5->startGrouping();
+    $<box>-5->addVariantField($2,*$3,true);
+  }else{
+    std::string err = "redeclaración de variable '"
+      +(*$3)+"' previamente declarada en "+std::to_string(field->line)
+      +":"+std::to_string(field->column);
+    program.error(err, @3.first_line, @3.first_column);
+  } 
+}   
 
  /* Produce una lista de declaraciones de argumentos (<PassType,SymVar*>)
   * de una función, posiblemente vacía. */
