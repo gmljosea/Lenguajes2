@@ -75,24 +75,31 @@ public:
 
 typedef std::unordered_multimap<std::string,SymVar*> varSymtable;
 typedef std::unordered_map<std::string,SymFunction*> funcSymtable;
+typedef std::unordered_multimap<std::string,BoxType*> boxHash;
 
 /* Clase SymTable, representa la Tabla de simbolos con el manejo 
    adecuado del anidamiento de los alcances.Metodo Leblanc-Cook */
 class SymTable{
 private:
-  // tabla para las variables
+  // Tabla para las variables
   varSymtable varTable;
-  // tabla para las funciones 
+  // Tabla para las funciones 
   funcSymtable funcTable;
+  // Tabla para los box
+  boxHash boxTable;
+
   int nextscope;
   // Pila para el manejo de los alcances
   std::deque<int> stack;
+
 public:
   SymTable();
   void insert(SymVar *sym);
   void insert(SymFunction *sym);
+  void insert(BoxType *sym);
   SymVar* lookup_variable(std::string nombreID);
   SymFunction* lookup_function(std::string nombreID);
+  BoxType* lookup_box(std::string nombreID);
   int current_scope();
   int leave_scope();
   int enter_scope();
