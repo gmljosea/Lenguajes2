@@ -14,7 +14,9 @@ public:
   virtual int getSize();
   virtual int getAlignment();
   virtual bool operator==(Type& b);
+  virtual bool operator!=(Type& b);
   virtual void print();
+  virtual std::string toString();
 };
 
 // Tipos básicos escalares
@@ -24,6 +26,7 @@ private:
   void operator=(IntType const&);
 public:
   static IntType& getInstance();
+  virtual std::string toString();
 };
 
 class FloatType : public Type {
@@ -32,6 +35,7 @@ private:
   void operator=(FloatType const&);
 public:
   static FloatType& getInstance();
+  virtual std::string toString();
 };
 
 class BoolType : public Type {
@@ -40,6 +44,7 @@ private:
   void operator=(BoolType const&);
 public:
   static BoolType& getInstance();
+  virtual std::string toString();
 };
 
 class CharType : public Type {
@@ -48,6 +53,7 @@ private:
   void operator=(CharType const&);
 public:
   static CharType& getInstance();
+  virtual std::string toString();
 };
 
 // Tipos especiales
@@ -57,6 +63,7 @@ private:
   void operator=(VoidType const&);
 public:
   static VoidType& getInstance();
+  virtual std::string toString();
 };
 
 class StringType : public Type {
@@ -64,6 +71,7 @@ public:
   StringType(int length) : Type(length, 1) {};
   virtual bool operator==(Type& t);
   void setLength(int length);
+  virtual std::string toString();
 };
 
 class ErrorType : public Type {
@@ -72,6 +80,7 @@ private:
   void operator=(ErrorType const&);
 public:
   static ErrorType& getInstance();
+  virtual std::string toString();
 };
 
 // Tipos compuestos
@@ -83,6 +92,7 @@ public:
   ArrayType(Type* btype, int length) : basetype(btype), length(length),
                                        Type(0,0) {};
   virtual bool operator==(Type& t);
+  virtual std::string toString();
   virtual int getSize();
   virtual int getAlignment();
   Type* getBaseType();
@@ -121,6 +131,7 @@ public:
   void setIncomplete(bool ic);
   int getFieldCount();
   std::string getName();
+  virtual std::string toString();
 };
 
 #endif

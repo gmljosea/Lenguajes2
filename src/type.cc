@@ -15,9 +15,16 @@ bool Type::operator==(Type& b) {
   return this == &b;
 }
 
-// !!! Implementar esto como debe ser
+bool Type::operator!=(Type& b) {
+  return !(*this == b);
+}
+
 void Type::print() {
-  std::cout << "Algun tipo" << std::endl;
+  std::cout << this->toString() << std::endl;
+}
+
+std::string Type::toString() {
+  return std::string("Algun tipo");
 }
 
 // IntType
@@ -26,10 +33,18 @@ IntType& IntType::getInstance() {
   return instance;
 }
 
+std::string IntType::toString() {
+  return std::string("int");
+}
+
 // FloatType
 FloatType& FloatType::getInstance() {
   static FloatType instance;
   return instance;
+}
+
+std::string FloatType::toString() {
+  return std::string("float");
 }
 
 // BoolType
@@ -38,16 +53,28 @@ BoolType& BoolType::getInstance() {
   return instance;
 }
 
+std::string BoolType::toString() {
+  return std::string("bool");
+}
+
 // CharType
 CharType& CharType::getInstance() {
   static CharType instance;
   return instance;
 }
 
+std::string CharType::toString() {
+  return std::string("char");
+}
+
 // VoidType
 VoidType& VoidType::getInstance() {
   static VoidType instance;
   return instance;
+}
+
+std::string VoidType::toString() {
+  return std::string("void");
 }
 
 // StringType
@@ -65,11 +92,18 @@ void StringType::setLength(int length) {
   this->size = length;
 }
 
+std::string StringType::toString() {
+  return std::string("string");
+}
 
 // ErrorType
 ErrorType& ErrorType::getInstance() {
   static ErrorType instance;
   return instance;
+}
+
+std::string ErrorType::toString() {
+  return std::string("error");
 }
 
 // ArrayType
@@ -81,6 +115,10 @@ bool ArrayType::operator==(Type& t) {
   } else {
     return false;
   }
+}
+
+std::string ArrayType::toString() {
+  return std::string(this->basetype->toString()+" array[]");
 }
 
 /**
@@ -169,4 +207,8 @@ void BoxType::check() {
 
 // !!!!!
 bool BoxType::reaches(BoxType& box) {
+}
+
+std::string BoxType::toString() {
+  return std::string("box "+this->name);
 }
