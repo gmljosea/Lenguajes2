@@ -127,28 +127,33 @@ public:
 class Substraction : public Arithmetic {
 public:
   Substraction(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"-") {};
+  virtual Expression* cfold();
 };
 
 class Multiplication : public Arithmetic {
 public:
   Multiplication(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"*") {};
+  virtual Expression* cfold();
 };
 
 class Division : public Arithmetic {
 public:
   Division(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"/") {};
+  virtual Expression* cfold();
 };
 
 class Remainder : public Arithmetic {
 public:
   Remainder(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"%") {};
   virtual void check();
+  virtual Expression* cfold();
 };
 
 class Minus : public Arithmetic {
 public:
   Minus(Expression* e) : Arithmetic(e,e,"-") {};
   virtual void check();
+  virtual Expression* cfold();
   void print(int nesting);
 };
 
@@ -163,17 +168,20 @@ protected:
 class And : public Logical {
 public:
   And(Expression* e1, Expression* e2) : Logical(e1,e2,"and") {};
+  virtual Expression* cfold();
 };
 
 class Or : public Logical {
 public:
   Or(Expression* e1, Expression* e2) : Logical(e1,e2,"or") {};
+  virtual Expression* cfold();
 };
 
 class Not : public Logical {
 public:
   Not(Expression* e) : Logical(e,e,"not") {};
   virtual void check();
+  virtual Expression* cfold();
   void print(int nesting);
 };
 
@@ -188,33 +196,39 @@ protected:
 class Greater : public Relational {
 public:
   Greater(Expression* e1, Expression* e2) : Relational(e1,e2,">") {};
+  virtual Expression* cfold();
 };
 
 class GreaterEq : public Relational {
 public:
   GreaterEq(Expression* e1, Expression* e2) : Relational(e1,e2,">=") {};
+  virtual Expression* cfold();
 };
 
 class Equal : public Relational {
 public:
   Equal(Expression* e1, Expression* e2) : Relational(e1,e2,"=") {};
   virtual void check();
+  virtual Expression* cfold();
 };
 
 class NotEqual : public Relational {
 public:
   NotEqual(Expression* e1, Expression* e2) : Relational(e1,e2,"!=") {};
   virtual void check();
+  virtual Expression* cfold();
 };
 
 class Less : public Relational {
 public:
   Less (Expression* e1, Expression* e2) : Relational(e1,e2,"<") {};
+  virtual Expression* cfold();
 };
 
 class LessEq : public Relational {
 public:
   LessEq(Expression* e1, Expression* e2) : Relational(e1,e2,"<=") {};
+  virtual Expression* cfold();
 };
 
 // Acceso a un arreglo

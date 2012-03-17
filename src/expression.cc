@@ -178,22 +178,90 @@ void Arithmetic::check() {
 
 // Sum
 Expression* Sum::cfold() {
-  /*this->exp1 = this->exp1->reduce();
+  this->exp1 = this->exp1->cfold();
   if (!exp1->isConstant()) return this;
-  this->exp2 = this->exp2->reduce();
+  this->exp2 = this->exp2->cfold();
   if (!exp2->isConstant()) return this;
 
   Expression* result;
   if (*this->type == IntType::getInstance()) {
     result = new IntExp(exp1->getInteger()+exp2->getInteger());
-  } else {
+  } else if (*this->type == FloatType::getInstance()) {
     result = new FloatExp(exp1->getFloat()+exp2->getFloat());
+  } else {
+    return this;
   }
-  //result->setLocation(exp1->fline,exp1->fcol,exp2->lline,exp2->lcol);
+  result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
   delete exp1;
   delete exp2;
   delete this;
-  return result;*/
+  return result;
+}
+
+// Substraction
+Expression* Substraction::cfold() {
+  this->exp1 = this->exp1->cfold();
+  if (!exp1->isConstant()) return this;
+  this->exp2 = this->exp2->cfold();
+  if (!exp2->isConstant()) return this;
+
+  Expression* result;
+  if (*this->type == IntType::getInstance()) {
+    result = new IntExp(exp1->getInteger()-exp2->getInteger());
+  } else if (*this->type == FloatType::getInstance()) {
+    result = new FloatExp(exp1->getFloat()-exp2->getFloat());
+  } else {
+    return this;
+  }
+  result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
+  delete exp1;
+  delete exp2;
+  delete this;
+  return result;
+}
+
+// Multiplication
+Expression* Multiplication::cfold() {
+  this->exp1 = this->exp1->cfold();
+  if (!exp1->isConstant()) return this;
+  this->exp2 = this->exp2->cfold();
+  if (!exp2->isConstant()) return this;
+
+  Expression* result;
+  if (*this->type == IntType::getInstance()) {
+    result = new IntExp(exp1->getInteger()*exp2->getInteger());
+  } else if (*this->type == FloatType::getInstance()) {
+    result = new FloatExp(exp1->getFloat()*exp2->getFloat());
+  } else {
+    return this;
+  }
+  result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
+  delete exp1;
+  delete exp2;
+  delete this;
+  return result;
+}
+
+// Division
+Expression* Division::cfold() {
+  this->exp1 = this->exp1->cfold();
+  if (!exp1->isConstant()) return this;
+  this->exp2 = this->exp2->cfold();
+  if (!exp2->isConstant()) return this;
+
+  Expression* result;
+  if (*this->type == IntType::getInstance()) {
+    result = new IntExp(exp1->getInteger()/exp2->getInteger());
+  } else if (*this->type == FloatType::getInstance()) {
+    result = new FloatExp(exp1->getFloat()/exp2->getFloat());
+  } else {
+    return this;
+  }
+  result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
+  delete exp1;
+  delete exp2;
+  delete this;
+  return result;
 }
 
 // Remainder
@@ -219,6 +287,25 @@ void Remainder::check() {
   this->type = &(ErrorType::getInstance());
 }
 
+Expression* Remainder::cfold() {
+  this->exp1 = this->exp1->cfold();
+  if (!exp1->isConstant()) return this;
+  this->exp2 = this->exp2->cfold();
+  if (!exp2->isConstant()) return this;
+
+  Expression* result;
+  if (*this->type == IntType::getInstance()) {
+    result = new IntExp(exp1->getInteger()%exp2->getInteger());
+  } else {
+    return this;
+  }
+  result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
+  delete exp1;
+  delete exp2;
+  delete this;
+  return result;
+}
+
 // Minus
 void Minus::check() {
   this->exp1->check();
@@ -231,6 +318,25 @@ void Minus::check() {
   program.error("No se puede aplicar operador '-' al tipo '"+t->toString(),
 		this->fline, this->fcol);
   this->type = &(ErrorType::getInstance());
+}
+
+Expression* Minus::cfold() {
+  this->exp1 = this->exp1->cfold();
+  if (!exp1->isConstant()) return this;
+
+  Expression* result;
+  if (*this->type == IntType::getInstance()) {
+    result = new IntExp(-exp1->getInteger());
+  } else if (*this->type == FloatType::getInstance()) {
+    result = new FloatExp(-exp1->getFloat());
+  } else {
+    return this;
+  }
+  result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
+  delete exp1;
+  delete exp2;
+  delete this;
+  return result;
 }
 
 void Minus::print(int nesting) {
@@ -259,6 +365,46 @@ void Logical::check() {
   this->type = &(ErrorType::getInstance());
 }
 
+// And
+Expression* And::cfold() {
+  this->exp1 = this->exp1->cfold();
+  if (!exp1->isConstant()) return this;
+  this->exp2 = this->exp2->cfold();
+  if (!exp2->isConstant()) return this;
+
+  Expression* result;
+  if (*this->type == BoolType::getInstance()) {
+    result = new BoolExp(exp1->getBool() && exp2->getBool());
+  } else {
+    return this;
+  }
+  result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
+  delete exp1;
+  delete exp2;
+  delete this;
+  return result;
+}
+
+// Or
+Expression* Or::cfold() {
+  this->exp1 = this->exp1->cfold();
+  if (!exp1->isConstant()) return this;
+  this->exp2 = this->exp2->cfold();
+  if (!exp2->isConstant()) return this;
+
+  Expression* result;
+  if (*this->type == BoolType::getInstance()) {
+    result = new BoolExp(exp1->getBool() || exp2->getBool());
+  } else {
+    return this;
+  }
+  result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
+  delete exp1;
+  delete exp2;
+  delete this;
+  return result;
+}
+
 // Not
 void Not::check() {
   this->exp1->check();
@@ -270,6 +416,23 @@ void Not::check() {
   program.error("No se puede aplicar operador 'not' al tipo '"+t->toString(),
 		this->fline, this->fcol);
   this->type = &(ErrorType::getInstance());
+}
+
+Expression* Not::cfold() {
+  this->exp1 = this->exp1->cfold();
+  if (!exp1->isConstant()) return this;
+
+  Expression* result;
+  if (*this->type == BoolType::getInstance()) {
+    result = new BoolExp(!exp1->getBool());
+  } else {
+    return this;
+  }
+  result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
+  delete exp1;
+  delete exp2;
+  delete this;
+  return result;
 }
 
 void Not::print(int nesting) {
@@ -303,6 +466,48 @@ void Relational::check() {
   this->type = &(ErrorType::getInstance());
 }
 
+// Greater
+Expression* Greater::cfold() {
+  this->exp1 = this->exp1->cfold();
+  if (!exp1->isConstant()) return this;
+  this->exp2 = this->exp2->cfold();
+  if (!exp2->isConstant()) return this;
+  if (*this->type == ErrorType::getInstance()) return this;
+
+  Expression* result;
+  if (*exp1->getType() == IntType::getInstance()) {
+    result = new BoolExp(exp1->getInteger() > exp2->getInteger());
+  } else if (*exp1->getType() == FloatType::getInstance()) {
+    result = new BoolExp(exp1->getFloat() > exp2->getFloat());
+  }
+  result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
+  delete exp1;
+  delete exp2;
+  delete this;
+  return result;
+}
+
+// GreaterEq
+Expression* GreaterEq::cfold() {
+  this->exp1 = this->exp1->cfold();
+  if (!exp1->isConstant()) return this;
+  this->exp2 = this->exp2->cfold();
+  if (!exp2->isConstant()) return this;
+  if (*this->type == ErrorType::getInstance()) return this;
+
+  Expression* result;
+  if (*exp1->getType() == IntType::getInstance()) {
+    result = new BoolExp(exp1->getInteger() >= exp2->getInteger());
+  } else if (*exp1->getType() == FloatType::getInstance()) {
+    result = new BoolExp(exp1->getFloat() >= exp2->getFloat());
+  }
+  result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
+  delete exp1;
+  delete exp2;
+  delete this;
+  return result;
+}
+
 // Equal
 // Sobrescribo check() de Relational porque Equal permite comparar booleanos
 void Equal::check() {
@@ -330,6 +535,28 @@ void Equal::check() {
   this->type = &(ErrorType::getInstance());
 }
 
+Expression* Equal::cfold() {
+  this->exp1 = this->exp1->cfold();
+  if (!exp1->isConstant()) return this;
+  this->exp2 = this->exp2->cfold();
+  if (!exp2->isConstant()) return this;
+  if (*this->type == ErrorType::getInstance()) return this;
+
+  Expression* result;
+  if (*exp1->getType() == IntType::getInstance()) {
+    result = new BoolExp(exp1->getInteger() == exp2->getInteger());
+  } else if (*exp1->getType() == FloatType::getInstance()) {
+    result = new BoolExp(exp1->getFloat() == exp2->getFloat());
+  } else if (*exp1->getType() == BoolType::getInstance()) {
+    result = new BoolExp(exp1->getBool() == exp2->getBool());
+  }
+  result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
+  delete exp1;
+  delete exp2;
+  delete this;
+  return result;
+}
+
 // NotEqual
 // misma razón que Equal para sobrescribir check()
 void NotEqual::check() {
@@ -355,6 +582,70 @@ void NotEqual::check() {
 		+t1->toString()+"' y '"+t2->toString()+"'",
 		this->fline, this->fcol);
   this->type = &(ErrorType::getInstance());
+}
+
+Expression* NotEqual::cfold() {
+  this->exp1 = this->exp1->cfold();
+  if (!exp1->isConstant()) return this;
+  this->exp2 = this->exp2->cfold();
+  if (!exp2->isConstant()) return this;
+  if (*this->type == ErrorType::getInstance()) return this;
+
+  Expression* result;
+  if (*exp1->getType() == IntType::getInstance()) {
+    result = new BoolExp(exp1->getInteger() != exp2->getInteger());
+  } else if (*exp1->getType() == FloatType::getInstance()) {
+    result = new BoolExp(exp1->getFloat() != exp2->getFloat());
+  } else if (*exp1->getType() == BoolType::getInstance()) {
+    result = new BoolExp(exp1->getBool() != exp2->getBool());
+  }
+  result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
+  delete exp1;
+  delete exp2;
+  delete this;
+  return result;
+}
+
+// Less
+Expression* Less::cfold() {
+  this->exp1 = this->exp1->cfold();
+  if (!exp1->isConstant()) return this;
+  this->exp2 = this->exp2->cfold();
+  if (!exp2->isConstant()) return this;
+  if (*this->type == ErrorType::getInstance()) return this;
+
+  Expression* result;
+  if (*exp1->getType() == IntType::getInstance()) {
+    result = new BoolExp(exp1->getInteger() < exp2->getInteger());
+  } else if (*exp1->getType() == FloatType::getInstance()) {
+    result = new BoolExp(exp1->getFloat() < exp2->getFloat());
+  }
+  result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
+  delete exp1;
+  delete exp2;
+  delete this;
+  return result;
+}
+
+// LessEq
+Expression* LessEq::cfold() {
+  this->exp1 = this->exp1->cfold();
+  if (!exp1->isConstant()) return this;
+  this->exp2 = this->exp2->cfold();
+  if (!exp2->isConstant()) return this;
+  if (*this->type == ErrorType::getInstance()) return this;
+
+  Expression* result;
+  if (*exp1->getType() == IntType::getInstance()) {
+    result = new BoolExp(exp1->getInteger() <= exp2->getInteger());
+  } else if (*exp1->getType() == FloatType::getInstance()) {
+    result = new BoolExp(exp1->getFloat() <= exp2->getFloat());
+  }
+  result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
+  delete exp1;
+  delete exp2;
+  delete this;
+  return result;
 }
 
 // Index (operador [], acceso a arreglo)
