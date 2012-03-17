@@ -134,7 +134,7 @@ writeln { lexer::trace("writeln", yytext, yylloc); return TK_WRITELN; }
 \*  { lexer::trace("*", yytext, yylloc); return TK_TIMES;}
 \/  { lexer::trace("/", yytext, yylloc); return TK_DIV;}
 %   { lexer::trace("%", yytext, yylloc); return TK_MOD;}
-=   { lexer::trace("=", yytext, yylloc); return TK_EQU;}
+==  { lexer::trace("==", yytext, yylloc); return TK_EQU;}
 !=  { lexer::trace("!=", yytext, yylloc); return TK_NEQ;}
 \<  { lexer::trace("<", yytext, yylloc); return TK_LT;}
 \>  { lexer::trace(">", yytext, yylloc); return TK_GT;}
@@ -143,6 +143,8 @@ writeln { lexer::trace("writeln", yytext, yylloc); return TK_WRITELN; }
 and { lexer::trace("and", yytext, yylloc); return TK_AND;}
 or  { lexer::trace("or", yytext, yylloc); return TK_OR;}
 not { lexer::trace("not", yytext, yylloc); return TK_NOT;}
+
+=   { lexer::trace("=", yytext, yylloc); return TK_ASIGN;}
 
  /* Delimitadores de bloques, instrucciones y listas de cosas */
 \{ { lexer::trace("{", yytext, yylloc); return TK_LBRACE; }

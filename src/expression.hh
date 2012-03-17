@@ -26,6 +26,8 @@ public:
   virtual double getFloat();
   virtual bool getBool();
 
+  virtual bool isLvalue();
+  virtual int getLvalue();
 };
 /**
  * Cosas antes de que se me olviden:
@@ -46,6 +48,7 @@ private:
 public:
   VarExp(SymVar* symv);
   virtual void print(int nesting);
+  virtual bool isLvalue();
 };
 
 // Expresiones con valor constantes
@@ -207,7 +210,7 @@ public:
 
 class Equal : public Relational {
 public:
-  Equal(Expression* e1, Expression* e2) : Relational(e1,e2,"=") {};
+  Equal(Expression* e1, Expression* e2) : Relational(e1,e2,"==") {};
   virtual void check();
   virtual Expression* cfold();
 };
@@ -241,6 +244,7 @@ public:
     : array(array), index(index) {};
   virtual void check();
   void print(int nesting);
+  virtual bool isLvalue();
 };
 
 // Acceso a un campo de un box
@@ -252,6 +256,7 @@ public:
   Dot(Expression* box, std::string field) : box(box), field(field) {};
   virtual void check();
   void print(int nesting);
+  virtual bool isLvalue();
 };
 
 

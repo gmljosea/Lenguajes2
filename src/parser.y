@@ -177,7 +177,7 @@ bool boxRedeclared(std::string id, YYLTYPE yylloc) {
 %token TK_TIMES       "*"
 %token TK_DIV         "/"
 %token TK_MOD         "%"
-%token TK_EQU         "="
+%token TK_EQU         "=="
 %token TK_NEQ         "!="
 %token TK_LT          "<"
 %token TK_GT          ">"
@@ -186,6 +186,8 @@ bool boxRedeclared(std::string id, YYLTYPE yylloc) {
 %token TK_AND         "and"
 %token TK_OR          "or"
 %token TK_NOT         "not"
+
+%token TK_ASIGN       "="
 
 %token TK_LBRACE      "{"
 %token TK_RBRACE      "}"
@@ -220,8 +222,6 @@ bool boxRedeclared(std::string id, YYLTYPE yylloc) {
 %type <exp> expr funcallexp step
 %type <str> label
 %type <type> type
-%type <lvalues> lvalues
-%type <lvalue> lvalue
 %type <exps> explist nonempty_explist
 %type <decls> vardec_items
 %type <decl> vardec_item
@@ -234,7 +234,7 @@ bool boxRedeclared(std::string id, YYLTYPE yylloc) {
 %left "+" "-"	
 %left "*" "/" "%"	
 %right NEG "not"
-%left "=" "!="
+%left "==" "!="
 %left "<" "<=" ">=" ">"
 %left "[" "."
 
@@ -497,7 +497,7 @@ statement:
     { $$ = new Write(*$2,false); }
 | "writeln" nonempty_explist ";"
     { $$ = new Write(*$2,true); }
-| "read" lvalue ";"
+| "read" expr ";"
     { $$ = new Read($2); }
 | if
 | while
@@ -578,32 +578,8 @@ label:
 
  /* Produce una instrucción Asignación */
 asignment:
-  lvalues "=" nonempty_explist ";"
+  nonempty_explist "=" nonempty_explist ";"
   { $$ = new Asignment(*$1, *$3); }
-
- /* Produce una lista de l-values separados por comas */
-lvalues:
-  lvalue
-    { $$ = new std::list<Lvalue*>();
-      $$->push_back($1);
-    }
-| lvalues "," lvalue
-    { $1->push_back($3);
-      $$ = $1;
-    }
-
- /* Produce un Lvalue */
-lvalue:
-  TK_ID
-    { SymVar* symv = program.symtable.lookup_variable(*$1);
-      if (symv == NULL) {
-        program.error("variable '"+*$1+"' no declarada", @1.first_line,
-		      @1.first_column);
-        $$ = new BadLvalue(); // O un YYERROR?
-      } else {
-        $$ = new NormalLvalue(symv);
-      }
-    }
 
  /* Produce una instrucción Declaración de variables */
 variabledec:
@@ -679,16 +655,16 @@ type:
     Por ahora las expresiones válidas son las constantes, las variables y las
     llamadas a funciones. */
 expr:
-TK_ID	
-{ SymVar* symv = program.symtable.lookup_variable(*$1);
-  if (symv == NULL) {	
-    program.error("variable '"+*$1+"' no declarada", @1.first_line,
-                  @1.first_column);	
-    $$ = new BadExp();
-  } else {
-    $$ = new VarExp(symv);
-  }
-  $$->setLocation(@1.first_line, @1.first_column,0,0);	
+ TK_ID
+  { SymVar* symv = program.symtable.lookup_variable(*$1);
+    if (symv == NULL) {
+      program.error("variable '"+*$1+"' no declarada", @1.first_line,
+		    @1.first_column);
+      $$ = new BadExp();
+    } else {
+      $$ = new VarExp(symv);
+    }
+    $$->setLocation(@1.first_line, @1.first_column,0,0);
 }
 
 | TK_CONSTINT    { $$ = new IntExp($1);
@@ -714,7 +690,7 @@ TK_ID
 | "not" expr { $$ = new Not($2); }
 | expr ">" expr { $$ = new Greater($1,$3); }
 | expr ">=" expr { $$ = new GreaterEq($1,$3); }
-| expr "=" expr { $$ = new Equal($1,$3); }
+| expr "==" expr { $$ = new Equal($1,$3); }
 | expr "!=" expr { $$ = new NotEqual($1,$3); }
 | expr "<" expr { $$ = new Less($1,$3); }
 | expr "<=" expr { $$ = new LessEq($1,$3); }
