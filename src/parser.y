@@ -669,10 +669,8 @@ type:
       BoxType *newbox= new BoxType(*$1,true);
       unknownBox.insert(boxHash::value_type(*$1,newbox));
       $$= newbox;
-    } 
-      
-  }
-    
+    }    
+  }   
 }
 
  // ** Gramática de las expresiones
