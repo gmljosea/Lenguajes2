@@ -13,16 +13,19 @@ protected:
 public:
   virtual void print(int nesting);
   void setLocation(int fline, int fcol, int lline, int lcol);
+  int getFirstLine();
+  int getFirstCol();
 
   virtual void check();
   virtual Type* getType();
   virtual bool isBad(); // obsoleto
 
-  virtual Expression* reduce();
+  virtual Expression* cfold();
   virtual bool isConstant();
   virtual int getInteger();
   virtual double getFloat();
   virtual bool getBool();
+
 };
 /**
  * Cosas antes de que se me olviden:
@@ -111,13 +114,14 @@ class Arithmetic : public BinaryOp {
 protected:
   Arithmetic(Expression* e1, Expression* e2, std::string op)
     : BinaryOp(e1,e2,op) {};
+public:
+  virtual void check();
 };
 
 class Sum : public Arithmetic {
 public:
   Sum(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"+") {};
-  virtual void check();
-  virtual Expression* reduce();
+  virtual Expression* cfold();
 };
 
 class Substraction : public Arithmetic {
@@ -138,11 +142,13 @@ public:
 class Remainder : public Arithmetic {
 public:
   Remainder(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"%") {};
+  virtual void check();
 };
 
 class Minus : public Arithmetic {
 public:
   Minus(Expression* e) : Arithmetic(e,e,"-") {};
+  virtual void check();
   void print(int nesting);
 };
 
@@ -151,6 +157,7 @@ class Logical : public BinaryOp {
 protected:
   Logical(Expression* e1, Expression* e2, std::string op)
     : BinaryOp(e1,e2,op) {};
+  virtual void check();
 };
 
 class And : public Logical {
@@ -166,6 +173,7 @@ public:
 class Not : public Logical {
 public:
   Not(Expression* e) : Logical(e,e,"not") {};
+  virtual void check();
   void print(int nesting);
 };
 
@@ -174,6 +182,7 @@ class Relational : public Logical {
 protected:
   Relational(Expression* e1, Expression* e2, std::string op)
     : Logical(e1,e2,op) {};
+  virtual void check();
 };
 
 class Greater : public Relational {
@@ -189,11 +198,13 @@ public:
 class Equal : public Relational {
 public:
   Equal(Expression* e1, Expression* e2) : Relational(e1,e2,"=") {};
+  virtual void check();
 };
 
 class NotEqual : public Relational {
 public:
   NotEqual(Expression* e1, Expression* e2) : Relational(e1,e2,"!=") {};
+  virtual void check();
 };
 
 class Less : public Relational {
@@ -214,6 +225,7 @@ private:
 public:
   Index(Expression* array, Expression* index)
     : array(array), index(index) {};
+  virtual void check();
   void print(int nesting);
 };
 
@@ -224,6 +236,7 @@ private:
   std::string field;
 public:
   Dot(Expression* box, std::string field) : box(box), field(field) {};
+  virtual void check();
   void print(int nesting);
 };
 

@@ -239,7 +239,7 @@ void Asignment::check(){
       itLval != this->lvalues.end() ; itLval++,itExp++){
     
     if ((*itLval)->isBad() or (*itExp)->isBad()) continue;
-    
+    (*itExp)->check();
     if (!( *((*itLval)->getType()) == (*(*itExp)->getType()) )) {
       program.error("los tipos no coinciden",this->first_line,this->first_column);
     }
@@ -400,7 +400,7 @@ void Write::check(){
   for (std::list<Expression*>::iterator it = exps.begin();
        it != exps.end(); it++) {
     (*it)->check();
-    *it = (*it)->reduce();
+    *it = (*it)->cfold();
   }
 }
 

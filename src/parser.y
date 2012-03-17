@@ -526,25 +526,29 @@ type:
     Por ahora las expresiones válidas son las constantes, las variables y las
     llamadas a funciones. */
 expr:
-  TK_ID
-    { SymVar* symv = program.symtable.lookup_variable(*$1);
-      if (symv == NULL) {
-        program.error("variable '"+*$1+"' no declarada", @1.first_line,
-		      @1.first_column);
-        $$ = new BadExp();
-	// No sé si esto más bien debería ser un YYERROR
-      } else {
-        $$ = new VarExp(symv);
-      }
+TK_ID
+  { SymVar* symv = program.symtable.lookup_variable(*$1);
+    if (symv == NULL) {
+      program.error("variable '"+*$1+"' no declarada", @1.first_line,
+		    @1.first_column);
+      $$ = new BadExp();
+    } else {
+      $$ = new VarExp(symv);
     }
-  | TK_CONSTINT    { $$ = new IntExp($1); }
-  | TK_CONSTFLOAT  { $$ = new FloatExp($1); }
-  | TK_TRUE        { $$ = new BoolExp(true); }
-  | TK_FALSE       { $$ = new BoolExp(false); }
-  | TK_CONSTSTRING { $$ = new StringExp(*$1); }
-  | TK_CONSTCHAR   { $$ = new CharExp(*$1); }
-  | funcallexp
-  | expr "+" expr  { $$ = new Sum($1,$3); }
+    $$->setLocation(@1.first_line, @1.first_column,0,0);
+  }
+| TK_CONSTINT    { $$ = new IntExp($1);
+                   $$->setLocation(@1.first_line, @1.first_column,0,0); }
+| TK_CONSTFLOAT  { $$ = new FloatExp($1);
+                   $$->setLocation(@1.first_line, @1.first_column,0,0); }
+| TK_TRUE        { $$ = new BoolExp(true); }
+| TK_FALSE       { $$ = new BoolExp(false); }
+| TK_CONSTSTRING { $$ = new StringExp(*$1); }
+| TK_CONSTCHAR   { $$ = new CharExp(*$1);
+                   $$->setLocation(@1.first_line, @1.first_column,0,0); }
+| funcallexp
+| expr "+" expr  { $$ = new Sum($1,$3);
+                   $$->setLocation(@2.first_line, @2.first_column,0,0); }
 | expr "-" expr { $$ = new Substraction($1,$3); }
 | expr "*" expr { $$ = new Multiplication($1,$3); }
 | expr "/" expr { $$ = new Division($1,$3); }
