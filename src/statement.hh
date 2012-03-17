@@ -196,10 +196,10 @@ public:
  */
 class Asignment : public Statement {
 private:
-  std::list<Lvalue*> lvalues;
+  std::list<Expression*> lvalues;
   std::list<Expression*> exps;
 public:
-  Asignment (std::list<Lvalue*> lvalues, std::list<Expression*> exps);
+  Asignment (std::list<Expression*> lvalues, std::list<Expression*> exps);
   virtual void print(int nesting);
   virtual void check();
 };
@@ -304,9 +304,9 @@ public:
  */
 class Read : public Statement {
 private:
-  Lvalue* lval;
+  Expression* lval;
 public:
-  Read (Lvalue* lval);
+  Read (Expression* lval);
   virtual void check();
   virtual void print(int nesting);
 };

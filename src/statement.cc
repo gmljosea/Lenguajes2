@@ -41,9 +41,6 @@ bool BadLvalue::isBad() {
 
 Type* BadLvalue::getType() {
   return &(ErrorType::getInstance());
-  /* Si que horrible. Es un memory leak y aparte devuelve tipo void, lo cual
-     tiene poco sentido, pero no se me ocurre algo mejor esta noche.
-   */
 }
 
 void BadLvalue::print(int n) {
@@ -115,9 +112,14 @@ If::If(Expression *cond, Block *block_true, Block *block_false) {
 }
 
 void If::check(){
-  BoolType& i = BoolType::getInstance();
-  if(!(*(this->cond->getType()) == i ))
-    program.error("condicion debe ser de tipo 'bool'",this->first_line,this->first_column);
+  this->cond->check();
+  this->cond = this->cond->cfold();
+  Type* t = this->cond->getType();
+  if (*t != BoolType::getInstance() and *t != ErrorType::getInstance()) {
+    program.error("condicion debe ser de tipo 'bool' pero se encontró '"+
+		  t->toString()+"'", this->cond->getFirstLine(),
+		  this->cond->getFirstCol());
+  }
   this->block_true->check();
   if (this->block_false != NULL) this->block_false->check();
 }
@@ -158,19 +160,38 @@ BoundedFor::BoundedFor(std::string* label, SymVar* varsym,
 }
 
 void BoundedFor::check(){
-  IntType& i = IntType::getInstance();
-  if(!(*(this->lowerb->getType())==i))
-    program.error("limite inferior debe ser de tipo 'int'",this->first_line,this->first_column);
-
-  if(!(*(this->upperb->getType())==i))
-    program.error("limite superior debe ser de tipo 'int'",this->first_line,this->first_column);
-    
-  if(this->step!=NULL){
-    if(!(*(this->upperb->getType())==i))
-      program.error("el paso debe ser de tipo 'int'",this->first_line,this->first_column);
+  // Chequear límite inferior
+  this->lowerb->check();
+  this->lowerb = this->lowerb->cfold();
+  Type* tlowb = this->lowerb->getType();
+  if (*tlowb != IntType::getInstance() and *tlowb != ErrorType::getInstance()) {
+    program.error("limite inferior debe ser de tipo 'int' pero se encontró '"
+		  +tlowb->toString()+"'", this->lowerb->getFirstLine()
+		  , this->lowerb->getFirstCol());
   }
+  // Chequear límite superior
+  this->upperb->check();
+  this->upperb = this->upperb->cfold();
+  Type* tuppb = this->upperb->getType();
+  if (*tuppb != IntType::getInstance() and *tuppb != ErrorType::getInstance()) {
+    program.error("limite superior debe ser de tipo 'int' pero se encontró '"
+		  +tuppb->toString()+"'", this->upperb->getFirstLine()
+		  , this->upperb->getFirstCol());
+  }
+
+  // Chequear paso, si existe
+  if (this->step!=NULL) {
+    this->step->check();
+    this->step = this->step->cfold();
+    Type* tstep = this->step->getType();
+    if (*tstep != IntType::getInstance() and *tstep != ErrorType::getInstance()) {
+      program.error("el paso debe ser de tipo 'int' pero se encontró '"
+		    +tstep->toString()+"'", this->step->getFirstLine()
+		    , this->step->getFirstCol());
+    }
+  }
+
   this->block->check();
-      
 }
 
 void BoundedFor::print(int nesting) {
@@ -193,7 +214,6 @@ void BoundedFor::print(int nesting) {
 }
 
 /********** WHILE *********/
- 
 While::While(std::string* label, Expression* cond, Block* block)
   : Iteration(label) {
   this->cond = cond;
@@ -201,9 +221,14 @@ While::While(std::string* label, Expression* cond, Block* block)
 }
 
 void While::check(){
-  BoolType& t = BoolType::getInstance();
-  if(!(*(this->cond->getType())==t))
-    program.error("la condición del While debe ser de tipo 'int'",this->first_line,this->first_column);
+  this->cond->check();
+  this->cond = this->cond->cfold();
+  Type* t = this->cond->getType();
+  if(*t != BoolType::getInstance() and *t != ErrorType::getInstance()) {
+    program.error("la condición debe ser de tipo 'bool' pero se encontró '"
+		  +t->toString()+"'", this->cond->getFirstLine(),
+		  this->cond->getFirstCol());
+  }
   this->block->check();
 }
 
@@ -221,13 +246,13 @@ void While::print(int nesting) {
 
 /********* ASIGNMENT ***********/
 
-Asignment::Asignment(std::list<Lvalue*> lvalues, std::list<Expression*> exps) {
+Asignment::Asignment(std::list<Expression*> lvalues, std::list<Expression*> exps) {
   this->lvalues = lvalues;
   this->exps = exps;
 }
 
 void Asignment::check(){
-  if( lvalues.size() != exps.size() ) {
+  /*  if( lvalues.size() != exps.size() ) {
     program.error("el numero de variables es diferente al numero de "
 		  "expresiones del lado derecho",
 		  this->first_line,this->first_column);
@@ -237,19 +262,18 @@ void Asignment::check(){
   std::list<Expression*>::iterator itExp = this->exps.begin();
   for(std::list<Lvalue*>::iterator itLval= this->lvalues.begin() ;
       itLval != this->lvalues.end() ; itLval++,itExp++){
-    
     if ((*itLval)->isBad() or (*itExp)->isBad()) continue;
     (*itExp)->check();
     if (!( *((*itLval)->getType()) == (*(*itExp)->getType()) )) {
       program.error("los tipos no coinciden",this->first_line,this->first_column);
     }
-  }
+    }*/
 }
 
 void Asignment::print(int nesting) {
   std::string padding(nesting*2, ' ');
   std::cout << padding << "Asignación" << std::endl;
-  std::cout << padding << " L-values:" << std::endl;
+  /*std::cout << padding << " L-values:" << std::endl;
   for (std::list<Lvalue*>::iterator it = lvalues.begin();
        it != lvalues.end(); it++) {
     (*it)->print(nesting+1);
@@ -258,7 +282,7 @@ void Asignment::print(int nesting) {
   for (std::list<Expression*>::iterator it = exps.begin();
        it != exps.end(); it++) {
     (*it)->print(nesting+1);
-  }
+    }*/
 }
 
 /********** DECLARATION ********/
@@ -420,7 +444,7 @@ void Write::print(int nesting) {
 
 /********** READ ************/
 
-Read::Read(Lvalue* lval) {
+Read::Read(Expression* lval) {
   this->lval = lval;
 }
 

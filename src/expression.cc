@@ -39,7 +39,8 @@ bool Expression::isConstant() { return false; }
 int Expression::getInteger() { return 0; }
 double Expression::getFloat() { return 0.0; }
 bool Expression::getBool() { return true; }
-
+bool Expression::isLvalue() { return false; }
+int Expression::getLvalue() { return 0; }
 
 // BadExp
 BadExp::BadExp() {
@@ -62,6 +63,7 @@ void VarExp::print(int nesting) {
   std::cout << padding << symv->getId() << std::endl;
 }
 
+bool VarExp::isLvalue() { return true; }
 
 // Constant
 bool Constant::isConstant() { return true; }
@@ -689,6 +691,8 @@ void Index::print(int nesting) {
   std::cout << padding << "]" << std::endl;
 }
 
+bool Index::isLvalue() { return true; }
+
 // Dot (operador ., acceso a un campo de un box)
 void Dot::check() {
   this->box->check();
@@ -717,6 +721,8 @@ void Dot::print(int nesting) {
   std::cout << padding << "." << std::endl
 	    << padding << "  " << field << std::endl;
 }
+
+bool Dot::isLvalue() { return true; }
 
 // FunCall
 FunCallExp::FunCallExp(SymFunction* symf, std::list<Expression*> args) {
