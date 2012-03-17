@@ -99,6 +99,9 @@ public:
   // Imprime recursivamente esta instrucción y sus hijos.
   virtual void print(int) = 0;
   virtual void check()=0;
+
+  int getFirstLine();
+  int getFirstCol();
 };
 
 /**
@@ -151,8 +154,10 @@ public:
 class Iteration : public Statement {
 protected:
   std::string* label;
+  Block* block;
 public:
-  Iteration (std::string* label);
+  Iteration (std::string* label, Block* block);
+  void setBlock(Block* block);
   std::string* getLabel();
 };
 
@@ -166,7 +171,6 @@ private:
   Expression* lowerb;
   Expression* upperb;
   Expression* step;
-  Block* block;
 public:
   BoundedFor (std::string* label, SymVar* varsym, Expression* lowerb,
 	      Expression* upperb, Expression* step, Block* block);
@@ -180,12 +184,10 @@ public:
 class While : public Iteration {
 private:
   Expression* cond;
-  Block* block;
 public:
   While (std::string* label, Expression* cond, Block* block);
   virtual void print(int);
   virtual void check();
-  // chequear que cond sea de tipo bool y chequear el bloque
 };
 
 /**

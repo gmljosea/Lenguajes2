@@ -118,7 +118,8 @@ bool ArrayType::operator==(Type& t) {
 }
 
 std::string ArrayType::toString() {
-  return std::string(this->basetype->toString()+" array[]");
+  return std::string(this->basetype->toString()+" array["
+		     +std::to_string(length)+"]");
 }
 
 /**
