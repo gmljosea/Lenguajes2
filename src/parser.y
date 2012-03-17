@@ -27,7 +27,6 @@ Program program;
 
 // Variables globales útiles para chequeos durante el parseo
 SymFunction* currentfun; // Función parseada actual
-std::list<std::string> looplabels;
 std::list<Iteration*> loopstack;
 
 /* Como todos los box se pueden ver entre si, puede que dentro de un box
@@ -47,35 +46,25 @@ void setLocation(Statement* stmt, YYLTYPE* yylloc) {
 		    yylloc->last_column);
 }
 
-/**
- * Empila una etiqueta de iteración nueva en la pila, chequeando que no exista
- * otra etiqueta con el mismo nombre ya empilada.
- * Si ya existe una etiqueta, se cuenta como error semántico. Sin importar si
- * hay o no error, igual se empila la etiqueta, de manera que el parseo pueda
- * continuar normalmente.
- */
-void pushLoopLabel(std::string label, YYLTYPE* yylloc) {
-  for (std::list<std::string>::iterator it = looplabels.begin();
-       it != looplabels.end(); it++) {
-    if (*it == label) {
-      program.error("etiqueta '"+label+"' repetida.", yylloc->first_line,
-		    yylloc->first_column);
-      break;
+Iteration* findLabel(std::string label) {
+  for (std::list<Iteration*>::iterator it = loopstack.begin();
+       it != loopstack.end(); it++) {
+    if (*((*it)->getLabel()) == label) {
+      return *it;
     }
   }
-  looplabels.push_front(label);
+  return NULL;
 }
 
 void pushLoop(Iteration* loop, YYLTYPE* yylloc) {
-  for (std::list<Iteration*>::iterator it = loopstack.begin();
-       it != loopstack.end(); it++) {
-    std::string* label = loop->getLabel();
-    if (label and *((*it)->getLabel()) == *label) {
+  std::string* label = loop->getLabel();
+  if (label) {
+    Iteration* it = findLabel(*(loop->getLabel()));
+    if (it) {
       program.error("etiqueta '"+*label+"' ya fue utilizada en "
-		    +std::to_string((*it)->getFirstLine())+":"
-		    +std::to_string((*it)->getFirstCol()),
+		    +std::to_string(it->getFirstLine())+":"
+		    +std::to_string(it->getFirstCol()),
 		    yylloc->first_line, yylloc->first_column);
-      break;
     }
   }
   loopstack.push_front(loop);
@@ -87,11 +76,8 @@ Iteration* popLoop() {
   return it;
 }
 
-/**
- * Desempila una etiqueta de la pila de etiquetas, más nada.
- */
-void popLoopLabel() {
-  looplabels.pop_front();
+Iteration* topLoopstack() {
+  return loopstack.size()>0 ? loopstack.front() : NULL;
 }
 
 /**
@@ -224,7 +210,7 @@ bool variableRedeclared(std::string id, YYLTYPE yylloc) {
 %type <stmt> statement if while for variabledec asignment
 %type <blk> stmts block else
 %type <exp> expr funcallexp step
-%type <str> label
+%type <str> label brk_nxt_label
 %type <type> type
 %type <exps> explist nonempty_explist
 %type <decls> vardec_items
@@ -364,14 +350,44 @@ statement:
     { $$ = new Null(); }
 | funcallexp ";"
     { $$ = new FunctionCall($1); }
-| "break" TK_ID ";"
-    { $$ = new Break($2); }
-| "break" ";"
-    { $$ = new Break(NULL); }
-| "next" TK_ID ";"
-    { $$ = new Next($2); }
-| "next" ";"
-    { $$ = new Next(NULL); }
+| "break" brk_nxt_label ";"
+    { Iteration* enclosing = topLoopstack();
+      if (!enclosing) {
+	program.error("el break no está dentro de una iteración",
+		      @1.first_line, @1.first_column);
+	$$ = new Null();
+      } else if ($2) {
+	Iteration* it = findLabel(*$2);
+	if (!it) {
+	  program.error("no se encuentra la etiqueta '"+*$2+"'",
+			@2.first_line, @2.first_column);
+	  $$ = new Null();
+	} else {
+	  $$ = new Break($2, it);
+	}
+      } else {
+	$$ = new Break($2, NULL);
+      }
+    }
+| "next" brk_nxt_label ";"
+    { Iteration* enclosing = topLoopstack();
+      if (!enclosing) {
+	program.error("el next no está dentro de una iteración",
+		      @1.first_line, @1.first_column);
+	$$ = new Null();
+      } else if ($2) {
+	Iteration* it = findLabel(*$2);
+	if (!it) {
+	  program.error("no se encuentra la etiqueta '"+*$2+"'",
+			@2.first_line, @2.first_column);
+	  $$ = new Null();
+	} else {
+	  $$ = new Next($2, it);
+	}
+      } else {
+	$$ = new Next($2, NULL);
+      }
+    }
 | "return" expr ";"
     { $$ = new Return(currentfun, $2); }
 | "return" ";"
@@ -387,6 +403,10 @@ statement:
 | for
 | variabledec
 | asignment
+
+brk_nxt_label:
+  TK_ID
+| /* empty */ { $$ = NULL; }
 
  /* Produce una instrucción If, con o sin bloque else */
 if:

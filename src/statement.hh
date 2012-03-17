@@ -242,7 +242,7 @@ private:
   // Etiqueta de la iteración. Si no tiene es NULL.
   std::string* label;
 public:
-  Break (std::string* label = NULL);
+  Break (std::string* label, Iteration* loop);
   virtual void check();
   virtual void print(int nesting);
 };
@@ -258,7 +258,7 @@ private:
   // Etiqueta de la iteración. Si no tiene es NULL.
   std::string* label;
 public:
-  Next (std::string* label = NULL);
+  Next (std::string* label, Iteration* loop);
   virtual void check();
   virtual void print(int nesting);
 };

@@ -351,8 +351,9 @@ void VariableDec::print(int nesting) {
 
 /*********** BREAK ************/
 
-Break::Break(std::string* label) {
+Break::Break(std::string* label, Iteration* loop) {
   this->label = label;
+  this->loop = loop;
 }
 
 void Break::check(){}
@@ -368,8 +369,9 @@ void Break::print(int nesting) {
 
 /********** NEXT ************/
 
-Next::Next(std::string* label) {
+Next::Next(std::string* label, Iteration* loop) {
   this->label = label;
+  this->loop = loop;
 }
 
 void Next::check(){}
