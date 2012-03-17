@@ -27,7 +27,7 @@ Program program;
 
 // Variables globales útiles para chequeos durante el parseo
 SymFunction* currentfun; // Función parseada actual
-std::list<std::string> looplabels;
+std::list<Iteration*> loopstack;
 
 /* Como todos los box se pueden ver entre si, puede que dentro de un box
    se declare una variable de un tipo box cuya declaracion aun no se ha 
@@ -46,30 +46,38 @@ void setLocation(Statement* stmt, YYLTYPE* yylloc) {
 		    yylloc->last_column);
 }
 
-/**
- * Empila una etiqueta de iteración nueva en la pila, chequeando que no exista
- * otra etiqueta con el mismo nombre ya empilada.
- * Si ya existe una etiqueta, se cuenta como error semántico. Sin importar si
- * hay o no error, igual se empila la etiqueta, de manera que el parseo pueda
- * continuar normalmente.
- */
-void pushLoopLabel(std::string label, YYLTYPE* yylloc) {
-  for (std::list<std::string>::iterator it = looplabels.begin();
-       it != looplabels.end(); it++) {
-    if (*it == label) {
-      program.error("etiqueta '"+label+"' repetida.", yylloc->first_line,
-		    yylloc->first_column);
-      break;
+Iteration* findLabel(std::string label) {
+  for (std::list<Iteration*>::iterator it = loopstack.begin();
+       it != loopstack.end(); it++) {
+    if (*((*it)->getLabel()) == label) {
+      return *it;
     }
   }
-  looplabels.push_front(label);
+  return NULL;
 }
 
-/**
- * Desempila una etiqueta de la pila de etiquetas, más nada.
- */
-void popLoopLabel() {
-  looplabels.pop_front();
+void pushLoop(Iteration* loop, YYLTYPE* yylloc) {
+  std::string* label = loop->getLabel();
+  if (label) {
+    Iteration* it = findLabel(*(loop->getLabel()));
+    if (it) {
+      program.error("etiqueta '"+*label+"' ya fue utilizada en "
+		    +std::to_string(it->getFirstLine())+":"
+		    +std::to_string(it->getFirstCol()),
+		    yylloc->first_line, yylloc->first_column);
+    }
+  }
+  loopstack.push_front(loop);
+}
+
+Iteration* popLoop() {
+  Iteration* it = loopstack.front();
+  loopstack.pop_front();
+  return it;
+}
+
+Iteration* topLoopstack() {
+  return loopstack.size()>0 ? loopstack.front() : NULL;
 }
 
 /**
@@ -220,7 +228,7 @@ bool boxRedeclared(std::string id, YYLTYPE yylloc) {
 %type <stmt> statement if while for variabledec asignment
 %type <blk> stmts block else
 %type <exp> expr funcallexp step
-%type <str> label
+%type <str> label brk_nxt_label
 %type <type> type
 %type <exps> explist nonempty_explist
 %type <decls> vardec_items
@@ -481,14 +489,44 @@ statement:
     { $$ = new Null(); }
 | funcallexp ";"
     { $$ = new FunctionCall($1); }
-| "break" TK_ID ";"
-    { $$ = new Break($2); }
-| "break" ";"
-    { $$ = new Break(NULL); }
-| "next" TK_ID ";"
-    { $$ = new Next($2); }
-| "next" ";"
-    { $$ = new Next(NULL); }
+| "break" brk_nxt_label ";"
+    { Iteration* enclosing = topLoopstack();
+      if (!enclosing) {
+	program.error("el break no está dentro de una iteración",
+		      @1.first_line, @1.first_column);
+	$$ = new Null();
+      } else if ($2) {
+	Iteration* it = findLabel(*$2);
+	if (!it) {
+	  program.error("no se encuentra la etiqueta '"+*$2+"'",
+			@2.first_line, @2.first_column);
+	  $$ = new Null();
+	} else {
+	  $$ = new Break($2, it);
+	}
+      } else {
+	$$ = new Break($2, NULL);
+      }
+    }
+| "next" brk_nxt_label ";"
+    { Iteration* enclosing = topLoopstack();
+      if (!enclosing) {
+	program.error("el next no está dentro de una iteración",
+		      @1.first_line, @1.first_column);
+	$$ = new Null();
+      } else if ($2) {
+	Iteration* it = findLabel(*$2);
+	if (!it) {
+	  program.error("no se encuentra la etiqueta '"+*$2+"'",
+			@2.first_line, @2.first_column);
+	  $$ = new Null();
+	} else {
+	  $$ = new Next($2, it);
+	}
+      } else {
+	$$ = new Next($2, NULL);
+      }
+    }
 | "return" expr ";"
     { $$ = new Return(currentfun, $2); }
 | "return" ";"
@@ -505,6 +543,10 @@ statement:
 | variabledec
 | asignment
 
+brk_nxt_label:
+  TK_ID
+| /* empty */ { $$ = NULL; }
+
  /* Produce una instrucción If, con o sin bloque else */
 if:
   "if" expr enterscope block leavescope else
@@ -519,51 +561,47 @@ else:
     { $$ = $3; }
 
  /* Produce una instrucción While, duh */
-while: 
- label  // Chequear la etiqueta antes de seguir procesando el while
- { if ($1) pushLoopLabel(*$1, &yylloc); }
- "while" expr enterscope block leavescope
- { if ($1) popLoopLabel();
-   if ($1 == NULL) { 
-     @$.first_line = @3.first_line;
-     @$.first_column = @3.first_column;
-     @$.last_line = @7.last_line;
-     @$.last_column = @7.last_column;
-   }
-   $$ = new While($1, $4, $6);
+while:
+ label "while" expr
+  { While* w = new While($1, $3, NULL);
+    pushLoop(w, &@1);
+    setLocation(w, &@1);
+  }
+ enterscope block leavescope
+  { if ($1 == NULL) {
+      @$.first_line = @2.first_line;
+      @$.first_column = @2.first_column;
+      @$.last_line = @7.last_line;
+      @$.last_column = @7.last_column;
+    }
+    Iteration* w = popLoop();
+    w->setBlock($6);
+    $$ = w;
  }
 
- /* Produce un For, ya sea un for de enteros o un foreach sobre un array.
-    El for de enteros puede o no tener un paso (step) definido. */
 for:
-  label // Chequear la etiqueta antes de seguir procesando el For
-    { if ($1) pushLoopLabel(*$1, &yylloc); }
-  "for" TK_ID "in" expr ".." expr step enterscope
+  label "for" TK_ID "in" expr ".." expr step
     { /* Meter variable de iteración en la tabla antes de revisar las
          instrucciones */
-      SymVar* loopvar = new SymVar(*$4, @4.first_line, @4.first_column, false,
+      SymVar* loopvar = new SymVar(*$3, @3.first_line, @3.first_column, false,
 				   program.symtable.current_scope());
       loopvar->setType(&(IntType::getInstance()));
       loopvar->setReadonly(true);
       program.symtable.insert(loopvar);
+      BoundedFor* bf = new BoundedFor($1, loopvar, $5, $7, $8, NULL);
+      pushLoop(bf, &@1);
+      setLocation(bf, &@1);
     }
-  block leavescope
-    { if ($1) popLoopLabel();
-      /* Esto es bastante chimbo, pero es la manera menos chimba que se me
-	 ocurrió de volver a conseguir el SymVar de la iteración para
-         poder instanciar el For.
-         La otra manera sería llevar una pila de variables de iteración. */
-      /* Otra manera que se me ocurre es que el constructor de BoundedFor 
-       * no tenga como argumento el bloque, que se instancie en las acciones 
-       * de arriba, y en esta parte se haga un setBlock() */
-      SymVar* loopvar = program.symtable.lookup_variable(*$4);
-      if ($1 == NULL) {
+  enterscope block leavescope
+    { if ($1 == NULL) {
         @$.first_line = @3.first_line;
         @$.first_column = @3.first_column;
-        @$.last_line = @13.last_line;
-        @$.last_column = @13.last_column;
+        @$.last_line = @12.last_line;
+        @$.last_column = @12.last_column;
       }
-      $$ = new BoundedFor($1, loopvar, $6, $8, $9, $12);
+      Iteration* w = popLoop();
+      w->setBlock($11);
+      $$ = w;
     }
 
  /* Produce la parte opcional del For 'step' */

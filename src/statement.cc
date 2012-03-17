@@ -62,6 +62,14 @@ void Statement::setLocation(int first_line, int first_column, int last_line,
   this->last_column = last_column;
 }
 
+int Statement::getFirstLine() {
+  return this->first_line;
+}
+
+int Statement::getFirstCol() {
+  return this->first_column;
+}
+
 /***** Block *******/
 
 Block::Block(int scope_number, Statement *stmt) {
@@ -139,8 +147,13 @@ void If::print(int nesting) {
 
 /******* Iteration ********/
 
-Iteration::Iteration(std::string* label) {
+Iteration::Iteration(std::string* label, Block* block) {
   this->label = label;
+  this->block = block;
+}
+
+void Iteration::setBlock(Block* block) {
+  this->block = block;
 }
 
 std::string* Iteration::getLabel() {
@@ -151,12 +164,12 @@ std::string* Iteration::getLabel() {
 
 BoundedFor::BoundedFor(std::string* label, SymVar* varsym,
 		       Expression* lowerb, Expression* upperb,
-		       Expression* step, Block* block) : Iteration(label) {
+		       Expression* step, Block* block)
+  : Iteration(label,block) {
   this->varsym = varsym;
   this->lowerb = lowerb;
   this->upperb = upperb;
   this->step = step;
-  this->block = block;
 }
 
 void BoundedFor::check(){
@@ -215,9 +228,8 @@ void BoundedFor::print(int nesting) {
 
 /********** WHILE *********/
 While::While(std::string* label, Expression* cond, Block* block)
-  : Iteration(label) {
+  : Iteration(label,block) {
   this->cond = cond;
-  this->block = block;
 }
 
 void While::check(){
@@ -339,8 +351,9 @@ void VariableDec::print(int nesting) {
 
 /*********** BREAK ************/
 
-Break::Break(std::string* label) {
+Break::Break(std::string* label, Iteration* loop) {
   this->label = label;
+  this->loop = loop;
 }
 
 void Break::check(){}
@@ -356,8 +369,9 @@ void Break::print(int nesting) {
 
 /********** NEXT ************/
 
-Next::Next(std::string* label) {
+Next::Next(std::string* label, Iteration* loop) {
   this->label = label;
+  this->loop = loop;
 }
 
 void Next::check(){}
