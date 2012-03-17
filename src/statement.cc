@@ -264,7 +264,7 @@ Asignment::Asignment(std::list<Expression*> lvalues, std::list<Expression*> exps
 }
 
 void Asignment::check(){
-  /*  if( lvalues.size() != exps.size() ) {
+  if( lvalues.size() != exps.size() ) {
     program.error("el numero de variables es diferente al numero de "
 		  "expresiones del lado derecho",
 		  this->first_line,this->first_column);
@@ -272,21 +272,47 @@ void Asignment::check(){
   }
 
   std::list<Expression*>::iterator itExp = this->exps.begin();
-  for(std::list<Lvalue*>::iterator itLval= this->lvalues.begin() ;
-      itLval != this->lvalues.end() ; itLval++,itExp++){
-    if ((*itLval)->isBad() or (*itExp)->isBad()) continue;
+  for(std::list<Expression*>::iterator itLval = this->lvalues.begin();
+      itLval != this->lvalues.end() ; itLval++, itExp++ ) {
+
+    // Chequear y reducir lvalues y expresiones
+    (*itLval)->check();
     (*itExp)->check();
-    if (!( *((*itLval)->getType()) == (*(*itExp)->getType()) )) {
-      program.error("los tipos no coinciden",this->first_line,this->first_column);
+    (*itLval) = (*itLval)->cfold();
+    (*itExp) = (*itExp)->cfold();
+
+    if (!(*itLval)->isLvalue()) {
+      program.error("no es una expresión asignable", (*itLval)->getFirstLine(),
+		    (*itLval)->getFirstCol());
+      continue;
     }
-    }*/
+
+    Type* tlval = (*itLval)->getType();
+    Type* texp = (*itExp)->getType();
+
+    // Si algun lado tiene error, seguir silenciosamente
+    if (*tlval == ErrorType::getInstance() or
+	*texp == ErrorType::getInstance()) {
+      continue;
+    }
+
+    // Clásico error de asignar an un tipo uan expresión de otro tipo
+    if (*tlval != *texp) {
+      program.error("no coinciden los tipos en la asignación, se esperaba '"+
+		    tlval->toString()+"' y se encontró '"+
+		    texp->toString()+"' en "+
+		    std::to_string((*itExp)->getFirstLine())+":"+
+		    std::to_string((*itExp)->getFirstCol()),
+		    (*itLval)->getFirstLine(), (*itLval)->getFirstCol());
+    }
+  }
 }
 
 void Asignment::print(int nesting) {
   std::string padding(nesting*2, ' ');
   std::cout << padding << "Asignación" << std::endl;
-  /*std::cout << padding << " L-values:" << std::endl;
-  for (std::list<Lvalue*>::iterator it = lvalues.begin();
+  std::cout << padding << " L-values:" << std::endl;
+  for (std::list<Expression*>::iterator it = lvalues.begin();
        it != lvalues.end(); it++) {
     (*it)->print(nesting+1);
   }
@@ -294,7 +320,7 @@ void Asignment::print(int nesting) {
   for (std::list<Expression*>::iterator it = exps.begin();
        it != exps.end(); it++) {
     (*it)->print(nesting+1);
-    }*/
+    }
 }
 
 /********** DECLARATION ********/
@@ -306,6 +332,9 @@ VariableDec::VariableDec(Type* type,
 }
 
 void VariableDec::check(){
+  // bueno, esto se viene en grande
+  // super chequeo ultra ++
+
   // CUIDADO !! en la lista pueden existir NULLs 
   for(std::list<std::pair<SymVar*,Expression*>>::iterator it=this->decls.begin();
       it!= this->decls.end(); it++){
