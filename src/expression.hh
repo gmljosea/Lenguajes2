@@ -13,16 +13,19 @@ protected:
 public:
   virtual void print(int nesting);
   void setLocation(int fline, int fcol, int lline, int lcol);
+  int getFirstLine();
+  int getFirstCol();
 
   virtual void check();
   virtual Type* getType();
   virtual bool isBad(); // obsoleto
 
-  virtual Expression* reduce();
+  virtual Expression* cfold();
   virtual bool isConstant();
   virtual int getInteger();
   virtual double getFloat();
   virtual bool getBool();
+
 };
 /**
  * Cosas antes de que se me olviden:
@@ -57,6 +60,7 @@ private:
 public:
   IntExp(int value);
   virtual void print(int nesting);
+  virtual int getInteger();
 };
 
 class FloatExp : public Constant {
@@ -65,6 +69,7 @@ private:
 public:
   FloatExp(float value);
   virtual void print(int nesting);
+  virtual double getFloat();
 };
 
 class BoolExp : public Constant {
@@ -73,6 +78,7 @@ private:
 public:
   BoolExp(bool value);
   virtual void print(int nesting);
+  virtual bool getBool();
 };
 
 class StringExp : public Constant {
@@ -91,51 +97,148 @@ public:
   virtual void print(int nesting);
 };
 
-/*
+
 class BinaryOp : public Expression {
 protected:
-  Expression* exp1, Expression* exp2;
+  Expression* exp1;
+  Expression* exp2;
   std::string op;
-  BinaryOp(Expression* exp1, Expression* exp2) : exp1(exp1), exp2(exp2),
-						 op("") {};
+  BinaryOp(Expression* exp1, Expression* exp2, std::string op)
+    : exp1(exp1), exp2(exp2), op(op) {};
 public:
   virtual void print(int nesting);
-  }*/
+};
 
-/*
+// Operadores Aritméticos
+class Arithmetic : public BinaryOp {
+protected:
+  Arithmetic(Expression* e1, Expression* e2, std::string op)
+    : BinaryOp(e1,e2,op) {};
+public:
+  virtual void check();
+};
+
+class Sum : public Arithmetic {
+public:
+  Sum(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"+") {};
+  virtual Expression* cfold();
+};
+
+class Substraction : public Arithmetic {
+public:
+  Substraction(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"-") {};
+};
+
+class Multiplication : public Arithmetic {
+public:
+  Multiplication(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"*") {};
+};
+
+class Division : public Arithmetic {
+public:
+  Division(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"/") {};
+};
+
+class Remainder : public Arithmetic {
+public:
+  Remainder(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"%") {};
+  virtual void check();
+};
+
+class Minus : public Arithmetic {
+public:
+  Minus(Expression* e) : Arithmetic(e,e,"-") {};
+  virtual void check();
+  void print(int nesting);
+};
+
 // Operadores lógicos AND, OR, NOT
-// Me baso en el ejemplo del Aho
 class Logical : public BinaryOp {
 protected:
-  Logical(Expression* e1, Expression* e2) : BinaryOp(e1,e2) {};
-public:
+  Logical(Expression* e1, Expression* e2, std::string op)
+    : BinaryOp(e1,e2,op) {};
   virtual void check();
 };
 
 class And : public Logical {
 public:
-  And(Expression* e1, Expression* e2) : Logical(e1,e2) {};
+  And(Expression* e1, Expression* e2) : Logical(e1,e2,"and") {};
 };
 
 class Or : public Logical {
 public:
-  Or(Expression* e1, Expression* e2) : Logical(e1,e2) {};
+  Or(Expression* e1, Expression* e2) : Logical(e1,e2,"or") {};
 };
 
 class Not : public Logical {
 public:
-  Not(Expression* e) : Logical(e, e) {};
+  Not(Expression* e) : Logical(e,e,"not") {};
+  virtual void check();
   void print(int nesting);
 };
 
+// Operadores relacionales
 class Relational : public Logical {
 protected:
-  Relational(Expression* e1, Expression* e2) : Logical(e1,e2) {};
-public:
+  Relational(Expression* e1, Expression* e2, std::string op)
+    : Logical(e1,e2,op) {};
   virtual void check();
-  virtual void print(int nesting);
-  }; */
+};
 
+class Greater : public Relational {
+public:
+  Greater(Expression* e1, Expression* e2) : Relational(e1,e2,">") {};
+};
+
+class GreaterEq : public Relational {
+public:
+  GreaterEq(Expression* e1, Expression* e2) : Relational(e1,e2,">=") {};
+};
+
+class Equal : public Relational {
+public:
+  Equal(Expression* e1, Expression* e2) : Relational(e1,e2,"=") {};
+  virtual void check();
+};
+
+class NotEqual : public Relational {
+public:
+  NotEqual(Expression* e1, Expression* e2) : Relational(e1,e2,"!=") {};
+  virtual void check();
+};
+
+class Less : public Relational {
+public:
+  Less (Expression* e1, Expression* e2) : Relational(e1,e2,"<") {};
+};
+
+class LessEq : public Relational {
+public:
+  LessEq(Expression* e1, Expression* e2) : Relational(e1,e2,"<=") {};
+};
+
+// Acceso a un arreglo
+class Index : public Expression {
+private:
+  Expression* array;
+  Expression* index;
+public:
+  Index(Expression* array, Expression* index)
+    : array(array), index(index) {};
+  virtual void check();
+  void print(int nesting);
+};
+
+// Acceso a un campo de un box
+class Dot : public Expression {
+private:
+  Expression* box;
+  std::string field;
+public:
+  Dot(Expression* box, std::string field) : box(box), field(field) {};
+  virtual void check();
+  void print(int nesting);
+};
 
 
 /**
