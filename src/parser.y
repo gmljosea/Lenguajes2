@@ -28,7 +28,6 @@ Program program;
 // Variables globales útiles para chequeos durante el parseo
 SymFunction* currentfun; // Función parseada actual
 std::list<std::string> looplabels;
-std::string currentbox;
 
 /* Como todos los box se pueden ver entre si, puede que dentro de un box
    se declare una variable de un tipo box cuya declaracion aun no se ha 
@@ -230,14 +229,13 @@ bool boxRedeclared(std::string id, YYLTYPE yylloc) {
 %type <argsdec> args nonempty_args
 %type <box> box
 
-
-%left "or"
+%left "or"	
 %left "and"
+%left "+" "-"	
+%left "*" "/" "%"	
+%right NEG "not"
 %left "=" "!="
 %left "<" "<=" ">=" ">"
-%left "+" "-"
-%left "*" "/" "%"
-%right NEG "not"
 %left "[" "."
 
 %% /* Gramática */
@@ -283,7 +281,7 @@ block leavescope
       currentfun->setBlock($8);
       program.functions.push_back(currentfun);
     }
-| "box" TK_ID box "{" boxdecs variantpart "}"
+| "box" TK_ID box "{" boxdecsa variantpart "}"
 {
   if(!boxRedeclared(*$2,@2)){
     $3->setLine(@1.first_line);
@@ -302,9 +300,13 @@ box:
     it->second->setIncomplete(false);
     $$= it->second;
   }else{ 
-    $$= new BoxType(currentbox,false);
+    $$= new BoxType(*($<str>0),false);
   }
 }
+
+boxdecsa:
+/*empty*/
+|boxdecs
 
 boxdecs:
   type TK_ID ";" 
@@ -397,8 +399,6 @@ type TK_ID ";"
     program.error(err, @3.first_line, @3.first_column);
   } 
 }
-
-
 
 dummy:
 /*empty*/ // Regla dummy para 'emparejar' la pila   
@@ -652,12 +652,28 @@ vardec_item:
 
  /* Produce un tipo válido del lenguaje. Por ahora solo los tipos básicos. */
 type:
-"int"    { $$ = &(IntType::getInstance()); }
+ "int"     { $$ = &(IntType::getInstance()); }
 | "char"   { $$ = &(CharType::getInstance()); }
 | "bool"   { $$ = &(BoolType::getInstance()); }
 | "float"  { $$ = &(FloatType::getInstance()); }
 | "string" { $$ = new StringType(1);}
 | "void"   { $$ = &(VoidType::getInstance()); }
+| type "array" "[" TK_CONSTINT "]"
+| TK_ID
+{
+  if(($$= program.symtable.lookup_box(*$1))== NULL){
+    boxHash::iterator it= unknownBox.find(*$1);
+    if(it!= unknownBox.end())
+      $$= it->second;
+    else{
+      BoxType *newbox= new BoxType(*$1,true);
+      unknownBox.insert(boxHash::value_type(*$1,newbox));
+      $$= newbox;
+    } 
+      
+  }
+    
+}
 
  // ** Gramática de las expresiones
 
@@ -665,31 +681,32 @@ type:
     Por ahora las expresiones válidas son las constantes, las variables y las
     llamadas a funciones. */
 expr:
-TK_ID
-  { SymVar* symv = program.symtable.lookup_variable(*$1);
-    if (symv == NULL) {
-      program.error("variable '"+*$1+"' no declarada", @1.first_line,
-		    @1.first_column);
-      $$ = new BadExp();
-    } else {
-      $$ = new VarExp(symv);
-    }
-    $$->setLocation(@1.first_line, @1.first_column,0,0);
+TK_ID	
+{ SymVar* symv = program.symtable.lookup_variable(*$1);
+  if (symv == NULL) {	
+    program.error("variable '"+*$1+"' no declarada", @1.first_line,
+                  @1.first_column);	
+    $$ = new BadExp();
+  } else {
+    $$ = new VarExp(symv);
   }
+  $$->setLocation(@1.first_line, @1.first_column,0,0);	
+}
+
 | TK_CONSTINT    { $$ = new IntExp($1);
-                   $$->setLocation(@1.first_line, @1.first_column,0,0); }
-| TK_CONSTFLOAT  { $$ = new FloatExp($1);
+                   $$->setLocation(@1.first_line, @1.first_column,0,0); }	
+| TK_CONSTFLOAT  { $$ = new FloatExp($1);	
                    $$->setLocation(@1.first_line, @1.first_column,0,0); }
 | TK_TRUE        { $$ = new BoolExp(true); }
-| TK_FALSE       { $$ = new BoolExp(false); }
-| TK_CONSTSTRING { $$ = new StringExp(*$1); }
+| TK_FALSE       { $$ = new BoolExp(false); }	
+| TK_CONSTSTRING { $$ = new StringExp(*$1); }	
 | TK_CONSTCHAR   { $$ = new CharExp(*$1);
-                   $$->setLocation(@1.first_line, @1.first_column,0,0); }
-| funcallexp
-| expr "+" expr  { $$ = new Sum($1,$3);
+                   $$->setLocation(@1.first_line, @1.first_column,0,0); }	
+| funcallexp	
+| expr "+" expr  { $$ = new Sum($1,$3);	
                    $$->setLocation(@2.first_line, @2.first_column,0,0); }
 | expr "-" expr { $$ = new Substraction($1,$3); }
-| expr "*" expr { $$ = new Multiplication($1,$3); }
+| expr "*" expr { $$ = new Multiplication($1,$3); }	
 | expr "/" expr { $$ = new Division($1,$3); }
 | expr "%" expr { $$ = new Remainder($1,$3); }
 | "-" expr %prec NEG { $$ = new Minus($2); }
@@ -703,7 +720,7 @@ TK_ID
 | expr "!=" expr { $$ = new NotEqual($1,$3); }
 | expr "<" expr { $$ = new Less($1,$3); }
 | expr "<=" expr { $$ = new LessEq($1,$3); }
-| expr "[" expr "]" { $$ = new Index($1,$3); }
+| expr "[" expr "]" { $$ = new Index($1,$3); }	
 | expr "." TK_ID { $$ = new Dot($1,*$3); }
 
  /* Produce una llamada a función */

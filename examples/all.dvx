@@ -11,12 +11,13 @@ int a;
 string x;
 variant:
 int z;
-{
-char r;
-float x;
-}
-{float c;
-string g;}
+ {
+ char r;
+ float x;
+ }
+ {float c;
+  string g;
+ }
 }
 
 int calcular( int a, int b){
@@ -41,6 +42,8 @@ int main() {
 
   int bla,ble;
   bla,ble = 1,100;
+  container bli;
+  int blo= bli.a;
 
   for i in bla..ble {
       for i in bla..ble step 10 {
