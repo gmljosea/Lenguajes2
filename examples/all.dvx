@@ -8,13 +8,15 @@ void print(int a, int b) {
 
 box container{
 int a;
-string b;
+string x;
 variant:
 int z;
 {
 char r;
-float b;
+float x;
 }
+{float c;
+string g;}
 }
 
 int calcular( int a, int b){

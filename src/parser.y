@@ -274,15 +274,12 @@ block leavescope
       currentfun->setBlock($8);
       program.functions.push_back(currentfun);
     }
-| "box" TK_ID
-{currentbox= *$2;}
- box "{" boxdecs variantpart "}"
+| "box" TK_ID box "{" boxdecs variantpart "}"
 {
-  std::cout << "definicion de box completada";
   if(!boxRedeclared(*$2,@2)){
-    $4->setLine(@1.first_line);
-    $4->setColumn(@1.first_column);
-    program.symtable.insert($4);
+    $3->setLine(@1.first_line);
+    $3->setColumn(@1.first_column);
+    program.symtable.insert($3);
   }
 }
 
@@ -291,8 +288,7 @@ box:
 /* Regla dummy para crear el TypeBox en caso de que no exista en 
    el hash de BoxTypes 'unknownBox'  */
 {
-  std::cout << "crear el box";
-  boxHash::iterator it= unknownBox.find(currentbox);
+  boxHash::iterator it= unknownBox.find(*($<str>0));
   if(it!= unknownBox.end()){
     it->second->setIncomplete(false);
     $$= it->second;
@@ -305,11 +301,10 @@ boxdecs:
   type TK_ID ";" 
   {
     /* Se agregan los campos del box usando el BoxType almacenado en
-     la pila. Se accede a traves de $<box>-2 */
-    std::cout << "voy a comenzar las lokeras";
+     la pila. Se accede a traves de $<box>-1 */
     BoxField *field= $<box>-1->getField(*$2);
     if(field==NULL){
-      $<box>-2->addFixedField($1,*$2);
+      $<box>-1->addFixedField($1,*$2);
     }else{
       std::string err = "redeclaración de variable '"
         +(*$2)+"' previamente declarada en "+std::to_string(field->line)
@@ -320,9 +315,9 @@ boxdecs:
   }  
 | boxdecs type TK_ID ";"
 {
- BoxField *field= $<box>-2->getField(*$3);
+ BoxField *field= $<box>-1->getField(*$3);
     if(field==NULL){
-      $<box>-2->addFixedField($2,*$3);
+      $<box>-1->addFixedField($2,*$3);
     }else{
       std::string err = "redeclaración de variable '"
         +(*$3)+"' previamente declarada en "+std::to_string(field->line)
@@ -340,9 +335,9 @@ variantpart_decs:
   dummy "{" variantdecs "}"
 |  type TK_ID ";" 
 { 
-  BoxField *field= $<box>-5->getField(*$2);
+  BoxField *field= $<box>-4->getField(*$2);
     if(field==NULL){
-      $<box>-5->addVariantField($1,*$2,false);
+      $<box>-4->addVariantField($1,*$2,false);
     }else{
       std::string err = "redeclaración de variable '"
         +(*$2)+"' previamente declarada en "+std::to_string(field->line)
@@ -353,10 +348,10 @@ variantpart_decs:
 |  variantpart_decs "{" variantdecs "}"
 |  variantpart_decs type TK_ID ";"
 {
-  BoxField *field= $<box>-5->getField(*$3);
+  BoxField *field= $<box>-4->getField(*$3);
   if(field==NULL){
-    $<box>-5->startGrouping();
-    $<box>-5->addVariantField($2,*$3,true);
+    $<box>-4->startGrouping();
+    $<box>-4->addVariantField($2,*$3,true);
   }else{
     std::string err = "redeclaración de variable '"
       +(*$3)+"' previamente declarada en "+std::to_string(field->line)
@@ -369,10 +364,10 @@ variantpart_decs:
 type TK_ID ";"
 {/*En esta regla se sabe que estamos en una agrupacion de campos union
    por lo tanto hacemos */
-  BoxField *field= $<box>-7->getField(*$2);
+  BoxField *field= $<box>-6->getField(*$2);
     if(field==NULL){
-      $<box>-7->startGrouping();
-      $<box>-7->addVariantField($1,*$2,true);
+      $<box>-6->startGrouping();
+      $<box>-6->addVariantField($1,*$2,true);
     }else{
       std::string err = "redeclaración de variable '"
         +(*$2)+"' previamente declarada en "+std::to_string(field->line)
@@ -382,10 +377,10 @@ type TK_ID ";"
 }
 |variantdecs type TK_ID ";"
 {
-  BoxField *field= $<box>-7->getField(*$3);
+  BoxField *field= $<box>-6->getField(*$3);
   if(field==NULL){
-    $<box>-7->startGrouping();
-    $<box>-7->addVariantField($2,*$3,true);
+    $<box>-6->startGrouping();
+    $<box>-6->addVariantField($2,*$3,true);
   }else{
     std::string err = "redeclaración de variable '"
       +(*$3)+"' previamente declarada en "+std::to_string(field->line)
