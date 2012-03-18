@@ -868,6 +868,7 @@ int main (int argc, char **argv) {
       program.error("La funcion main debe ser de tipo 'int'",line,col);
     }
   }
+
   // Chequear el AST 
   program.check();
 
