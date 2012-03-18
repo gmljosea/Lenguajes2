@@ -705,13 +705,17 @@ void Dot::check() {
   if (!bt) {
     program.error("No se puede aplicar operador '.' a '"+t->toString()+"'",
 		  this->fline, this->fcol);
+    this->type = &(ErrorType::getInstance());
     return;
   }
   BoxField* field = bt->getField(this->field);
   if (!field) {
     program.error("No existe el campo '"+this->field+"' en '"+t->toString()+"'",
 		  this->fline, this->fcol);
+    this->type = &(ErrorType::getInstance());
     return;
+  } else {
+    this->type = field->type;
   }
 }
 
