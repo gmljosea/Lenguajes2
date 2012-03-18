@@ -6,48 +6,9 @@
 
 extern Program program;
 
-bool Lvalue::isBad() {
-  return false;
-}
-
-Type* Lvalue::getType() {
-  return NULL;
-  /* Dummy, nunca debería ser llamada porque teóricamente Lvalue es
-  abstracta. Pero cuando fue definida por primera vez no lo era, así
-  que capaz ahorita hay alguna variable por ahí que es un Lvalue por valor
-  y puede explotar si de repente hacemos Lvalue abstracta.
-  Luego se arregla */
-}
-
-void Lvalue::print(int n) {
-}
-
-NormalLvalue::NormalLvalue(SymVar* var) {
-  this->variable = var;
-}
-
-Type* NormalLvalue::getType() {
-  return this->variable->getType();
-}
-
-void NormalLvalue::print(int nesting) {
-  std::string padding(nesting*2, ' ');
-  std::cout << padding << variable->getId() << std::endl;
-}
-
-bool BadLvalue::isBad() {
-  return true;
-}
-
-Type* BadLvalue::getType() {
-  return &(ErrorType::getInstance());
-}
-
-void BadLvalue::print(int n) {
-}
-
 Statement::Statement() {
   this->enclosing = NULL;
+  this->hasreturn = false;
 }
 
 void Statement::setEnclosing(Statement* stmt) {
@@ -70,19 +31,21 @@ int Statement::getFirstCol() {
   return this->first_column;
 }
 
+bool Statement::hasReturn() {
+  return this->hasreturn;
+}
+
 /***** Block *******/
 
 Block::Block(int scope_number, Statement *stmt) {
   this->scope_number = scope_number;
   this->push_back(stmt);
+  this->hasreturn = this->hasreturn || stmt->hasReturn();
 }
 
 void Block::push_back(Statement *stmt) {
   this->stmts.push_back(stmt);
-}
-
-void Block::push_back(std::list<Statement*> stmts) {
-  this->stmts.splice(this->stmts.end(), stmts);
+  this->hasreturn = this->hasreturn || stmt->hasReturn();
 }
 
 void Block::check(){
@@ -117,6 +80,9 @@ If::If(Expression *cond, Block *block_true, Block *block_false) {
   this->cond = cond;
   this->block_true = block_true;
   this->block_false = block_false;
+  // Si el bloque else existe y ambos brazos tienen return, el if tiene return
+  this->hasreturn = block_false && block_true->hasReturn()
+    && block_false->hasReturn();
 }
 
 void If::check(){
@@ -256,6 +222,33 @@ void While::print(int nesting) {
   block->print(nesting+1);
 }
 
+/*** ForEach **/
+void ForEach::print(int nesting) {
+  std::string padding(nesting*2, ' ');
+  std::cout << padding << "For:" << std::endl;
+  if (label != NULL) {
+    std::cout << padding << " Etiqueta:" << *label << std::endl;
+  }
+  std::cout << padding << " Arreglo: " << std::endl;
+  this->array->print(nesting+1);
+  std::cout << padding << " Cuerpo:" << std::endl;
+  block->print(nesting+1);
+}
+
+void ForEach::check() {
+  array->check();
+  ArrayType* t = dynamic_cast<ArrayType*>(array->getType());
+  if (!t) {
+    program.error("expresión no es de tipo 'array', se encontró '"+
+		  array->getType()->toString()+"'", array->getFirstLine(),
+		  array->getFirstCol());
+    loopvar->setType(&(ErrorType::getInstance()));
+  } else {
+    loopvar->setType(t->getBaseType());
+  }
+  block->check();
+}
+
 /********* ASIGNMENT ***********/
 
 Asignment::Asignment(std::list<Expression*> lvalues, std::list<Expression*> exps) {
@@ -264,7 +257,7 @@ Asignment::Asignment(std::list<Expression*> lvalues, std::list<Expression*> exps
 }
 
 void Asignment::check(){
-  /*  if( lvalues.size() != exps.size() ) {
+  if( lvalues.size() != exps.size() ) {
     program.error("el numero de variables es diferente al numero de "
 		  "expresiones del lado derecho",
 		  this->first_line,this->first_column);
@@ -272,21 +265,57 @@ void Asignment::check(){
   }
 
   std::list<Expression*>::iterator itExp = this->exps.begin();
-  for(std::list<Lvalue*>::iterator itLval= this->lvalues.begin() ;
-      itLval != this->lvalues.end() ; itLval++,itExp++){
-    if ((*itLval)->isBad() or (*itExp)->isBad()) continue;
+  for(std::list<Expression*>::iterator itLval = this->lvalues.begin();
+      itLval != this->lvalues.end() ; itLval++, itExp++ ) {
+
+    // Chequear y reducir lvalues y expresiones
+    (*itLval)->check();
     (*itExp)->check();
-    if (!( *((*itLval)->getType()) == (*(*itExp)->getType()) )) {
-      program.error("los tipos no coinciden",this->first_line,this->first_column);
+    (*itLval) = (*itLval)->cfold();
+    (*itExp) = (*itExp)->cfold();
+
+    if (!(*itLval)->isLvalue()) {
+      program.error("no es una expresión asignable", (*itLval)->getFirstLine(),
+		    (*itLval)->getFirstCol());
+      continue;
     }
-    }*/
+
+    Type* tlval = (*itLval)->getType();
+    Type* texp = (*itExp)->getType();
+
+    // Si algun lado tiene error, seguir silenciosamente
+    if (*tlval == ErrorType::getInstance() or
+	*texp == ErrorType::getInstance()) {
+      continue;
+    }
+
+    // Se prohibe asignar strings, arrays y boxes
+    if (dynamic_cast<StringType*>(tlval) or
+	dynamic_cast<ArrayType*>(tlval) or
+	dynamic_cast<BoxType*>(tlval)) {
+      program.error("no se puede asignar a variables de tipo '"+
+		    tlval->toString()+"'", (*itLval)->getFirstLine(),
+		    (*itExp)->getFirstCol());
+      continue;
+    }
+
+    // Clásico error de asignar an un tipo uan expresión de otro tipo
+    if (*tlval != *texp) {
+      program.error("no coinciden los tipos en la asignación, se esperaba '"+
+		    tlval->toString()+"' y se encontró '"+
+		    texp->toString()+"' en "+
+		    std::to_string((*itExp)->getFirstLine())+":"+
+		    std::to_string((*itExp)->getFirstCol()),
+		    (*itLval)->getFirstLine(), (*itLval)->getFirstCol());
+    }
+  }
 }
 
 void Asignment::print(int nesting) {
   std::string padding(nesting*2, ' ');
   std::cout << padding << "Asignación" << std::endl;
-  /*std::cout << padding << " L-values:" << std::endl;
-  for (std::list<Lvalue*>::iterator it = lvalues.begin();
+  std::cout << padding << " L-values:" << std::endl;
+  for (std::list<Expression*>::iterator it = lvalues.begin();
        it != lvalues.end(); it++) {
     (*it)->print(nesting+1);
   }
@@ -294,7 +323,7 @@ void Asignment::print(int nesting) {
   for (std::list<Expression*>::iterator it = exps.begin();
        it != exps.end(); it++) {
     (*it)->print(nesting+1);
-    }*/
+    }
 }
 
 /********** DECLARATION ********/
@@ -306,29 +335,70 @@ VariableDec::VariableDec(Type* type,
 }
 
 void VariableDec::check(){
-  // CUIDADO !! en la lista pueden existir NULLs 
-  for(std::list<std::pair<SymVar*,Expression*>>::iterator it=this->decls.begin();
+  // bueno, esto se viene en grande
+  // super chequeo ultra ++
+
+  if (*(this->type) == VoidType::getInstance()) {
+    program.error("no se pueden declarar variables tipo 'void'",
+		  this->first_line, this->first_column);
+    return;
+  }
+
+  StringType* strt = dynamic_cast<StringType*>(this->type);
+  BoxType* boxt = dynamic_cast<BoxType*>(this->type);
+  ArrayType* arrt = dynamic_cast<ArrayType*>(this->type);
+
+  // Si es box y está incompleto, error
+  if (boxt and boxt->isIncomplete()) {
+    program.error("tipo '"+boxt->toString()+"' desconocido",
+		  this->first_line, this->first_column);
+    return;
+  }
+
+  // CUIDADO !! en la lista pueden existir NULLs
+  for(std::list<std::pair<SymVar*,Expression*>>::iterator it = this->decls.begin();
       it!= this->decls.end(); it++){
     // Si es una variable tipo string, chequear si se inicializo
     // !!! Super hack horrible
-    StringType tb(1);
-    StringType& t = tb;
-    if( *((*it).first->getType())== t )
-      if((*it).second==NULL){
-	program.error("variable de tipo 'string' debe ser inicializada al declarar ",((*it).first)->getLine(),((*it).first)->getColumn() );
-	continue;
-      }
+
+    // Si es string y no se inicializó, dar error
+    if (strt and !it->second) {
+      program.error("variable de tipo 'string' debe ser inicializada al declarar",
+		    it->first->getLine(), it->first->getColumn());
+      continue;
+    }
+
+    // Si es box o array y se inicializó, con lo que sea, error
+    if ((boxt or arrt) and it->second) {
+      program.error("no se puede asignar a variables de tipo '"+
+		    this->type->toString()+"'", it->first->getLine(),
+		    it->first->getColumn());
+      continue;
+    }
 
     /* Chequear que los tipos de las variables coincidan con
-       los tipos de las expresiones que le corresponden*/  
-    if((*it).second != NULL)
-      if(!(*((*it).first->getType()) == *((*it).second->getType()))){
-	std::string strError= "el tipo de la variable '"+((*it).first)->getId();
-	strError += "' no concuerda con el de la expresion asignada"; 
-	program.error(strError,((*it).first)->getLine(),((*it).first)->getColumn());
+       los tipos de las expresiones que le corresponden*/
+    if (it->second) {
+      it->second->check();
+      it->second = it->second->cfold();
+      if(*(this->type) != *(it->second->getType())) {
+	std::string strError = "el tipo de la variable '"+((*it).first)->getId()
+	  +"' no concuerda con el de la expresion asignada, se esperaba '"+
+	  this->type->toString()+"' y se encontró '"+
+	  it->second->getType()->toString()+"'";
+	program.error(strError,it->first->getLine(), it->first->getColumn());
       }
-
+      if (this->isGlobal and !it->second->isConstant()) {
+	program.error("expresión no constante en inicialización de variable "
+		      "global", it->second->getFirstLine(),
+		      it->second->getFirstCol());
+      }
     }
+  }
+}
+
+void VariableDec::setGlobal(bool global) {
+  this->isGlobal = global;
 }
 
 void VariableDec::print(int nesting) {
@@ -390,16 +460,21 @@ void Next::print(int nesting) {
 Return::Return(SymFunction* symf, Expression *exp) {
   this->symf = symf;
   this->exp = exp;
+  this->hasreturn = true;
 }
 
 void Return::check(){
-  if(this->exp!= NULL){
-    if(!(*(this->exp->getType())== *(this->symf->getType())))
-      program.error("return devuelve tipo incompatible",this->first_line,this->first_column);
-  }else{
-    VoidType& t = VoidType::getInstance();
-    if(!(*(this->symf->getType()) == t))
-      program.error("return esperaba 'void'", this->first_line, this->first_column);} 
+  Type* tfun = this->symf->getType();
+  if(this->exp != NULL){
+    Type* texp = this->exp->getType();
+    if(*texp != *tfun) {
+      program.error("return devuelve '"+texp->toString()+"' pero se esperaba '"+
+		    tfun->toString(), this->first_line,this->first_column);
+    }
+  } else if (*tfun != VoidType::getInstance()) {
+    program.error("return de función 'void' no puede devolver valores",
+		  this->first_line, this->first_column);
+  }
 }
 
 void Return::print(int nesting) {

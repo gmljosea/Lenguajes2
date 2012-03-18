@@ -71,6 +71,7 @@ public:
   Block* getBlock();
   int getArgumentCount();
   void print();
+  void check();
 };
 
 typedef std::unordered_multimap<std::string,SymVar*> varSymtable;

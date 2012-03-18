@@ -13,69 +13,7 @@
  * La clase Statement es la base de la cual derivan las instrucciones
  * específicas del lenguaje.
  *
- * La clase Lvalue no es una instrucción y merece estar en otro archivo.
- * Eventualmente será movida.
  */
-
-/**
- * Representa una dirección asignable.
- * Es utilizada por la clase Asignment para representar las variables que van a
- * ser modificadas.
- */
-class Lvalue {
-public:
-  /**
-   * Determina si tiene sentido revisar este Lvalue.
-   * Un error de programador, por ejemplo asignar una variable no declarada,
-   * conduce a que se instancian Lvalues sin sentido durante el parsing.
-   * Durante el chequeo de contexto es necesario verificar la validez del Lvalue
-   * antes de realizar otras operaciones sobre él.
-   */
-  virtual bool isBad();
-
-  /**
-   * Devuelve un apuntador al tipo de este Lvalue.
-   * Se asume que el usuario no va a destruir ni modificar el tipo.
-   */
-  virtual Type* getType(); // = 0
-
-  /**
-   *
-   */
-  virtual void print(int nesting); // = 0
-
-  /* Notas:
-   * Esta clase debería ser abstracta. Actualmente no lo es porque originalmente
-   * no lo era, y cambiarlo ahorita podría darnos errores que no queremos tratar
-   * antes de la primera entrega.
-   */
-
-};
-
-/**
- * Representa la dirección de una variable cualquier sin modificadores de acceso.
- * Por ejemplo, una variable de tipo básico, o un arreglo sin usar [].
- */
-class NormalLvalue : public Lvalue {
-private:
-  // Símbolo de la variable asignada
-  SymVar* variable;
-public:
-  NormalLvalue (SymVar* sym);
-  virtual Type* getType();
-  virtual void print(int nesting);
-};
-
-/**
- * Representa un Lvalue que no tiene sentido, usualmente porque el programador
- * intentó asignar una variable no declarada.
- */
-class BadLvalue : public Lvalue {
-public:
-  virtual bool isBad();
-  virtual Type* getType();
-  virtual void print(int nesting);
-};
 
 /**
  * Representa una instrucción en Devanix.
@@ -87,6 +25,8 @@ protected:
   // Ubicación en el archivo
   int first_line, first_column;
   int last_line, last_column;
+
+  bool hasreturn;
 public:
   Statement ();
   // Establece la instrucción que anida a esta.
@@ -102,6 +42,8 @@ public:
 
   int getFirstLine();
   int getFirstCol();
+
+  bool hasReturn();
 };
 
 /**
@@ -119,8 +61,6 @@ public:
   Block (int, Statement*);
   // Encola una instrucción
   void push_back(Statement *stmt);
-  // Encola una lista de instrucciones
-  void push_back(std::list<Statement*> stmts);
   virtual void print(int);
   virtual void check();
 };
@@ -187,6 +127,17 @@ private:
 public:
   While (std::string* label, Expression* cond, Block* block);
   virtual void print(int);
+  virtual void check();
+};
+
+class ForEach : public Iteration {
+private:
+  SymVar* loopvar;
+  Expression* array;
+public:
+  ForEach (std::string* label, SymVar* loopvar, Expression* array, Block* block)
+    : loopvar(loopvar), array(array), Iteration(label,block) {};
+  virtual void print(int nesting);
   virtual void check();
 };
 

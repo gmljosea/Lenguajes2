@@ -2,6 +2,9 @@
 #include <iostream>
 #include "symbol.hh"
 #include "statement.hh"
+#include "program.hh"
+
+extern Program program;
 
 /*******************************/
 /* Metodos de la clase Symbol */
@@ -84,6 +87,14 @@ void SymFunction::print() {
   }
   // Imprimir bloque con nivel de anidamiento 1
   block->print(1);
+}
+
+void SymFunction::check() {
+  this->block->check();
+  if (*(this->type) != VoidType::getInstance()
+      && !this->block->hasReturn()) {
+    program.error("la función no tiene return", this->line, this->col);
+  }
 }
 
 /**********************************/
@@ -210,5 +221,3 @@ void SymTable::print(){
   }
 
 }
-
-

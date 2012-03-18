@@ -144,10 +144,8 @@ bool boxRedeclared(std::string id, YYLTYPE yylloc) {
   Expression *exp;
   Type *type;
   std::list<Expression*> *exps;
-  std::list<Lvalue*> *lvalues;
   std::list<std::pair<SymVar*,Expression*>> *decls;
   std::pair<SymVar*,Expression*> *decl;
-  Lvalue *lvalue;
   PassType passtype;
   listSymPairs *argsdec;
   BoxType *box;
@@ -225,7 +223,7 @@ bool boxRedeclared(std::string id, YYLTYPE yylloc) {
 %token <ival> TK_CONSTINT
 %token <fval> TK_CONSTFLOAT
 
-%type <stmt> statement if while for variabledec asignment
+%type <stmt> statement if while for variabledec asignment foreach
 %type <blk> stmts block else
 %type <exp> expr funcallexp step
 %type <str> label brk_nxt_label
@@ -267,7 +265,9 @@ globals:
  /* Produce una declaración de función, variable global o box */
 global:
   variabledec
-    { program.globalinits.push_back(dynamic_cast<VariableDec*> $1); }
+   { VariableDec* vd = dynamic_cast<VariableDec*>($1);
+     vd->setGlobal(true);
+     program.globalinits.push_back(vd); }
 
 | type TK_ID enterscope "(" args ")"
     { /* Si una función se redeclara, no se inserta en la tabla de símbolos,
@@ -541,6 +541,7 @@ statement:
 | if
 | while
 | for
+| foreach
 | variabledec
 | asignment
 
@@ -595,13 +596,37 @@ for:
     }
   enterscope block leavescope
     { if ($1 == NULL) {
-        @$.first_line = @3.first_line;
-        @$.first_column = @3.first_column;
+        @$.first_line = @2.first_line;
+        @$.first_column = @2.first_column;
         @$.last_line = @12.last_line;
         @$.last_column = @12.last_column;
       }
       Iteration* w = popLoop();
       w->setBlock($11);
+      $$ = w;
+    }
+
+foreach:
+  label "for" TK_ID "in" expr
+    {
+      SymVar* loopvar = new SymVar(*$3, @3.first_line, @3.first_column, false,
+				   program.symtable.current_scope());
+      loopvar->setType(&(ErrorType::getInstance()));
+      //loopvar->isReference(true);
+      program.symtable.insert(loopvar);
+      ForEach* fe = new ForEach($1, loopvar, $5, NULL);
+      pushLoop(fe, &@1);
+      setLocation(fe, &@1);
+    }
+  enterscope block leavescope
+    { if ($1 == NULL) {
+        @$.first_line = @2.first_line;
+        @$.first_column = @2.first_column;
+        @$.last_line = @9.last_line;
+        @$.last_column = @9.last_column;
+      }
+      Iteration* w = popLoop();
+      w->setBlock($8);
       $$ = w;
     }
 
