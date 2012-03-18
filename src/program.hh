@@ -19,6 +19,7 @@ struct Program {
   SymTable symtable;
   std::list<VariableDec*> globalinits;
   std::list<SymFunction*> functions;
+  std::list<BoxType*> boxes;
 
   int errorCount; // Número de errores encontrados
   /**

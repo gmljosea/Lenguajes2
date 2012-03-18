@@ -296,6 +296,7 @@ block leavescope
     $3->setColumn(@1.first_column);
     program.symtable.insert($3);
   }
+  program.boxes.push_back($3);
 }
 
 box:
@@ -673,6 +674,9 @@ type:
 | "string" { $$ = new StringType(1);}
 | "void"   { $$ = &(VoidType::getInstance()); }
 | type "array" "[" TK_CONSTINT "]"
+{
+  $$= new ArrayType($1,$4);
+}
 | TK_ID
 {
   if(($$= program.symtable.lookup_box(*$1))== NULL){

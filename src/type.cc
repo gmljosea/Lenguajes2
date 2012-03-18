@@ -1,7 +1,8 @@
 #include <iostream>
-
+#include "program.hh"
 #include "type.hh"
 
+extern Program program;
 // Type
 int Type::getSize() {
   return this->size;
@@ -221,6 +222,27 @@ void BoxType::setColumn(int c){
 
 // !!!!!
 void BoxType::check() {
+  if(this->getFieldCount()==0){
+    program.error("tipo box '"+name+"' sin campos",line,column);
+    return;
+  }
+  bool errorField= false;
+  for (std::list<BoxField*>::iterator FieldIt= this->fixed_fields.begin();
+	 FieldIt != this->fixed_fields.end(); FieldIt++){
+    // Verificar tipo 
+    StringType *cast_tbox= dynamic_cast<StringType*>(FieldIt->type);
+    if(FieldIt->second->type== VoidType::getInstance() or cast_tbox){
+      std::string error="campo '"+(FieldIt->second->name)+"' del tipo '"
+        +this->second->toString()
+        +"' no puede ser de tipo '"+ FieldIt->second->type->toString();
+      program.error(error,FieldIt->second->line,FieldIt->second->column);
+      errorField= true;
+      continue;
+    }
+    // Si es type box hacer check y ver si no llega a mi 
+     
+    }
+
 }
 
 // !!!!!
