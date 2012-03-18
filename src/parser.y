@@ -675,7 +675,7 @@ type:
 | "void"   { $$ = &(VoidType::getInstance()); }
 | type "array" "[" TK_CONSTINT "]"
 {
-  $$= new ArrayType($1,$4);
+  $$= new ArrayType($1,$4,@1.first_line,@1.first_column);
 }
 | TK_ID
 {

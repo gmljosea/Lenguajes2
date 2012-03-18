@@ -89,9 +89,12 @@ class ArrayType : public Type {
 private:
   Type* basetype;
   int length;
+  int line;
+  int col;
 public:
-  ArrayType(Type* btype, int length) : basetype(btype), length(length),
-                                       Type(0,0) {};
+  ArrayType(Type* btype, int length,
+            int line,int col) : basetype(btype), length(length),
+                                line(line),col(col),Type(0,0) {};
   virtual bool operator==(Type& t);
   virtual std::string toString();
   virtual int getSize();

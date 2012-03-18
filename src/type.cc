@@ -151,7 +151,13 @@ int ArrayType::getLength() {
   return this->length;
 }
 
-void ArrayType::check(){}
+void ArrayType::check(){
+  ArrayType *cast_tarr= dynamic_cast<ArrayType*>(basetype);
+  if(cast_tarr)
+    program.error("tipo base del arreglo es '"+basetype->toString()
+                  + "' pero se esperaba un tipo basico",line,col);
+
+}
 
 int ArrayType::getOffset(int pos) {
   return this->basetype->getSize()*pos;
