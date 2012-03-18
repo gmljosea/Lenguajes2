@@ -1,3 +1,6 @@
 *.o
 devanix
 *.pdf
+*.d
+lexer.cc
+parser.cc

@@ -32,6 +32,10 @@ void Type::check(){
   return;
 }
 
+int Type::getReferenceSize() {
+  return 4;
+}
+
 // IntType
 IntType& IntType::getInstance() {
   static IntType instance;
@@ -115,8 +119,8 @@ std::string ErrorType::toString() {
 bool ArrayType::operator==(Type& t) {
   ArrayType* ta;
   if (ta = dynamic_cast<ArrayType*>(&t)) {
-    return this->basetype == ta->getBaseType()
-      && this->length == ta->getLength();
+    return this->basetype == ta->getBaseType();
+      //      && this->length == ta->getLength();
   } else {
     return false;
   }
@@ -162,6 +166,11 @@ void ArrayType::check(){
 int ArrayType::getOffset(int pos) {
   return this->basetype->getSize()*pos;
 }
+
+int ArrayType::getReferenceSize() {
+  return 8;
+}
+
 
 // BoxType
 void BoxType::addFixedField(Type* type, std::string name) {

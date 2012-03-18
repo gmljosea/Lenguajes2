@@ -18,6 +18,7 @@ public:
   virtual bool operator!=(Type& b);
   virtual void print();
   virtual std::string toString();
+  virtual int getReferenceSize();
 };
 
 // Tipos básicos escalares
@@ -103,6 +104,7 @@ public:
   Type* getBaseType();
   int getLength();
   int getOffset(int pos); //offset de la posición pos
+  virtual int getReferenceSize();
 };
 
 struct BoxField {
