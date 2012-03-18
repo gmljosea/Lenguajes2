@@ -15,6 +15,6 @@ void Program::check(){
 
     for (std::list<SymFunction*>::iterator funIt= this->functions.begin();
 	 funIt != this->functions.end(); funIt++){
-      ((*funIt)->getBlock())->check();
+      (*funIt)->check();
     }
 }

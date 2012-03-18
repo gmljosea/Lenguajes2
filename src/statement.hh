@@ -25,6 +25,8 @@ protected:
   // Ubicación en el archivo
   int first_line, first_column;
   int last_line, last_column;
+
+  bool hasreturn;
 public:
   Statement ();
   // Establece la instrucción que anida a esta.
@@ -40,6 +42,8 @@ public:
 
   int getFirstLine();
   int getFirstCol();
+
+  bool hasReturn();
 };
 
 /**
@@ -57,8 +61,6 @@ public:
   Block (int, Statement*);
   // Encola una instrucción
   void push_back(Statement *stmt);
-  // Encola una lista de instrucciones
-  void push_back(std::list<Statement*> stmts);
   virtual void print(int);
   virtual void check();
 };

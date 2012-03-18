@@ -8,6 +8,7 @@ extern Program program;
 
 Statement::Statement() {
   this->enclosing = NULL;
+  this->hasreturn = false;
 }
 
 void Statement::setEnclosing(Statement* stmt) {
@@ -30,19 +31,21 @@ int Statement::getFirstCol() {
   return this->first_column;
 }
 
+bool Statement::hasReturn() {
+  return this->hasreturn;
+}
+
 /***** Block *******/
 
 Block::Block(int scope_number, Statement *stmt) {
   this->scope_number = scope_number;
   this->push_back(stmt);
+  this->hasreturn = this->hasreturn || stmt->hasReturn();
 }
 
 void Block::push_back(Statement *stmt) {
   this->stmts.push_back(stmt);
-}
-
-void Block::push_back(std::list<Statement*> stmts) {
-  this->stmts.splice(this->stmts.end(), stmts);
+  this->hasreturn = this->hasreturn || stmt->hasReturn();
 }
 
 void Block::check(){
@@ -77,6 +80,9 @@ If::If(Expression *cond, Block *block_true, Block *block_false) {
   this->cond = cond;
   this->block_true = block_true;
   this->block_false = block_false;
+  // Si el bloque else existe y ambos brazos tienen return, el if tiene return
+  this->hasreturn = block_false && block_true->hasReturn()
+    && block_false->hasReturn();
 }
 
 void If::check(){
@@ -454,16 +460,21 @@ void Next::print(int nesting) {
 Return::Return(SymFunction* symf, Expression *exp) {
   this->symf = symf;
   this->exp = exp;
+  this->hasreturn = true;
 }
 
 void Return::check(){
-  if(this->exp!= NULL){
-    if(!(*(this->exp->getType())== *(this->symf->getType())))
-      program.error("return devuelve tipo incompatible",this->first_line,this->first_column);
-  }else{
-    VoidType& t = VoidType::getInstance();
-    if(!(*(this->symf->getType()) == t))
-      program.error("return esperaba 'void'", this->first_line, this->first_column);} 
+  Type* tfun = this->symf->getType();
+  if(this->exp != NULL){
+    Type* texp = this->exp->getType();
+    if(*texp != *tfun) {
+      program.error("return devuelve '"+texp->toString()+"' pero se esperaba '"+
+		    tfun->toString(), this->first_line,this->first_column);
+    }
+  } else if (*tfun != VoidType::getInstance()) {
+    program.error("return de función 'void' no puede devolver valores",
+		  this->first_line, this->first_column);
+  }
 }
 
 void Return::print(int nesting) {
