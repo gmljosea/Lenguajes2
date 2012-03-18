@@ -127,10 +127,8 @@ bool variableRedeclared(std::string id, YYLTYPE yylloc) {
   Expression *exp;
   Type *type;
   std::list<Expression*> *exps;
-  std::list<Lvalue*> *lvalues;
   std::list<std::pair<SymVar*,Expression*>> *decls;
   std::pair<SymVar*,Expression*> *decl;
-  Lvalue *lvalue;
   PassType passtype;
   listSymPairs *argsdec;
 };

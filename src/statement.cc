@@ -6,46 +6,6 @@
 
 extern Program program;
 
-bool Lvalue::isBad() {
-  return false;
-}
-
-Type* Lvalue::getType() {
-  return NULL;
-  /* Dummy, nunca debería ser llamada porque teóricamente Lvalue es
-  abstracta. Pero cuando fue definida por primera vez no lo era, así
-  que capaz ahorita hay alguna variable por ahí que es un Lvalue por valor
-  y puede explotar si de repente hacemos Lvalue abstracta.
-  Luego se arregla */
-}
-
-void Lvalue::print(int n) {
-}
-
-NormalLvalue::NormalLvalue(SymVar* var) {
-  this->variable = var;
-}
-
-Type* NormalLvalue::getType() {
-  return this->variable->getType();
-}
-
-void NormalLvalue::print(int nesting) {
-  std::string padding(nesting*2, ' ');
-  std::cout << padding << variable->getId() << std::endl;
-}
-
-bool BadLvalue::isBad() {
-  return true;
-}
-
-Type* BadLvalue::getType() {
-  return &(ErrorType::getInstance());
-}
-
-void BadLvalue::print(int n) {
-}
-
 Statement::Statement() {
   this->enclosing = NULL;
 }
