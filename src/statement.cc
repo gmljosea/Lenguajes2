@@ -296,6 +296,16 @@ void Asignment::check(){
       continue;
     }
 
+    // Se prohibe asignar strings, arrays y boxes
+    if (dynamic_cast<StringType*>(tlval) or
+	dynamic_cast<ArrayType*>(tlval) or
+	dynamic_cast<BoxType*>(tlval)) {
+      program.error("no se puede asignar a variables de tipo '"+
+		    tlval->toString()+"'", (*itLval)->getFirstLine(),
+		    (*itExp)->getFirstCol());
+      continue;
+    }
+
     // Clásico error de asignar an un tipo uan expresión de otro tipo
     if (*tlval != *texp) {
       program.error("no coinciden los tipos en la asignación, se esperaba '"+
@@ -335,29 +345,60 @@ void VariableDec::check(){
   // bueno, esto se viene en grande
   // super chequeo ultra ++
 
-  // CUIDADO !! en la lista pueden existir NULLs 
-  for(std::list<std::pair<SymVar*,Expression*>>::iterator it=this->decls.begin();
+  if (*(this->type) == VoidType::getInstance()) {
+    program.error("no se pueden declarar variables tipo 'void'",
+		  this->first_line, this->first_column);
+    return;
+  }
+
+  StringType* strt = dynamic_cast<StringType*>(this->type);
+  BoxType* boxt = dynamic_cast<BoxType*>(this->type);
+  ArrayType* arrt = dynamic_cast<ArrayType*>(this->type);
+
+  // CUIDADO !! en la lista pueden existir NULLs
+  for(std::list<std::pair<SymVar*,Expression*>>::iterator it = this->decls.begin();
       it!= this->decls.end(); it++){
     // Si es una variable tipo string, chequear si se inicializo
     // !!! Super hack horrible
-    StringType tb(1);
-    StringType& t = tb;
-    if( *((*it).first->getType())== t )
-      if((*it).second==NULL){
-	program.error("variable de tipo 'string' debe ser inicializada al declarar ",((*it).first)->getLine(),((*it).first)->getColumn() );
-	continue;
-      }
+
+    // Si es string y no se inicializó, dar error
+    if (strt and !it->second) {
+      program.error("variable de tipo 'string' debe ser inicializada al declarar",
+		    it->first->getLine(), it->first->getColumn());
+      continue;
+    }
+
+    // Si es box o array y se inicializó, con lo que sea, error
+    if ((boxt or arrt) and it->second) {
+      program.error("no se puede asignar a variables de tipo '"+
+		    this->type->toString()+"'", it->first->getLine(),
+		    it->first->getColumn());
+      continue;
+    }
 
     /* Chequear que los tipos de las variables coincidan con
-       los tipos de las expresiones que le corresponden*/  
-    if((*it).second != NULL)
-      if(!(*((*it).first->getType()) == *((*it).second->getType()))){
-	std::string strError= "el tipo de la variable '"+((*it).first)->getId();
-	strError += "' no concuerda con el de la expresion asignada"; 
-	program.error(strError,((*it).first)->getLine(),((*it).first)->getColumn());
+       los tipos de las expresiones que le corresponden*/
+    if (it->second) {
+      it->second->check();
+      it->second = it->second->cfold();
+      if(*(this->type) != *(it->second->getType())) {
+	std::string strError = "el tipo de la variable '"+((*it).first)->getId()
+	  +"' no concuerda con el de la expresion asignada, se esperaba '"+
+	  this->type->toString()+"' y se encontró '"+
+	  it->second->getType()->toString()+"'";
+	program.error(strError,it->first->getLine(), it->first->getColumn());
       }
-
+      if (this->isGlobal and !it->second->isConstant()) {
+	program.error("expresión no constante en inicialización de variable "
+		      "global", it->second->getFirstLine(),
+		      it->second->getFirstCol());
+      }
     }
+  }
+}
+
+void VariableDec::setGlobal(bool global) {
+  this->isGlobal = global;
 }
 
 void VariableDec::print(int nesting) {

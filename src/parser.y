@@ -249,7 +249,9 @@ globals:
  /* Produce una declaración de función, variable global o box */
 global:
   variabledec
-    { program.globalinits.push_back(dynamic_cast<VariableDec*> $1); }
+   { VariableDec* vd = dynamic_cast<VariableDec*>($1);
+     vd->setGlobal(true);
+     program.globalinits.push_back(vd); }
 
 | type TK_ID enterscope "(" args ")"
     { /* Si una función se redeclara, no se inserta en la tabla de símbolos,
