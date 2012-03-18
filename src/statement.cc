@@ -342,6 +342,13 @@ void VariableDec::check(){
   BoxType* boxt = dynamic_cast<BoxType*>(this->type);
   ArrayType* arrt = dynamic_cast<ArrayType*>(this->type);
 
+  // Si es box y está incompleto, error
+  if (boxt and boxt->isIncomplete()) {
+    program.error("tipo '"+boxt->toString()+"' desconocido",
+		  this->first_line, this->first_column);
+    return;
+  }
+
   // CUIDADO !! en la lista pueden existir NULLs
   for(std::list<std::pair<SymVar*,Expression*>>::iterator it = this->decls.begin();
       it!= this->decls.end(); it++){
