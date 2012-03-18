@@ -28,6 +28,10 @@ std::string Type::toString() {
   return std::string("Algun tipo");
 }
 
+void Type::check(){
+  return;
+}
+
 // IntType
 IntType& IntType::getInstance() {
   static IntType instance;
@@ -147,6 +151,8 @@ int ArrayType::getLength() {
   return this->length;
 }
 
+void ArrayType::check(){}
+
 int ArrayType::getOffset(int pos) {
   return this->basetype->getSize()*pos;
 }
@@ -220,33 +226,84 @@ void BoxType::setColumn(int c){
   this->column=c;
 }
 
-// !!!!!
+
 void BoxType::check() {
   if(this->getFieldCount()==0){
     program.error("tipo box '"+name+"' sin campos",line,column);
     return;
   }
-  bool errorField= false;
+
+  // Verificar los campos fijos
   for (std::list<BoxField*>::iterator FieldIt= this->fixed_fields.begin();
-	 FieldIt != this->fixed_fields.end(); FieldIt++){
+       FieldIt != this->fixed_fields.end(); FieldIt++){
     // Verificar tipo 
-    StringType *cast_tbox= dynamic_cast<StringType*>(FieldIt->type);
-    if(FieldIt->second->type== VoidType::getInstance() or cast_tbox){
-      std::string error="campo '"+(FieldIt->second->name)+"' del tipo '"
-        +this->second->toString()
-        +"' no puede ser de tipo '"+ FieldIt->second->type->toString();
-      program.error(error,FieldIt->second->line,FieldIt->second->column);
-      errorField= true;
+    StringType *cast_tboxfield= dynamic_cast<StringType*>((*FieldIt)->type);
+    if(((*FieldIt)->type== &(VoidType::getInstance())) or cast_tboxfield){
+      std::string error="campo '"+((*FieldIt)->name)+"' del tipo '"
+        +this->toString()
+        +"' no puede ser de tipo '"+ (*FieldIt)->type->toString();
+      program.error(error,(*FieldIt)->line,(*FieldIt)->column);
       continue;
     }
-    // Si es type box hacer check y ver si no llega a mi 
-     
+    // Si es type box hacer check y ver si no llega a mi
+    BoxType *cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
+    ArrayType *cast_tarray= dynamic_cast<ArrayType*>((*FieldIt)->type);
+    if(cast_tarray) (*FieldIt)->type->check();
+    if(cast_tbox ){
+      // Verificar que el box ha sido declarado
+      if( !cast_tbox->isIncomplete() ){
+        // Verificar si existen ciclos 
+        if( this->reaches(*( dynamic_cast<BoxType*>((*FieldIt)->type) )) )
+          program.error("tipo '"+(*FieldIt)->type->toString()+
+                        "' tiene referencia ciclica a traves del campo '"
+                        +((*FieldIt)->name)+"'",(*FieldIt)->line,
+                        (*FieldIt)->column);
+      }else{
+        program.error("tipo '"+(*FieldIt)->type->toString()+"' no ha sido definido",
+                      (*FieldIt)->line,(*FieldIt)->column );
+      }
     }
+  }
+
+  // Verificar los campos de la parte variant
+  for (std::list<BoxField*>::iterator FieldIt= this->variant_fields.begin();
+       FieldIt != this->variant_fields.end(); FieldIt++){
+    // Verificar tipo 
+    StringType *cast_tboxfield= dynamic_cast<StringType*>((*FieldIt)->type);
+    if(((*FieldIt)->type== &(VoidType::getInstance())) or cast_tboxfield){
+      std::string error="campo '"+((*FieldIt)->name)+"' del tipo '"
+        +this->toString()
+        +"' no puede ser de tipo '"+ (*FieldIt)->type->toString();
+      program.error(error,(*FieldIt)->line,(*FieldIt)->column);
+      continue;
+    }
+    // Si es type box hacer check y ver si no llega a mi
+    BoxType *cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
+    ArrayType *cast_tarray= dynamic_cast<ArrayType*>((*FieldIt)->type);
+    if(cast_tarray) (*FieldIt)->type->check();
+    if(cast_tbox ){
+      // Verificar que el box ha sido declarado
+      if( !cast_tbox->isIncomplete() ){
+        // Verificar si existen ciclos 
+        if( this->reaches(*( dynamic_cast<BoxType*>((*FieldIt)->type) )) )
+          program.error("tipo '"+(*FieldIt)->type->toString()+
+                        "' tiene referencia ciclica a traves del campo '"
+                        +((*FieldIt)->name)+"'",(*FieldIt)->line,
+                        (*FieldIt)->column);
+      }else{
+        program.error("tipo '"+(*FieldIt)->type->toString()+"' no ha sido definido",
+                      (*FieldIt)->line,(*FieldIt)->column );
+      }
+    }
+  }
+  
+  // Si calcular offsets despues 
 
 }
 
 // !!!!!
 bool BoxType::reaches(BoxType& box) {
+
 }
 
 std::string BoxType::toString() {

@@ -13,6 +13,7 @@ public:
   Type(int size, int alignment) : size(size), alignment(alignment) {};
   virtual int getSize();
   virtual int getAlignment();
+  virtual void check();
   virtual bool operator==(Type& b);
   virtual bool operator!=(Type& b);
   virtual void print();
@@ -95,6 +96,7 @@ public:
   virtual std::string toString();
   virtual int getSize();
   virtual int getAlignment();
+  virtual void check();
   Type* getBaseType();
   int getLength();
   int getOffset(int pos); //offset de la posición pos
@@ -130,7 +132,7 @@ public:
   void addVariantField(Type* type, std::string name, bool grouped);
   void startGrouping();
   BoxField* getField(std::string field);
-  void check();
+  virtual void check();
   bool isIncomplete();
   void setIncomplete(bool ic);
   int getFieldCount();
