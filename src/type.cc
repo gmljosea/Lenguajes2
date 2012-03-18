@@ -230,6 +230,10 @@ void BoxType::setIncomplete(bool ic) {
   this->incomplete = ic;
 }
 
+bool BoxType::areOffsetsDone(){
+  return this->offsetsDone;
+}
+
 int BoxType::getFieldCount() {
   return this->fields_hash.size();
 }
@@ -254,6 +258,51 @@ void BoxType::setColumn(int c){
   this->column=c;
 }
 
+void BoxType::calcOffsets(){
+
+  // Calcular offsets de los campos fijos
+  for (std::list<BoxField*>::iterator FieldIt= this->fixed_fields.begin();
+       FieldIt != this->fixed_fields.end(); FieldIt++){
+    (*FieldIt)->offset= this->size;
+    BoxType *cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
+    if(cast_tbox and !cast_tbox->areOffsetsDone()) 
+      cast_tbox->calcOffsets();
+    this->size+= (*FieldIt)->type->getSize(); 
+  }
+
+  int offset=this->size;
+  int maxSizeVariant=this->size;
+  int group=-1;
+  // Calcular offsets de los campos variantes
+  for (std::list<BoxField*>::iterator FieldIt= this->variant_fields.begin();
+       FieldIt != this->variant_fields.end(); FieldIt++){
+   
+    if((*FieldIt)->grouped){
+      // Si es una nueva agrupacion 
+      if(group!=(*FieldIt)->groupnum){ 
+        //guardo el num de agrupacion y se reinicia el offset
+        group= (*FieldIt)->groupnum;
+        offset=this->size;
+      }   
+    }else{ 
+      // Si el campo no pertenece a una agrupacion se reinicia
+      offset=this->size;
+    }
+
+   BoxType *cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
+   // Si el tipo del campo es un box asegurar que el tamaño este calculado
+    if(cast_tbox and !cast_tbox->areOffsetsDone()) 
+      cast_tbox->calcOffsets();
+    
+    (*FieldIt)->offset= offset;
+    offset+= (*FieldIt)->type->getSize();
+  
+    if(offset>maxSizeVariant) maxSizeVariant= offset;
+  }
+  this->size= maxSizeVariant;
+  this->offsetsDone=true;
+}
+
 
 void BoxType::check() {
   if(this->getFieldCount()==0){
@@ -269,7 +318,7 @@ void BoxType::check() {
     if(((*FieldIt)->type== &(VoidType::getInstance())) or cast_tboxfield){
       std::string error="campo '"+((*FieldIt)->name)+"' del tipo '"
         +this->toString()
-        +"' no puede ser de tipo '"+ (*FieldIt)->type->toString();
+        +"' no puede ser de tipo '"+ (*FieldIt)->type->toString()+"'";
       program.error(error,(*FieldIt)->line,(*FieldIt)->column);
       continue;
     }
@@ -301,7 +350,7 @@ void BoxType::check() {
     if(((*FieldIt)->type== &(VoidType::getInstance())) or cast_tboxfield){
       std::string error="campo '"+((*FieldIt)->name)+"' del tipo '"
         +this->toString()
-        +"' no puede ser de tipo '"+ (*FieldIt)->type->toString();
+        +"' no puede ser de tipo '"+ (*FieldIt)->type->toString()+"'";
       program.error(error,(*FieldIt)->line,(*FieldIt)->column);
       continue;
     }

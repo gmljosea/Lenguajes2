@@ -131,12 +131,13 @@ private:
   int column;
   bool incomplete;
   int groupcount;
+  bool offsetsDone;
 protected:
   bool reaches(BoxType& box);
 public:
   BoxType(std::string name, bool incomplete)
     : name(name), incomplete(incomplete), groupcount(0),
-      Type(0,0) {};
+      offsetsDone(false),Type(0,0) {};
   void addFixedField(Type* type, std::string name);
   void addVariantField(Type* type, std::string name, bool grouped);
   void startGrouping();
@@ -144,7 +145,9 @@ public:
   std::list<BoxField*> getFFields();
   std::list<BoxField*> getVFields();
   virtual void check();
+  void calcOffsets();
   bool isIncomplete();
+  bool areOffsetsDone();
   void setIncomplete(bool ic);
   int getFieldCount();
   std::string getName();
