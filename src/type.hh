@@ -132,6 +132,8 @@ public:
   void addVariantField(Type* type, std::string name, bool grouped);
   void startGrouping();
   BoxField* getField(std::string field);
+  std::list<BoxField*> getFFields();
+  std::list<BoxField*> getVFields();
   virtual void check();
   bool isIncomplete();
   void setIncomplete(bool ic);

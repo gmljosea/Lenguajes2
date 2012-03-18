@@ -301,9 +301,32 @@ void BoxType::check() {
 
 }
 
-// !!!!!
-bool BoxType::reaches(BoxType& box) {
 
+bool BoxType::reaches(BoxType& box) {
+  if(*(this)==box){
+    return true;
+  }
+  bool reachable= false;
+  for (std::list<BoxField*>::iterator FieldIt= box.getFFields().begin();
+       FieldIt != box.getFFields().end(); FieldIt++){ 
+    BoxType *cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
+    if(cast_tbox ){
+      // Verificar que el box ha sido declarado
+      if( !cast_tbox->isIncomplete() ){
+        reachable= reachable or this->reaches(*cast_tbox);
+        if(reachable) return true;
+      }
+    }
+  }
+  return false;
+}
+
+std::list<BoxField*> BoxType::getFFields(){
+  return fixed_fields;
+}
+
+std::list<BoxField*> BoxType::getVFields(){
+  return variant_fields;
 }
 
 std::string BoxType::toString() {
