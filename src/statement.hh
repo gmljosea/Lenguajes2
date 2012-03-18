@@ -128,6 +128,17 @@ public:
   virtual void check();
 };
 
+class ForEach : public Iteration {
+private:
+  SymVar* loopvar;
+  Expression* array;
+public:
+  ForEach (std::string* label, SymVar* loopvar, Expression* array, Block* block)
+    : loopvar(loopvar), array(array), Iteration(label,block) {};
+  virtual void print(int nesting);
+  virtual void check();
+};
+
 /**
  * Representa una asignación, múltiple o simple.
  * Para manejar la asignación múltiple se usan dos listas, una de

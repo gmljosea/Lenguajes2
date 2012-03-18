@@ -216,6 +216,33 @@ void While::print(int nesting) {
   block->print(nesting+1);
 }
 
+/*** ForEach **/
+void ForEach::print(int nesting) {
+  std::string padding(nesting*2, ' ');
+  std::cout << padding << "For:" << std::endl;
+  if (label != NULL) {
+    std::cout << padding << " Etiqueta:" << *label << std::endl;
+  }
+  std::cout << padding << " Arreglo: " << std::endl;
+  this->array->print(nesting+1);
+  std::cout << padding << " Cuerpo:" << std::endl;
+  block->print(nesting+1);
+}
+
+void ForEach::check() {
+  array->check();
+  ArrayType* t = dynamic_cast<ArrayType*>(array->getType());
+  if (!t) {
+    program.error("expresión no es de tipo 'array', se encontró '"+
+		  array->getType()->toString()+"'", array->getFirstLine(),
+		  array->getFirstCol());
+    loopvar->setType(&(ErrorType::getInstance()));
+  } else {
+    loopvar->setType(t->getBaseType());
+  }
+  block->check();
+}
+
 /********* ASIGNMENT ***********/
 
 Asignment::Asignment(std::list<Expression*> lvalues, std::list<Expression*> exps) {
