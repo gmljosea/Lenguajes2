@@ -348,18 +348,24 @@ void VariableDec::check(){
   BoxType* boxt = dynamic_cast<BoxType*>(this->type);
   ArrayType* arrt = dynamic_cast<ArrayType*>(this->type);
 
+  // Indica si el tipo es un box incompleto, en tal caso hay que
+  // hacer que todas las variables sean ErrorType
+  bool error = false;
   // Si es box y está incompleto, error
   if (boxt and boxt->isIncomplete()) {
     program.error("tipo '"+boxt->toString()+"' desconocido",
 		  this->first_line, this->first_column);
-    return;
+    error = true;
   }
 
   // CUIDADO !! en la lista pueden existir NULLs
   for(std::list<std::pair<SymVar*,Expression*>>::iterator it = this->decls.begin();
       it!= this->decls.end(); it++){
-    // Si es una variable tipo string, chequear si se inicializo
-    // !!! Super hack horrible
+
+    if (error) {
+      it->first->setType(&(ErrorType::getInstance()));
+      continue;
+    }
 
     // Si es string y no se inicializó, dar error
     if (strt and !it->second) {
