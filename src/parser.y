@@ -703,7 +703,13 @@ type:
 | "void"   { $$ = &(VoidType::getInstance()); }
 | type "array" "[" TK_CONSTINT "]"
 {
-  $$= new ArrayType($1,$4,@1.first_line,@1.first_column);
+  $$ = new ArrayType($1,$4,@1.first_line,@1.first_column);
+  $$->check();
+}
+| type "array" "[" "]"
+{
+  $$ = new ArrayType($1,0,@1.first_line,@1.first_column);
+  $$->check();
 }
 | TK_ID
 {

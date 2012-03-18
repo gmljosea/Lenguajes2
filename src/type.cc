@@ -169,9 +169,10 @@ int ArrayType::getLength() {
 
 void ArrayType::check(){
   ArrayType *cast_tarr= dynamic_cast<ArrayType*>(basetype);
-  if(cast_tarr)
+  StringType *cast_str = dynamic_cast<StringType*>(basetype);
+  if (cast_tarr or cast_str)
     program.error("tipo base del arreglo es '"+basetype->toString()
-                  + "' pero se esperaba un tipo basico",line,col);
+                  + "' pero se esperaba un tipo basico o box",line,col);
 
 }
 

@@ -152,6 +152,21 @@ void SymVar::setContext(int num) {
   this->context = num;
 }
 
+void SymVar::setType(Type* type) {
+  this->type = type;
+  ArrayType* arrt = dynamic_cast<ArrayType*>(type);
+  if (arrt && isParameter && arrt->getLength() > 0) {
+    program.error("No se puede especificar un tamaño de arreglo en "
+		  "la declaración de una función", this->line, this->col);
+    return;
+  }
+  if (arrt && !isParameter && arrt->getLength() == 0) {
+    program.error("debe especificar un tamaño válido para el arreglo",
+		  this->line, this->col);
+    return;
+  }
+}
+
 /************************************/
 /*** Metodos de la clase SymTable ***/
 /************************************/

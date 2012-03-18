@@ -50,6 +50,7 @@ public:
   bool isReadonly();
   bool isReference();
   void setContext(int num);
+  void setType(Type* type);
   void print();
 };
 
