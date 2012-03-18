@@ -17,12 +17,13 @@ void Program::check(){
 	 funIt != this->functions.end(); funIt++){
       (*funIt)->check();
     }
-    /*
-      for (std::list<BoxType*>::iterator BoxIt= this->boxes.begin();
-	 BoxIt != this->boxes.end(); BoxIt++){
-      ((*BoxIt)->check();
+    
+    for (std::list<BoxType*>::iterator BoxIt= this->boxes.begin();
+         BoxIt != this->boxes.end(); BoxIt++){
+      (*BoxIt)->check();  
     }
-
-      
-     */
 }
+
+void Program::calcOffsets(){}
+
+       

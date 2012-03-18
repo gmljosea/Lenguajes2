@@ -31,6 +31,10 @@ struct Program {
    * Hace los chequeos en el albol sintactico (globalinits,functions) 
    */
   void check();
+  /**
+   * Calcula los offsets de los box declarados
+   */
+  void calcOffsets();
 };
 
 #endif

@@ -201,7 +201,7 @@ BoxField* BoxType::getField(std::string field) {
 }
 
 bool BoxType::isIncomplete() {
-  return this->isIncomplete();
+  return this->incomplete;
 }
 
 void BoxType::setIncomplete(bool ic) {
