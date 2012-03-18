@@ -32,6 +32,14 @@ void Type::check(){
   return;
 }
 
+int Type::getReferenceSize() {
+  return 4;
+}
+
+bool Type::alwaysByReference() {
+  return false;
+}
+
 // IntType
 IntType& IntType::getInstance() {
   static IntType instance;
@@ -101,6 +109,10 @@ std::string StringType::toString() {
   return std::string("string");
 }
 
+bool StringType::alwaysByReference() {
+  return true;
+}
+
 // ErrorType
 ErrorType& ErrorType::getInstance() {
   static ErrorType instance;
@@ -115,8 +127,8 @@ std::string ErrorType::toString() {
 bool ArrayType::operator==(Type& t) {
   ArrayType* ta;
   if (ta = dynamic_cast<ArrayType*>(&t)) {
-    return this->basetype == ta->getBaseType()
-      && this->length == ta->getLength();
+    return this->basetype == ta->getBaseType();
+      //      && this->length == ta->getLength();
   } else {
     return false;
   }
@@ -125,6 +137,10 @@ bool ArrayType::operator==(Type& t) {
 std::string ArrayType::toString() {
   return std::string(this->basetype->toString()+" array["
 		     +std::to_string(length)+"]");
+}
+
+bool ArrayType::alwaysByReference() {
+  return true;
 }
 
 /**
@@ -153,15 +169,21 @@ int ArrayType::getLength() {
 
 void ArrayType::check(){
   ArrayType *cast_tarr= dynamic_cast<ArrayType*>(basetype);
-  if(cast_tarr)
+  StringType *cast_str = dynamic_cast<StringType*>(basetype);
+  if (cast_tarr or cast_str)
     program.error("tipo base del arreglo es '"+basetype->toString()
-                  + "' pero se esperaba un tipo basico",line,col);
+                  + "' pero se esperaba un tipo basico o box",line,col);
 
 }
 
 int ArrayType::getOffset(int pos) {
   return this->basetype->getSize()*pos;
 }
+
+int ArrayType::getReferenceSize() {
+  return 8;
+}
+
 
 // BoxType
 void BoxType::addFixedField(Type* type, std::string name) {
@@ -386,4 +408,8 @@ std::list<BoxField*> BoxType::getVFields(){
 
 std::string BoxType::toString() {
   return std::string("box "+this->name);
+}
+
+bool BoxType::alwaysByReference() {
+  return true;
 }

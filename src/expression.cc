@@ -127,6 +127,12 @@ StringExp::StringExp(std::string str) {
   this->type = new StringType(str.length());
 }
 
+int StringExp::getLength() {
+  // Retorna el tamaño en bytes del string (todos son es ASCII)
+  // Le sumo 1 para agregar el caracter NULL del final
+  return this->str.length()+1;
+}
+
 void StringExp::print(int nesting) {
   std::string padding(nesting*2, ' ');
   std::cout << padding << "\"" << this->str << "\"" << std::endl;
@@ -667,7 +673,8 @@ void Index::check() {
   if (cast_tarr and *tind == IntType::getInstance()) {
     this->type = cast_tarr->getBaseType();
     // Si el índice es constante, de una vez ver si es válido
-    if (this->index->isConstant()) {
+    if (this->index->isConstant() and
+	cast_tarr->getLength()>0) {
       int value = this->index->getInteger();
       if (value >= cast_tarr->getLength()) {
 	program.error("El índice excede el tamaño del arreglo",

@@ -89,6 +89,7 @@ private:
   std::string str;
 public:
   StringExp(std::string str);
+  virtual int getLength();
   virtual void print(int nesting);
 };
 

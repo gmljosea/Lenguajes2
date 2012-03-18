@@ -52,9 +52,10 @@ int Symbol::getColumn() {
 /* Metodos de la clase SymFunction*/
 /**********************************/
 
-SymFunction::SymFunction(std::string id,int line, int col,
-                         listSymPairs *arguments) : Symbol(id,line,col){
-  this->arguments = arguments;
+SymFunction::SymFunction(std::string id, ArgList* arguments, Type* ret,
+			 int line, int col) : Symbol(id,line,col) {
+  this->args = arguments;
+  this->setType(ret); //tipo del retorno de la función
 }
 
 void SymFunction::setBlock(Block* block) {
@@ -66,7 +67,7 @@ Block* SymFunction::getBlock(){
 }
 
 int SymFunction::getArgumentCount(){
-  return this->arguments->size();
+  return this->args->size();
 }
 
 void SymFunction::print() {
@@ -74,23 +75,37 @@ void SymFunction::print() {
   std::cout << "  Tipo: ";
   type->print();
   std::cout << std::endl;
-  if (arguments->empty()) {
+  if (args->empty()) {
     std::cout << "  Sin argumentos" << std::endl;
   } else {
     std::cout << "  Argumentos:" << std::endl;
-    for (listSymPairs::iterator it = arguments->begin();
-	 it != arguments->end(); it++) {
-      
+    for (ArgList::iterator it = args->begin();
+	 it != args->end(); it++) {
       std::cout << "    Argumento: ";
-      it->second->print();
+      (*it)->print();
     }
   }
   // Imprimir bloque con nivel de anidamiento 1
   block->print(1);
 }
 
+ArgList* SymFunction::getArguments() {
+  return this->args;
+}
+
 void SymFunction::check() {
+  // Chequear que no se haya usado un tipo ilegal
+  BoxType* bt = dynamic_cast<BoxType*>(this->getType());
+  ArrayType* arrt = dynamic_cast<ArrayType*>(this->getType());
+  StringType* strt = dynamic_cast<StringType*>(this->getType());
+  if (bt or arrt or strt) {
+    program.error("las funciones solo pueden devolver tipos básicos o void",
+		  this->line, this->col);
+    this->type = &(ErrorType::getInstance());
+  }
+
   this->block->check();
+
   if (*(this->type) != VoidType::getInstance()
       && !this->block->hasReturn()) {
     program.error("la función no tiene return", this->line, this->col);
@@ -109,15 +124,47 @@ SymVar::SymVar(std::string id,int line,int col,
 }
 
 void SymVar::print(){
-  std::cout << id << " (" << line << ":" << col << ")"<< std::endl;
+  std::cout << id << " (" << line << ":" << col << ") Bloque: "
+	    << this->context << std::endl;
 }
 
 void SymVar::setReadonly(bool readonly){
-  this->readonly= readonly;
+  // Pasar por readonly implica pasarlo por referencia
+  this->readonly = readonly;
+  this->reference = readonly;
+}
+
+void SymVar::setReference(bool ref) {
+  // Pasar por referencia implica que NO se pasa readonly
+  this->reference = ref;
+  this->readonly = false;
 }
 
 bool SymVar::isReadonly(){
   return this->readonly;
+}
+
+bool SymVar::isReference() {
+  return this->reference;
+}
+
+void SymVar::setContext(int num) {
+  this->context = num;
+}
+
+void SymVar::setType(Type* type) {
+  this->type = type;
+  ArrayType* arrt = dynamic_cast<ArrayType*>(type);
+  if (arrt && isParameter && arrt->getLength() > 0) {
+    program.error("No se puede especificar un tamaño de arreglo en "
+		  "la declaración de una función", this->line, this->col);
+    return;
+  }
+  if (arrt && !isParameter && arrt->getLength() == 0) {
+    program.error("debe especificar un tamaño válido para el arreglo",
+		  this->line, this->col);
+    return;
+  }
 }
 
 /************************************/
@@ -136,6 +183,7 @@ int SymTable::current_scope(){
 
 void SymTable::insert(SymVar *sym){
   //std::cout << "insertando var "<<sym->getId()<<std::endl;
+  sym->setContext(this->current_scope());
   this->varTable.insert(varSymtable::value_type(sym->getId(),sym));
 
 }

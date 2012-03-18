@@ -368,6 +368,15 @@ void VariableDec::check(){
       continue;
     }
 
+    // Si es una declaración de strings, hay que asignar a su StringType el
+    // tamaño que ocupa. Si la expresión no es un String, el chequeo más
+    // adelante lo capturará
+    if (strt and it->second and *strt == *(it->second->getType())) {
+      StringExp* strexp = dynamic_cast<StringExp*>(it->second);
+      StringType* newtype = new StringType(strexp->getLength());
+      it->first->setType(newtype);
+    }
+
     // Si es box o array y se inicializó, con lo que sea, error
     if ((boxt or arrt) and it->second) {
       program.error("no se puede asignar a variables de tipo '"+
@@ -465,6 +474,7 @@ Return::Return(SymFunction* symf, Expression *exp) {
 
 void Return::check(){
   Type* tfun = this->symf->getType();
+  if (*tfun == ErrorType::getInstance()) return;
   if(this->exp != NULL){
     Type* texp = this->exp->getType();
     if(*texp != *tfun) {

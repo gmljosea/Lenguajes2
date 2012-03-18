@@ -18,6 +18,9 @@ public:
   virtual bool operator!=(Type& b);
   virtual void print();
   virtual std::string toString();
+  virtual int getReferenceSize();
+  // Dice si el tipo se pasa siempre por referencia
+  virtual bool alwaysByReference();
 };
 
 // Tipos básicos escalares
@@ -73,6 +76,7 @@ public:
   virtual bool operator==(Type& t);
   void setLength(int length);
   virtual std::string toString();
+  virtual bool alwaysByReference();
 };
 
 class ErrorType : public Type {
@@ -103,6 +107,8 @@ public:
   Type* getBaseType();
   int getLength();
   int getOffset(int pos); //offset de la posición pos
+  virtual int getReferenceSize();
+  virtual bool alwaysByReference();
 };
 
 struct BoxField {
@@ -150,6 +156,7 @@ public:
   int getLine();
   int getColumn();
   virtual std::string toString();
+  virtual bool alwaysByReference();
 };
 
 #endif
