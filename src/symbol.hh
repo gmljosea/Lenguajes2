@@ -40,11 +40,16 @@ public:
 class SymVar: public Symbol{
 private:
   bool isParameter;
-  bool readonly;
+  bool readonly; // Se pasó como solo lectura
+  bool reference; // Se pasó por referencia
+  int context;
 public:
-  SymVar (std::string id, int line,int col,bool isParam, int scope);
+  SymVar (std::string id, int line,int col, bool isParam, int scope);
   void setReadonly(bool readonly);
+  void setReference(bool ref);
   bool isReadonly();
+  bool isReference();
+  void setContext(int num);
   void print();
 };
 
@@ -55,22 +60,23 @@ enum PassType {
  reference
 };
 
-typedef std::list<std::pair<PassType, SymVar*>> listSymPairs;
+typedef std::list<SymVar*> ArgList;
 
 /**
  * Clase SymFunction hereda de Symbol. Representa una funcion declarada.
  */
-class SymFunction: public Symbol{
+class SymFunction: public Symbol {
 private:
   Block *block;
-  listSymPairs *arguments; // Lista de pares (tipo,identificador)
+  ArgList *args; // Lista de argumentos (SymVar)
 public:
-  SymFunction (std::string id, int linea, int columna,
-               listSymPairs *arguments);
+  SymFunction (std::string id, ArgList* arguments, Type* rtype,
+	       int line, int col);
   void setBlock(Block* block);
   Block* getBlock();
   int getArgumentCount();
   void print();
+  ArgList* getArguments();
   void check();
 };
 

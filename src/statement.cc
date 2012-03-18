@@ -474,6 +474,7 @@ Return::Return(SymFunction* symf, Expression *exp) {
 
 void Return::check(){
   Type* tfun = this->symf->getType();
+  if (*tfun == ErrorType::getInstance()) return;
   if(this->exp != NULL){
     Type* texp = this->exp->getType();
     if(*texp != *tfun) {

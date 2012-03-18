@@ -36,6 +36,10 @@ int Type::getReferenceSize() {
   return 4;
 }
 
+bool Type::alwaysByReference() {
+  return false;
+}
+
 // IntType
 IntType& IntType::getInstance() {
   static IntType instance;
@@ -105,6 +109,10 @@ std::string StringType::toString() {
   return std::string("string");
 }
 
+bool StringType::alwaysByReference() {
+  return true;
+}
+
 // ErrorType
 ErrorType& ErrorType::getInstance() {
   static ErrorType instance;
@@ -129,6 +137,10 @@ bool ArrayType::operator==(Type& t) {
 std::string ArrayType::toString() {
   return std::string(this->basetype->toString()+" array["
 		     +std::to_string(length)+"]");
+}
+
+bool ArrayType::alwaysByReference() {
+  return true;
 }
 
 /**
@@ -346,4 +358,8 @@ std::list<BoxField*> BoxType::getVFields(){
 
 std::string BoxType::toString() {
   return std::string("box "+this->name);
+}
+
+bool BoxType::alwaysByReference() {
+  return true;
 }

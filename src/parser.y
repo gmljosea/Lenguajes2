@@ -147,8 +147,9 @@ bool boxRedeclared(std::string id, YYLTYPE yylloc) {
   std::list<std::pair<SymVar*,Expression*>> *decls;
   std::pair<SymVar*,Expression*> *decl;
   PassType passtype;
-  listSymPairs *argsdec;
+  ArgList *argsdec;
   BoxType *box;
+  SymVar* arg;
 };
 
 // Tokens de palabras reservadas
@@ -234,6 +235,7 @@ bool boxRedeclared(std::string id, YYLTYPE yylloc) {
 %type <passtype> passby
 %type <argsdec> args nonempty_args
 %type <box> box
+%type <arg> argument
 
 %left "or"	
 %left "and"
@@ -274,8 +276,8 @@ global:
          Pero si instanciamos el SymFunction y actualizamos la variable
          currentfun para por lo menos poder chequear los return.
        */
-      SymFunction* sym = new SymFunction(*$2, @2.first_line,
-					 @2.first_column, $5);
+      SymFunction* sym = new SymFunction(*$2, $5, $1, @2.first_line,
+					 @2.first_column);
       // Este código a mitad de la regla permite que los return sepan
       // en qué función se encuentran con ver la variable currentfun
       currentfun = sym;
@@ -412,38 +414,39 @@ type TK_ID ";"
 dummy:
 /*empty*/ // Regla dummy para 'emparejar' la pila   
 
- /* Produce una lista de declaraciones de argumentos (<PassType,SymVar*>)
+ /* Produce una lista de declaraciones de argumentos (SymVar*)
   * de una función, posiblemente vacía. */
 args:
-  /* empty */
-    { $$ = new listSymPairs(); }
+  /* empty */    { $$ = new ArgList(); }
 | nonempty_args
 
  /* Produce una lista de declaraciones de argumentos de una función con al menos
     un argumento. */
 nonempty_args:
+  argument
+    { ArgList* args = new ArgList(); args->push_back($1); $$ = args; }
+| nonempty_args "," argument
+    { $1->push_back($3); $$ = $1; }
+
+argument:
   passby type TK_ID
-    { $$ = new listSymPairs();
-      if (!variableRedeclared(*$3, @3)) {
+    { if (!variableRedeclared(*$3, @3)) {
         SymVar* arg = new SymVar(*$3, @3.first_line, @3.first_column, true,
 				 program.symtable.current_scope());
         arg->setType($2);
-        if ($1 == PassType::readonly) arg->setReadonly(true);
+	switch ($1) {
+	case PassType::readonly:
+	  arg->setReadonly(true);
+	  break;
+	case PassType::reference:
+	  arg->setReference(true);
+	  break;
+	default:
+	  arg->setReference($2->alwaysByReference());
+	}
         program.symtable.insert(arg);
-        $$->push_back(std::pair<PassType,SymVar*>($1,arg));
+        $$ = arg;
       }
-    }
-
-| nonempty_args "," passby type TK_ID
-    { if (!variableRedeclared(*$5, @5)) {
-        SymVar* arg = new SymVar(*$5, @5.first_line, @5.first_column, true,
-				 program.symtable.current_scope());
-        arg->setType($4);
-        if ($3 == PassType::readonly) arg->setReadonly(true);
-        program.symtable.insert(arg);
-        $1->push_back(std::pair<PassType,SymVar*>($3,arg));
-      }
-      $$ = $1;
     }
 
 passby:
@@ -813,34 +816,38 @@ int main (int argc, char **argv) {
   SymVar *argChar= new SymVar("c",0,0,true,0);
 
   /* De verdad hace falta agregarlos a la tabla? 
+     --> Cuando generemos código vemos como manejamos las funciones
+     de cast, porque también sería ineficiente generar una llamada a
+     función para una simple conversión.
   program.symtable.insert(argInt);
   program.symtable.insert(argFloat);
   program.symtable.insert(argChar);
   */
 
-  // Bueno, hacer &() a los getInstance se está poniendo fastidioso
   // pero ya me da fastidio cambiar las firmas de los getInstance - JA
   argInt->setType(&(IntType::getInstance()));
+  argInt->setReference(false);
   argFloat->setType(&(FloatType::getInstance()));
+  argFloat->setReference(false);
   argChar->setType(&(CharType::getInstance()));
+  argChar->setReference(false);
 
-  listSymPairs *listargInt= new listSymPairs();
-  listSymPairs *listargFloat= new listSymPairs();
-  listSymPairs *listargChar= new listSymPairs();
+  ArgList *listargInt = new ArgList();
+  ArgList *listargFloat = new ArgList();
+  ArgList *listargChar = new ArgList();
 
-  listargInt->push_back(std::pair<PassType,SymVar*>(PassType::normal,argInt));
-  listargFloat->push_back(std::pair<PassType,SymVar*>(PassType::normal,argFloat));
-  listargChar->push_back(std::pair<PassType,SymVar*>(PassType::normal,argChar));
+  listargInt->push_back(argInt);
+  listargFloat->push_back(argFloat);
+  listargChar->push_back(argChar);
 
-  SymFunction *inttofloat= new SymFunction("inttofloat",0,0,listargInt);
-  SymFunction *floattoint= new SymFunction("floattoint",0,0,listargFloat);
-  SymFunction *chartoint= new SymFunction("chartofloat",0,0,listargChar);
-  SymFunction *inttochar= new SymFunction("floattochar",0,0,listargInt);
-
-  inttofloat->setType(&(FloatType::getInstance()));
-  floattoint->setType(&(IntType::getInstance()));
-  chartoint->setType(&(IntType::getInstance()));
-  inttochar->setType(&(CharType::getInstance()));
+  SymFunction *inttofloat
+    = new SymFunction("inttofloat",listargInt, &(FloatType::getInstance()),0,0);
+  SymFunction *floattoint
+    = new SymFunction("floattoint",listargFloat, &(IntType::getInstance()),0,0);
+  SymFunction *chartoint
+    = new SymFunction("chartoint",listargChar, &(IntType::getInstance()), 0,0);
+  SymFunction *inttochar
+    = new SymFunction("inttochar", listargInt, &(CharType::getInstance()),0,0);
 
   program.symtable.insert(inttofloat);
   program.symtable.insert(floattoint);
