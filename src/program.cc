@@ -21,6 +21,7 @@ void Program::check(){
     this->calcOffsets();
   }
 
+  this->offsetVarDec=0;
   // Chequear las variables gobales 
   for(std::list<VariableDec*>::iterator varIt=this->globalinits.begin();  
       varIt != this->globalinits.end(); varIt++){
@@ -30,6 +31,7 @@ void Program::check(){
   // Chequeo de las funciones 
   for (std::list<SymFunction*>::iterator funIt= this->functions.begin();
        funIt != this->functions.end(); funIt++){
+    this->offsetVarDec=0;
     (*funIt)->check();
   }
     

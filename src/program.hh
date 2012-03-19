@@ -20,6 +20,8 @@ struct Program {
   std::list<VariableDec*> globalinits;
   std::list<SymFunction*> functions;
   std::list<BoxType*> boxes;
+  int offsetVarDec;
+  std::deque<int> stackOffsets;
 
   int errorCount; // Número de errores encontrados
   /**

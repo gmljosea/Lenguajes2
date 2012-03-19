@@ -51,7 +51,10 @@ void Block::push_back(Statement *stmt) {
 void Block::check(){
   for(std::list<Statement*>::iterator it = this->stmts.begin();
       it != this->stmts.end(); it++){
+    program.stackOffsets.push_back(program.offsetVarDec);
     (*it)->check();
+    program.offsetVarDec= program.stackOffsets.back();
+    program.stackOffsets.pop_back();
   }
 }
 
@@ -409,6 +412,9 @@ void VariableDec::check(){
 		      it->second->getFirstCol());
       }
     }
+    int tam= it->first->getSize();
+    it->first->setOffset(program.offsetVarDec);
+    program.offsetVarDec+= tam;
   }
 }
 

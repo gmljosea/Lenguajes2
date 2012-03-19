@@ -752,19 +752,49 @@ FunCallExp::FunCallExp(std::string name, std::list<Expression*> args) {
 // Esta vaina hay que hacerla bien
 Type* FunCallExp::getType() {
   if (!this->checkedFunction) {
-    // Buscar en la tabla de símbolos esta función
-    // Si no existe, devuelve VoidType
+    this->checkedFunction=true;
+    SymFunction* symfun = program.symtable.lookup_function(name);
+    this->symf= symfun;
   }
-  // !!! return this->symf->getType();
-  return &(VoidType::getInstance());
+  if(symf==NULL) return &(VoidType::getInstance());
+  return this->symf->getType(); 
 }
 
 void FunCallExp::check() {
-  if (checkedFunction) return;
-  SymFunction* symf = program.symtable.lookup_function(name);
+  if (!checkedFunction){
+    SymFunction* symfun = program.symtable.lookup_function(name);
+    this->symf= symfun;
+    this->checkedFunction=true;
+  }
   if (symf == NULL) {
     program.error("llamada a función no declarada '"+name+"'", 0, 0);
-  } else {
-    checkedFunction = true;
+    return;
+  } 
+  
+  // Chequear que el numero de parametros y arg coincidan
+  if(this->args.size()!= this->symf->getArgumentCount()){
+    program.error("el numero de argumentos de la llamada a la funcion '"+name+"'"
+                  +" es incorrecto", 0, 0);
+    return;
   }
+  // Chequear los tipos de los parametros 
+  bool error=false;
+  std::list<Expression*>::iterator arg= this->args.begin();
+  for(ArgList::iterator param= this->symf->getArguments()->begin();
+      param!=this->symf->getArguments()->end(); param++,arg++){
+    if( (*arg)->getType() != (*param)->getType() ){
+      error=true;
+      continue;
+    }
+    // Chequear que los argumentos readonly sean pasados como tal
+    SymVar *vart= dynamic_cast<SymVar*>(*arg);
+    if(vart and vart->isReadonly() and !(*param)->isReadonly())
+      program.error("en la llamada a la funcion '"+name+"'"
+                    +" el argumento '"+ vart->getId()+"' es de solo lectura", 0, 0);
+
+  }
+  if (error)  program.error("en la llamada a la funcion '"+name+"'"
+                     +" el tipo de los argumentos no coincide", 0, 0);
+  
+ 
 }

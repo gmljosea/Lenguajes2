@@ -110,6 +110,12 @@ void SymFunction::check() {
       && !this->block->hasReturn()) {
     program.error("la función no tiene return", this->line, this->col);
   }
+
+  int offset=0;
+  for(ArgList::iterator it= this->args->begin(); it!=args->end(); it++){
+    offset= offset - (*it)->getSize();
+    (*it)->setOffset(offset);
+  }
 }
 
 /**********************************/
@@ -150,6 +156,20 @@ bool SymVar::isReference() {
 
 void SymVar::setContext(int num) {
   this->context = num;
+}
+
+void SymVar::setOffset(int offset){
+  this->offset= offset;
+}
+
+int SymVar::getSize(){
+  if(isParameter and reference) 
+    return this->type->getReferenceSize();
+  return this->type->getSize();
+}
+
+int SymVar::getOffset(){
+  return this->offset;
 }
 
 void SymVar::setType(Type* type) {

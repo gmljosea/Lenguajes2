@@ -43,6 +43,8 @@ private:
   bool readonly; // Se pasó como solo lectura
   bool reference; // Se pasó por referencia
   int context;
+  int size;
+  int offset;
 public:
   SymVar (std::string id, int line,int col, bool isParam, int scope);
   void setReadonly(bool readonly);
@@ -50,6 +52,9 @@ public:
   bool isReadonly();
   bool isReference();
   void setContext(int num);
+  void setOffset(int offset);
+  int getSize();
+  int getOffset();
   void setType(Type* type);
   void print();
 };
