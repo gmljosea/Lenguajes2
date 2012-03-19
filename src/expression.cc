@@ -756,7 +756,7 @@ Type* FunCallExp::getType() {
     SymFunction* symfun = program.symtable.lookup_function(name);
     this->symf= symfun;
   }
-  if(symf==NULL) return &(VoidType::getInstance());
+  if(symf==NULL) return &(ErrorType::getInstance());
   return this->symf->getType(); 
 }
 

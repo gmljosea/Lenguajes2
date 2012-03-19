@@ -20,7 +20,7 @@ int z;
  }
 }
 
-int calcular( int a, int b){
+void calcular( int a, int b){
   int c=6;
   return c;
 }
@@ -35,7 +35,8 @@ void hello() {
 bool d = false;
 
 int main() {
- int b= calcular(4,5);
+ int b;
+b= calcular2(4,5);
  while true {
 
   }

@@ -400,6 +400,7 @@ void VariableDec::check(){
       it->second->check();
       it->second = it->second->cfold();
       if(*(this->type) != *(it->second->getType())) {
+	if((it->second->getType())== &(ErrorType::getInstance())) continue;
 	std::string strError = "el tipo de la variable '"+((*it).first)->getId()
 	  +"' no concuerda con el de la expresion asignada, se esperaba '"+
 	  this->type->toString()+"' y se encontró '"+
