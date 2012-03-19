@@ -1,5 +1,6 @@
 %defines
 %output "parser.cc"
+%error-verbose
 
 %locations
 
@@ -30,10 +31,10 @@ SymFunction* currentfun; // Función parseada actual
 std::list<Iteration*> loopstack;
 
 /* Como todos los box se pueden ver entre si, puede que dentro de un box
-   se declare una variable de un tipo box cuya declaracion aun no se ha 
-   encontrado, en este caso lo guardamos mientras en el hash de unknown 
+   se declare una variable de un tipo box cuya declaracion aun no se ha
+   encontrado, en este caso lo guardamos mientras en el hash de unknown
    con la condicion de que cuando se encuentre su definicion sea movido a
-   la tabla de simbolos*/ 
+   la tabla de simbolos*/
  boxHash unknownBox;
  funcSymtable unknownFunc;
 
@@ -43,7 +44,7 @@ std::list<Iteration*> loopstack;
  */
 void setLocation(Statement* stmt, YYLTYPE* yylloc) {
   stmt->setLocation(yylloc->first_line, yylloc->first_column, yylloc->last_line,
-		    yylloc->last_column);
+                    yylloc->last_column);
 }
 
 Iteration* findLabel(std::string label) {
@@ -62,9 +63,9 @@ void pushLoop(Iteration* loop, YYLTYPE* yylloc) {
     Iteration* it = findLabel(*(loop->getLabel()));
     if (it) {
       program.error("etiqueta '"+*label+"' ya fue utilizada en "
-		    +std::to_string(it->getFirstLine())+":"
-		    +std::to_string(it->getFirstCol()),
-		    yylloc->first_line, yylloc->first_column);
+                    +std::to_string(it->getFirstLine())+":"
+                    +std::to_string(it->getFirstCol()),
+                    yylloc->first_line, yylloc->first_column);
     }
   }
   loopstack.push_front(loop);
@@ -213,16 +214,19 @@ bool boxRedeclared(std::string id, YYLTYPE yylloc) {
 %token TK_COLON       ":"
 
 // Token identificador (de variable, función o box)
-%token <str> TK_ID
+%token <str> TK_ID    "identificador"
 
 // Token de un string cualquiera encerrado entre comillas
  // No confundirse con TK_STRING que se refiere a la palabra reservada 'string'
-%token <str> TK_CONSTSTRING
-%token <str> TK_CONSTCHAR
+%token <str> TK_CONSTSTRING "cadena de caracteres"
+%token <str> TK_CONSTCHAR   "caracter"
 
 // Tokens de constantes numéricas
-%token <ival> TK_CONSTINT
-%token <fval> TK_CONSTFLOAT
+%token <ival> TK_CONSTINT   "número entero"
+%token <fval> TK_CONSTFLOAT "número decimal"
+
+// Segun el manual este token es para errores mas bonitos
+%token END 0 "fin de archivo"
 
 %type <stmt> statement if while for variabledec asignment foreach
 %type <blk> stmts block else
@@ -237,10 +241,10 @@ bool boxRedeclared(std::string id, YYLTYPE yylloc) {
 %type <box> box
 %type <arg> argument
 
-%left "or"	
+%left "or"
 %left "and"
-%left "+" "-"	
-%left "*" "/" "%"	
+%left "+" "-"
+%left "*" "/" "%"
 %right NEG "not"
 %left "==" "!="
 %left "<" "<=" ">=" ">"
@@ -263,6 +267,7 @@ bool boxRedeclared(std::string id, YYLTYPE yylloc) {
 globals:
   global
 | globals global
+| globals error { yyerrok; }
 
  /* Produce una declaración de función, variable global o box */
 global:
@@ -277,7 +282,7 @@ global:
          currentfun para por lo menos poder chequear los return.
        */
       SymFunction* sym = new SymFunction(*$2, $5, $1, @2.first_line,
-					 @2.first_column);
+                                         @2.first_column);
       // Este código a mitad de la regla permite que los return sepan
       // en qué función se encuentran con ver la variable currentfun
       currentfun = sym;
@@ -303,14 +308,14 @@ block leavescope
 
 box:
 /*empty*/
-/* Regla dummy para crear el TypeBox en caso de que no exista en 
+/* Regla dummy para crear el TypeBox en caso de que no exista en
    el hash de BoxTypes 'unknownBox'  */
 {
   boxHash::iterator it= unknownBox.find(*($<str>0));
   if(it!= unknownBox.end()){
     it->second->setIncomplete(false);
     $$= it->second;
-  }else{ 
+  }else{
     $$= new BoxType(*($<str>0),false);
   }
 }
@@ -320,7 +325,7 @@ boxdecsa:
 |boxdecs
 
 boxdecs:
-  type TK_ID ";" 
+  type TK_ID ";"
   {
     /* Se agregan los campos del box usando el BoxType almacenado en
      la pila. Se accede a traves de $<box>-1 */
@@ -333,8 +338,8 @@ boxdecs:
       +":"+std::to_string(field->column);
     program.error(err, @2.first_line, @2.first_column);
     }
-      
-  }  
+
+  }
 | boxdecs type TK_ID ";"
 {
  BoxField *field= $<box>-1->getField(*$3);
@@ -346,7 +351,7 @@ boxdecs:
       +":"+std::to_string(field->column);
     program.error(err, @3.first_line, @3.first_column);
     }
-} 
+}
 
 
 variantpart:
@@ -355,8 +360,8 @@ variantpart:
 
 variantpart_decs:
   dummy "{" variantdecs "}"
-|  type TK_ID ";" 
-{ 
+|  type TK_ID ";"
+{
   BoxField *field= $<box>-4->getField(*$2);
     if(field==NULL){
       $<box>-4->addVariantField($1,*$2,false);
@@ -365,7 +370,7 @@ variantpart_decs:
         +(*$2)+"' previamente declarada en "+std::to_string(field->line)
       +":"+std::to_string(field->column);
     program.error(err, @2.first_line, @2.first_column);
-    } 
+    }
 }
 |  variantpart_decs "{" variantdecs "}"
 |  variantpart_decs type TK_ID ";"
@@ -379,7 +384,7 @@ variantpart_decs:
       +(*$3)+"' previamente declarada en "+std::to_string(field->line)
       +":"+std::to_string(field->column);
     program.error(err, @3.first_line, @3.first_column);
-  } 
+  }
 }
 
  variantdecs:
@@ -395,7 +400,7 @@ type TK_ID ";"
         +(*$2)+"' previamente declarada en "+std::to_string(field->line)
       +":"+std::to_string(field->column);
     program.error(err, @2.first_line, @2.first_column);
-    } 
+    }
 }
 |variantdecs type TK_ID ";"
 {
@@ -408,11 +413,11 @@ type TK_ID ";"
       +(*$3)+"' previamente declarada en "+std::to_string(field->line)
       +":"+std::to_string(field->column);
     program.error(err, @3.first_line, @3.first_column);
-  } 
+  }
 }
 
 dummy:
-/*empty*/ // Regla dummy para 'emparejar' la pila   
+/*empty*/ // Regla dummy para 'emparejar' la pila
 
  /* Produce una lista de declaraciones de argumentos (SymVar*)
   * de una función, posiblemente vacía. */
@@ -432,18 +437,18 @@ argument:
   passby type TK_ID
     { if (!variableRedeclared(*$3, @3)) {
         SymVar* arg = new SymVar(*$3, @3.first_line, @3.first_column, true,
-				 program.symtable.current_scope());
+                                 program.symtable.current_scope());
         arg->setType($2);
-	switch ($1) {
-	case PassType::readonly:
-	  arg->setReadonly(true);
-	  break;
-	case PassType::reference:
-	  arg->setReference(true);
-	  break;
-	default:
-	  arg->setReference($2->alwaysByReference());
-	}
+        switch ($1) {
+        case PassType::readonly:
+          arg->setReadonly(true);
+          break;
+        case PassType::reference:
+          arg->setReference(true);
+          break;
+        default:
+          arg->setReference($2->alwaysByReference());
+        }
         program.symtable.insert(arg);
         $$ = arg;
       }
@@ -459,8 +464,15 @@ block:
   "{" stmts "}"
     { setLocation($2,&@$); $$ = $2; }
 | "{" "}"
-    { $$ = new Block(program.symtable.current_scope(),
-		     new Null());
+    { $$ = new Block(program.symtable.current_scope(), new Null());
+      setLocation($$, &@$);
+    }
+| "{" error "}"
+    { $$ = new Block(program.symtable.current_scope(), new Null());
+      setLocation($$, &@$);
+    }
+| error "}"
+    { $$ = new Block(program.symtable.current_scope(), new Null());
       setLocation($$, &@$);
     }
 
@@ -487,6 +499,7 @@ stmts:
       $$ = $1;
     }
 
+
  /* Produce una instrucción del lenguaje */
 statement:
   ";"
@@ -496,39 +509,39 @@ statement:
 | "break" brk_nxt_label ";"
     { Iteration* enclosing = topLoopstack();
       if (!enclosing) {
-	program.error("el break no está dentro de una iteración",
-		      @1.first_line, @1.first_column);
-	$$ = new Null();
+        program.error("el break no está dentro de una iteración",
+                      @1.first_line, @1.first_column);
+        $$ = new Null();
       } else if ($2) {
-	Iteration* it = findLabel(*$2);
-	if (!it) {
-	  program.error("no se encuentra la etiqueta '"+*$2+"'",
-			@2.first_line, @2.first_column);
-	  $$ = new Null();
-	} else {
-	  $$ = new Break($2, it);
-	}
+        Iteration* it = findLabel(*$2);
+        if (!it) {
+          program.error("no se encuentra la etiqueta '"+*$2+"'",
+                        @2.first_line, @2.first_column);
+          $$ = new Null();
+        } else {
+          $$ = new Break($2, it);
+        }
       } else {
-	$$ = new Break($2, NULL);
+        $$ = new Break($2, NULL);
       }
     }
 | "next" brk_nxt_label ";"
     { Iteration* enclosing = topLoopstack();
       if (!enclosing) {
-	program.error("el next no está dentro de una iteración",
-		      @1.first_line, @1.first_column);
-	$$ = new Null();
+        program.error("el next no está dentro de una iteración",
+                      @1.first_line, @1.first_column);
+        $$ = new Null();
       } else if ($2) {
-	Iteration* it = findLabel(*$2);
-	if (!it) {
-	  program.error("no se encuentra la etiqueta '"+*$2+"'",
-			@2.first_line, @2.first_column);
-	  $$ = new Null();
-	} else {
-	  $$ = new Next($2, it);
-	}
+        Iteration* it = findLabel(*$2);
+        if (!it) {
+          program.error("no se encuentra la etiqueta '"+*$2+"'",
+                        @2.first_line, @2.first_column);
+          $$ = new Null();
+        } else {
+          $$ = new Next($2, it);
+        }
       } else {
-	$$ = new Next($2, NULL);
+        $$ = new Next($2, NULL);
       }
     }
 | "return" expr ";"
@@ -547,6 +560,7 @@ statement:
 | foreach
 | variabledec
 | asignment
+| error ";"    { $$ = new Null(); yyerrok; }
 
 brk_nxt_label:
   TK_ID
@@ -589,7 +603,7 @@ for:
     { /* Meter variable de iteración en la tabla antes de revisar las
          instrucciones */
       SymVar* loopvar = new SymVar(*$3, @3.first_line, @3.first_column, false,
-				   program.symtable.current_scope());
+                                   program.symtable.current_scope());
       loopvar->setType(&(IntType::getInstance()));
       loopvar->setReadonly(true);
       program.symtable.insert(loopvar);
@@ -613,7 +627,7 @@ foreach:
   label "for" TK_ID "in" expr
     {
       SymVar* loopvar = new SymVar(*$3, @3.first_line, @3.first_column, false,
-				   program.symtable.current_scope());
+                                   program.symtable.current_scope());
       loopvar->setType(&(ErrorType::getInstance()));
       //loopvar->isReference(true);
       program.symtable.insert(loopvar);
@@ -652,7 +666,7 @@ asignment:
 variabledec:
   type vardec_items ";"
     { for (std::list<std::pair<SymVar*,Expression*>>::iterator it = $2->begin();
-	   it != $2->end(); it++) {
+           it != $2->end(); it++) {
         (*it).first->setType($1);
       }
       $$ = new VariableDec($1,*$2);
@@ -675,7 +689,7 @@ vardec_item:
   TK_ID
     { if (!variableRedeclared(*$1, @1)) {
         SymVar* sym = new SymVar(*$1, @1.first_line, @1.first_column,false,
-				 program.symtable.current_scope());
+                                 program.symtable.current_scope());
         program.symtable.insert(sym);
         $$ = new std::pair<SymVar*,Expression*>(sym,NULL);
       } else {
@@ -685,7 +699,7 @@ vardec_item:
  | TK_ID "=" expr
     { if (!variableRedeclared(*$1, @1)) {
         SymVar* sym = new SymVar(*$1, @1.first_line, @1.first_column,false,
-				 program.symtable.current_scope());
+                                 program.symtable.current_scope());
         program.symtable.insert(sym);
         $$ = new std::pair<SymVar*,Expression*>(sym,$3);
       } else {
@@ -721,8 +735,8 @@ type:
       BoxType *newbox= new BoxType(*$1,true);
       unknownBox.insert(boxHash::value_type(*$1,newbox));
       $$= newbox;
-    }    
-  }   
+    }
+  }
 }
 
  // ** Gramática de las expresiones
@@ -735,7 +749,7 @@ expr:
   { SymVar* symv = program.symtable.lookup_variable(*$1);
     if (symv == NULL) {
       program.error("variable '"+*$1+"' no declarada", @1.first_line,
-		    @1.first_column);
+                    @1.first_column);
       $$ = new BadExp();
     } else {
       $$ = new VarExp(symv);
@@ -744,19 +758,19 @@ expr:
 }
 
 | TK_CONSTINT    { $$ = new IntExp($1);
-                   $$->setLocation(@1.first_line, @1.first_column,0,0); }	
-| TK_CONSTFLOAT  { $$ = new FloatExp($1);	
+                   $$->setLocation(@1.first_line, @1.first_column,0,0); }
+| TK_CONSTFLOAT  { $$ = new FloatExp($1);
                    $$->setLocation(@1.first_line, @1.first_column,0,0); }
 | TK_TRUE        { $$ = new BoolExp(true); }
-| TK_FALSE       { $$ = new BoolExp(false); }	
-| TK_CONSTSTRING { $$ = new StringExp(*$1); }	
+| TK_FALSE       { $$ = new BoolExp(false); }
+| TK_CONSTSTRING { $$ = new StringExp(*$1); }
 | TK_CONSTCHAR   { $$ = new CharExp(*$1);
-                   $$->setLocation(@1.first_line, @1.first_column,0,0); }	
-| funcallexp	
-| expr "+" expr  { $$ = new Sum($1,$3);	
+                   $$->setLocation(@1.first_line, @1.first_column,0,0); }
+| funcallexp
+| expr "+" expr  { $$ = new Sum($1,$3);
                    $$->setLocation(@2.first_line, @2.first_column,0,0); }
 | expr "-" expr { $$ = new Substraction($1,$3); }
-| expr "*" expr { $$ = new Multiplication($1,$3); }	
+| expr "*" expr { $$ = new Multiplication($1,$3); }
 | expr "/" expr { $$ = new Division($1,$3); }
 | expr "%" expr { $$ = new Remainder($1,$3); }
 | "-" expr %prec NEG { $$ = new Minus($2); }
@@ -770,8 +784,9 @@ expr:
 | expr "!=" expr { $$ = new NotEqual($1,$3); }
 | expr "<" expr { $$ = new Less($1,$3); }
 | expr "<=" expr { $$ = new LessEq($1,$3); }
-| expr "[" expr "]" { $$ = new Index($1,$3); }	
+| expr "[" expr "]" { $$ = new Index($1,$3); }
 | expr "." TK_ID { $$ = new Dot($1,*$3); }
+| "(" error ")" { $$ = new BadExp(); yyerrok; }
 
  /* Produce una llamada a función */
 funcallexp:
@@ -803,7 +818,6 @@ nonempty_explist:
 
 void yyerror (char const *s) {
   program.error(s, yylloc.first_line, yylloc.first_column);
-  exit(1);
 }
 
 // Por ahora el main está aquí, pero luego hay que moverlo
@@ -815,13 +829,13 @@ int main (int argc, char **argv) {
   program.errorCount = 0;
 
   // Agregar las funciones embebidas del lenguaje
- 
+
   //Argumentos Dummy de cada tipo
   SymVar *argInt= new SymVar("a",0,0,true,0);
   SymVar *argFloat= new SymVar("b",0,0,true,0);
   SymVar *argChar= new SymVar("c",0,0,true,0);
 
-  /* De verdad hace falta agregarlos a la tabla? 
+  /* De verdad hace falta agregarlos a la tabla?
      --> Cuando generemos código vemos como manejamos las funciones
      de cast, porque también sería ineficiente generar una llamada a
      función para una simple conversión.
@@ -882,7 +896,7 @@ int main (int argc, char **argv) {
     }
   }
 
-  // Chequear el AST 
+  // Chequear el AST
   program.check();
 
   // Si hay algun error, no imprimir el árbol.
