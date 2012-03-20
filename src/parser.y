@@ -314,8 +314,8 @@ box:
   }else{
     $$= new BoxType(*($<str>0),false);
   }
-  $$->setLine(@$.first_line);
-  $$->setColumn(0);
+  $$->setLine(@0.first_line);
+  $$->setColumn(@0.first_line);
   if(!boxRedeclared(*($<str>0),@$)){
     program.symtable.insert($$);
   }

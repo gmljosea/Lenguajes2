@@ -1,3 +1,4 @@
+-.. Ejemplo con varios errores, se encuentran identificados con comentarios..-
 
 
 box items{
@@ -23,7 +24,7 @@ box cajaChica{
 }
 
 box items{            -. Error box redeclarado 
-  float gasto= 100;   -. Error! No se puede inicializar
+  float gasto= 100;   -. Error de sintaxis! No se puede inicializar
   string a;           -. Error! el campo no puede ser string
   void b;             -. Error! el campo no puede ser void
   variant:
@@ -36,12 +37,15 @@ int main(){
   float monto=0.0,total=0.0;
 
   for i in 0..11{
+     cajaC.movimientos= 6;       -. Error no asignable
+     cajaC.movimientos[88]= 22.2 -. Error el indice exece el tamaño del arreglo 
      cajaC.movimientos[i].balance= monto;
      monto= monto*5.0 + 60.0;
      total = total + monto; 
      write "El total es:", total, "(hasta el mes ", 
                 cajaC.movimientos[i].mes, ")";  
   }
+
 
   return 1;
 
