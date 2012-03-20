@@ -490,9 +490,12 @@ void Return::check(){
   if (*tfun == ErrorType::getInstance()) return;
   if(this->exp != NULL){
     Type* texp = this->exp->getType();
+    if (*texp == ErrorType::getInstance()) {
+      return;
+    }
     if(*texp != *tfun) {
       program.error("return devuelve '"+texp->toString()+"' pero se esperaba '"+
-		    tfun->toString(), this->first_line,this->first_column);
+		    tfun->toString()+"'", this->first_line,this->first_column);
     }
   } else if (*tfun != VoidType::getInstance()) {
     program.error("return de función 'void' no puede devolver valores",
