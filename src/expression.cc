@@ -765,16 +765,20 @@ void FunCallExp::check() {
     SymFunction* symfun = program.symtable.lookup_function(name);
     this->symf= symfun;
     this->checkedFunction=true;
+  } else {
+    name = this->symf->getId();
   }
+    
   if (symf == NULL) {
-    program.error("llamada a función no declarada '"+name+"'", 0, 0);
+    program.error("llamada a función no declarada '"+name+"'",
+		  this->fline, this->fcol);
     return;
   } 
   
   // Chequear que el numero de parametros y arg coincidan
   if(this->args.size()!= this->symf->getArgumentCount()){
     program.error("el numero de argumentos de la llamada a la funcion '"+name+"'"
-                  +" es incorrecto", 0, 0);
+                  +" es incorrecto", this->fline, this->fcol);
     return;
   }
   // Chequear los tipos de los parametros 
@@ -782,19 +786,30 @@ void FunCallExp::check() {
   std::list<Expression*>::iterator arg= this->args.begin();
   for(ArgList::iterator param= this->symf->getArguments()->begin();
       param!=this->symf->getArguments()->end(); param++,arg++){
+
+    (*arg)->check();
+    (*arg) = (*arg)->cfold();
+
+    if (*(*arg)->getType() == ErrorType::getInstance()) {
+      continue;
+    }
+
     if( (*arg)->getType() != (*param)->getType() ){
-      error=true;
+      program.error("en la llamada a la funcion '"+name+"'"
+		    +" el tipo del argumento '"+(*param)->getId()+
+		    "' es de tipo '"+(*param)->getType()->toString()+
+		    "' pero se encontró '"+(*arg)->getType()->toString()+"'",
+		    (*arg)->getFirstLine(), (*arg)->getFirstCol());
       continue;
     }
     // Chequear que los argumentos readonly sean pasados como tal
     SymVar *vart= dynamic_cast<SymVar*>(*arg);
-    if(vart and vart->isReadonly() and !(*param)->isReadonly())
+    if (vart and vart->isReadonly() and (*param)->isReference())
+      // cambie a isReference porque es aceptable pasar una variable readonly
+      // por valor, sea o no readonly el argumento
       program.error("en la llamada a la funcion '"+name+"'"
-                    +" el argumento '"+ vart->getId()+"' es de solo lectura", 0, 0);
+                    +" el argumento '"+ vart->getId()+"' es de solo lectura",
+		    (*arg)->getFirstLine(), (*arg)->getFirstCol());
 
   }
-  if (error)  program.error("en la llamada a la funcion '"+name+"'"
-                     +" el tipo de los argumentos no coincide", 0, 0);
-  
- 
 }
