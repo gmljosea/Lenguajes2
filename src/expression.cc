@@ -794,7 +794,7 @@ void FunCallExp::check() {
       continue;
     }
 
-    if( (*arg)->getType() != (*param)->getType() ){
+    if( (*(*arg)->getType()) != (*(*param)->getType()) ){
       program.error("en la llamada a la funcion '"+name+"'"
 		    +" el tipo del argumento '"+(*param)->getId()+
 		    "' es de tipo '"+(*param)->getType()->toString()+

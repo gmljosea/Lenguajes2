@@ -1,15 +1,14 @@
-
+-.. Ejemplo de un programa sintactica y semanticamente correcto ..-
 
 box items{
   float gastos;
   float balance;
   int mes;
-    variant:
-  {}
 }
 
 box cajaChica{
   items array[12] movimientos;
+  float array[10] bajas;
   int year;
 
   variant:
@@ -31,9 +30,11 @@ int main(){
      monto= monto*5.0 + 60.0;
      total = total + monto; 
      write "El total es:", total, "(hasta el mes ", 
-                cajaC.movimientos[i].mes, ")";  
+                cajaC.movimientos[i].mes, ")"; 
+     if(monto<0.0){ write "Saldo Negativo!!";};
   }
 
+  float minMes= minArray(cajaC.bajas,12);
   return 1;
 
 }
@@ -44,7 +45,7 @@ float minArray($float array[] arreglo, int long){
 
 float min= arreglo[0];
 
-  for v in 0..long {
+  for v in 0..long-1 {
     if(arreglo[v]<= min){
        min= arreglo[v];}
   } 

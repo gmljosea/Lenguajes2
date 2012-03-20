@@ -127,7 +127,7 @@ std::string ErrorType::toString() {
 bool ArrayType::operator==(Type& t) {
   ArrayType* ta;
   if (ta = dynamic_cast<ArrayType*>(&t)) {
-    return this->basetype == ta->getBaseType();
+    return *(this->basetype) == *(ta->getBaseType());
       //      && this->length == ta->getLength();
   } else {
     return false;
@@ -135,8 +135,7 @@ bool ArrayType::operator==(Type& t) {
 }
 
 std::string ArrayType::toString() {
-  return std::string(this->basetype->toString()+" array["
-		     +std::to_string(length)+"]");
+  return std::string(this->basetype->toString()+" array[]");
 }
 
 bool ArrayType::alwaysByReference() {
