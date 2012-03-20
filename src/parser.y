@@ -786,7 +786,7 @@ expr:
 | expr "<=" expr { $$ = new LessEq($1,$3); }
 | expr "[" expr "]" { $$ = new Index($1,$3); }
 | expr "." TK_ID { $$ = new Dot($1,*$3); }
-| "(" error ")" { $$ = new BadExp(); yyerrok; }
+| error { $$ = new BadExp(); yyerrok; }
 
  /* Produce una llamada a función */
 funcallexp:
