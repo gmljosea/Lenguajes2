@@ -786,6 +786,14 @@ void FunCallExp::check() {
   std::list<Expression*>::iterator arg= this->args.begin();
   for(ArgList::iterator param= this->symf->getArguments()->begin();
       param!=this->symf->getArguments()->end(); param++,arg++){
+
+    (*arg)->check();
+    (*arg) = (*arg)->cfold();
+
+    if (*(*arg)->getType() == ErrorType::getInstance()) {
+      continue;
+    }
+
     if( (*arg)->getType() != (*param)->getType() ){
       program.error("en la llamada a la funcion '"+name+"'"
 		    +" el tipo del argumento '"+(*param)->getId()+
@@ -796,7 +804,9 @@ void FunCallExp::check() {
     }
     // Chequear que los argumentos readonly sean pasados como tal
     SymVar *vart= dynamic_cast<SymVar*>(*arg);
-    if(vart and vart->isReadonly() and !(*param)->isReadonly())
+    if (vart and vart->isReadonly() and (*param)->isReference())
+      // cambie a isReference porque es aceptable pasar una variable readonly
+      // por valor, sea o no readonly el argumento
       program.error("en la llamada a la funcion '"+name+"'"
                     +" el argumento '"+ vart->getId()+"' es de solo lectura",
 		    (*arg)->getFirstLine(), (*arg)->getFirstCol());
