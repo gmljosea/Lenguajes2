@@ -19,13 +19,19 @@ Para ejecutar, hacer:
 En el directorio **examples** hay varios ejemplos, algunos erróneos a propósito
 para probar el compilador.
 
-La documentación del proyecto, generada con doxygen, se encuentra en la pagina:
+La documentación del proyecto se puede generar con el siguiente comando:
 
-[http://ldc.usb.ve/~08-10323]
+    doxygen Doxifile
 
-La documentación incluye la [representación gráfica](http://ldc.usb.ve/~08-10323/inherits.html)
-de la herencia de las clases utilizadas en el proyecto.
- 
+Se creará un directorio que contiene la version html de la documentación ubicado en doc/html. 
+La página principal es index.html. 
+
+En la documentación se incluye la representación gráfica 
+de la jerarquía de clases utilizadas para la elaboración del compilador de Devanix. Esta 
+puede facilitar la comprension de la estructura que lleva el proyecto.  
+
+## Entrega 2
+
 
 ### Entrega 1
 
