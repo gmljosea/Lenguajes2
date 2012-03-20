@@ -186,10 +186,12 @@ int ArrayType::getReferenceSize() {
 
 
 // BoxType
-void BoxType::addFixedField(Type* type, std::string name) {
+void BoxType::addFixedField(Type* type, std::string name,int l,int col) {
   BoxField* field = new BoxField();
   field->type = type;
   field->name = name;
+  field->line=l;
+  field->column=col;
   field->offset = 0;
   field->grouped = false;
   field->groupnum = 0;
@@ -197,10 +199,13 @@ void BoxType::addFixedField(Type* type, std::string name) {
   this->fields_hash[name] = field;
 }
 
-void BoxType::addVariantField(Type* type, std::string name, bool grouped) {
+void BoxType::addVariantField(Type* type, std::string name, bool grouped,
+			      int l,int col) {
   BoxField* field = new BoxField();
   field->type = type;
   field->name = name;
+  field->line=l;
+  field->column=col;
   field->offset = 0;
   field->grouped = grouped;
   field->groupnum = this->groupcount;

@@ -1,0 +1,69 @@
+
+
+box items{
+  float gastos;
+  float balance;
+  int mes;
+  float balance;  -. Error! variable redeclarada!
+   variant:
+  {}              -. Error! campo variant vacio (unexpected "}")
+}
+
+box cajaChica{
+  items array[12] movimientos;
+  int year;
+
+  variant:
+  int encargado;
+  {
+    int noComision;
+    char tipo;
+  } 
+  int array[3] encargados;
+}
+
+box items{            -. Error box redeclarado 
+  float gasto= 100;   -. Error! No se puede inicializar
+  string a;           -. Error! el campo no puede ser string
+  void b;             -. Error! el campo no puede ser void
+  variant:
+   {}
+}
+
+int main(){
+
+  cajaChica cajaC;
+  float monto=0.0,total=0.0;
+
+  for i in 0..11{
+     cajaC.movimientos[i].balance= monto;
+     monto= monto*5.0 + 60.0;
+     total = total + monto; 
+     write "El total es:", total, "(hasta el mes ", 
+                cajaC.movimientos[i].mes, ")";  
+  }
+
+  return 1;
+
+}
+
+
+-. Funcion para obtener el minimo de un arreglo
+float minArray($float array[] arreglo, int long){
+
+float min= arreglo[0];
+
+  for v in 0..long {
+    if(arreglo[v]<= min){
+       min= arreglo[v];}
+  } 
+
+  -. Segunda opcion 
+
+  for valor in arreglo{
+    if(valor< min){
+       min= valor;
+    }
+  }
+  return min;
+}

@@ -299,11 +299,6 @@ block leavescope
     }
 | "box" TK_ID box "{" boxdecsa variantpart "}"
 {
-  if(!boxRedeclared(*$2,@2)){
-    $3->setLine(@1.first_line);
-    $3->setColumn(@1.first_column);
-    program.symtable.insert($3);
-  }
   program.boxes.push_back($3);
 }
 
@@ -319,6 +314,11 @@ box:
   }else{
     $$= new BoxType(*($<str>0),false);
   }
+  $$->setLine(@$.first_line);
+  $$->setColumn(0);
+  if(!boxRedeclared(*($<str>0),@$)){
+    program.symtable.insert($$);
+  }
 }
 
 boxdecsa:
@@ -332,7 +332,7 @@ boxdecs:
      la pila. Se accede a traves de $<box>-1 */
     BoxField *field= $<box>-1->getField(*$2);
     if(field==NULL){
-      $<box>-1->addFixedField($1,*$2);
+      $<box>-1->addFixedField($1,*$2,@2.first_line,@2.first_column);
     }else{
       std::string err = "redeclaración de variable '"
         +(*$2)+"' previamente declarada en "+std::to_string(field->line)
@@ -345,7 +345,7 @@ boxdecs:
 {
  BoxField *field= $<box>-1->getField(*$3);
     if(field==NULL){
-      $<box>-1->addFixedField($2,*$3);
+      $<box>-1->addFixedField($2,*$3,@3.first_line,@3.first_column);
     }else{
       std::string err = "redeclaración de variable '"
         +(*$3)+"' previamente declarada en "+std::to_string(field->line)
@@ -353,6 +353,7 @@ boxdecs:
     program.error(err, @3.first_line, @3.first_column);
     }
 }
+| error ";"
 
 
 variantpart:
@@ -365,7 +366,7 @@ variantpart_decs:
 {
   BoxField *field= $<box>-4->getField(*$2);
     if(field==NULL){
-      $<box>-4->addVariantField($1,*$2,false);
+      $<box>-4->addVariantField($1,*$2,false,@2.first_line,@2.first_column);
     }else{
       std::string err = "redeclaración de variable '"
         +(*$2)+"' previamente declarada en "+std::to_string(field->line)
@@ -379,7 +380,7 @@ variantpart_decs:
   BoxField *field= $<box>-4->getField(*$3);
   if(field==NULL){
     $<box>-4->startGrouping();
-    $<box>-4->addVariantField($2,*$3,true);
+    $<box>-4->addVariantField($2,*$3,true,@2.first_line,@2.first_column);
   }else{
     std::string err = "redeclaración de variable '"
       +(*$3)+"' previamente declarada en "+std::to_string(field->line)
@@ -395,7 +396,7 @@ type TK_ID ";"
   BoxField *field= $<box>-6->getField(*$2);
     if(field==NULL){
       $<box>-6->startGrouping();
-      $<box>-6->addVariantField($1,*$2,true);
+      $<box>-6->addVariantField($1,*$2,true,@2.first_line,@2.first_column);
     }else{
       std::string err = "redeclaración de variable '"
         +(*$2)+"' previamente declarada en "+std::to_string(field->line)
@@ -408,7 +409,7 @@ type TK_ID ";"
   BoxField *field= $<box>-6->getField(*$3);
   if(field==NULL){
     $<box>-6->startGrouping();
-    $<box>-6->addVariantField($2,*$3,true);
+    $<box>-6->addVariantField($2,*$3,true,@2.first_line,@2.first_column);
   }else{
     std::string err = "redeclaración de variable '"
       +(*$3)+"' previamente declarada en "+std::to_string(field->line)
@@ -416,6 +417,7 @@ type TK_ID ";"
     program.error(err, @3.first_line, @3.first_column);
   }
 }
+| error 
 
 dummy:
 /*empty*/ // Regla dummy para 'emparejar' la pila
