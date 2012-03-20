@@ -762,34 +762,56 @@ expr:
                    $$->setLocation(@1.first_line, @1.first_column,0,0); }
 | TK_CONSTFLOAT  { $$ = new FloatExp($1);
                    $$->setLocation(@1.first_line, @1.first_column,0,0); }
-| TK_TRUE        { $$ = new BoolExp(true); }
-| TK_FALSE       { $$ = new BoolExp(false); }
-| TK_CONSTSTRING { $$ = new StringExp(*$1); }
+| TK_TRUE        { $$ = new BoolExp(true);
+                   $$->setLocation(@1.first_line, @1.first_column,0,0);}
+| TK_FALSE       { $$ = new BoolExp(false);
+                   $$->setLocation(@1.first_line, @1.first_column,0,0);}
+| TK_CONSTSTRING { $$ = new StringExp(*$1);
+                   $$->setLocation(@1.first_line, @1.first_column,0,0);}
 | TK_CONSTCHAR   { $$ = new CharExp(*$1);
                    $$->setLocation(@1.first_line, @1.first_column,0,0); }
-| funcallexp
+
+| funcallexp     { $$->setLocation(@1.first_line, @1.first_column,0,0); }
+
 | expr "+" expr  { $$ = new Sum($1,$3);
                    $$->setLocation(@2.first_line, @2.first_column,0,0); }
-| expr "-" expr { $$ = new Substraction($1,$3); }
-| expr "*" expr { $$ = new Multiplication($1,$3); }
-| expr "/" expr { $$ = new Division($1,$3); }
-| expr "%" expr { $$ = new Remainder($1,$3); }
-| "-" expr %prec NEG { $$ = new Minus($2); }
-| "(" expr ")" { $$ = $2; }
-| expr "and" expr { $$ = new And($1,$3); }
-| expr "or" expr { $$ = new Or($1,$3); }
-| "not" expr { $$ = new Not($2); }
-| expr ">" expr { $$ = new Greater($1,$3); }
-| expr ">=" expr { $$ = new GreaterEq($1,$3); }
-| expr "==" expr { $$ = new Equal($1,$3); }
-| expr "!=" expr { $$ = new NotEqual($1,$3); }
-| expr "<" expr { $$ = new Less($1,$3); }
-| expr "<=" expr { $$ = new LessEq($1,$3); }
-| expr "[" expr "]" { $$ = new Index($1,$3); }
-| expr "." TK_ID { $$ = new Dot($1,*$3); }
-| error { $$ = new BadExp();}
 
-
+| expr "-" expr { $$ = new Substraction($1,$3);
+                  $$->setLocation(@2.first_line, @2.first_column,0,0);}
+| expr "*" expr { $$ = new Multiplication($1,$3);
+                  $$->setLocation(@2.first_line, @2.first_column,0,0);}
+| expr "/" expr { $$ = new Division($1,$3);
+                  $$->setLocation(@2.first_line, @2.first_column,0,0);}
+| expr "%" expr { $$ = new Remainder($1,$3);
+                  $$->setLocation(@2.first_line, @2.first_column,0,0);}
+| "-" expr %prec NEG { $$ = new Minus($2);
+                       $$->setLocation(@1.first_line, @1.first_column,0,0);}
+| "(" expr ")" { $$ = $2;
+                 $$->setLocation(@2.first_line, @2.first_column,0,0);}
+| expr "and" expr { $$ = new And($1,$3);
+                    $$->setLocation(@2.first_line, @2.first_column,0,0);}
+| expr "or" expr { $$ = new Or($1,$3);
+                   $$->setLocation(@2.first_line, @2.first_column,0,0);}
+| "not" expr { $$ = new Not($2);
+               $$->setLocation(@1.first_line, @1.first_column,0,0);}
+| expr ">" expr { $$ = new Greater($1,$3);
+                  $$->setLocation(@2.first_line, @2.first_column,0,0);}
+| expr ">=" expr { $$ = new GreaterEq($1,$3);
+                   $$->setLocation(@2.first_line, @2.first_column,0,0);}
+| expr "==" expr { $$ = new Equal($1,$3);
+                   $$->setLocation(@2.first_line, @2.first_column,0,0);}
+| expr "!=" expr { $$ = new NotEqual($1,$3);
+                   $$->setLocation(@2.first_line, @2.first_column,0,0);}
+| expr "<" expr { $$ = new Less($1,$3);
+                  $$->setLocation(@2.first_line, @2.first_column,0,0);}
+| expr "<=" expr { $$ = new LessEq($1,$3);
+                   $$->setLocation(@2.first_line, @2.first_column,0,0);}
+| expr "[" expr "]" { $$ = new Index($1,$3);
+                      $$->setLocation(@2.first_line, @2.first_column,0,0);}
+| expr "." TK_ID { $$ = new Dot($1,*$3);
+                   $$->setLocation(@2.first_line, @2.first_column,0,0);}
+| error { $$ = new BadExp();
+              $$->setLocation(@1.first_line, @1.first_column,0,0);}
 
  /* Produce una llamada a función */
 funcallexp:
