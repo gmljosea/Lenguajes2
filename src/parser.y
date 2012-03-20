@@ -266,9 +266,9 @@ bool boxRedeclared(std::string id, YYLTYPE yylloc) {
     secuencia de declaraciones de funciones, variables globales y boxes. */
 globals:
   global
-| error { yyerrok; }
+| error
 | globals global
-| globals error { yyerrok; }
+| globals error
 
  /* Produce una declaración de función, variable global o box */
 global:
@@ -787,7 +787,9 @@ expr:
 | expr "<=" expr { $$ = new LessEq($1,$3); }
 | expr "[" expr "]" { $$ = new Index($1,$3); }
 | expr "." TK_ID { $$ = new Dot($1,*$3); }
-| error { $$ = new BadExp(); yyerrok; }
+| error { $$ = new BadExp();}
+
+
 
  /* Produce una llamada a función */
 funcallexp:
