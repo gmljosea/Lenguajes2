@@ -4,8 +4,9 @@ box items{
   float gastos;
   float balance;
   int mes;
-    variant:
-  {}
+  float balance;  -. Error! variable redeclarada!
+   variant:
+  {}              -. Error! campo variant vacio (unexpected "}")
 }
 
 box cajaChica{
@@ -19,6 +20,14 @@ box cajaChica{
     char tipo;
   } 
   int array[3] encargados;
+}
+
+box items{            -. Error box redeclarado 
+  float gasto= 100;   -. Error! No se puede inicializar
+  string a;           -. Error! el campo no puede ser string
+  void b;             -. Error! el campo no puede ser void
+  variant:
+   {}
 }
 
 int main(){
