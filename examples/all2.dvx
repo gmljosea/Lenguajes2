@@ -1,29 +1,11 @@
 
 
--. Funcion para obtener el minimo de un arreglo
-float minArray($float array[] arreglo, int long){
-
-float min= arreglo[0];
-
-  for v in 0..long {
-    if(arreglo[v]<= min){
-       min= arreglo[v];}
-  } 
-
-  -. Segunda opcion 
-
-  for valor in arreglo{
-    if(valor< min){
-       min= valor;
-    }
-  }
-  return min;
-}
-
 box items{
   float gastos;
   float balance;
   int mes;
+    variant:
+  {}
 }
 
 box cajaChica{
@@ -54,4 +36,25 @@ int main(){
 
   return 1;
 
+}
+
+
+-. Funcion para obtener el minimo de un arreglo
+float minArray($float array[] arreglo, int long){
+
+float min= arreglo[0];
+
+  for v in 0..long {
+    if(arreglo[v]<= min){
+       min= arreglo[v];}
+  } 
+
+  -. Segunda opcion 
+
+  for valor in arreglo{
+    if(valor< min){
+       min= valor;
+    }
+  }
+  return min;
 }

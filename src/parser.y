@@ -266,9 +266,9 @@ bool boxRedeclared(std::string id, YYLTYPE yylloc) {
     secuencia de declaraciones de funciones, variables globales y boxes. */
 globals:
   global
-| error { yyerrok; }
+| error
 | globals global
-| globals error { yyerrok; }
+| globals error
 
  /* Produce una declaración de función, variable global o box */
 global:
