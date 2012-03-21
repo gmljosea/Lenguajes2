@@ -41,6 +41,7 @@ double Expression::getFloat() { return 0.0; }
 bool Expression::getBool() { return true; }
 bool Expression::isLvalue() { return false; }
 int Expression::getLvalue() { return 0; }
+bool Expression::isAssignable() { return false; }
 
 // BadExp
 BadExp::BadExp() {
@@ -64,6 +65,10 @@ void VarExp::print(int nesting) {
 }
 
 bool VarExp::isLvalue() { return true; }
+
+bool VarExp::isAssignable() {
+  return !this->symv->isReadonly();
+}
 
 // Constant
 bool Constant::isConstant() { return true; }
@@ -700,6 +705,10 @@ void Index::print(int nesting) {
 
 bool Index::isLvalue() { return true; }
 
+bool Index::isAssignable() {
+  return this->array->isAssignable();
+}
+
 // Dot (operador ., acceso a un campo de un box)
 void Dot::check() {
   this->box->check();
@@ -734,6 +743,10 @@ void Dot::print(int nesting) {
 }
 
 bool Dot::isLvalue() { return true; }
+
+bool Dot::isAssignable() {
+  return this->box->isAssignable();
+}
 
 // FunCall
 FunCallExp::FunCallExp(SymFunction* symf, std::list<Expression*> args) {

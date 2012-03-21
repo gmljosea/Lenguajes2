@@ -28,6 +28,8 @@ public:
 
   virtual bool isLvalue();
   virtual int getLvalue();
+
+  virtual bool isAssignable();
 };
 /**
  * Cosas antes de que se me olviden:
@@ -49,6 +51,7 @@ public:
   VarExp(SymVar* symv);
   virtual void print(int nesting);
   virtual bool isLvalue();
+  virtual bool isAssignable();
 };
 
 // Expresiones con valor constantes
@@ -246,6 +249,7 @@ public:
   virtual void check();
   void print(int nesting);
   virtual bool isLvalue();
+  virtual bool isAssignable();
 };
 
 // Acceso a un campo de un box
@@ -258,6 +262,7 @@ public:
   virtual void check();
   void print(int nesting);
   virtual bool isLvalue();
+  virtual bool isAssignable();
 };
 
 

@@ -148,6 +148,7 @@ public:
  * cada lista debe tener tamaño 1.
  */
 class Asignment : public Statement {
+  // * En inglés es Assignment, woops.
 private:
   std::list<Expression*> lvalues;
   std::list<Expression*> exps;

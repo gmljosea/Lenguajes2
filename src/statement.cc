@@ -281,6 +281,10 @@ void Asignment::check(){
       program.error("no es una expresión asignable", (*itLval)->getFirstLine(),
 		    (*itLval)->getFirstCol());
       continue;
+    } else if (!(*itLval)->isAssignable()) {
+      program.error("lvalue de solo lectura, no se puede asignar",
+		    (*itLval)->getFirstLine(), (*itLval)->getFirstCol());
+      continue;
     }
 
     Type* tlval = (*itLval)->getType();
