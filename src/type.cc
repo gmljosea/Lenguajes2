@@ -92,13 +92,7 @@ std::string VoidType::toString() {
 
 // StringType
 bool StringType::operator==(Type& t) {
-  return true;
-  StringType* ta;
-  if (ta = dynamic_cast<StringType*>(&t)) {
-    return this->size == ta->getSize();
-  } else {
-    return false;
-  }
+  return dynamic_cast<StringType*>(&t) != NULL;
 }
 
 void StringType::setLength(int length) {
