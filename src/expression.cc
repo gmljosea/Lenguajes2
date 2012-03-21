@@ -32,16 +32,36 @@ void Expression::check() {
   // Si no se hace check antes de getType, el tipo podría quedar nulo
 }
 
-Type* Expression::getType() { return this->type; }
-bool Expression::isBad() { return false; }
-Expression* Expression::cfold() { return this; }
-bool Expression::isConstant() { return false; }
-int Expression::getInteger() { return 0; }
-double Expression::getFloat() { return 0.0; }
-bool Expression::getBool() { return true; }
-bool Expression::isLvalue() { return false; }
-int Expression::getLvalue() { return 0; }
-bool Expression::isAssignable() { return false; }
+Type* Expression::getType() {
+  return this->type;
+}
+bool Expression::isBad() {
+  return false;
+}
+Expression* Expression::cfold() {
+  return this;
+}
+bool Expression::isConstant() {
+  return false;
+}
+int Expression::getInteger() {
+  return 0;
+}
+double Expression::getFloat() {
+  return 0.0;
+}
+bool Expression::getBool() {
+  return true;
+}
+bool Expression::isLvalue() {
+  return false;
+}
+int Expression::getLvalue() {
+  return 0;
+}
+bool Expression::isAssignable() {
+  return false;
+}
 
 // BadExp
 BadExp::BadExp() {
@@ -64,14 +84,18 @@ void VarExp::print(int nesting) {
   std::cout << padding << symv->getId() << std::endl;
 }
 
-bool VarExp::isLvalue() { return true; }
+bool VarExp::isLvalue() {
+  return true;
+}
 
 bool VarExp::isAssignable() {
   return !this->symv->isReadonly();
 }
 
 // Constant
-bool Constant::isConstant() { return true; }
+bool Constant::isConstant() {
+  return true;
+}
 
 
 // IntExp
@@ -114,6 +138,7 @@ BoolExp::BoolExp(bool value) {
 
 void BoolExp::print(int nesting) {
   std::string padding(nesting*2, ' ');
+
   if (value) {
     std::cout << padding << "true" << std::endl;
   } else {
@@ -170,6 +195,7 @@ void Arithmetic::check() {
   exp2->check();
   Type* t1 = this->exp1->getType();
   Type* t2 = this->exp2->getType();
+
   // Caso tipos correctos
   if (*t1 == *t2 and
       (*t1 == IntType::getInstance() or
@@ -177,26 +203,36 @@ void Arithmetic::check() {
     this->type = t1;
     return;
   }
+
   // Subexpresión errónea, propagar el error silenciosamente
-  if (*t1 == ErrorType::getInstance() or *t2 == ErrorType::getInstance()) {
+  if (*t1 == ErrorType::getInstance() or* t2 == ErrorType::getInstance()) {
     this->type = &(ErrorType::getInstance());
     return;
   }
+
   // Subexpresiones correctas, pero tipos no cuadran
   program.error("No se puede aplicar operador '"+op+"' entre los tipos '"
-		+t1->toString()+"' y '"+t2->toString()+"'",
-		this->fline, this->fcol);
+                +t1->toString()+"' y '"+t2->toString()+"'",
+                this->fline, this->fcol);
   this->type = &(ErrorType::getInstance());
 }
 
 // Sum
 Expression* Sum::cfold() {
   this->exp1 = this->exp1->cfold();
-  if (!exp1->isConstant()) return this;
+
+  if (!exp1->isConstant()) {
+    return this;
+  }
+
   this->exp2 = this->exp2->cfold();
-  if (!exp2->isConstant()) return this;
+
+  if (!exp2->isConstant()) {
+    return this;
+  }
 
   Expression* result;
+
   if (*this->type == IntType::getInstance()) {
     result = new IntExp(exp1->getInteger()+exp2->getInteger());
   } else if (*this->type == FloatType::getInstance()) {
@@ -204,6 +240,7 @@ Expression* Sum::cfold() {
   } else {
     return this;
   }
+
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
   delete exp1;
   delete exp2;
@@ -214,11 +251,19 @@ Expression* Sum::cfold() {
 // Substraction
 Expression* Substraction::cfold() {
   this->exp1 = this->exp1->cfold();
-  if (!exp1->isConstant()) return this;
+
+  if (!exp1->isConstant()) {
+    return this;
+  }
+
   this->exp2 = this->exp2->cfold();
-  if (!exp2->isConstant()) return this;
+
+  if (!exp2->isConstant()) {
+    return this;
+  }
 
   Expression* result;
+
   if (*this->type == IntType::getInstance()) {
     result = new IntExp(exp1->getInteger()-exp2->getInteger());
   } else if (*this->type == FloatType::getInstance()) {
@@ -226,6 +271,7 @@ Expression* Substraction::cfold() {
   } else {
     return this;
   }
+
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
   delete exp1;
   delete exp2;
@@ -236,11 +282,19 @@ Expression* Substraction::cfold() {
 // Multiplication
 Expression* Multiplication::cfold() {
   this->exp1 = this->exp1->cfold();
-  if (!exp1->isConstant()) return this;
+
+  if (!exp1->isConstant()) {
+    return this;
+  }
+
   this->exp2 = this->exp2->cfold();
-  if (!exp2->isConstant()) return this;
+
+  if (!exp2->isConstant()) {
+    return this;
+  }
 
   Expression* result;
+
   if (*this->type == IntType::getInstance()) {
     result = new IntExp(exp1->getInteger()*exp2->getInteger());
   } else if (*this->type == FloatType::getInstance()) {
@@ -248,6 +302,7 @@ Expression* Multiplication::cfold() {
   } else {
     return this;
   }
+
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
   delete exp1;
   delete exp2;
@@ -258,11 +313,19 @@ Expression* Multiplication::cfold() {
 // Division
 Expression* Division::cfold() {
   this->exp1 = this->exp1->cfold();
-  if (!exp1->isConstant()) return this;
+
+  if (!exp1->isConstant()) {
+    return this;
+  }
+
   this->exp2 = this->exp2->cfold();
-  if (!exp2->isConstant()) return this;
+
+  if (!exp2->isConstant()) {
+    return this;
+  }
 
   Expression* result;
+
   if (*this->type == IntType::getInstance()) {
     result = new IntExp(exp1->getInteger()/exp2->getInteger());
   } else if (*this->type == FloatType::getInstance()) {
@@ -270,6 +333,7 @@ Expression* Division::cfold() {
   } else {
     return this;
   }
+
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
   delete exp1;
   delete exp2;
@@ -283,35 +347,47 @@ void Remainder::check() {
   exp2->check();
   Type* t1 = this->exp1->getType();
   Type* t2 = this->exp2->getType();
+
   // Caso tipos correctos
-  if (*t1 == *t2 and *t1 == IntType::getInstance()) {
+  if (*t1 == *t2 and* t1 == IntType::getInstance()) {
     this->type = t1;
     return;
   }
+
   // Subexpresión errónea, propagar el error silenciosamente
-  if (*t1 == ErrorType::getInstance() or *t2 == ErrorType::getInstance()) {
+  if (*t1 == ErrorType::getInstance() or* t2 == ErrorType::getInstance()) {
     this->type = &(ErrorType::getInstance());
     return;
   }
+
   // Subexpresiones correctas, pero tipos no cuadran
   program.error("No se puede aplicar operador '"+op+"' entre los tipos '"
-		+t1->toString()+"' y '"+t2->toString()+"'",
-		this->fline, this->fcol);
+                +t1->toString()+"' y '"+t2->toString()+"'",
+                this->fline, this->fcol);
   this->type = &(ErrorType::getInstance());
 }
 
 Expression* Remainder::cfold() {
   this->exp1 = this->exp1->cfold();
-  if (!exp1->isConstant()) return this;
+
+  if (!exp1->isConstant()) {
+    return this;
+  }
+
   this->exp2 = this->exp2->cfold();
-  if (!exp2->isConstant()) return this;
+
+  if (!exp2->isConstant()) {
+    return this;
+  }
 
   Expression* result;
+
   if (*this->type == IntType::getInstance()) {
     result = new IntExp(exp1->getInteger()%exp2->getInteger());
   } else {
     return this;
   }
+
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
   delete exp1;
   delete exp2;
@@ -323,21 +399,27 @@ Expression* Remainder::cfold() {
 void Minus::check() {
   this->exp1->check();
   Type* t = this->exp1->getType();
-  if (*t == IntType::getInstance() or *t == FloatType::getInstance() or
+
+  if (*t == IntType::getInstance() or* t == FloatType::getInstance() or
       *t == ErrorType::getInstance()) {
     this->type = t;
     return;
   }
+
   program.error("No se puede aplicar operador '-' al tipo '"+t->toString(),
-		this->fline, this->fcol);
+                this->fline, this->fcol);
   this->type = &(ErrorType::getInstance());
 }
 
 Expression* Minus::cfold() {
   this->exp1 = this->exp1->cfold();
-  if (!exp1->isConstant()) return this;
+
+  if (!exp1->isConstant()) {
+    return this;
+  }
 
   Expression* result;
+
   if (*this->type == IntType::getInstance()) {
     result = new IntExp(-exp1->getInteger());
   } else if (*this->type == FloatType::getInstance()) {
@@ -345,6 +427,7 @@ Expression* Minus::cfold() {
   } else {
     return this;
   }
+
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
   delete exp1;
   delete exp2;
@@ -364,33 +447,45 @@ void Logical::check() {
   this->exp2->check();
   Type* t1 = this->exp1->getType();
   Type* t2 = this->exp2->getType();
+
   if (*t1 == *t2 && *t1 == BoolType::getInstance()) {
     this->type = t1;
     return;
   }
-  if (*t1 == ErrorType::getInstance() or *t2 == ErrorType::getInstance()) {
+
+  if (*t1 == ErrorType::getInstance() or* t2 == ErrorType::getInstance()) {
     this->type = &(ErrorType::getInstance());
     return;
   }
+
   program.error("No se puede aplicar operador '"+op+"' entre los tipos '"
-		+t1->toString()+"' y '"+t2->toString()+"'",
-		this->fline, this->fcol);
+                +t1->toString()+"' y '"+t2->toString()+"'",
+                this->fline, this->fcol);
   this->type = &(ErrorType::getInstance());
 }
 
 // And
 Expression* And::cfold() {
   this->exp1 = this->exp1->cfold();
-  if (!exp1->isConstant()) return this;
+
+  if (!exp1->isConstant()) {
+    return this;
+  }
+
   this->exp2 = this->exp2->cfold();
-  if (!exp2->isConstant()) return this;
+
+  if (!exp2->isConstant()) {
+    return this;
+  }
 
   Expression* result;
+
   if (*this->type == BoolType::getInstance()) {
     result = new BoolExp(exp1->getBool() && exp2->getBool());
   } else {
     return this;
   }
+
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
   delete exp1;
   delete exp2;
@@ -401,16 +496,25 @@ Expression* And::cfold() {
 // Or
 Expression* Or::cfold() {
   this->exp1 = this->exp1->cfold();
-  if (!exp1->isConstant()) return this;
+
+  if (!exp1->isConstant()) {
+    return this;
+  }
+
   this->exp2 = this->exp2->cfold();
-  if (!exp2->isConstant()) return this;
+
+  if (!exp2->isConstant()) {
+    return this;
+  }
 
   Expression* result;
+
   if (*this->type == BoolType::getInstance()) {
     result = new BoolExp(exp1->getBool() || exp2->getBool());
   } else {
     return this;
   }
+
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
   delete exp1;
   delete exp2;
@@ -422,25 +526,32 @@ Expression* Or::cfold() {
 void Not::check() {
   this->exp1->check();
   Type* t = this->exp1->getType();
-  if (*t == BoolType::getInstance() or *t == ErrorType::getInstance()) {
+
+  if (*t == BoolType::getInstance() or* t == ErrorType::getInstance()) {
     this->type = t;
     return;
   }
+
   program.error("No se puede aplicar operador 'not' al tipo '"+t->toString(),
-		this->fline, this->fcol);
+                this->fline, this->fcol);
   this->type = &(ErrorType::getInstance());
 }
 
 Expression* Not::cfold() {
   this->exp1 = this->exp1->cfold();
-  if (!exp1->isConstant()) return this;
+
+  if (!exp1->isConstant()) {
+    return this;
+  }
 
   Expression* result;
+
   if (*this->type == BoolType::getInstance()) {
     result = new BoolExp(!exp1->getBool());
   } else {
     return this;
   }
+
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
   delete exp1;
   delete exp2;
@@ -460,6 +571,7 @@ void Relational::check() {
   exp2->check();
   Type* t1 = this->exp1->getType();
   Type* t2 = this->exp2->getType();
+
   // Caso tipos correctos
   if (*t1 == *t2 and
       (*t1 == IntType::getInstance() or
@@ -467,32 +579,46 @@ void Relational::check() {
     this->type = &(BoolType::getInstance());
     return;
   }
+
   // Subexpresión errónea, propagar el error silenciosamente
-  if (*t1 == ErrorType::getInstance() or *t2 == ErrorType::getInstance()) {
+  if (*t1 == ErrorType::getInstance() or* t2 == ErrorType::getInstance()) {
     this->type = &(ErrorType::getInstance());
     return;
   }
+
   // Subexpresiones correctas, pero tipos no cuadran
   program.error("No se puede aplicar operador '"+op+"' entre los tipos '"
-		+t1->toString()+"' y '"+t2->toString()+"'",
-		this->fline, this->fcol);
+                +t1->toString()+"' y '"+t2->toString()+"'",
+                this->fline, this->fcol);
   this->type = &(ErrorType::getInstance());
 }
 
 // Greater
 Expression* Greater::cfold() {
   this->exp1 = this->exp1->cfold();
-  if (!exp1->isConstant()) return this;
+
+  if (!exp1->isConstant()) {
+    return this;
+  }
+
   this->exp2 = this->exp2->cfold();
-  if (!exp2->isConstant()) return this;
-  if (*this->type == ErrorType::getInstance()) return this;
+
+  if (!exp2->isConstant()) {
+    return this;
+  }
+
+  if (*this->type == ErrorType::getInstance()) {
+    return this;
+  }
 
   Expression* result;
+
   if (*exp1->getType() == IntType::getInstance()) {
     result = new BoolExp(exp1->getInteger() > exp2->getInteger());
   } else if (*exp1->getType() == FloatType::getInstance()) {
     result = new BoolExp(exp1->getFloat() > exp2->getFloat());
   }
+
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
   delete exp1;
   delete exp2;
@@ -503,17 +629,29 @@ Expression* Greater::cfold() {
 // GreaterEq
 Expression* GreaterEq::cfold() {
   this->exp1 = this->exp1->cfold();
-  if (!exp1->isConstant()) return this;
+
+  if (!exp1->isConstant()) {
+    return this;
+  }
+
   this->exp2 = this->exp2->cfold();
-  if (!exp2->isConstant()) return this;
-  if (*this->type == ErrorType::getInstance()) return this;
+
+  if (!exp2->isConstant()) {
+    return this;
+  }
+
+  if (*this->type == ErrorType::getInstance()) {
+    return this;
+  }
 
   Expression* result;
+
   if (*exp1->getType() == IntType::getInstance()) {
     result = new BoolExp(exp1->getInteger() >= exp2->getInteger());
   } else if (*exp1->getType() == FloatType::getInstance()) {
     result = new BoolExp(exp1->getFloat() >= exp2->getFloat());
   }
+
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
   delete exp1;
   delete exp2;
@@ -528,6 +666,7 @@ void Equal::check() {
   exp2->check();
   Type* t1 = this->exp1->getType();
   Type* t2 = this->exp2->getType();
+
   // Caso tipos correctos
   if (*t1 == *t2 and
       (*t1 == IntType::getInstance() or
@@ -536,26 +675,39 @@ void Equal::check() {
     this->type = &(BoolType::getInstance());
     return;
   }
+
   // Subexpresión errónea, propagar el error silenciosamente
-  if (*t1 == ErrorType::getInstance() or *t2 == ErrorType::getInstance()) {
+  if (*t1 == ErrorType::getInstance() or* t2 == ErrorType::getInstance()) {
     this->type = &(ErrorType::getInstance());
     return;
   }
+
   // Subexpresiones correctas, pero tipos no cuadran
   program.error("No se puede aplicar operador '"+op+"' entre los tipos '"
-		+t1->toString()+"' y '"+t2->toString()+"'",
-		this->fline, this->fcol);
+                +t1->toString()+"' y '"+t2->toString()+"'",
+                this->fline, this->fcol);
   this->type = &(ErrorType::getInstance());
 }
 
 Expression* Equal::cfold() {
   this->exp1 = this->exp1->cfold();
-  if (!exp1->isConstant()) return this;
+
+  if (!exp1->isConstant()) {
+    return this;
+  }
+
   this->exp2 = this->exp2->cfold();
-  if (!exp2->isConstant()) return this;
-  if (*this->type == ErrorType::getInstance()) return this;
+
+  if (!exp2->isConstant()) {
+    return this;
+  }
+
+  if (*this->type == ErrorType::getInstance()) {
+    return this;
+  }
 
   Expression* result;
+
   if (*exp1->getType() == IntType::getInstance()) {
     result = new BoolExp(exp1->getInteger() == exp2->getInteger());
   } else if (*exp1->getType() == FloatType::getInstance()) {
@@ -563,6 +715,7 @@ Expression* Equal::cfold() {
   } else if (*exp1->getType() == BoolType::getInstance()) {
     result = new BoolExp(exp1->getBool() == exp2->getBool());
   }
+
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
   delete exp1;
   delete exp2;
@@ -577,6 +730,7 @@ void NotEqual::check() {
   exp2->check();
   Type* t1 = this->exp1->getType();
   Type* t2 = this->exp2->getType();
+
   // Caso tipos correctos
   if (*t1 == *t2 and
       (*t1 == IntType::getInstance() or
@@ -585,26 +739,39 @@ void NotEqual::check() {
     this->type = &(BoolType::getInstance());
     return;
   }
+
   // Subexpresión errónea, propagar el error silenciosamente
-  if (*t1 == ErrorType::getInstance() or *t2 == ErrorType::getInstance()) {
+  if (*t1 == ErrorType::getInstance() or* t2 == ErrorType::getInstance()) {
     this->type = &(ErrorType::getInstance());
     return;
   }
+
   // Subexpresiones correctas, pero tipos no cuadran
   program.error("No se puede aplicar operador '"+op+"' entre los tipos '"
-		+t1->toString()+"' y '"+t2->toString()+"'",
-		this->fline, this->fcol);
+                +t1->toString()+"' y '"+t2->toString()+"'",
+                this->fline, this->fcol);
   this->type = &(ErrorType::getInstance());
 }
 
 Expression* NotEqual::cfold() {
   this->exp1 = this->exp1->cfold();
-  if (!exp1->isConstant()) return this;
+
+  if (!exp1->isConstant()) {
+    return this;
+  }
+
   this->exp2 = this->exp2->cfold();
-  if (!exp2->isConstant()) return this;
-  if (*this->type == ErrorType::getInstance()) return this;
+
+  if (!exp2->isConstant()) {
+    return this;
+  }
+
+  if (*this->type == ErrorType::getInstance()) {
+    return this;
+  }
 
   Expression* result;
+
   if (*exp1->getType() == IntType::getInstance()) {
     result = new BoolExp(exp1->getInteger() != exp2->getInteger());
   } else if (*exp1->getType() == FloatType::getInstance()) {
@@ -612,6 +779,7 @@ Expression* NotEqual::cfold() {
   } else if (*exp1->getType() == BoolType::getInstance()) {
     result = new BoolExp(exp1->getBool() != exp2->getBool());
   }
+
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
   delete exp1;
   delete exp2;
@@ -622,17 +790,29 @@ Expression* NotEqual::cfold() {
 // Less
 Expression* Less::cfold() {
   this->exp1 = this->exp1->cfold();
-  if (!exp1->isConstant()) return this;
+
+  if (!exp1->isConstant()) {
+    return this;
+  }
+
   this->exp2 = this->exp2->cfold();
-  if (!exp2->isConstant()) return this;
-  if (*this->type == ErrorType::getInstance()) return this;
+
+  if (!exp2->isConstant()) {
+    return this;
+  }
+
+  if (*this->type == ErrorType::getInstance()) {
+    return this;
+  }
 
   Expression* result;
+
   if (*exp1->getType() == IntType::getInstance()) {
     result = new BoolExp(exp1->getInteger() < exp2->getInteger());
   } else if (*exp1->getType() == FloatType::getInstance()) {
     result = new BoolExp(exp1->getFloat() < exp2->getFloat());
   }
+
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
   delete exp1;
   delete exp2;
@@ -643,17 +823,29 @@ Expression* Less::cfold() {
 // LessEq
 Expression* LessEq::cfold() {
   this->exp1 = this->exp1->cfold();
-  if (!exp1->isConstant()) return this;
+
+  if (!exp1->isConstant()) {
+    return this;
+  }
+
   this->exp2 = this->exp2->cfold();
-  if (!exp2->isConstant()) return this;
-  if (*this->type == ErrorType::getInstance()) return this;
+
+  if (!exp2->isConstant()) {
+    return this;
+  }
+
+  if (*this->type == ErrorType::getInstance()) {
+    return this;
+  }
 
   Expression* result;
+
   if (*exp1->getType() == IntType::getInstance()) {
     result = new BoolExp(exp1->getInteger() <= exp2->getInteger());
   } else if (*exp1->getType() == FloatType::getInstance()) {
     result = new BoolExp(exp1->getFloat() <= exp2->getFloat());
   }
+
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
   delete exp1;
   delete exp2;
@@ -668,30 +860,36 @@ void Index::check() {
   Type* tarr = this->array->getType();
   Type* tind = this->index->getType();
   ArrayType* cast_tarr = dynamic_cast<ArrayType*>(tarr);
+
   // Propagar error si existe
   if (*tarr == ErrorType::getInstance() or
       *tind == ErrorType::getInstance()) {
     this->type = &(ErrorType::getInstance());
     return;
   }
+
   // Tipos correctos
-  if (cast_tarr and *tind == IntType::getInstance()) {
+  if (cast_tarr and* tind == IntType::getInstance()) {
     this->type = cast_tarr->getBaseType();
+
     // Si el índice es constante, de una vez ver si es válido
     if (this->index->isConstant() and
-	cast_tarr->getLength()>0) {
+        cast_tarr->getLength()>0) {
       int value = this->index->getInteger();
+
       if (value >= cast_tarr->getLength()) {
-	program.error("El índice excede el tamaño del arreglo",
-		      this->fline, this->fcol);
+        program.error("El índice excede el tamaño del arreglo",
+                      this->fline, this->fcol);
       }
     }
+
     return;
   }
+
   // Subexpresiones correctas, pero tipos no cuadran
   program.error("No se puede aplicar operador '[]' entre los tipos '"
-		+tarr->toString()+"' y '"+tind->toString()+"'",
-		this->fline, this->fcol);
+                +tarr->toString()+"' y '"+tind->toString()+"'",
+                this->fline, this->fcol);
   this->type = &(ErrorType::getInstance());
 }
 
@@ -703,7 +901,9 @@ void Index::print(int nesting) {
   std::cout << padding << "]" << std::endl;
 }
 
-bool Index::isLvalue() { return true; }
+bool Index::isLvalue() {
+  return true;
+}
 
 bool Index::isAssignable() {
   return this->array->isAssignable();
@@ -713,21 +913,26 @@ bool Index::isAssignable() {
 void Dot::check() {
   this->box->check();
   Type* t = this->box->getType();
+
   if (*t == ErrorType::getInstance()) {
     this->type = t;
     return;
   }
+
   BoxType* bt = dynamic_cast<BoxType*>(t);
+
   if (!bt) {
     program.error("No se puede aplicar operador '.' a '"+t->toString()+"'",
-		  this->fline, this->fcol);
+                  this->fline, this->fcol);
     this->type = &(ErrorType::getInstance());
     return;
   }
+
   BoxField* field = bt->getField(this->field);
+
   if (!field) {
     program.error("No existe el campo '"+this->field+"' en '"+t->toString()+"'",
-		  this->fline, this->fcol);
+                  this->fline, this->fcol);
     this->type = &(ErrorType::getInstance());
     return;
   } else {
@@ -739,10 +944,12 @@ void Dot::print(int nesting) {
   std::string padding(nesting*2, ' ');
   this->box->print(nesting+1);
   std::cout << padding << "." << std::endl
-	    << padding << "  " << field << std::endl;
+            << padding << "  " << field << std::endl;
 }
 
-bool Dot::isLvalue() { return true; }
+bool Dot::isLvalue() {
+  return true;
+}
 
 bool Dot::isAssignable() {
   return this->box->isAssignable();
@@ -769,36 +976,42 @@ Type* FunCallExp::getType() {
     SymFunction* symfun = program.symtable.lookup_function(name);
     this->symf= symfun;
   }
-  if(symf==NULL) return &(ErrorType::getInstance());
-  return this->symf->getType(); 
+
+  if (symf==NULL) {
+    return &(ErrorType::getInstance());
+  }
+
+  return this->symf->getType();
 }
 
 void FunCallExp::check() {
-  if (!checkedFunction){
+  if (!checkedFunction) {
     SymFunction* symfun = program.symtable.lookup_function(name);
     this->symf= symfun;
     this->checkedFunction=true;
   } else {
     name = this->symf->getId();
   }
-    
+
   if (symf == NULL) {
     program.error("llamada a función no declarada '"+name+"'",
-		  this->fline, this->fcol);
+                  this->fline, this->fcol);
     return;
-  } 
-  
+  }
+
   // Chequear que el numero de parametros y arg coincidan
-  if(this->args.size()!= this->symf->getArgumentCount()){
+  if (this->args.size()!= this->symf->getArgumentCount()) {
     program.error("el numero de argumentos de la llamada a la funcion '"+name+"'"
                   +" es incorrecto", this->fline, this->fcol);
     return;
   }
-  // Chequear los tipos de los parametros 
+
+  // Chequear los tipos de los parametros
   bool error=false;
   std::list<Expression*>::iterator arg= this->args.begin();
-  for(ArgList::iterator param= this->symf->getArguments()->begin();
-      param!=this->symf->getArguments()->end(); param++,arg++){
+
+  for (ArgList::iterator param= this->symf->getArguments()->begin();
+       param!=this->symf->getArguments()->end(); param++,arg++) {
 
     (*arg)->check();
     (*arg) = (*arg)->cfold();
@@ -807,22 +1020,24 @@ void FunCallExp::check() {
       continue;
     }
 
-    if( (*(*arg)->getType()) != (*(*param)->getType()) ){
+    if ( (*(*arg)->getType()) != (*(*param)->getType()) ) {
       program.error("en la llamada a la funcion '"+name+"'"
-		    +" el tipo del argumento '"+(*param)->getId()+
-		    "' es de tipo '"+(*param)->getType()->toString()+
-		    "' pero se encontró '"+(*arg)->getType()->toString()+"'",
-		    (*arg)->getFirstLine(), (*arg)->getFirstCol());
+                    +" el tipo del argumento '"+(*param)->getId()+
+                    "' es de tipo '"+(*param)->getType()->toString()+
+                    "' pero se encontró '"+(*arg)->getType()->toString()+"'",
+                    (*arg)->getFirstLine(), (*arg)->getFirstCol());
       continue;
     }
+
     // Chequear que los argumentos readonly sean pasados como tal
-    SymVar *vart= dynamic_cast<SymVar*>(*arg);
+    SymVar* vart= dynamic_cast<SymVar*>(*arg);
+
     if (vart and vart->isReadonly() and (*param)->isReference())
       // cambie a isReference porque es aceptable pasar una variable readonly
       // por valor, sea o no readonly el argumento
       program.error("en la llamada a la funcion '"+name+"'"
                     +" el argumento '"+ vart->getId()+"' es de solo lectura",
-		    (*arg)->getFirstLine(), (*arg)->getFirstCol());
+                    (*arg)->getFirstLine(), (*arg)->getFirstCol());
 
   }
 }

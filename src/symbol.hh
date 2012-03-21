@@ -13,7 +13,7 @@ class Block;
 
 /**
  * Clase abstracta que representa un objeto de la tabla de simbolos.
- */ 
+ */
 class Symbol {
 protected:
   std::string id;
@@ -28,16 +28,16 @@ public:
   void setDuplicated(bool dup);
   bool isDuplicated();
   void setType(Type* t);
-  Type *getType();
+  Type* getType();
   int getnumScope();
   int getLine();
   int getColumn();
 };
 
- /** 
-  * Clase SymVar hereda de Symbol. Representa una variable declarada.
-  */ 
-class SymVar: public Symbol{
+/**
+ * Clase SymVar hereda de Symbol. Representa una variable declarada.
+ */
+class SymVar: public Symbol {
 private:
   bool isParameter;
   bool readonly; // Se pasó como solo lectura
@@ -61,9 +61,9 @@ public:
 
 /*Tipo de pasaje para los argumentos de funciones*/
 enum PassType {
- normal, // Uso normal porque 'default' está reservado por C++ -.-
- readonly,
- reference
+  normal, // Uso normal porque 'default' está reservado por C++ -.-
+  readonly,
+  reference
 };
 
 typedef std::list<SymVar*> ArgList;
@@ -73,11 +73,11 @@ typedef std::list<SymVar*> ArgList;
  */
 class SymFunction: public Symbol {
 private:
-  Block *block;
-  ArgList *args; // Lista de argumentos (SymVar)
+  Block* block;
+  ArgList* args; // Lista de argumentos (SymVar)
 public:
   SymFunction (std::string id, ArgList* arguments, Type* rtype,
-	       int line, int col);
+               int line, int col);
   void setBlock(Block* block);
   Block* getBlock();
   int getArgumentCount();
@@ -90,13 +90,13 @@ typedef std::unordered_multimap<std::string,SymVar*> varSymtable;
 typedef std::unordered_map<std::string,SymFunction*> funcSymtable;
 typedef std::unordered_multimap<std::string,BoxType*> boxHash;
 
-/* Clase SymTable, representa la Tabla de simbolos con el manejo 
+/* Clase SymTable, representa la Tabla de simbolos con el manejo
    adecuado del anidamiento de los alcances.Metodo Leblanc-Cook */
-class SymTable{
+class SymTable {
 private:
   // Tabla para las variables
   varSymtable varTable;
-  // Tabla para las funciones 
+  // Tabla para las funciones
   funcSymtable funcTable;
   // Tabla para los box
   boxHash boxTable;
@@ -107,9 +107,9 @@ private:
 
 public:
   SymTable();
-  void insert(SymVar *sym);
-  void insert(SymFunction *sym);
-  void insert(BoxType *sym);
+  void insert(SymVar* sym);
+  void insert(SymFunction* sym);
+  void insert(BoxType* sym);
   SymVar* lookup_variable(std::string nombreID);
   SymFunction* lookup_function(std::string nombreID);
   BoxType* lookup_box(std::string nombreID);
@@ -117,7 +117,7 @@ public:
   int leave_scope();
   int enter_scope();
   void print();
-  
+
 };
 
 #endif

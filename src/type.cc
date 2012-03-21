@@ -28,7 +28,7 @@ std::string Type::toString() {
   return std::string("Algun tipo");
 }
 
-void Type::check(){
+void Type::check() {
   return;
 }
 
@@ -120,9 +120,10 @@ std::string ErrorType::toString() {
 // ArrayType
 bool ArrayType::operator==(Type& t) {
   ArrayType* ta;
+
   if (ta = dynamic_cast<ArrayType*>(&t)) {
     return *(this->basetype) == *(ta->getBaseType());
-      //      && this->length == ta->getLength();
+    //      && this->length == ta->getLength();
   } else {
     return false;
   }
@@ -160,9 +161,10 @@ int ArrayType::getLength() {
   return this->length;
 }
 
-void ArrayType::check(){
-  ArrayType *cast_tarr= dynamic_cast<ArrayType*>(basetype);
-  StringType *cast_str = dynamic_cast<StringType*>(basetype);
+void ArrayType::check() {
+  ArrayType* cast_tarr= dynamic_cast<ArrayType*>(basetype);
+  StringType* cast_str = dynamic_cast<StringType*>(basetype);
+
   if (cast_tarr or cast_str)
     program.error("tipo base del arreglo es '"+basetype->toString()
                   + "' pero se esperaba un tipo basico o box",line,col);
@@ -193,7 +195,7 @@ void BoxType::addFixedField(Type* type, std::string name,int l,int col) {
 }
 
 void BoxType::addVariantField(Type* type, std::string name, bool grouped,
-			      int l,int col) {
+                              int l,int col) {
   BoxField* field = new BoxField();
   field->type = type;
   field->name = name;
@@ -214,9 +216,11 @@ void BoxType::startGrouping() {
 BoxField* BoxType::getField(std::string field) {
   std::unordered_map<std::string, BoxField*>::iterator it;
   it= this->fields_hash.find(field);
+
   if (it != this->fields_hash.end()) {
     return it->second;
   }
+
   return NULL;
 }
 
@@ -228,7 +232,7 @@ void BoxType::setIncomplete(bool ic) {
   this->incomplete = ic;
 }
 
-bool BoxType::areOffsetsDone(){
+bool BoxType::areOffsetsDone() {
   return this->offsetsDone;
 }
 
@@ -240,100 +244,109 @@ std::string BoxType::getName() {
   return this->name;
 }
 
-int BoxType::getLine(){
+int BoxType::getLine() {
   return this->line;
 }
 
-int BoxType::getColumn(){
+int BoxType::getColumn() {
   return this->column;
 }
 
-void BoxType::setLine(int l){
+void BoxType::setLine(int l) {
   this->line=l;
 }
 
-void BoxType::setColumn(int c){
+void BoxType::setColumn(int c) {
   this->column=c;
 }
 
-void BoxType::calcOffsets(){
+void BoxType::calcOffsets() {
 
   // Calcular offsets de los campos fijos
   for (std::list<BoxField*>::iterator FieldIt= this->fixed_fields.begin();
-       FieldIt != this->fixed_fields.end(); FieldIt++){
+       FieldIt != this->fixed_fields.end(); FieldIt++) {
     (*FieldIt)->offset= this->size;
-    BoxType *cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
-    if(cast_tbox and !cast_tbox->areOffsetsDone()) 
+    BoxType* cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
+
+    if (cast_tbox and !cast_tbox->areOffsetsDone())
       cast_tbox->calcOffsets();
-    this->size+= (*FieldIt)->type->getSize(); 
+
+    this->size+= (*FieldIt)->type->getSize();
   }
 
   int offset=this->size;
   int maxSizeVariant=this->size;
   int group=-1;
+
   // Calcular offsets de los campos variantes
   for (std::list<BoxField*>::iterator FieldIt= this->variant_fields.begin();
-       FieldIt != this->variant_fields.end(); FieldIt++){
-   
-    if((*FieldIt)->grouped){
-      // Si es una nueva agrupacion 
-      if(group!=(*FieldIt)->groupnum){ 
+       FieldIt != this->variant_fields.end(); FieldIt++) {
+
+    if ((*FieldIt)->grouped) {
+      // Si es una nueva agrupacion
+      if (group!=(*FieldIt)->groupnum) {
         //guardo el num de agrupacion y se reinicia el offset
         group= (*FieldIt)->groupnum;
         offset=this->size;
-      }   
-    }else{ 
+      }
+    } else {
       // Si el campo no pertenece a una agrupacion se reinicia
       offset=this->size;
     }
 
-   BoxType *cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
-   // Si el tipo del campo es un box asegurar que el tamaño este calculado
-    if(cast_tbox and !cast_tbox->areOffsetsDone()) 
+    BoxType* cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
+
+    // Si el tipo del campo es un box asegurar que el tamaño este calculado
+    if (cast_tbox and !cast_tbox->areOffsetsDone())
       cast_tbox->calcOffsets();
-    
+
     (*FieldIt)->offset= offset;
     offset+= (*FieldIt)->type->getSize();
-  
-    if(offset>maxSizeVariant) maxSizeVariant= offset;
+
+    if (offset>maxSizeVariant) maxSizeVariant= offset;
   }
+
   this->size= maxSizeVariant;
   this->offsetsDone=true;
 }
 
 
 void BoxType::check() {
-  if(this->getFieldCount()==0){
+  if (this->getFieldCount()==0) {
     program.error("tipo box '"+name+"' sin campos",line,column);
     return;
   }
 
   // Verificar los campos fijos
   for (std::list<BoxField*>::iterator FieldIt= this->fixed_fields.begin();
-       FieldIt != this->fixed_fields.end(); FieldIt++){
-    // Verificar tipo 
-    StringType *cast_tboxfield= dynamic_cast<StringType*>((*FieldIt)->type);
-    if(((*FieldIt)->type== &(VoidType::getInstance())) or cast_tboxfield){
+       FieldIt != this->fixed_fields.end(); FieldIt++) {
+    // Verificar tipo
+    StringType* cast_tboxfield= dynamic_cast<StringType*>((*FieldIt)->type);
+
+    if (((*FieldIt)->type== &(VoidType::getInstance())) or cast_tboxfield) {
       std::string error="campo '"+((*FieldIt)->name)+"' del tipo '"
-        +this->toString()
-        +"' no puede ser de tipo '"+ (*FieldIt)->type->toString()+"'";
+                        +this->toString()
+                        +"' no puede ser de tipo '"+ (*FieldIt)->type->toString()+"'";
       program.error(error,(*FieldIt)->line,(*FieldIt)->column);
       continue;
     }
+
     // Si es type box hacer check y ver si no llega a mi
-    BoxType *cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
-    ArrayType *cast_tarray= dynamic_cast<ArrayType*>((*FieldIt)->type);
-    if(cast_tarray) (*FieldIt)->type->check();
-    if(cast_tbox ){
+    BoxType* cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
+    ArrayType* cast_tarray= dynamic_cast<ArrayType*>((*FieldIt)->type);
+
+    if (cast_tarray) (*FieldIt)->type->check();
+
+    if (cast_tbox ) {
       // Verificar que el box ha sido declarado
-      if( !cast_tbox->isIncomplete() ){
-        // Verificar si existen ciclos 
-        if( this->reaches(*( dynamic_cast<BoxType*>((*FieldIt)->type) )) )
+      if ( !cast_tbox->isIncomplete() ) {
+        // Verificar si existen ciclos
+        if ( this->reaches(*( dynamic_cast<BoxType*>((*FieldIt)->type) )) )
           program.error("tipo '"+(*FieldIt)->type->toString()+
                         "' tiene referencia ciclica a traves del campo '"
                         +((*FieldIt)->name)+"'",(*FieldIt)->line,
                         (*FieldIt)->column);
-      }else{
+      } else {
         program.error("tipo '"+(*FieldIt)->type->toString()+"' no ha sido definido",
                       (*FieldIt)->line,(*FieldIt)->column );
       }
@@ -342,65 +355,74 @@ void BoxType::check() {
 
   // Verificar los campos de la parte variant
   for (std::list<BoxField*>::iterator FieldIt= this->variant_fields.begin();
-       FieldIt != this->variant_fields.end(); FieldIt++){
-    // Verificar tipo 
-    StringType *cast_tboxfield= dynamic_cast<StringType*>((*FieldIt)->type);
-    if(((*FieldIt)->type== &(VoidType::getInstance())) or cast_tboxfield){
+       FieldIt != this->variant_fields.end(); FieldIt++) {
+    // Verificar tipo
+    StringType* cast_tboxfield= dynamic_cast<StringType*>((*FieldIt)->type);
+
+    if (((*FieldIt)->type== &(VoidType::getInstance())) or cast_tboxfield) {
       std::string error="campo '"+((*FieldIt)->name)+"' del tipo '"
-        +this->toString()
-        +"' no puede ser de tipo '"+ (*FieldIt)->type->toString()+"'";
+                        +this->toString()
+                        +"' no puede ser de tipo '"+ (*FieldIt)->type->toString()+"'";
       program.error(error,(*FieldIt)->line,(*FieldIt)->column);
       continue;
     }
+
     // Si es type box hacer check y ver si no llega a mi
-    BoxType *cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
-    ArrayType *cast_tarray= dynamic_cast<ArrayType*>((*FieldIt)->type);
-    if(cast_tarray) (*FieldIt)->type->check();
-    if(cast_tbox ){
+    BoxType* cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
+    ArrayType* cast_tarray= dynamic_cast<ArrayType*>((*FieldIt)->type);
+
+    if (cast_tarray) (*FieldIt)->type->check();
+
+    if (cast_tbox ) {
       // Verificar que el box ha sido declarado
-      if( !cast_tbox->isIncomplete() ){
-        // Verificar si existen ciclos 
-        if( this->reaches(*( dynamic_cast<BoxType*>((*FieldIt)->type) )) )
+      if ( !cast_tbox->isIncomplete() ) {
+        // Verificar si existen ciclos
+        if ( this->reaches(*( dynamic_cast<BoxType*>((*FieldIt)->type) )) )
           program.error("tipo '"+(*FieldIt)->type->toString()+
                         "' tiene referencia ciclica a traves del campo '"
                         +((*FieldIt)->name)+"'",(*FieldIt)->line,
                         (*FieldIt)->column);
-      }else{
+      } else {
         program.error("tipo '"+(*FieldIt)->type->toString()+"' no ha sido definido",
                       (*FieldIt)->line,(*FieldIt)->column );
       }
     }
   }
-  
-  // Si calcular offsets despues 
+
+  // Si calcular offsets despues
 
 }
 
 
 bool BoxType::reaches(BoxType& box) {
-  if(*(this)==box){
+  if (*(this)==box) {
     return true;
   }
+
   bool reachable= false;
+
   for (std::list<BoxField*>::iterator FieldIt= box.getFFields().begin();
-       FieldIt != box.getFFields().end(); FieldIt++){ 
-    BoxType *cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
-    if(cast_tbox ){
+       FieldIt != box.getFFields().end(); FieldIt++) {
+    BoxType* cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
+
+    if (cast_tbox ) {
       // Verificar que el box ha sido declarado
-      if( !cast_tbox->isIncomplete() ){
+      if ( !cast_tbox->isIncomplete() ) {
         reachable= reachable or this->reaches(*cast_tbox);
-        if(reachable) return true;
+
+        if (reachable) return true;
       }
     }
   }
+
   return false;
 }
 
-std::list<BoxField*> BoxType::getFFields(){
+std::list<BoxField*> BoxType::getFFields() {
   return fixed_fields;
 }
 
-std::list<BoxField*> BoxType::getVFields(){
+std::list<BoxField*> BoxType::getVFields() {
   return variant_fields;
 }
 

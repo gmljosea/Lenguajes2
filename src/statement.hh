@@ -21,7 +21,7 @@
 class Statement {
 protected:
   // Instrucción que anida a esta
-  Statement *enclosing;
+  Statement* enclosing;
   // Ubicación en el archivo
   int first_line, first_column;
   int last_line, last_column;
@@ -30,12 +30,12 @@ protected:
 public:
   Statement ();
   // Establece la instrucción que anida a esta.
-  void setEnclosing(Statement *stmt);
+  void setEnclosing(Statement* stmt);
   // Devuelve la instrucción que anida a esta.
   Statement* getEnclosing();
   // Establece la ubicación en el archivo de la instrucción.
   void setLocation(int first_line, int first_column, int last_line,
-		   int last_column);
+                   int last_column);
   // Imprime recursivamente esta instrucción y sus hijos.
   virtual void print(int) = 0;
   virtual void check()=0;
@@ -60,7 +60,7 @@ private:
 public:
   Block (int, Statement*);
   // Encola una instrucción
-  void push_back(Statement *stmt);
+  void push_back(Statement* stmt);
   virtual void print(int);
   virtual void check();
 };
@@ -77,9 +77,9 @@ public:
  */
 class If : public Statement {
 private:
-  Expression *cond;
-  Block *block_true;
-  Block *block_false;
+  Expression* cond;
+  Block* block_true;
+  Block* block_false;
 public:
   If (Expression*, Block*, Block* bf = NULL);
   virtual void print(int);
@@ -113,7 +113,7 @@ private:
   Expression* step;
 public:
   BoundedFor (std::string* label, SymVar* varsym, Expression* lowerb,
-	      Expression* upperb, Expression* step, Block* block);
+              Expression* upperb, Expression* step, Block* block);
   virtual void print(int);
   virtual void check();
 };
@@ -233,7 +233,7 @@ public:
  */
 class FunctionCall : public Statement {
 private:
-  Expression *exp; // Cambiar por el tipo de expresión FunCallExp
+  Expression* exp; // Cambiar por el tipo de expresión FunCallExp
 public:
   FunctionCall (Expression* exp);
   virtual void check();

@@ -98,7 +98,7 @@ private:
 public:
   ArrayType(Type* btype, int length,
             int line,int col) : basetype(btype), length(length),
-                                line(line),col(col),Type(0,0) {};
+    line(line),col(col),Type(0,0) {};
   virtual bool operator==(Type& t);
   virtual std::string toString();
   virtual int getSize();
