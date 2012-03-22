@@ -342,7 +342,10 @@ void BoxType::check() {
     // Si es type box hacer check y ver si no llega a mi
     BoxType *cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
     ArrayType *cast_tarray= dynamic_cast<ArrayType*>((*FieldIt)->type);
-    if(cast_tarray) (*FieldIt)->type->check();
+    if(cast_tarray) {
+      (*FieldIt)->type->check();
+      cast_tbox = dynamic_cast<BoxType*>(cast_tarray->getBaseType());
+    }
     if(cast_tbox ){
       // Verificar que el box ha sido declarado
       if( !cast_tbox->isIncomplete() ){
@@ -405,6 +408,17 @@ bool BoxType::reaches(BoxType& box) {
        FieldIt != box.getFFields().end(); FieldIt++){
     BoxType *cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
     if(cast_tbox ){
+      // Verificar que el box ha sido declarado
+      if( !cast_tbox->isIncomplete() ){
+        reachable= reachable or this->reaches(*cast_tbox);
+        if(reachable) return true;
+      }
+    }
+  }
+  for (std::list<BoxField*>::iterator FieldIt= box.getVFields().begin();
+       FieldIt != box.getVFields().end(); FieldIt++){
+    BoxType *cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
+    if(cast_tbox){
       // Verificar que el box ha sido declarado
       if( !cast_tbox->isIncomplete() ){
         reachable= reachable or this->reaches(*cast_tbox);
