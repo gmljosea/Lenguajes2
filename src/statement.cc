@@ -576,7 +576,32 @@ Read::Read(Expression* lval) {
   this->lval = lval;
 }
 
-void Read::check(){}
+void Read::check() {
+  lval->check();
+  lval = lval->cfold();
+
+  if (!lval->isLvalue()) {
+    program.error("no es una expresión asignable", lval->getFirstLine(),
+		  lval->getFirstCol());
+    return;
+  } else if (!lval->isAssignable()) {
+    program.error("lvalue de solo lectura, no se puede asignar",
+		  lval->getFirstLine(), lval->getFirstCol());
+    return;
+  }
+
+  // Se prohibe asignar strings, arrays y boxes
+  Type* tlval = lval->getType();
+  if (dynamic_cast<StringType*>(tlval) or
+      dynamic_cast<ArrayType*>(tlval) or
+      dynamic_cast<BoxType*>(tlval)) {
+    program.error("no se puede asignar a variables de tipo '"+
+		  tlval->toString()+"'", lval->getFirstLine(),
+		  lval->getFirstCol());
+    return;
+  }
+
+}
 
 void Read::print(int nesting) {
   std::string padding(nesting*2, ' ');
