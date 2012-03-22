@@ -432,12 +432,16 @@ void VariableDec::print(int nesting) {
   std::cout << padding << "Declaración de variables" << std::endl;
   std::cout << padding << " Tipo: ";
   type->print();
-  std::cout << std::endl;
+
   for (std::list<std::pair<SymVar*,Expression*>>::iterator it = decls.begin();
        it != decls.end(); it++) {
-    std::cout << padding << " " << (*it).first->getId();
+    std::cout << padding << " Var: " << (*it).first->getType()->toString()
+	      << (*it).first->getId() << " (" << (*it).first->getLine()
+	      << ":" << (*it).first->getColumn()
+	      << ") [Bloque: " << (*it).first->getnumScope() << "] ["
+	      << "Offset: " << (*it).first->getOffset() << "]" << std::endl;
     if ((*it).second != NULL) {
-      std::cout << "=" << std::endl;
+      std::cout << padding << "  =" << std::endl;
       (*it).second->print(nesting+1);
     } else {
       std::cout << std::endl;

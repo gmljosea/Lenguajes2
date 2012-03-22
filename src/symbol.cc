@@ -130,8 +130,8 @@ SymVar::SymVar(std::string id,int line,int col,
 }
 
 void SymVar::print(){
-  std::cout << id << " (" << line << ":" << col << ") Bloque: "
-	    << this->context << std::endl;
+  std::cout << this->type->toString() << id << " (" << line << ":" << col
+	    << ") Bloque: " << this->context << std::endl;
 }
 
 void SymVar::setReadonly(bool readonly){

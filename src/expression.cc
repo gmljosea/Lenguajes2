@@ -61,7 +61,11 @@ VarExp::VarExp(SymVar* symv) {
 
 void VarExp::print(int nesting) {
   std::string padding(nesting*2, ' ');
-  std::cout << padding << symv->getId() << std::endl;
+  std::cout << padding << this->symv->getType()->toString() 
+	    << this->symv->getId() << " (" << this->symv->getLine() 
+	    << ":" << this->symv->getColumn()
+	    << ") [Bloque: " << this->symv->getnumScope() << "] ["
+	    << "Offset: " << this->symv->getOffset() << "]" << std::endl;
 }
 
 bool VarExp::isLvalue() { return true; }
