@@ -14,6 +14,7 @@ box items{
 box cajaChica{
   items array[12] movimientos;  -.Error! Definicion recursiva
   int year;
+  Cajero c;                     -. Error! introduce recursividad de box 
 
   variant:
   int encargado;
@@ -24,6 +25,7 @@ box cajaChica{
   } 
   int array[3] encargados;
 }
+
 
 box items{            -. Error box redeclarado 
   float gasto= 100;   -. Error de sintaxis! No se puede inicializar
