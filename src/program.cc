@@ -37,7 +37,7 @@ void Program::check(){
     
 }
 
-/* Calcular offsets (Por ahora de los box)
+/* Calcular offsets de los box
  * La precondicion es que todos los boxes esten completamente definidos
  * y que no existan ciclos en la definicion de los mismos.
  */ 

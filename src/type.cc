@@ -396,6 +396,34 @@ bool BoxType::reaches(BoxType& box) {
   return false;
 }
 
+void BoxType::print(){
+  std::cout <<"Tipo Box: "<<name<<" ("<< line << ":" << column << ")"<< std::endl;
+  std::cout << "Campos fijos: "<< std::endl;
+  std::list<BoxField*>::iterator it = fixed_fields.begin();
+  if(it == fixed_fields.end())
+    std::cout << "  No posee campos fijos"<< std::endl;
+ 
+  for (; it != fixed_fields.end(); it++) {
+    std::cout << "  Campo: "<<(**it).name<< std::endl;
+    std::cout << "    Tipo: " << (**it).type->toString();
+    std::cout <<" ("<<(**it).line<<":"<<(**it).column<<")"
+      " [Offset: "<<(**it).offset<< "]" << std::endl;
+  }
+  std::cout << "Campos variantes: "<< std::endl;
+  it = variant_fields.begin();
+   if(it == variant_fields.end())
+    std::cout << "  No posee campos variantes"<< std::endl;
+
+   for (; it != variant_fields.end(); it++) {
+     std::cout << "  Campo: "<<(**it).name<< std::endl;
+     std::cout << "    Tipo: " << (**it).type->toString();
+       std::cout <<" ("<<(**it).line<<":"<<(**it).column<<")"
+       " [Offset: "<<(**it).offset<< "]" << std::endl;
+   }
+   std::cout << std::endl;
+
+}
+
 std::list<BoxField*> BoxType::getFFields(){
   return fixed_fields;
 }
