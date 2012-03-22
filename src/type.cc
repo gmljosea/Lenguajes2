@@ -354,7 +354,7 @@ void BoxType::check() {
       if( !cast_tbox->isIncomplete() ){
         // Verificar si existen ciclos
         if( this->reaches(*cast_tbox))
-          program.error("tipo '"+(*FieldIt)->type->toString()+
+          program.error("tipo '"+this->toString()+
                         "' tiene referencia ciclica a traves del campo '"
                         +((*FieldIt)->name)+"'",(*FieldIt)->line,
                         (*FieldIt)->column);
@@ -380,13 +380,16 @@ void BoxType::check() {
     // Si es type box hacer check y ver si no llega a mi
     BoxType *cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
     ArrayType *cast_tarray= dynamic_cast<ArrayType*>((*FieldIt)->type);
-    if(cast_tarray) (*FieldIt)->type->check();
+    if(cast_tarray) {
+      (*FieldIt)->type->check();
+      cast_tbox = dynamic_cast<BoxType*>(cast_tarray->getBaseType());
+    }
     if(cast_tbox ){
       // Verificar que el box ha sido declarado
       if( !cast_tbox->isIncomplete() ){
         // Verificar si existen ciclos
         if( this->reaches(*( dynamic_cast<BoxType*>((*FieldIt)->type) )) )
-          program.error("tipo '"+(*FieldIt)->type->toString()+
+          program.error("tipo '"+this->toString()+
                         "' tiene referencia ciclica a traves del campo '"
                         +((*FieldIt)->name)+"'",(*FieldIt)->line,
                         (*FieldIt)->column);

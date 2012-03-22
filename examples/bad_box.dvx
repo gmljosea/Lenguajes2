@@ -12,11 +12,12 @@ box items{
 }
 
 box cajaChica{
-  items array[12] movimientos;
+  items array[12] movimientos;  -.Error! Definicion recursiva
   int year;
 
   variant:
   int encargado;
+  items itemb;    -. Error! tipos recursivos en variant
   {
     int noComision;
     char tipo;
