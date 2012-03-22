@@ -13,7 +13,7 @@ class Block;
 
 /**
  * Clase abstracta que representa un objeto de la tabla de simbolos.
- */ 
+ */
 class Symbol {
 protected:
   std::string id;
@@ -34,9 +34,9 @@ public:
   int getColumn();
 };
 
- /** 
+ /**
   * Clase SymVar hereda de Symbol. Representa una variable declarada.
-  */ 
+  */
 class SymVar: public Symbol{
 private:
   bool isParameter;
@@ -78,7 +78,7 @@ private:
   ArgList *args; // Lista de argumentos (SymVar)
 public:
   SymFunction (std::string id, ArgList* arguments, Type* rtype,
-	       int line, int col);
+               int line, int col);
   void setBlock(Block* block);
   Block* getBlock();
   int getArgumentCount();
@@ -91,13 +91,13 @@ typedef std::unordered_multimap<std::string,SymVar*> varSymtable;
 typedef std::unordered_map<std::string,SymFunction*> funcSymtable;
 typedef std::unordered_multimap<std::string,BoxType*> boxHash;
 
-/* Clase SymTable, representa la Tabla de simbolos con el manejo 
+/* Clase SymTable, representa la Tabla de simbolos con el manejo
    adecuado del anidamiento de los alcances.Metodo Leblanc-Cook */
 class SymTable{
 private:
   // Tabla para las variables
   varSymtable varTable;
-  // Tabla para las funciones 
+  // Tabla para las funciones
   funcSymtable funcTable;
   // Tabla para los box
   boxHash boxTable;
@@ -118,7 +118,7 @@ public:
   int leave_scope();
   int enter_scope();
   void print();
-  
+
 };
 
 #endif

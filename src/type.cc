@@ -5,7 +5,6 @@
 extern Program program;
 // Type
 int Type::getSize() {
-  std::cout << "size of " << this->toString() << " is " << std::to_string(size) << std::endl;
   return this->size;
 }
 
@@ -164,7 +163,7 @@ int ArrayType::getLength() {
 void ArrayType::check(){
   ArrayType *cast_tarr= dynamic_cast<ArrayType*>(basetype);
   StringType *cast_str = dynamic_cast<StringType*>(basetype);
-  if (cast_tarr or cast_str)
+  if (cast_tarr or cast_str or *(this->basetype) == VoidType::getInstance() )
     program.error("tipo base del arreglo es '"+basetype->toString()
                   + "' pero se esperaba un tipo basico o box",line,col);
 
@@ -258,6 +257,12 @@ void BoxType::setColumn(int c){
 }
 
 void BoxType::calcOffsets(){
+
+  // Si tiene campos variantes, de una guardar al principio espacio para
+  // un entero que indique el número de campo activo en el variant
+  if (this->variant_fields.size() > 0) {
+    this->size = 4;
+  }
 
   // Calcular offsets de los campos fijos
   for (std::list<BoxField*>::iterator FieldIt= this->fixed_fields.begin();

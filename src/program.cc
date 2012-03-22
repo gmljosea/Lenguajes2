@@ -13,7 +13,7 @@ void Program::check(){
    * y que no existen ciclos en sus declarariones */
   for (std::list<BoxType*>::iterator BoxIt= this->boxes.begin();
        BoxIt != this->boxes.end(); BoxIt++){
-    (*BoxIt)->check();  
+    (*BoxIt)->check();
   }
 
   if (this->errorCount==0){
@@ -22,34 +22,32 @@ void Program::check(){
   }
 
   this->offsetVarDec=0;
-  // Chequear las variables gobales 
-  for(std::list<VariableDec*>::iterator varIt=this->globalinits.begin();  
+  // Chequear las variables gobales
+  for(std::list<VariableDec*>::iterator varIt=this->globalinits.begin();
       varIt != this->globalinits.end(); varIt++){
     (*varIt)->check();
   }
 
-  // Chequeo de las funciones 
+  // Chequeo de las funciones
   for (std::list<SymFunction*>::iterator funIt= this->functions.begin();
        funIt != this->functions.end(); funIt++){
     this->offsetVarDec=0;
     (*funIt)->check();
   }
-    
+
 }
 
 /* Calcular offsets de los box
  * La precondicion es que todos los boxes esten completamente definidos
  * y que no existan ciclos en la definicion de los mismos.
- */ 
+ */
 void Program::calcOffsets(){
   // Recorrer los box para calcular los offsets
   for (std::list<BoxType*>::iterator BoxIt= this->boxes.begin();
        BoxIt != this->boxes.end(); BoxIt++){
-    if(!(*BoxIt)->areOffsetsDone()){ 
+    if(!(*BoxIt)->areOffsetsDone()){
       (*BoxIt)->calcOffsets();
     }
   }
 
 }
-
-       

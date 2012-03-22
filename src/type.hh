@@ -5,21 +5,40 @@
 #include <unordered_map>
 #include <string>
 
+/**
+ * Representa un tipo en el sistema de tipos en Devanix
+ */
 class Type {
 protected:
+  // Tamaño y alineación de este tipo en bytes
   int size;
   int alignment;
 public:
   Type(int size, int alignment) : size(size), alignment(alignment) {};
+  // Tamaño y alineación en bytes del tipo
   virtual int getSize();
   virtual int getAlignment();
-  virtual void check();
+
+  // Comparación de igualdad entre tipos
   virtual bool operator==(Type& b);
   virtual bool operator!=(Type& b);
+
   virtual void print();
   virtual std::string toString();
+
+  virtual void check();
+
+  /**
+   * Actualmente no tenemos un tipo 'referencia a', así que el pase de
+   * argumentos por referencia es un chanchullo entre SymVar y Type.
+   * Ya es muy tarde para pensar algo mejor así que luego veremos en
+   * una mejor manera de modelar el asunto.
+   */
+  // Devuelve el tamaño en bytes de una referencia a una variable de este tipo
+  // Era necesario porque inicialmente planeamos tener arreglo de una sola
+  // dimensión así que junto a la referencia se iba a pasar el tamaño.
   virtual int getReferenceSize();
-  // Dice si el tipo se pasa siempre por referencia
+  // Dice en que modo se pasa este tipo por default
   virtual bool alwaysByReference();
 };
 
@@ -79,6 +98,7 @@ public:
   virtual bool alwaysByReference();
 };
 
+/// Tipo error, indica el tipo de una expresión que no tenga sentido
 class ErrorType : public Type {
 private:
   ErrorType() : Type(0, 0) {};
@@ -89,12 +109,12 @@ public:
 };
 
 // Tipos compuestos
+// Tipo arreglo, el tipo base de un arreglo no puede void, string ni otro arreglo
 class ArrayType : public Type {
 private:
   Type* basetype;
   int length;
-  int line;
-  int col;
+  int line, col;
 public:
   ArrayType(Type* btype, int length,
             int line,int col) : basetype(btype), length(length),
@@ -103,6 +123,7 @@ public:
   virtual std::string toString();
   virtual int getSize();
   virtual int getAlignment();
+  // Chequea que no sea arreglo de más de 1 dimensión, ni arreglo de strings
   virtual void check();
   Type* getBaseType();
   int getLength();
@@ -111,16 +132,20 @@ public:
   virtual bool alwaysByReference();
 };
 
+// Representa un campo de un box, sea variant o no
 struct BoxField {
   Type* type;
   std::string name;
   int offset;
-  bool grouped;
-  int groupnum;
-  int line;
-  int column;
+
+  int line, column;
+
+  // Campos útiles solo para campos variant
+  bool grouped; // Si está en una agrupación
+  int groupnum; // Número de campo, servirá para hacer los chequeos dinámicos
 };
 
+// Representa un tipo Box, con cualquier cantidad de campos fijos o variantes
 class BoxType : public Type {
 private:
   std::string name;
