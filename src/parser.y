@@ -945,6 +945,13 @@ int main (int argc, char **argv) {
     (**it).print();
   }
 
+  std::cout << std::endl << "-- Tipos Box definidos --" << std::endl << std::endl;
+
+  for (std::list<BoxType*>::iterator it = program.boxes.begin();
+       it != program.boxes.end(); it++) {
+    (**it).print();
+  }
+
   program.symtable.print();
 
   return 0;

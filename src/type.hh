@@ -155,6 +155,7 @@ public:
   void setColumn(int c);
   int getLine();
   int getColumn();
+  void print();
   virtual std::string toString();
   virtual bool alwaysByReference();
 };
