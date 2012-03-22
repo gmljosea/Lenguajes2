@@ -128,7 +128,7 @@ opcional.
 ## Estructura del programa
 
 Un programa en Devanix se compone de una secuencia de declaraciones de variables
-globales y de funciones. Debe haber una función llamada **main**, de tipo
+globales, tipos box y funciones. Debe haber una función llamada **main**, de tipo
 **int** y que no reciba argumentos; esta función sirve como punto de entrada al
 programa.
 El lenguaje no permite funciones anidadas por lo que el alcance global es el
@@ -203,23 +203,17 @@ campos: normales y variantes.
 Dado un box cualquiera, cada campo normal ocupa su propia región de memoria,
 mientras que la colección de campos variantes comparten la misma memoria.
 
-Los campos variantes son inseguros. Es responsabilidad del programador asegurarse
-de que no se usen de forma indebida. Por ejemplo, evitar asignar a un campo
-variante de tipo int, e inmediatamente leer otro campo variante de tipo float.
-Los bits serán reinterpretados y no hay garantías.
-
 Un tipo **box** básico sin campos variantes se declara de la siguiente manera:
 
     box nombre {
-        tipo variable [= expresion];
-	    tipo variable [= expresion];
+        tipo variable;
+	    tipo variable;
 	    ...
     }
 
-Las variables pueden ser de cualquier tipo excepto void, inclusive otro box.
+Las variables pueden ser de cualquier tipo excepto void o string, inclusive otro box.
 No puede existir un campo del box que sea del mismo tipo que el propio box, pues
-sería una recursión infinita. En la parte variant no se permite utilizar campos 
-de tipo string.
+sería una recursión infinita.
 
 Un tipo **box** con campos variantes se declara de la siguiente manera:
 
@@ -249,8 +243,8 @@ del grupo están activas al mismo tiempo:
 También se pueden combinar campos fijos con campos variantes:
 
     box nombre {
-        tipo variable[=expresion];    -. campos fijos
-	    tipo variable[=expresion];
+        tipo variable;    -. campos fijos
+	    tipo variable;
 	    ...
       variant:
         tipo variable;    -. campos variantes
@@ -308,7 +302,6 @@ inicializarlas simultáneamente. Por ejemplo:
 Las sintaxis de variables de tipo array varía ligeramente:
 
     tipo array[num] nombreVar ;
-    tipo array[num] nombreVar = expresión ;
 
 *   El tipo del contenido del array debe ser cualquier tipo escalar, **string**
     o nombre de **box** definido por el usuario.
@@ -319,6 +312,13 @@ Ejemplos:
     int array[20] a;     -. arreglo de 20 enteros
     float rarray[100] b; -. arreglo de 20 flotantes
 
+Los arreglos no pueden ser inicializados al momento de su declaración, ni se pueden realizar
+asignaciones sobre ellos. La única manera de introducir valores en ellos es accediendo a sus 
+casillas individualmente. Ejemplo:
+
+    a[10]= 5;
+    b[50]= 30.0;
+
 ## Arreglos
 
 Los arreglos en Devanix son unidimensionales y se indexan comenzando por el 0.
@@ -327,6 +327,9 @@ Los arreglos son de tamaño fijo y constante a tiempo de compilación. No existe
 arreglos dinámicos.
 
 ## Strings (Cadenas de caracteres)
+
+Los strings en devanix son variables inmutables. Al momento de su declaración debe ser inicializado
+y no se permite cambiar su valor durante la ejecución del programa.
 
 ## Funciones
 
@@ -372,6 +375,14 @@ Ejemplo:
 
 Se admite recursión.
 
+Para definir un parámetro de tipo arreglo se usa la siguiente notación:
+
+    void longitud(int array[] b){
+      ...
+    }
+
+El arreglo será pasado como referencia. 
+
 La instrucción **return** permite finalizar la ejecución de la función y
 devolver un valor. Si la función es void, se omite la expresión. Por ejemplo:
 
@@ -392,7 +403,8 @@ Esto permite invocar funciones de tipo **void**. Por ejemplo:
 
 ## Equivalencia y compatibilidad de tipos
 
-!!! Coming soon
+La equivalencia y compatibilidad de tipos es por nombre. Las variables, constantes
+o funciones son de tipo compatible sólo si sus tipos son el mismo. 
 
 ## Asignación
 
@@ -426,9 +438,9 @@ tenerse cuidado con los efectos de borde.
 Sintaxis:
 
        if condición {
-          instrucciones
+          -. instrucciones
        } else {
-          instrucciones
+          -. instrucciones
        }
 
 La condición debe ser una expresión de tipo booleano.
@@ -439,7 +451,7 @@ Se puede omitir la parte del else si se quiere.
 Sintaxis:
 
        label: for var in num..num2 step num3 {
-           instrucciones
+           -. instrucciones
        }
 
 *   La variable **var** se declara automáticamente de tipo **int** y solo es
@@ -455,13 +467,15 @@ Sintaxis:
 *   Los límites se chequean antes de comenzar la primera iteración.
     En caso de que los límites sean vacíos(**num < num2**) no se ejecutará ningún
     ciclo.
-*   **label** es una etiqueta opcional que será explicada en la sección **Etiquetas**. 
+*   **label** es una etiqueta opcional que será explicada en la sección **Etiquetas**.
+*   La parte de step num3 es opcinal. En caso de omitirlo el valor por defecto que toma 
+    num3 es el entero número uno (1).
 
 Existe una variante de esta estructura que permite iterar sobre arreglos de
 manera sencilla:
 
     label: for var in arreglo {
-        instrucciones
+        -. instrucciones
     }
 
 *    La variable **var** asume el tipo del tipo contenido por el arreglo.
@@ -558,12 +572,27 @@ Entre las funciones de librería que ofrece Devanix se encuentran las siguientes
 
 Para conversiones explicitas:
 
-De 'int' a 'float' : inttofloat(int a)
-De 'float' a 'int' : floattoint(float b)
-De 'char' a 'int' : chartoint(char c)
-De 'int' a 'char' : inttochar(int d)
+*    De 'int' a 'float' : inttofloat(int a)
+*    De 'float' a 'int' : floattoint(float b)
+*    De 'char' a 'int' : chartoint(char c)
+*    De 'int' a 'char' : inttochar(int d)
 
 ### Entrada/Salida
+
+La forma en la que Devanix realiza la entrada y salida es a traves de las palabras
+ reservadas *read*, *write* y *writeln*. Ejemplo:
+
+    int a;
+    write "Ingrese el monto a calcular:";
+    read a; 
+
+En este ejemplo se declara una variable de tipo **int**, luego se escribe por la salida
+ estandar el string suministrado y por último se espera que se ingrese un valor entero 
+para ser almacenado en la variable 'a'. Notese que si el tipo del valor suministrado no 
+es el correcto, por defecto se emitirá un mensaje para que el usuario vuelva a ingresar 
+un valor pero del tipo correcto. 
+
+Sólo se pueden utilizar los tipos básicos o **string** para la entrada salida.
 
 ## Chequeos dinámicos
 
