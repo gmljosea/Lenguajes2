@@ -262,13 +262,16 @@ void BoxType::calcOffsets(){
   // un entero que indique el número de campo activo en el variant
   if (this->variant_fields.size() > 0) {
     this->size = 4;
+  } else {
+    this->size = 0;
   }
 
   // Calcular offsets de los campos fijos
   for (std::list<BoxField*>::iterator FieldIt= this->fixed_fields.begin();
        FieldIt != this->fixed_fields.end(); FieldIt++){
-    BoxType *cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
-    if(cast_tbox and !cast_tbox->areOffsetsDone())
+
+    BoxType *cast_tbox = dynamic_cast<BoxType*>((*FieldIt)->type);
+    if (cast_tbox and !cast_tbox->areOffsetsDone())
       cast_tbox->calcOffsets();
 
     int align =(*FieldIt)->type->getAlignment();
@@ -347,7 +350,7 @@ void BoxType::check() {
       // Verificar que el box ha sido declarado
       if( !cast_tbox->isIncomplete() ){
         // Verificar si existen ciclos
-        if( this->reaches(*( dynamic_cast<BoxType*>((*FieldIt)->type) )) )
+        if( this->reaches(*cast_tbox))
           program.error("tipo '"+(*FieldIt)->type->toString()+
                         "' tiene referencia ciclica a traves del campo '"
                         +((*FieldIt)->name)+"'",(*FieldIt)->line,

@@ -162,7 +162,7 @@ protected:
 public:
   BoxType(std::string name, bool incomplete)
     : name(name), incomplete(incomplete), groupcount(0),
-      offsetsDone(false),Type(0,0) {};
+      offsetsDone(false),Type(1,1) { };
   void addFixedField(Type* type, std::string name,int l,int col);
   void addVariantField(Type* type, std::string name, bool grouped,int l,int col);
   void startGrouping();
