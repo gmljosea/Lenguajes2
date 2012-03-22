@@ -54,6 +54,7 @@ public:
   void setContext(int num);
   void setOffset(int offset);
   int getSize();
+  int getAlignment();
   int getOffset();
   void setType(Type* type);
   void print();

@@ -5,6 +5,7 @@
 extern Program program;
 // Type
 int Type::getSize() {
+  std::cout << "size of " << this->toString() << " is " << std::to_string(size) << std::endl;
   return this->size;
 }
 
@@ -261,40 +262,53 @@ void BoxType::calcOffsets(){
   // Calcular offsets de los campos fijos
   for (std::list<BoxField*>::iterator FieldIt= this->fixed_fields.begin();
        FieldIt != this->fixed_fields.end(); FieldIt++){
-    (*FieldIt)->offset= this->size;
     BoxType *cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
-    if(cast_tbox and !cast_tbox->areOffsetsDone()) 
+    if(cast_tbox and !cast_tbox->areOffsetsDone())
       cast_tbox->calcOffsets();
-    this->size+= (*FieldIt)->type->getSize(); 
+
+    int align =(*FieldIt)->type->getAlignment();
+    // los box en conjunto se alinean de acuerdo al campo cuya alineación sea
+    // máxima, por ejemplo, un box que solo tenga bools, se alineará a 1,
+    // pero si contiene varios bools y un int, se alineará a 4
+    this->alignment = align > this->alignment ? align : this->alignment;
+
+    this->size += (align - (this->size % align)) % align;
+    (*FieldIt)->offset = this->size;
+    this->size += (*FieldIt)->type->getSize();
   }
 
   int offset=this->size;
+  int maxAlign = 0;
   int maxSizeVariant=this->size;
   int group=-1;
   // Calcular offsets de los campos variantes
   for (std::list<BoxField*>::iterator FieldIt= this->variant_fields.begin();
        FieldIt != this->variant_fields.end(); FieldIt++){
-   
+
     if((*FieldIt)->grouped){
-      // Si es una nueva agrupacion 
-      if(group!=(*FieldIt)->groupnum){ 
+      // Si es una nueva agrupacion
+      if(group!=(*FieldIt)->groupnum){
         //guardo el num de agrupacion y se reinicia el offset
         group= (*FieldIt)->groupnum;
         offset=this->size;
-      }   
-    }else{ 
+      }
+    }else{
       // Si el campo no pertenece a una agrupacion se reinicia
       offset=this->size;
     }
 
-   BoxType *cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
-   // Si el tipo del campo es un box asegurar que el tamaño este calculado
-    if(cast_tbox and !cast_tbox->areOffsetsDone()) 
+    BoxType *cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
+    // Si el tipo del campo es un box asegurar que el tamaño este calculado
+    if(cast_tbox and !cast_tbox->areOffsetsDone())
       cast_tbox->calcOffsets();
-    
-    (*FieldIt)->offset= offset;
-    offset+= (*FieldIt)->type->getSize();
-  
+
+    int align =(*FieldIt)->type->getAlignment();
+    this->alignment = align > this->alignment ? align : this->alignment;
+
+    offset += (align - (offset % align)) % align;
+    (*FieldIt)->offset = offset;
+    offset += (*FieldIt)->type->getSize();
+
     if(offset>maxSizeVariant) maxSizeVariant= offset;
   }
   this->size= maxSizeVariant;
@@ -311,7 +325,7 @@ void BoxType::check() {
   // Verificar los campos fijos
   for (std::list<BoxField*>::iterator FieldIt= this->fixed_fields.begin();
        FieldIt != this->fixed_fields.end(); FieldIt++){
-    // Verificar tipo 
+    // Verificar tipo
     StringType *cast_tboxfield= dynamic_cast<StringType*>((*FieldIt)->type);
     if(((*FieldIt)->type== &(VoidType::getInstance())) or cast_tboxfield){
       std::string error="campo '"+((*FieldIt)->name)+"' del tipo '"
@@ -327,7 +341,7 @@ void BoxType::check() {
     if(cast_tbox ){
       // Verificar que el box ha sido declarado
       if( !cast_tbox->isIncomplete() ){
-        // Verificar si existen ciclos 
+        // Verificar si existen ciclos
         if( this->reaches(*( dynamic_cast<BoxType*>((*FieldIt)->type) )) )
           program.error("tipo '"+(*FieldIt)->type->toString()+
                         "' tiene referencia ciclica a traves del campo '"
@@ -343,7 +357,7 @@ void BoxType::check() {
   // Verificar los campos de la parte variant
   for (std::list<BoxField*>::iterator FieldIt= this->variant_fields.begin();
        FieldIt != this->variant_fields.end(); FieldIt++){
-    // Verificar tipo 
+    // Verificar tipo
     StringType *cast_tboxfield= dynamic_cast<StringType*>((*FieldIt)->type);
     if(((*FieldIt)->type== &(VoidType::getInstance())) or cast_tboxfield){
       std::string error="campo '"+((*FieldIt)->name)+"' del tipo '"
@@ -359,7 +373,7 @@ void BoxType::check() {
     if(cast_tbox ){
       // Verificar que el box ha sido declarado
       if( !cast_tbox->isIncomplete() ){
-        // Verificar si existen ciclos 
+        // Verificar si existen ciclos
         if( this->reaches(*( dynamic_cast<BoxType*>((*FieldIt)->type) )) )
           program.error("tipo '"+(*FieldIt)->type->toString()+
                         "' tiene referencia ciclica a traves del campo '"
@@ -371,8 +385,8 @@ void BoxType::check() {
       }
     }
   }
-  
-  // Si calcular offsets despues 
+
+  // Si calcular offsets despues
 
 }
 
@@ -383,7 +397,7 @@ bool BoxType::reaches(BoxType& box) {
   }
   bool reachable= false;
   for (std::list<BoxField*>::iterator FieldIt= box.getFFields().begin();
-       FieldIt != box.getFFields().end(); FieldIt++){ 
+       FieldIt != box.getFFields().end(); FieldIt++){
     BoxType *cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
     if(cast_tbox ){
       // Verificar que el box ha sido declarado
@@ -397,6 +411,10 @@ bool BoxType::reaches(BoxType& box) {
 }
 
 void BoxType::print(){
+  std::cout << "box " << this->name << std::endl;
+}
+
+void BoxType::printDetail() {
   std::cout <<"Tipo Box: "<<name<<" ("<< line << ":" << column << ")"<< std::endl;
   std::cout << "Campos fijos: "<< std::endl;
   std::list<BoxField*>::iterator it = fixed_fields.begin();
@@ -420,8 +438,10 @@ void BoxType::print(){
        std::cout <<" ("<<(**it).line<<":"<<(**it).column<<")"
        " [Offset: "<<(**it).offset<< "]" << std::endl;
    }
-   std::cout << std::endl;
+   std::cout << "Tamaño: " << this->size   << std::endl;
+   std::cout << "Alineación: " << this->alignment << std::endl;
 
+   std::cout << std::endl;
 }
 
 std::list<BoxField*> BoxType::getFFields(){

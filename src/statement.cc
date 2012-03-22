@@ -49,13 +49,13 @@ void Block::push_back(Statement *stmt) {
 }
 
 void Block::check(){
+  program.stackOffsets.push_back(program.offsetVarDec);
   for(std::list<Statement*>::iterator it = this->stmts.begin();
       it != this->stmts.end(); it++){
-    program.stackOffsets.push_back(program.offsetVarDec);
     (*it)->check();
-    program.offsetVarDec= program.stackOffsets.back();
-    program.stackOffsets.pop_back();
   }
+  program.offsetVarDec= program.stackOffsets.back();
+  program.stackOffsets.pop_back();
 }
 
 void Block::print(int nesting) {
@@ -344,6 +344,7 @@ VariableDec::VariableDec(Type* type,
 void VariableDec::check(){
   // bueno, esto se viene en grande
   // super chequeo ultra ++
+    std::cout << "global offset is " << program.offsetVarDec << std::endl;
 
   if (*(this->type) == VoidType::getInstance()) {
     program.error("no se pueden declarar variables tipo 'void'",
@@ -417,9 +418,13 @@ void VariableDec::check(){
 		      it->second->getFirstCol());
       }
     }
-    int tam= it->first->getSize();
+    int tam = it->first->getSize();
+    int align = it->first->getAlignment();
+    // Alinear offset de ser necesario, esperemos que nunca llegue aquí algo
+    // que se tenga alignment 0 o super divisiones por 0 ocurrirán
+    program.offsetVarDec += (align - (program.offsetVarDec % align)) % align;
     it->first->setOffset(program.offsetVarDec);
-    program.offsetVarDec+= tam;
+    program.offsetVarDec += tam;
   }
 }
 
@@ -436,7 +441,7 @@ void VariableDec::print(int nesting) {
   for (std::list<std::pair<SymVar*,Expression*>>::iterator it = decls.begin();
        it != decls.end(); it++) {
     std::cout << padding << " Var: " << (*it).first->getType()->toString()
-	      << (*it).first->getId() << " (" << (*it).first->getLine()
+	      << " " << (*it).first->getId() << " (" << (*it).first->getLine()
 	      << ":" << (*it).first->getColumn()
 	      << ") [Bloque: " << (*it).first->getnumScope() << "] ["
 	      << "Offset: " << (*it).first->getOffset() << "]" << std::endl;
@@ -571,7 +576,32 @@ Read::Read(Expression* lval) {
   this->lval = lval;
 }
 
-void Read::check(){}
+void Read::check() {
+  lval->check();
+  lval = lval->cfold();
+
+  if (!lval->isLvalue()) {
+    program.error("no es una expresión asignable", lval->getFirstLine(),
+		  lval->getFirstCol());
+    return;
+  } else if (!lval->isAssignable()) {
+    program.error("lvalue de solo lectura, no se puede asignar",
+		  lval->getFirstLine(), lval->getFirstCol());
+    return;
+  }
+
+  // Se prohibe asignar strings, arrays y boxes
+  Type* tlval = lval->getType();
+  if (dynamic_cast<StringType*>(tlval) or
+      dynamic_cast<ArrayType*>(tlval) or
+      dynamic_cast<BoxType*>(tlval)) {
+    program.error("no se puede asignar a variables de tipo '"+
+		  tlval->toString()+"'", lval->getFirstLine(),
+		  lval->getFirstCol());
+    return;
+  }
+
+}
 
 void Read::print(int nesting) {
   std::string padding(nesting*2, ' ');

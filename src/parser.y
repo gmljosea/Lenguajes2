@@ -408,7 +408,7 @@ type TK_ID ";"
 {
   BoxField *field= $<box>-6->getField(*$3);
   if(field==NULL){
-    $<box>-6->startGrouping();
+    /*    $<box>-6->startGrouping();*/
     $<box>-6->addVariantField($2,*$3,true,@2.first_line,@2.first_column);
   }else{
     std::string err = "redeclaración de variable '"
@@ -668,7 +668,7 @@ asignment:
  /* Produce una instrucción Declaración de variables */
 variabledec:
   type vardec_items ";"
-    { for (std::list<std::pair<SymVar*,Expression*>>::iterator it = $2->begin();
+  { for (std::list<std::pair<SymVar*,Expression*>>::iterator it = $2->begin();
            it != $2->end(); it++) {
         (*it).first->setType($1);
       }
@@ -949,7 +949,7 @@ int main (int argc, char **argv) {
 
   for (std::list<BoxType*>::iterator it = program.boxes.begin();
        it != program.boxes.end(); it++) {
-    (**it).print();
+    (**it).printDetail();
   }
 
   program.symtable.print();
