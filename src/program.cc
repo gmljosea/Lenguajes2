@@ -16,10 +16,10 @@ void Program::check(){
     (*BoxIt)->check();
   }
 
-  if (this->errorCount==0){
+  //  if (this->errorCount==0){
     // Calcular offsets de los box
     this->calcOffsets();
-  }
+    //}
 
   this->offsetVarDec=0;
   // Chequear las variables gobales

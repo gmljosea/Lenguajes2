@@ -449,11 +449,11 @@ void BoxType::printDetail() {
    std::cout << std::endl;
 }
 
-std::list<BoxField*> BoxType::getFFields(){
+std::list<BoxField*>& BoxType::getFFields(){
   return fixed_fields;
 }
 
-std::list<BoxField*> BoxType::getVFields(){
+std::list<BoxField*>& BoxType::getVFields(){
   return variant_fields;
 }
 

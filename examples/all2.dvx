@@ -35,6 +35,8 @@ int main(){
   }
 
   float minMes= minArray(cajaC.bajas,12);
+
+  
   return 1;
 
 }

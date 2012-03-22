@@ -422,6 +422,7 @@ void VariableDec::check(){
     int align = it->first->getAlignment();
     // Alinear offset de ser necesario, esperemos que nunca llegue aquí algo
     // que se tenga alignment 0 o super divisiones por 0 ocurrirán
+    it->first->print();
     program.offsetVarDec += (align - (program.offsetVarDec % align)) % align;
     it->first->setOffset(program.offsetVarDec);
     program.offsetVarDec += tam;

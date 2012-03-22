@@ -167,8 +167,8 @@ public:
   void addVariantField(Type* type, std::string name, bool grouped,int l,int col);
   void startGrouping();
   BoxField* getField(std::string field);
-  std::list<BoxField*> getFFields();
-  std::list<BoxField*> getVFields();
+  std::list<BoxField*>& getFFields();
+  std::list<BoxField*>& getVFields();
   virtual void check();
   void calcOffsets();
   bool isIncomplete();
