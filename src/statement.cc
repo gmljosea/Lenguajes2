@@ -419,6 +419,10 @@ void VariableDec::check(){
       }
     }
     int tam = it->first->getSize();
+    int align = it->first->getAlignment();
+    // Alinear offset de ser necesario, esperemos que nunca llegue aquí algo
+    // que se tenga alignment 0 o super divisiones por 0 ocurrirán
+    program.offsetVarDec += (align - (program.offsetVarDec % align)) % align;
     it->first->setOffset(program.offsetVarDec);
     program.offsetVarDec += tam;
   }
@@ -437,7 +441,7 @@ void VariableDec::print(int nesting) {
   for (std::list<std::pair<SymVar*,Expression*>>::iterator it = decls.begin();
        it != decls.end(); it++) {
     std::cout << padding << " Var: " << (*it).first->getType()->toString()
-	      << (*it).first->getId() << " (" << (*it).first->getLine()
+	      << " " << (*it).first->getId() << " (" << (*it).first->getLine()
 	      << ":" << (*it).first->getColumn()
 	      << ") [Bloque: " << (*it).first->getnumScope() << "] ["
 	      << "Offset: " << (*it).first->getOffset() << "]" << std::endl;

@@ -113,6 +113,10 @@ void SymFunction::check() {
 
   int offset=0;
   for(ArgList::iterator it= this->args->begin(); it!=args->end(); it++){
+    int align =(*it)->getAlignment();
+    // Alinear offset de ser necesario, esperemos que nunca llegue aquí algo
+    // que se tenga alignment 0 o super divisiones por 0 ocurrirán
+    offset += (align - (offset % align)) % align;
     (*it)->setOffset(offset);
     offset += (*it)->getSize();
   }
@@ -167,6 +171,12 @@ int SymVar::getSize(){
   if (isParameter and reference)
     return this->type->getReferenceSize();
   return this->type->getSize();
+}
+
+int SymVar::getAlignment() {
+  if (isParameter and reference)
+    return 8;
+  return this->type->getAlignment();
 }
 
 int SymVar::getOffset(){
