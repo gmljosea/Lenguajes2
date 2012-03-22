@@ -113,8 +113,8 @@ void SymFunction::check() {
 
   int offset=0;
   for(ArgList::iterator it= this->args->begin(); it!=args->end(); it++){
-    offset= offset - (*it)->getSize();
     (*it)->setOffset(offset);
+    offset += (*it)->getSize();
   }
 }
 
@@ -130,8 +130,9 @@ SymVar::SymVar(std::string id,int line,int col,
 }
 
 void SymVar::print(){
-  std::cout << this->type->toString() << id << " (" << line << ":" << col
-	    << ") Bloque: " << this->context << std::endl;
+  std::cout << this->type->toString() << " " << id << " (" << line << ":" << col
+	    << ") [Bloque: " << this->context
+	    << "] [Offset: " << this->offset << "]" << std::endl;
 }
 
 void SymVar::setReadonly(bool readonly){
@@ -163,7 +164,7 @@ void SymVar::setOffset(int offset){
 }
 
 int SymVar::getSize(){
-  if(isParameter and reference) 
+  if (isParameter and reference)
     return this->type->getReferenceSize();
   return this->type->getSize();
 }

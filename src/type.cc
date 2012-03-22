@@ -5,6 +5,7 @@
 extern Program program;
 // Type
 int Type::getSize() {
+  std::cout << "size of " << this->toString() << " is " << std::to_string(size) << std::endl;
   return this->size;
 }
 
