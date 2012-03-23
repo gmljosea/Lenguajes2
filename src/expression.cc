@@ -467,7 +467,8 @@ void Relational::check() {
   // Caso tipos correctos
   if (*t1 == *t2 and
       (*t1 == IntType::getInstance() or
-       *t1 == FloatType::getInstance())) {
+       *t1 == FloatType::getInstance()) or
+      *t1 == CharType::getInstance()) {
     this->type = &(BoolType::getInstance());
     return;
   }
@@ -496,6 +497,8 @@ Expression* Greater::cfold() {
     result = new BoolExp(exp1->getInteger() > exp2->getInteger());
   } else if (*exp1->getType() == FloatType::getInstance()) {
     result = new BoolExp(exp1->getFloat() > exp2->getFloat());
+  } else {
+    return this;
   }
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
   delete exp1;
@@ -517,6 +520,8 @@ Expression* GreaterEq::cfold() {
     result = new BoolExp(exp1->getInteger() >= exp2->getInteger());
   } else if (*exp1->getType() == FloatType::getInstance()) {
     result = new BoolExp(exp1->getFloat() >= exp2->getFloat());
+  }else {
+    return this;
   }
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
   delete exp1;
@@ -536,7 +541,8 @@ void Equal::check() {
   if (*t1 == *t2 and
       (*t1 == IntType::getInstance() or
        *t1 == FloatType::getInstance() or
-       *t1 == BoolType::getInstance())) {
+       *t1 == BoolType::getInstance()) or
+      *t1 == CharType::getInstance()) {
     this->type = &(BoolType::getInstance());
     return;
   }
@@ -566,6 +572,8 @@ Expression* Equal::cfold() {
     result = new BoolExp(exp1->getFloat() == exp2->getFloat());
   } else if (*exp1->getType() == BoolType::getInstance()) {
     result = new BoolExp(exp1->getBool() == exp2->getBool());
+  }else {
+    return this;
   }
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
   delete exp1;
@@ -585,7 +593,8 @@ void NotEqual::check() {
   if (*t1 == *t2 and
       (*t1 == IntType::getInstance() or
        *t1 == FloatType::getInstance() or
-       *t1 == BoolType::getInstance())) {
+       *t1 == BoolType::getInstance()) or
+      *t1 == CharType::getInstance()) {
     this->type = &(BoolType::getInstance());
     return;
   }
@@ -615,6 +624,8 @@ Expression* NotEqual::cfold() {
     result = new BoolExp(exp1->getFloat() != exp2->getFloat());
   } else if (*exp1->getType() == BoolType::getInstance()) {
     result = new BoolExp(exp1->getBool() != exp2->getBool());
+  } else {
+    return this;
   }
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
   delete exp1;
@@ -636,6 +647,8 @@ Expression* Less::cfold() {
     result = new BoolExp(exp1->getInteger() < exp2->getInteger());
   } else if (*exp1->getType() == FloatType::getInstance()) {
     result = new BoolExp(exp1->getFloat() < exp2->getFloat());
+  } else {
+    return this;
   }
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
   delete exp1;
@@ -657,6 +670,8 @@ Expression* LessEq::cfold() {
     result = new BoolExp(exp1->getInteger() <= exp2->getInteger());
   } else if (*exp1->getType() == FloatType::getInstance()) {
     result = new BoolExp(exp1->getFloat() <= exp2->getFloat());
+  }else {
+    return this;
   }
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
   delete exp1;

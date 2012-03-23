@@ -568,7 +568,8 @@ Los operadores binarios son:
 *    *****  Operador para la multiplicacion
 *    **/**  Operador para la división
 *    **%**  Operador para el modulo
-*    **=**  Operador para la igualdad
+*    **==** Operador para la igualdad
+*    **!=** Operador para la desigualdad
 *    **>**  Mayor que
 *    **>=** Mayor igual
 *    **<**  Menor
@@ -584,15 +585,27 @@ Los operadores binarios son:
 
 *    **and** Conjunción lógica
 *    **or**  Disyunción lógica
-*    **=**   Igualdad
+*    **==**  Equivalencia
+*    **!=**  Inequivalencia
 
 Operador unario:
 
 *    **not** Negación lógica
 
-### Para los tipos array, string y char
+### Para el tipo char
 
-El operador binario que se proporciona para estos tipos es únicamente el de igualdad (**=**)
+Los operadores binarios son:
+
+*    **==** Operador para la igualdad
+*    **!=** Operador para la desigualdad
+*    **>**  Mayor que
+*    **>=** Mayor igual
+*    **<**  Menor
+*    **<=** Menor igual
+
+### Para los tipos array, string y box
+
+Actualmente no existen operadores para trabajar con alguno de estos tipos.
 
 ## Funciones de librería
 
