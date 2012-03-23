@@ -1,0 +1,76 @@
+-. Conjunto de pruebas semánticas 2
+-. - Recursión directa o indirecta entre boxes, a través de campos fijos o variant
+-. - Variables declaradas con tipo void
+-. - Variables declaradas con tipo string sin inicializar
+-. - Funciones que retornen strings, arrays o boxes
+-. - Campos tipo string o void dentro de box
+
+-. Recursión directa a través de campo fijo
+box box1 {
+  bool c;
+  box1 b;
+  int j;
+  int w;
+}
+
+-. Recursión directa a través de variant
+box box2 {
+  bool c;
+variant:
+  char a1;
+  box2 b;
+}
+
+-. Recursión indirecta a través de campo fijo
+box box11 {
+  bool c;
+  box12 b;
+}
+
+box box21 {
+  bool c;
+variant:
+  box12 b;
+}
+
+box box12 {
+  box11 b;
+}
+
+-. Campos chimbos en box
+box box3 {
+  bool c;
+  int w;
+  void algo;  -. Error
+  void algo2; -. Error
+  int j;
+  string str; -. Error
+variant:
+  void algo3; -. Error
+  string str2;-. Error
+}
+
+int main() {
+  void a;     -. Error
+  void a1,b;   -. Error
+  void c = 1; -. Error, pero debe quejarse por ser void pero no por asignar 1
+
+  string st1 = "hola";
+  string st2 = "mundo", st3 = "bla";
+
+  string st4;     -. Error
+  string st5,st6; -. Error x 2
+
+  return 1;
+}
+
+box btest {
+  int j;
+  int w;
+}
+
+int array[] fun1() { } -. Error
+
+btest fun2() { } -. Error
+
+string fun3() { } -. Error

@@ -1,0 +1,52 @@
+-. Conjunto de pruebas semánticas 1
+-. - Chequeo de main
+-. - Funciones con nombres duplicados
+-. - Variables con nombres duplicados
+-. - Boxes con nombres duplicados
+-. - Campos de box duplicados
+
+void fun1 () { }
+void fun1 (int j) { } -. Error
+void fun1 () { } -. Error
+
+void fun2 () {
+  int j, k, l, m;
+
+  j,k,l,m = 1,1,1,1;
+
+  int j = 2; -. Error, ya existe j
+  char l, n = 'a'; -. Error, ya existe j (pero n no existe asi que debe pasar)
+  bool w = true; -. Error, w ya existe
+}
+
+void fun3 (int j, int k, int k) { -. Error se redeclaró k
+  bool j = true; -. Error, j ya existe (los argumentos se asumen como variables locales
+                 -. declaradas al tope de la función)
+}
+
+box box1 {
+  int w;
+}
+
+box box1 { -. Error, se redeclara box1
+  int j;
+}
+
+box box2 {
+  int j;
+  int w;
+  int j; -. Error
+variant:
+  int w; -. Error
+}
+
+box box3 {
+  int j;
+  int j;  -. Error
+}
+
+box box4 {
+variant:
+  int w;
+  int w; -. Error
+}
