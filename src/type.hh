@@ -82,7 +82,7 @@ public:
 // Tipos especiales
 class VoidType : public Type {
 private:
-  VoidType() : Type(0, 0) {};
+  VoidType() : Type(1, 1) {};
   void operator=(VoidType const&);
 public:
   static VoidType& getInstance();
@@ -101,7 +101,7 @@ public:
 /// Tipo error, indica el tipo de una expresión que no tenga sentido
 class ErrorType : public Type {
 private:
-  ErrorType() : Type(0, 0) {};
+  ErrorType() : Type(1, 1) {};
   void operator=(ErrorType const&);
 public:
   static ErrorType& getInstance();

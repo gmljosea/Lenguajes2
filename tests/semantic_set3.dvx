@@ -1,0 +1,52 @@
+-. Conjunto de pruebas semánticas 3
+-. - Condición del If es bool
+-. - Condición del while es bool
+-. - Expresiones del for son int
+-. - Expresión del foreach es array
+-. - No permitir arrays, void o string como tipo base de un array
+-. - El tamaño de un array es mayor a 0
+-. - No se puede especificar un tamaño al definir un argumento de tipo array
+
+int main() {
+  if 23 { }  -. Error
+  if 'a' { } -. Error
+  if 2+4 { } -. Error
+
+  while 23 { } -. Error
+  while 'a' { } -. Error
+  while 2+4 { } -. Error
+
+  for i in 1..20 step 2 { }
+
+  for i in 'a'..'b' step 'c' { } -. Error x 3
+  for i in 1..'b' step 'c' { }   -. Error x 2
+  for i in 1..2 step 'c' { }     -. Error
+  
+  for i in 1..20 { }
+
+  for i in 'a'..'b' { } -. Error x 2
+  for i in 1..'c' { }   -. Error
+
+  int array[10] iarr;
+  for i in iarr { }
+
+  bool z;
+  for i in z { } -. Error
+  for i in z or true { } -. Error
+
+  int array[10] array[10] iarr2; -. Error
+  void array[10] array[10] iarr3; -. Error
+    -. Esto de hecho dará 2 errores, 'arreglarlo' implicaría demasiados cambios
+  void array[100] iarr4; -. Error
+  string array[10] iarr5; -. Error
+
+  bool array[0] barr; -. Error
+  bool array[-20] barr2; -. Error sintáctico, el parser tratará de recuperarse
+   -. Esto porque la regla espera que el número entre [] sea un entero no negativo
+
+  return 1;
+}
+
+void fun1 (int array[] arg1) { }
+
+void fun2 (int array[500] arg2) { } -. Error
