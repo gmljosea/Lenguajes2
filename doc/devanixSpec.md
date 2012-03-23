@@ -66,11 +66,22 @@ opcional.
 
 *global* ::=  *variabledec*
              | *type* **TK_ID** "(" [*args*]* ")" *block*
+             | **box** **TK_ID** **{** [*decs*] [*variantpart*] **}**
 
 *args* ::=  [*passby*] *type* **TK_ID**
             | *args* **,**  [*passby*] *type* **TK_ID**
 
 *passby* ::=  **$** | **$$**
+
+*decs* ::=  *type* **TK_ID** **;**
+            | *decs* *type* **TK_ID** **;**
+
+*variantpart* ::=  **variant:** *variantdecs*
+
+*variantdecs* ::= **{** *decs* **}**
+                  |  *decs* 
+                  | *variantdecs* *decs*
+                  | *variantdecs*  **{** *decs* **}**
 
 *block* ::=  **{** [*stmts*] **}**
 
@@ -85,7 +96,7 @@ opcional.
                 | **write** *explist* **;**
                 | **writeln** *explist* **;**
                 | **read** *lvalue* **;**
-                | *if* | *while* | *for* | *variabledec* | *asignment*
+                | *if* | *while* | *for* | *variabledec* | *asignment* | *foreach*
 
 *if* ::= **if** *expr* *block* [*else*]
 
@@ -101,12 +112,9 @@ opcional.
 *label* ::=  λ
            | **TK_ID** **:**
 
-*asignment* ::= *lvalues* **=** *explist* **;**
+*foreach* ::= *label* **for** **TK_ID** **in** *expr* *block* 
 
-*lvalues* ::= *lvalue*
-              | *lvalues* **,** *lvalue*
-
-*lvalue* ::= **TK_ID**
+*asignment* ::= *explist* **=** *explist* **;**
 
 *variabledec* ::= *type* (*vardec_item*)* **;**
 
@@ -114,16 +122,36 @@ opcional.
                  | **TK_ID** **=** *expr*
 
 *type* ::= **int** | **char** | **bool** | **float**
-          | **string** | **void**
-
-*expr* ::= **TK_ID** | TK_CONSTINT | TK_CONSSTRING | TK_CONSCHAR 
-          | TK_CONSFLOAT | TK_TRUE | TK_FALSE | *funcallexp*
+          | **string** | **void** | type **array** **[** [**TK_CONSTINT**] **]**
+          | **TK_ID**
 
 *funcallexp* ::= **TK_ID** **(** [*explist*] **)**
 
 *explist* ::= *expr*
              | *explist* **,** *expr*
-    
+     
+*expr* ::= **TK_ID** | **TK_CONSTINT** | **TK_CONSSTRING** | **TK_CONSCHAR** 
+          | **TK_CONSFLOAT** | **TK_TRUE** | **TK_FALSE** | *funcallexp* 
+          | *expr* **+** *expr*
+          | *expr* **-** *expr*
+          | *expr* ***** *expr*
+          | *expr* **/** *expr*
+          | *expr* **%** *expr*
+          | *expr* **+** *expr*
+          | **-** expr
+          | **(** expr **)**
+          | *expr* **and** *expr*
+          | *expr* **or** *expr*
+          | *expr* **not** *expr*
+          | *expr* **>** *expr*
+          | *expr* **>=** *expr*
+          | *expr* **<** *expr*
+          | *expr* **<=** *expr*
+          | *expr* **==** *expr*
+          | *expr* **!=** *expr*
+          | *expr* **[** *expr* **]**
+          | *expr* **.** **TK_ID** 
+  
 
 ## Estructura del programa
 
