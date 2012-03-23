@@ -344,7 +344,6 @@ VariableDec::VariableDec(Type* type,
 void VariableDec::check(){
   // bueno, esto se viene en grande
   // super chequeo ultra ++
-    std::cout << "global offset is " << program.offsetVarDec << std::endl;
 
   if (*(this->type) == VoidType::getInstance()) {
     program.error("no se pueden declarar variables tipo 'void'",

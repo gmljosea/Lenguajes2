@@ -6,22 +6,26 @@ box items{
   float balance;
   int mes;
   float balance;  -. Error! variable redeclarada!
+  cajaChica caja; -. Error! tipos box recursivos
    variant:
   {}              -. Error! campo variant vacio (unexpected "}")
 }
 
 box cajaChica{
-  items array[12] movimientos;
+  items array[12] movimientos;  -.Error! Definicion recursiva
   int year;
+  Cajero c;                     -. Error! introduce recursividad de box 
 
   variant:
   int encargado;
+  items itemb;    -. Error! tipos recursivos en variant
   {
     int noComision;
     char tipo;
   } 
   int array[3] encargados;
 }
+
 
 box items{            -. Error box redeclarado 
   float gasto= 100;   -. Error de sintaxis! No se puede inicializar
@@ -38,7 +42,7 @@ int main(){
 
   for i in 0..11{
      cajaC.movimientos= 6;       -. Error no asignable
-     cajaC.movimientos[88]= 22.2 -. Error el indice exece el tamaño del arreglo 
+     cajaC.movimientos[88]= 22.2 -. Error el indice excede el tamaño del arreglo 
      cajaC.movimientos[i].balance= monto;
      monto= monto*5.0 + 60.0;
      total = total + monto; 

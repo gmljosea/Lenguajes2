@@ -5,7 +5,6 @@
 extern Program program;
 // Type
 int Type::getSize() {
-  std::cout << "size of " << this->toString() << " is " << std::to_string(size) << std::endl;
   return this->size;
 }
 
@@ -164,7 +163,7 @@ int ArrayType::getLength() {
 void ArrayType::check(){
   ArrayType *cast_tarr= dynamic_cast<ArrayType*>(basetype);
   StringType *cast_str = dynamic_cast<StringType*>(basetype);
-  if (cast_tarr or cast_str)
+  if (cast_tarr or cast_str or *(this->basetype) == VoidType::getInstance() )
     program.error("tipo base del arreglo es '"+basetype->toString()
                   + "' pero se esperaba un tipo basico o box",line,col);
 
@@ -259,11 +258,20 @@ void BoxType::setColumn(int c){
 
 void BoxType::calcOffsets(){
 
+  // Si tiene campos variantes, de una guardar al principio espacio para
+  // un entero que indique el número de campo activo en el variant
+  if (this->variant_fields.size() > 0) {
+    this->size = 4;
+  } else {
+    this->size = 0;
+  }
+
   // Calcular offsets de los campos fijos
   for (std::list<BoxField*>::iterator FieldIt= this->fixed_fields.begin();
        FieldIt != this->fixed_fields.end(); FieldIt++){
-    BoxType *cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
-    if(cast_tbox and !cast_tbox->areOffsetsDone())
+
+    BoxType *cast_tbox = dynamic_cast<BoxType*>((*FieldIt)->type);
+    if (cast_tbox and !cast_tbox->areOffsetsDone())
       cast_tbox->calcOffsets();
 
     int align =(*FieldIt)->type->getAlignment();
@@ -337,13 +345,16 @@ void BoxType::check() {
     // Si es type box hacer check y ver si no llega a mi
     BoxType *cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
     ArrayType *cast_tarray= dynamic_cast<ArrayType*>((*FieldIt)->type);
-    if(cast_tarray) (*FieldIt)->type->check();
+    if(cast_tarray) {
+      (*FieldIt)->type->check();
+      cast_tbox = dynamic_cast<BoxType*>(cast_tarray->getBaseType());
+    }
     if(cast_tbox ){
       // Verificar que el box ha sido declarado
       if( !cast_tbox->isIncomplete() ){
         // Verificar si existen ciclos
-        if( this->reaches(*( dynamic_cast<BoxType*>((*FieldIt)->type) )) )
-          program.error("tipo '"+(*FieldIt)->type->toString()+
+        if( this->reaches(*cast_tbox))
+          program.error("tipo '"+this->toString()+
                         "' tiene referencia ciclica a traves del campo '"
                         +((*FieldIt)->name)+"'",(*FieldIt)->line,
                         (*FieldIt)->column);
@@ -369,13 +380,16 @@ void BoxType::check() {
     // Si es type box hacer check y ver si no llega a mi
     BoxType *cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
     ArrayType *cast_tarray= dynamic_cast<ArrayType*>((*FieldIt)->type);
-    if(cast_tarray) (*FieldIt)->type->check();
+    if(cast_tarray) {
+      (*FieldIt)->type->check();
+      cast_tbox = dynamic_cast<BoxType*>(cast_tarray->getBaseType());
+    }
     if(cast_tbox ){
       // Verificar que el box ha sido declarado
       if( !cast_tbox->isIncomplete() ){
         // Verificar si existen ciclos
         if( this->reaches(*( dynamic_cast<BoxType*>((*FieldIt)->type) )) )
-          program.error("tipo '"+(*FieldIt)->type->toString()+
+          program.error("tipo '"+this->toString()+
                         "' tiene referencia ciclica a traves del campo '"
                         +((*FieldIt)->name)+"'",(*FieldIt)->line,
                         (*FieldIt)->column);
@@ -400,6 +414,17 @@ bool BoxType::reaches(BoxType& box) {
        FieldIt != box.getFFields().end(); FieldIt++){
     BoxType *cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
     if(cast_tbox ){
+      // Verificar que el box ha sido declarado
+      if( !cast_tbox->isIncomplete() ){
+        reachable= reachable or this->reaches(*cast_tbox);
+        if(reachable) return true;
+      }
+    }
+  }
+  for (std::list<BoxField*>::iterator FieldIt= box.getVFields().begin();
+       FieldIt != box.getVFields().end(); FieldIt++){
+    BoxType *cast_tbox= dynamic_cast<BoxType*>((*FieldIt)->type);
+    if(cast_tbox){
       // Verificar que el box ha sido declarado
       if( !cast_tbox->isIncomplete() ){
         reachable= reachable or this->reaches(*cast_tbox);
@@ -444,11 +469,11 @@ void BoxType::printDetail() {
    std::cout << std::endl;
 }
 
-std::list<BoxField*> BoxType::getFFields(){
+std::list<BoxField*>& BoxType::getFFields(){
   return fixed_fields;
 }
 
-std::list<BoxField*> BoxType::getVFields(){
+std::list<BoxField*>& BoxType::getVFields(){
   return variant_fields;
 }
 
