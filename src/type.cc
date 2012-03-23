@@ -330,6 +330,8 @@ void BoxType::check() {
     return;
   }
 
+  this->visited = true; // Para romper el DFS que detecta ciclos
+
   // Verificar los campos fijos
   for (std::list<BoxField*>::iterator FieldIt= this->fixed_fields.begin();
        FieldIt != this->fixed_fields.end(); FieldIt++){
@@ -388,7 +390,7 @@ void BoxType::check() {
       // Verificar que el box ha sido declarado
       if( !cast_tbox->isIncomplete() ){
         // Verificar si existen ciclos
-        if( this->reaches(*( dynamic_cast<BoxType*>((*FieldIt)->type) )) )
+        if( this->reaches(*cast_tbox))
           program.error("tipo '"+this->toString()+
                         "' tiene referencia ciclica a traves del campo '"
                         +((*FieldIt)->name)+"'",(*FieldIt)->line,
@@ -400,15 +402,19 @@ void BoxType::check() {
     }
   }
 
+  this->visited = false;
   // Si calcular offsets despues
 
 }
 
 
 bool BoxType::reaches(BoxType& box) {
-  if(*(this)==box){
+  if(this->visited = true or *(this)==box){
     return true;
   }
+
+  this->visited = true;
+
   bool reachable= false;
   for (std::list<BoxField*>::iterator FieldIt= box.getFFields().begin();
        FieldIt != box.getFFields().end(); FieldIt++){
@@ -432,6 +438,7 @@ bool BoxType::reaches(BoxType& box) {
       }
     }
   }
+  this->visited = false;
   return false;
 }
 

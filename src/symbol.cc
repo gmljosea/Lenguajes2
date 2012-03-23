@@ -107,6 +107,7 @@ void SymFunction::check() {
   this->block->check();
 
   if (*(this->type) != VoidType::getInstance()
+      && *(this->type) != ErrorType::getInstance()
       && !this->block->hasReturn()) {
     program.error("la función no tiene return", this->line, this->col);
   }

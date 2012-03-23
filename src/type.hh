@@ -157,11 +157,12 @@ private:
   bool incomplete;
   int groupcount;
   bool offsetsDone;
+  bool visited; // usado durante la detección de ciclos entre boxes
 protected:
   bool reaches(BoxType& box);
 public:
   BoxType(std::string name, bool incomplete)
-    : name(name), incomplete(incomplete), groupcount(0),
+    : name(name), incomplete(incomplete), groupcount(0), visited(false),
       offsetsDone(false),Type(1,1) { };
   void addFixedField(Type* type, std::string name,int l,int col);
   void addVariantField(Type* type, std::string name, bool grouped,int l,int col);
