@@ -158,8 +158,8 @@ not { lexer::trace("not", yytext, yylloc); return TK_NOT;}
 
  /* Símbolos especiales misceláneos */
 \.\. { lexer::trace("..", yytext, yylloc); return TK_DPERIOD;}
-\$\$ { lexer::trace("$$", yytext, yylloc); return TK_DOLLAR;}
-\$   { lexer::trace("$", yytext, yylloc); return TK_DDOLLAR;}
+\$ { lexer::trace("$$", yytext, yylloc); return TK_DOLLAR;}
+\$\$   { lexer::trace("$", yytext, yylloc); return TK_DDOLLAR;}
 :    { lexer::trace(":", yytext, yylloc); return TK_COLON; }
 \.   { lexer::trace(".",yytext,yylloc); return TK_DOT;}
 

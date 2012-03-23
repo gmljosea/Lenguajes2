@@ -1,0 +1,104 @@
+-. Conjunto de pruebas semánticas 4
+-. - Chequeo de tipos en expresiones aritméticas, lógicas y relacionales
+-. - Chequeo de tipos en el operador [ ]
+-. - Chequeo de tipos en el operador .
+-. - Chequeos de llamadas a funciones
+-. - Chequeo de return en funciones no void
+
+box box1 {
+  int f1;
+  int f2;
+  int f3;
+}
+
+int main() {
+  int i1,i2,i3,i4,i5;
+  bool b1,b2,b3,b4,b5;
+  float f1,f2,f3,f4,f5;
+  char c1,c2,c3,c4,c5;
+  
+  -. Ops + - * / funcionan todos igual
+  i1 = i1+i1 * b2; -. Error
+  f1 = f1/c1; -. Error
+ 
+  -. Op % solo funciona entre enteros
+  i1 = i2 % i3;
+  f1 = f1 % f2; -. Error
+
+  -. Ops and or not
+  b1 = i1 and f1; -. Error
+  b2 = i1 or c2; -. Error
+  b3 = not f4; -. Error 
+
+  -. Ops < <= >= > funcionan todos igual
+  b1 = i1 < i2;
+  b2 = f5 < f4;
+  b3 = c1 < f4; -. Error
+  b3 = b1 < c3; -. Error
+
+  -. Ops == != adicionalmente funcionan entre booleanos
+  -. pero de resto funcionan igual que < <=, etc
+  b1 = b2 == b2;
+  b2 = b1 != b3;
+  b3 = c1 != f1; -. Error
+
+  int array[200] iarr1;
+  iarr1[10] = 100;
+  i1 = iarr1[20];
+  i1 = i2[10][30]; -. Error
+  i1 = iarr1[2.0*f1]; -. Error
+
+  box1 bo1, bo2, bo3;
+  i1 = bo1.f1;
+  i2 = bo1.f2;
+  i3 = bo1.w; -. Error, no existe el campo w
+  i3 = c1.c2; -. Error, c1 no es un box
+
+  testcall(1,2,3,4,5,6); -. Error cantidad de argumentos chimba
+  testcall(c1,c2); -. Error, argumentos de tipo incorrecto
+
+  bla(); -. Error, llamada a función que no existe
+
+  return 1;
+}
+
+void fun1() { } -. Normal, no tiene return pero es void
+
+int fun2() { } -. Error, no tiene return
+
+int fun3() {
+  if (true) { 
+    return 1;
+  } else {
+    return 0;
+  }
+} -. Normal, el if tiene return por los dos brazos
+
+int fun4() {
+  if (true) { return 1; }
+} -. Error, 'no tiene' return (no eliminamos el if cuando la condición es constante)
+
+int fun5() {
+  bool b1;
+  while (b1) { return 1; }
+} -. Error, no tiene return
+
+int fun6() {
+  bool b1;
+  while (b1) { return 1; }
+  return 0;
+} -. Pero esta si tiene return
+
+
+void testcall($ int j, $$ int w) {
+  testcall(w,j); -. Error, variable readonly se pasa por referencia
+  testcall(1,2);
+ -. Evidentemente esto da un recursión infinita, pero eso no le interesa al analizador
+}
+
+void testcall2(int array[] w, $$ int array[] z, $$ box1 bo1, $ box1 bo2) {
+  z[1] = 3; -. Error, z es readonly
+  w[1] = 2; -. No problem
+  bo1.f1 = 1; -. Error, bo1 es readonly
+  bo2.f1 = 2; -. No problem
+}

@@ -776,7 +776,7 @@ expr:
 | TK_CONSTCHAR   { $$ = new CharExp(*$1);
                    $$->setLocation(@1.first_line, @1.first_column,0,0); }
 
-| funcallexp     { $$->setLocation(@1.first_line, @1.first_column,0,0); }
+| funcallexp
 
 | expr "+" expr  { $$ = new Sum($1,$3);
                    $$->setLocation(@2.first_line, @2.first_column,0,0); }
@@ -827,6 +827,7 @@ funcallexp:
       } else {
         $$ = new FunCallExp(symf, *$3);
       }
+      $$->setLocation(@1.first_line, @1.first_column,0,0);
     }
 
  /* Produce una lista potencialmente vacía de expresiones separadas por comas */

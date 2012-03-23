@@ -467,8 +467,8 @@ void Relational::check() {
   // Caso tipos correctos
   if (*t1 == *t2 and
       (*t1 == IntType::getInstance() or
-       *t1 == FloatType::getInstance()) or
-      *t1 == CharType::getInstance()) {
+       *t1 == FloatType::getInstance() or
+       *t1 == CharType::getInstance())) {
     this->type = &(BoolType::getInstance());
     return;
   }
@@ -541,8 +541,8 @@ void Equal::check() {
   if (*t1 == *t2 and
       (*t1 == IntType::getInstance() or
        *t1 == FloatType::getInstance() or
-       *t1 == BoolType::getInstance()) or
-      *t1 == CharType::getInstance()) {
+       *t1 == BoolType::getInstance() or
+       *t1 == CharType::getInstance())) {
     this->type = &(BoolType::getInstance());
     return;
   }
@@ -593,8 +593,8 @@ void NotEqual::check() {
   if (*t1 == *t2 and
       (*t1 == IntType::getInstance() or
        *t1 == FloatType::getInstance() or
-       *t1 == BoolType::getInstance()) or
-      *t1 == CharType::getInstance()) {
+       *t1 == BoolType::getInstance() or
+       *t1 == CharType::getInstance())) {
     this->type = &(BoolType::getInstance());
     return;
   }
@@ -835,12 +835,11 @@ void FunCallExp::check() {
       continue;
     }
     // Chequear que los argumentos readonly sean pasados como tal
-    SymVar *vart= dynamic_cast<SymVar*>(*arg);
-    if (vart and vart->isReadonly() and (*param)->isReference())
+    VarExp *vart= dynamic_cast<VarExp*>(*arg);
+    if (vart and !vart->isAssignable() and (*param)->isReference())
       // cambie a isReference porque es aceptable pasar una variable readonly
       // por valor, sea o no readonly el argumento
-      program.error("en la llamada a la funcion '"+name+"'"
-                    +" el argumento '"+ vart->getId()+"' es de solo lectura",
+      program.error("el argumento es de solo lectura pero se pasa por referencia",
 		    (*arg)->getFirstLine(), (*arg)->getFirstCol());
 
   }

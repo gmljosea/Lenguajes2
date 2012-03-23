@@ -131,6 +131,8 @@ SymVar::SymVar(std::string id,int line,int col,
                bool isParam, int scope) : Symbol(id,line,col){
   this->numScope = scope;
   this->isParameter= isParam;
+  this->readonly = false;
+  this->reference = false;
   //  std::cout << "SymVar creado";
 }
 

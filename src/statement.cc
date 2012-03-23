@@ -530,8 +530,8 @@ FunctionCall::FunctionCall(Expression* exp) {
 }
 
 void FunctionCall::check() {
-  FunCallExp* fce = dynamic_cast<FunCallExp*>(exp);
-  fce->check();
+  //FunCallExp* fce = dynamic_cast<FunCallExp*>(exp);
+  this->exp->check();
 }
 
 void FunctionCall::print(int nesting) {
