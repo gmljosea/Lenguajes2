@@ -432,9 +432,10 @@ args:
     un argumento. */
 nonempty_args:
   argument
-    { ArgList* args = new ArgList(); args->push_back($1); $$ = args; }
+    { ArgList* args = new ArgList();
+      if ($1) args->push_back($1); $$ = args; }
 | nonempty_args "," argument
-    { $1->push_back($3); $$ = $1; }
+    { if ($3) $1->push_back($3); $$ = $1; }
 
 argument:
   passby type TK_ID
@@ -454,6 +455,8 @@ argument:
         }
         program.symtable.insert(arg);
         $$ = arg;
+      } else {
+	$$ = NULL;
       }
     }
 

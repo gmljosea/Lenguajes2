@@ -239,19 +239,19 @@ int SymTable::enter_scope(){
 
 SymFunction* SymTable::lookup_function(std::string nombreID){
   funcSymtable::iterator it= this->funcTable.find(nombreID);
-  
+
   if (it!= funcTable.end())
     return it->second;
-  else 
+  else
     return NULL;
 }
- 
+
 BoxType* SymTable::lookup_box(std::string nombreID){
   boxHash::iterator it= this->boxTable.find(nombreID);
-  
+
   if (it!= boxTable.end())
     return it->second;
-  else 
+  else
     return NULL;
 }
 
@@ -262,21 +262,21 @@ SymVar* SymTable::lookup_variable(std::string nombreID){
 
   std::pair<varSymtable::iterator, varSymtable::iterator> pair1;
   pair1= this->varTable.equal_range(nombreID);
-  
+
   /*Recorrer todos los nombres encontrados. Tomado del complemento
-    del capitulo 3 del Scott*/ 
+    del capitulo 3 del Scott*/
   for (; pair1.first != pair1.second; ++pair1.first){
     if (pair1.first->second->getnumScope()==0)
       pervasive= pair1.first->second;
-    else{ 
+    else{
       int i=this->stack.size()-1;
       for(i;i>0;i--){
         if (this->stack[i]==pair1.first->second->getnumScope()){
           best=pair1.first->second;
           break;
         }else if(best!=NULL && this->stack[i]==best->getnumScope())
-          break;       
-      }    
+          break;
+      }
     }
   }
 
@@ -284,7 +284,7 @@ SymVar* SymTable::lookup_variable(std::string nombreID){
     return best;
   else if (pervasive!=NULL)
     return pervasive;
-  else 
+  else
     return NULL;
 
 }
@@ -293,8 +293,8 @@ void SymTable::print(){
 
   std::cout << std::endl << "**** Tabla de simbolos ****" << std::endl<< std::endl;
   std::cout << "Variables:" << std::endl;
- 
-  for(varSymtable::iterator it= this->varTable.begin(); 
+
+  for(varSymtable::iterator it= this->varTable.begin();
       it!= this->varTable.end(); it++){
     (*it).second->print();
   }
