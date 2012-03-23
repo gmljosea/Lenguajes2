@@ -25,8 +25,8 @@ protected:
 public:
   Symbol (std::string id,int line,int col);
   std::string getId();
-  void setDuplicated(bool dup);
-  bool isDuplicated();
+  void setDuplicated(bool dup); // obsoleto
+  bool isDuplicated(); // obsoleto
   void setType(Type* t);
   Type *getType();
   int getnumScope();

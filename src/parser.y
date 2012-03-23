@@ -793,6 +793,15 @@ expr:
                        $$->setLocation(@1.first_line, @1.first_column,0,0);}
 | "(" expr ")" { $$ = $2;
                  $$->setLocation(@2.first_line, @2.first_column,0,0);}
+  /*
+   * Las expresiones lógicas están juntas con las aritméticas, no las separamos
+   * en reglas diferentes. La razón fue que como existe el tipo bool, entonces
+   * cualquier variable, operador [] sobre arreglo o campo de box puede
+   * potencialmente ser una expresión booleana. Aparte el frontend de ejemplo
+   * del Aho no las separaba.
+   * Si luego esto resulta problemático para generar código entonces lo
+   * cambiaremos.
+   */
 | expr "and" expr { $$ = new And($1,$3);
                     $$->setLocation(@2.first_line, @2.first_column,0,0);}
 | expr "or" expr { $$ = new Or($1,$3);

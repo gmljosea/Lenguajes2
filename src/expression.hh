@@ -4,11 +4,20 @@
 #include "symbol.hh"
 #include "type.hh"
 
-// Clase base
+/**
+ * Representa una expresión en Devanix.
+ * Las expresiones pueden actuar como r-values o l-values dependiendo del
+ * contexto.
+ */
 class Expression {
 protected:
   Type* type;
-  int fline, fcol, lline, lcol;
+  int fline, fcol, lline, lcol; // Ubicación en el código fuente
+  /* El tipo se inicializa en NULL porque si la expresión usa funciones o box
+   * definidos más abajo sería imposible determinar el tipo al momento de
+   * parsear la expresión, entonces se delega el cálculo del tipo al método
+   * check()
+   */
   Expression() : fline(0), fcol(0), lline(0), lcol(0), type(NULL) {};
 public:
   virtual void print(int nesting);
@@ -16,25 +25,35 @@ public:
   int getFirstLine();
   int getFirstCol();
 
+  // Chequea que las subexpresiones sean correctos y determina el tipo de
+  // esta expresión
   virtual void check();
   virtual Type* getType();
   virtual bool isBad(); // obsoleto
 
+  // Devuelve una nueva expresión que es el resultado de hacer constant folding
+  // sobre esta expresión.
   virtual Expression* cfold();
+  // Determina si esta expresión es un valor constante
   virtual bool isConstant();
+  // En caso de ser constante, estos métodos permiten obtener su valor
+  // Hay que estar seguro del tipo de la expresión antes de invocar alguno de
+  // estos métodos, pues si es un IntExp y se pide getFloat(), devolverá un
+  // valor default probablemente inútil.
   virtual int getInteger();
   virtual double getFloat();
   virtual bool getBool();
+  // faltaría un getChar(), lo haremos luego
 
+  // Determina puede representar un lugar en memoria
   virtual bool isLvalue();
+  // Devuelve el lugar en memoria que representa este l-value
   virtual int getLvalue();
 
+  // Determina si la expresión es asignable, es decir, no es un l-value que
+  // utilice una variable readonly.
   virtual bool isAssignable();
 };
-/**
- * Cosas antes de que se me olviden:
- * El método check chequea los tipos
- */
 
 // Expresión errónea (cuando se usa un símbolo que no existe)
 class BadExp : public Expression {
@@ -43,7 +62,7 @@ public:
   virtual bool isBad(); // obsoleto
 };
 
-// Variable
+// Una variable
 class VarExp : public Expression {
 private:
   SymVar* symv;
@@ -60,6 +79,7 @@ public:
   virtual bool isConstant();
 };
 
+// Número entero
 class IntExp : public Constant {
 private:
   int value;
@@ -69,6 +89,7 @@ public:
   virtual int getInteger();
 };
 
+// Número decimal
 class FloatExp : public Constant {
 private:
   float value;
@@ -78,6 +99,8 @@ public:
   virtual double getFloat();
 };
 
+
+// Valor booleano
 class BoolExp : public Constant {
 private:
   bool value;
@@ -87,6 +110,7 @@ public:
   virtual bool getBool();
 };
 
+// Una cadena de caracteres de longitud arbitraria
 class StringExp : public Constant {
 private:
   std::string str;
@@ -96,6 +120,7 @@ public:
   virtual void print(int nesting);
 };
 
+// Un caracter
 class CharExp : public Constant {
 private:
   std::string ch; // cambiar a char
@@ -104,7 +129,9 @@ public:
   virtual void print(int nesting);
 };
 
-
+// Operadores binarios
+// Realmente la mayor utilidad de esta clase es poder imprimir de manera fácil
+// y sencilla las expresiones, sin tener que repetir demasiado código.
 class BinaryOp : public Expression {
 protected:
   Expression* exp1;
@@ -149,6 +176,7 @@ public:
   virtual Expression* cfold();
 };
 
+// Operador resto (%)
 class Remainder : public Arithmetic {
 public:
   Remainder(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"%") {};
@@ -156,6 +184,7 @@ public:
   virtual Expression* cfold();
 };
 
+// Menos unario
 class Minus : public Arithmetic {
 public:
   Minus(Expression* e) : Arithmetic(e,e,"-") {};
@@ -200,18 +229,21 @@ protected:
   virtual void check();
 };
 
+// >
 class Greater : public Relational {
 public:
   Greater(Expression* e1, Expression* e2) : Relational(e1,e2,">") {};
   virtual Expression* cfold();
 };
 
+// >=
 class GreaterEq : public Relational {
 public:
   GreaterEq(Expression* e1, Expression* e2) : Relational(e1,e2,">=") {};
   virtual Expression* cfold();
 };
 
+// ==
 class Equal : public Relational {
 public:
   Equal(Expression* e1, Expression* e2) : Relational(e1,e2,"==") {};
@@ -219,6 +251,7 @@ public:
   virtual Expression* cfold();
 };
 
+// !=
 class NotEqual : public Relational {
 public:
   NotEqual(Expression* e1, Expression* e2) : Relational(e1,e2,"!=") {};
@@ -226,19 +259,21 @@ public:
   virtual Expression* cfold();
 };
 
+// <
 class Less : public Relational {
 public:
   Less (Expression* e1, Expression* e2) : Relational(e1,e2,"<") {};
   virtual Expression* cfold();
 };
 
+// <=
 class LessEq : public Relational {
 public:
   LessEq(Expression* e1, Expression* e2) : Relational(e1,e2,"<=") {};
   virtual Expression* cfold();
 };
 
-// Acceso a un arreglo
+// Acceso a un arreglo, var[indice]
 class Index : public Expression {
 private:
   Expression* array;
@@ -252,7 +287,7 @@ public:
   virtual bool isAssignable();
 };
 
-// Acceso a un campo de un box
+// Acceso a un campo de un box, box.campo
 class Dot : public Expression {
 private:
   Expression* box;
