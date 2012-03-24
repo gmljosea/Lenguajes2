@@ -35,6 +35,14 @@ box items{            -. Error box redeclarado
    {}
 }
 
+box vacio{}           -. Error! el box no debe ser vacio
+
+box conUno{
+  vacio a;
+variant:
+  int b;
+}
+
 int main(){
 
   cajaChica cajaC;
@@ -57,7 +65,7 @@ int main(){
 
 
 -. Funcion para obtener el minimo de un arreglo
-float minArray($float array[] arreglo, int long){
+float minArray($float array[5] arreglo, int long){
 
 float min= arreglo[0];
 
