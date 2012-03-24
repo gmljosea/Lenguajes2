@@ -32,6 +32,18 @@ puede facilitar la comprension de la estructura que lleva el proyecto.
 
 ## Entrega 2
 
+Para esta entrega se implantaron los siguientes elementos:
+
+*   Tipo arreglo y tipo box.
+*   Expresiones con los operadores aritméticos, lógicos y relacionales tradicionales.
+*   Todos los chequeos semánticos posibles. El compilador debería poder detectar la
+    mayoría de los errores.
+*   Constant folding en expresiones aritméticas, lógicas y relacionales; excepto en
+    el operador == y != entre tipos char.
+*   Recuperación de errores sencilla en el parser.
+
+En los directorios examples/ y tests/ hay ejemplos, casi todos con errores, que
+muestran parte de los chequeos que realiza el compilador.
 
 ### Entrega 1
 
