@@ -9,4 +9,5 @@ int main() {
   read a;
   write "Hola Mundo!";
   writeln a,b;
+  return 1;
 }

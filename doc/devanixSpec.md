@@ -298,6 +298,10 @@ y **concentracion**.
 	   }
     }
 
+Cuando un boxx incluye campos variables, se reserva un campo de tipo **int**
+escondido que se utiliza para controlar que campo variante está activo y
+realizar los correspondientes chequeos dinámicos.
+
 ## Variables
 
 Las variables se pueden declarar de cualquier tipo excepto **void**.

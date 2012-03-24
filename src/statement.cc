@@ -311,8 +311,8 @@ void Asignment::check(){
       program.error("no coinciden los tipos en la asignación, se esperaba '"+
 		    tlval->toString()+"' y se encontró '"+
 		    texp->toString()+"' en "+
-		    std::to_string((*itExp)->getFirstLine())+":"+
-		    std::to_string((*itExp)->getFirstCol()),
+		    (std::string) std::to_string((*itExp)->getFirstLine())+":"+
+		    (std::string) std::to_string((*itExp)->getFirstCol()),
 		    (*itLval)->getFirstLine(), (*itLval)->getFirstCol());
     }
   }
