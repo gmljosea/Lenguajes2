@@ -66,7 +66,8 @@ opcional.
 
 *global* ::=  *variabledec*
              | *type* **TK_ID** "(" [*args*]* ")" *block*
-             | **box** **TK_ID** **{** [*decs*] [*variantpart*] **}**
+             | **box** **TK_ID** **{** *decs* **}**
+             | **box** **TK_ID** **{** *variantpart* **}**
 
 *args* ::=  [*passby*] *type* **TK_ID**
             | *args* **,**  [*passby*] *type* **TK_ID**
