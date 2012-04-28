@@ -311,9 +311,16 @@ void Asignment::check(){
       program.error("no coinciden los tipos en la asignación, se esperaba '"+
 		    tlval->toString()+"' y se encontró '"+
 		    texp->toString()+"' en "+
-		    (std::string) std::to_string((*itExp)->getFirstLine())+":"+
-		    (std::string) std::to_string((*itExp)->getFirstCol()),
+		    (std::string) std::to_string((long long int)(*itExp)->getFirstLine())+":"+
+		    (std::string) std::to_string((long long int)(*itExp)->getFirstCol()),
 		    (*itLval)->getFirstLine(), (*itLval)->getFirstCol());
+      /**
+       * Tuve que usar el horrible cast a long long int porque era la única manera de que compilara
+       * en g++ 4.4.5 (el que viene en Debian estable), supongo que porque el soporte para C++ 2011
+       * está un poco fail en esa versión.
+       * Al menos desde g++ 4.5.2, la que tengo en mi desktop, compila sin problemas sin poner el cast,
+       * Por eso nunca entendimos el error que nos decia el prof. sobre el to_string.
+       */
     }
   }
 }

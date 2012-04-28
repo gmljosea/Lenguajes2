@@ -57,14 +57,23 @@ Iteration* findLabel(std::string label) {
   return NULL;
 }
 
+/**
+ * En los std::to_string()
+ * tuve que usar el horrible cast a long long int porque era la única manera de que compilara
+ * en g++ 4.4.5 (el que viene en Debian estable), supongo que porque el soporte para C++ 2011
+ * está un poco fail en esa versión.
+ * Al menos desde g++ 4.5.2, la que tengo en mi desktop, compila sin problemas sin poner el cast,
+ * Por eso nunca entendimos el error que nos decia el prof. sobre el to_string.
+ */
+
 void pushLoop(Iteration* loop, YYLTYPE* yylloc) {
   std::string* label = loop->getLabel();
   if (label) {
     Iteration* it = findLabel(*(loop->getLabel()));
     if (it) {
       program.error("etiqueta '"+*label+"' ya fue utilizada en "
-                    +(std::string) std::to_string(it->getFirstLine())+":"
-                    +(std::string) std::to_string(it->getFirstCol()),
+                    +std::to_string((long long int) it->getFirstLine())+":"
+                    +std::to_string((long long int) it->getFirstCol()),
                     yylloc->first_line, yylloc->first_column);
     }
   }
@@ -90,8 +99,8 @@ bool functionRedeclared(std::string id, YYLTYPE yylloc) {
   SymFunction* symf = program.symtable.lookup_function(id);
   if (symf != NULL) {
     std::string err = "redeclaración de función '"
-      +id+"' previamente declarada en "+(std::string) std::to_string(symf->getLine())
-      +":"+(std::string) std::to_string(symf->getColumn());
+      +id+"' previamente declarada en "+std::to_string((long long int) symf->getLine())
+      +":"+std::to_string((long long int) symf->getColumn());
     program.error(err, yylloc.first_line, yylloc.first_column);
     symf->setDuplicated(true);
     return true;
@@ -108,8 +117,8 @@ bool variableRedeclared(std::string id, YYLTYPE yylloc) {
   SymVar* symv = program.symtable.lookup_variable(id);
   if (symv != NULL && symv->getnumScope() == program.symtable.current_scope()) {
     std::string err = "redeclaración de variable '"
-      +id+"' previamente declarada en "+(std::string) std::to_string(symv->getLine())
-      +":"+(std::string) std::to_string(symv->getColumn());
+      +id+"' previamente declarada en "+std::to_string((long long int) symv->getLine())
+      +":"+std::to_string((long long int) symv->getColumn());
     program.error(err, yylloc.first_line, yylloc.first_column);
     symv->setDuplicated(true);
     return true;
@@ -126,8 +135,8 @@ bool boxRedeclared(std::string id, YYLTYPE yylloc) {
   BoxType* boxtype = program.symtable.lookup_box(id);
   if (boxtype != NULL) {
     std::string err = "redeclaración de tipo box '"
-      +id+"' previamente declarado en "+(std::string) std::to_string(boxtype->getLine())
-      +":"+(std::string) std::to_string(boxtype->getColumn());
+      +id+"' previamente declarado en "+std::to_string((long long int) boxtype->getLine())
+      +":"+std::to_string((long long int) boxtype->getColumn());
     program.error(err, yylloc.first_line, yylloc.first_column);
     return true;
   }
@@ -335,8 +344,8 @@ boxdecs:
       $<box>-1->addFixedField($1,*$2,@2.first_line,@2.first_column);
     }else{
       std::string err = "redeclaración de variable '"
-        +(*$2)+"' previamente declarada en "+(std::string) std::to_string(field->line)
-	+":"+(std::string) std::to_string(field->column);
+        +(*$2)+"' previamente declarada en "+(std::string) std::to_string((long long int) field->line)
+	+":"+(std::string) std::to_string((long long int) field->column);
     program.error(err, @2.first_line, @2.first_column);
     }
 
@@ -348,8 +357,8 @@ boxdecs:
       $<box>-1->addFixedField($2,*$3,@3.first_line,@3.first_column);
     }else{
       std::string err = "redeclaración de variable '"
-        +(*$3)+"' previamente declarada en "+(std::string) std::to_string(field->line)
-	+":"+(std::string) std::to_string(field->column);
+        +(*$3)+"' previamente declarada en "+(std::string) std::to_string((long long int) field->line)
+	+":"+(std::string) std::to_string((long long int) field->column);
     program.error(err, @3.first_line, @3.first_column);
     }
 }
@@ -369,8 +378,8 @@ variantpart_decs:
       $<box>-4->addVariantField($1,*$2,false,@2.first_line,@2.first_column);
     }else{
       std::string err = "redeclaración de variable '"
-        +(*$2)+"' previamente declarada en "+(std::string) std::to_string(field->line)
-	+":"+(std::string) std::to_string(field->column);
+        +(*$2)+"' previamente declarada en "+(std::string) std::to_string((long long int) field->line)
+	+":"+(std::string) std::to_string((long long int) field->column);
     program.error(err, @2.first_line, @2.first_column);
     }
 }
@@ -383,8 +392,8 @@ variantpart_decs:
     $<box>-4->addVariantField($2,*$3,true,@2.first_line,@2.first_column);
   }else{
     std::string err = "redeclaración de variable '"
-      +(*$3)+"' previamente declarada en "+(std::string) std::to_string(field->line)
-      +":"+(std::string) std::to_string(field->column);
+      +(*$3)+"' previamente declarada en "+(std::string) std::to_string((long long int) field->line)
+      +":"+(std::string) std::to_string((long long int) field->column);
     program.error(err, @3.first_line, @3.first_column);
   }
 }
@@ -399,8 +408,8 @@ type TK_ID ";"
       $<box>-6->addVariantField($1,*$2,true,@2.first_line,@2.first_column);
     }else{
       std::string err = "redeclaración de variable '"
-        +(*$2)+"' previamente declarada en "+(std::string) std::to_string(field->line)
-	+":"+(std::string) std::to_string(field->column);
+        +(*$2)+"' previamente declarada en "+(std::string) std::to_string((long long int) field->line)
+	+":"+(std::string) std::to_string((long long int) field->column);
     program.error(err, @2.first_line, @2.first_column);
     }
 }
@@ -412,8 +421,8 @@ type TK_ID ";"
     $<box>-6->addVariantField($2,*$3,true,@2.first_line,@2.first_column);
   }else{
     std::string err = "redeclaración de variable '"
-      +(*$3)+"' previamente declarada en "+(std::string) std::to_string(field->line)
-      +":"+(std::string) std::to_string(field->column);
+      +(*$3)+"' previamente declarada en "+(std::string) std::to_string((long long int) field->line)
+      +":"+(std::string) std::to_string((long long int) field->column);
     program.error(err, @3.first_line, @3.first_column);
   }
 }
@@ -697,7 +706,7 @@ vardec_item:
         SymVar* sym = new SymVar(*$1, @1.first_line, @1.first_column,false,
                                  program.symtable.current_scope());
         program.symtable.insert(sym);
-        $$ = new std::pair<SymVar*,Expression*>(sym,NULL);
+        $$ = new std::pair<SymVar*,Expression*>(sym,(Expression*) NULL);
       } else {
         $$ = NULL;
       }
