@@ -1,4 +1,3 @@
-// probando algo
 %defines
 %output "parser.cc"
 %error-verbose
@@ -31,13 +30,15 @@ Program program;
 SymFunction* currentfun; // Función parseada actual
 std::list<Iteration*> loopstack;
 
-/* Como todos los box se pueden ver entre si, puede que dentro de un box
+/* borrar
+ Como todos los box se pueden ver entre si, puede que dentro de un box
    se declare una variable de un tipo box cuya declaracion aun no se ha
    encontrado, en este caso lo guardamos mientras en el hash de unknown
    con la condicion de que cuando se encuentre su definicion sea movido a
-   la tabla de simbolos*/
+   la tabla de simbolos
  boxHash unknownBox;
  funcSymtable unknownFunc;
+ */
 
 /**
  * Extrae los campos de yylloc y los utiliza para inicializar los campos
@@ -96,53 +97,70 @@ Iteration* topLoopstack() {
  * Devuelve true si determina que la función ya ha sido declarada antes,
  * devuelve false si no ha sido declarada aún.
  */
-bool functionRedeclared(std::string id, YYLTYPE yylloc) {
-  SymFunction* symf = program.symtable.lookup_function(id);
-  if (symf != NULL) {
-    std::string err = "redeclaración de función '"
-      +id+"' previamente declarada en "+std::to_string((long long int) symf->getLine())
-      +":"+std::to_string((long long int) symf->getColumn());
-    program.error(err, yylloc.first_line, yylloc.first_column);
-    symf->setDuplicated(true);
-    return true;
-  }
-  return false;
-}
+ bool functionRedeclared(std::string id, YYLTYPE yylloc) {
+   SymFunction* symf = program.symtable.lookup_function(id);
+   if (symf != NULL) {
+     std::string err = "redeclaración de función '"
+       +id+"' previamente declarada en "+std::to_string((long long int) symf->getLine())
+       +":"+std::to_string((long long int) symf->getColumn());
+     program.error(err, yylloc.first_line, yylloc.first_column);
+     symf->setDuplicated(true);
+     return true;
+   }
+   return false;
+ }
 
 /**
  * Recibe el nombre de una variable y su yyloc.
  * Devuelve true si determina que la variable ya ha sido declarada antes,
  * devuelve false si no ha sido declarada aún.
  */
-bool variableRedeclared(std::string id, YYLTYPE yylloc) {
-  SymVar* symv = program.symtable.lookup_variable(id);
-  if (symv != NULL && symv->getnumScope() == program.symtable.current_scope()) {
-    std::string err = "redeclaración de variable '"
-      +id+"' previamente declarada en "+std::to_string((long long int) symv->getLine())
-      +":"+std::to_string((long long int) symv->getColumn());
-    program.error(err, yylloc.first_line, yylloc.first_column);
-    symv->setDuplicated(true);
-    return true;
-  }
-  return false;
-}
+ bool variableRedeclared(std::string id, YYLTYPE yylloc) {
+   SymVar* symv = program.symtable.lookup_variable(id);
+   if (symv != NULL && symv->getnumScope() == program.symtable.current_scope()) {
+     std::string err = "redeclaración de variable '"
+       +id+"' previamente declarada en "+std::to_string((long long int) symv->getLine())
+       +":"+std::to_string((long long int) symv->getColumn());
+     program.error(err, yylloc.first_line, yylloc.first_column);
+     symv->setDuplicated(true);
+     return true;
+   }
+   return false;
+ }
 
 /**
- * Recibe el nombre de una box y su yyloc.
+ * Recibe el nombre de un box y su yyloc.
  * Devuelve true si determina que tipo box ya ha sido declarado antes,
  * devuelve false si no ha sido declarado aún.
  */
-bool boxRedeclared(std::string id, YYLTYPE yylloc) {
-  BoxType* boxtype = program.symtable.lookup_box(id);
-  if (boxtype != NULL) {
-    std::string err = "redeclaración de tipo box '"
-      +id+"' previamente declarado en "+std::to_string((long long int) boxtype->getLine())
-      +":"+std::to_string((long long int) boxtype->getColumn());
-    program.error(err, yylloc.first_line, yylloc.first_column);
-    return true;
-  }
-  return false;
-}
+ bool boxRedeclared(std::string id, YYLTYPE yylloc) {
+   BoxType* boxtype = program.symtable.lookup_box(id);
+   if (boxtype != NULL) {
+     std::string err = "redeclaración de tipo box '"
+       +id+"' previamente declarado en "+std::to_string((long long int) boxtype->getLine())
+       +":"+std::to_string((long long int) boxtype->getColumn());
+     program.error(err, yylloc.first_line, yylloc.first_column);
+     return true;
+   }
+   return false;
+ }
+
+/**
+ * Recibe el nombre de una Union y su yyloc.
+ * Devuelve true si determina que tipo Union ya ha sido declarado antes,
+ * devuelve false si no ha sido declarado aún.
+ */
+ bool boxRedeclared(std::string id, YYLTYPE yylloc) {
+   BoxType* boxtype = program.symtable.lookup_box(id);
+   if (boxtype != NULL) {
+     std::string err = "redeclaración de tipo box '"
+       +id+"' previamente declarado en "+std::to_string((long long int) boxtype->getLine())
+       +":"+std::to_string((long long int) boxtype->getColumn());
+     program.error(err, yylloc.first_line, yylloc.first_column);
+     return true;
+   }
+   return false;
+ }
 
 }
 
