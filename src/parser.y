@@ -129,38 +129,22 @@ Iteration* topLoopstack() {
  }
 
 /**
- * Recibe el nombre de un box y su yyloc.
- * Devuelve true si determina que tipo box ya ha sido declarado antes,
+ * Recibe el nombre de un tipo box o union y su yyloc.
+ * Devuelve true si determina que tipo ya ha sido declarado antes,
  * devuelve false si no ha sido declarado aún.
  */
- bool boxRedeclared(std::string id, YYLTYPE yylloc) {
-   BoxType* boxtype = program.symtable.lookup_box(id);
-   if (boxtype != NULL) {
-     std::string err = "redeclaración de tipo box '"
-       +id+"' previamente declarado en "+std::to_string((long long int) boxtype->getLine())
-       +":"+std::to_string((long long int) boxtype->getColumn());
+ bool typeRedeclared(std::string id, YYLTYPE yylloc) {
+   TypeDef* type = program.symtable.lookup_type(id);
+   if (type != NULL) {
+     std::string err = "redeclaración de tipo'"
+       +id+"' previamente declarado en "+std::to_string((long long int) type->getLine())
+       +":"+std::to_string((long long int) type->getColumn());
      program.error(err, yylloc.first_line, yylloc.first_column);
      return true;
    }
    return false;
  }
 
-/**
- * Recibe el nombre de una Union y su yyloc.
- * Devuelve true si determina que tipo Union ya ha sido declarado antes,
- * devuelve false si no ha sido declarado aún.
- */
- bool boxRedeclared(std::string id, YYLTYPE yylloc) {
-   BoxType* boxtype = program.symtable.lookup_box(id);
-   if (boxtype != NULL) {
-     std::string err = "redeclaración de tipo box '"
-       +id+"' previamente declarado en "+std::to_string((long long int) boxtype->getLine())
-       +":"+std::to_string((long long int) boxtype->getColumn());
-     program.error(err, yylloc.first_line, yylloc.first_column);
-     return true;
-   }
-   return false;
- }
 
 }
 
@@ -178,6 +162,7 @@ Iteration* topLoopstack() {
   PassType passtype;
   ArgList *argsdec;
   BoxType *box;
+  //TypeDef *typeDef;
   SymVar* arg;
 };
 
@@ -325,15 +310,14 @@ block leavescope
       currentfun->setBlock($8);
       program.functions.push_back(currentfun);
     }
-| "box" TK_ID box "{" boxdecsa variantpart "}"
+| "box" TK_ID box "{" boxdecsa "}"
 {
   program.boxes.push_back($3);
 }
 
 box:
 /*empty*/
-/* Regla dummy para crear el TypeBox en caso de que no exista en
-   el hash de BoxTypes 'unknownBox'  */
+/* Regla dummy para crear el TypeBox */
 {
   boxHash::iterator it= unknownBox.find(*($<str>0));
   if(it!= unknownBox.end()){

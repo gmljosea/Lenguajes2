@@ -227,8 +227,8 @@ void SymTable::insert(SymFunction *sym){
   this->funcTable.insert(funcSymtable::value_type(sym->getId(),sym));
 }
 
-void SymTable::insert(BoxType *sym){
-  this->boxTable.insert(boxHash::value_type(sym->getName(),sym));
+void SymTable::insert(Type *sym){
+  this->typeTable.insert(typeHash::value_type(sym->getName(),sym));
 }
 
 int SymTable::leave_scope(){
@@ -248,7 +248,7 @@ SymFunction* SymTable::lookup_function(std::string nombreID){
   else
     return NULL;
 }
-
+/*
 BoxType* SymTable::lookup_box(std::string nombreID){
   boxHash::iterator it= this->boxTable.find(nombreID);
 
@@ -256,6 +256,43 @@ BoxType* SymTable::lookup_box(std::string nombreID){
     return it->second;
   else
     return NULL;
+    }*/
+
+/**
+ * Devuelve el tipo box o union mas cercano cuyo nombre es nombreID
+ **/
+TypeDef* SymTable::lookup_type(std::string nombreID){
+  /*Buscar en cualquier contexto*/
+  Type *best=NULL;
+  Type *pervasive=NULL;
+
+  std::pair<typeHash::iterator, typeHash::iterator> pair1;
+  pair1= this->typeHash.equal_range(nombreID);
+
+  /*Recorrer todos los nombres encontrados. Tomado del complemento
+    del capitulo 3 del Scott*/
+  for (; pair1.first != pair1.second; ++pair1.first){
+    if (pair1.first->second->getnumScope()==0)
+      pervasive= pair1.first->second;
+    else{
+      int i=this->stack.size()-1;
+      for(i;i>0;i--){
+        if (this->stack[i]==pair1.first->second->getnumScope()){
+          best=pair1.first->second;
+          break;
+        }else if(best!=NULL && this->stack[i]==best->getnumScope())
+          break;
+      }
+    }
+  }
+
+  if (best!=NULL)
+    return best;
+  else if (pervasive!=NULL)
+    return pervasive;
+  else
+    return NULL;
+
 }
 
 SymVar* SymTable::lookup_variable(std::string nombreID){

@@ -21,7 +21,7 @@ protected:
   Type* type;
   int line;
   int col;
-  bool duplicated;
+  bool duplicated; //obsoleto
 public:
   Symbol (std::string id,int line,int col);
   std::string getId();
@@ -89,7 +89,7 @@ public:
 
 typedef std::unordered_multimap<std::string,SymVar*> varSymtable;
 typedef std::unordered_map<std::string,SymFunction*> funcSymtable;
-typedef std::unordered_multimap<std::string,BoxType*> boxHash;
+typedef std::unordered_multimap<std::string,TypeDef*> typeHash;
 
 /* Clase SymTable, representa la Tabla de simbolos con el manejo
    adecuado del anidamiento de los alcances.Metodo Leblanc-Cook */
@@ -99,8 +99,8 @@ private:
   varSymtable varTable;
   // Tabla para las funciones
   funcSymtable funcTable;
-  // Tabla para los box
-  boxHash boxTable;
+  // Tabla para los box y union
+  typeHash typeTable;
 
   int nextscope;
   // Pila para el manejo de los alcances
@@ -110,10 +110,10 @@ public:
   SymTable();
   void insert(SymVar *sym);
   void insert(SymFunction *sym);
-  void insert(BoxType *sym);
+  void insert(Type *sym);
   SymVar* lookup_variable(std::string nombreID);
   SymFunction* lookup_function(std::string nombreID);
-  BoxType* lookup_box(std::string nombreID);
+  Type* lookup_type(std::string nombreID);
   int current_scope();
   int leave_scope();
   int enter_scope();

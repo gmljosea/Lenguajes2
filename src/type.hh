@@ -132,6 +132,21 @@ public:
   virtual bool alwaysByReference();
 };
 
+class TypeDef : public Type{
+protected:
+  std::string name;
+  int line;
+  int column;
+  int numScope;
+public:
+  TypeDef(std::string name,int line,int col,int numScope)
+    : name(name), line(line),column(col),numScope(numScope),Type(1,1){};
+  std::string getName();
+  int getLine();
+  int getColumn();
+  int getnumScope();
+};
+
 // Representa un campo de un box, sea variant o no
 struct BoxField {
   Type* type;
@@ -145,16 +160,13 @@ struct BoxField {
   int groupnum; // Número de campo, servirá para hacer los chequeos dinámicos
 };
 
-// Representa un tipo Box, con cualquier cantidad de campos fijos o variantes
-class BoxType : public Type {
+// Representa un tipo Box
+class BoxType : public TypeDef {
 private:
-  std::string name;
   std::unordered_map<std::string, BoxField*> fields_hash;
   std::list<BoxField*> fixed_fields;
   std::list<BoxField*> variant_fields;
-  int line;
-  int column;
-  bool incomplete;
+  bool incomplete; // ya no va
   int groupcount;
   bool offsetsDone;
   bool visited; // usado durante la detección de ciclos entre boxes
@@ -162,8 +174,8 @@ protected:
   bool reaches(BoxType& box);
 public:
   BoxType(std::string name, bool incomplete)
-    : name(name), incomplete(incomplete), groupcount(0), visited(false),
-      offsetsDone(false),Type(1,1) { };
+    : incomplete(incomplete), groupcount(0), visited(false),
+      offsetsDone(false),TypeDef(name,line,col,numScope) { };
   void addFixedField(Type* type, std::string name,int l,int col);
   void addVariantField(Type* type, std::string name, bool grouped,int l,int col);
   void startGrouping();
@@ -176,11 +188,7 @@ public:
   bool areOffsetsDone();
   void setIncomplete(bool ic);
   int getFieldCount();
-  std::string getName();
-  void setLine(int l);
-  void setColumn(int c);
-  int getLine();
-  int getColumn();
+
   void print();
   void printDetail();
   virtual std::string toString();
