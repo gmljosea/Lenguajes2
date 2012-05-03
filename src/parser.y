@@ -310,7 +310,14 @@ block leavescope
       currentfun->setBlock($8);
       program.functions.push_back(currentfun);
     }
-| "box" TK_ID box "{" boxdecsa "}"
+| boxdef
+| uniondef
+
+uniondef:
+/*empty*/
+
+boxdef:
+"box" TK_ID box "{" boxdecsa "}"
 {
   program.boxes.push_back($3);
 }
@@ -578,6 +585,10 @@ statement:
 | foreach
 | variabledec
 | asignment
+| boxdef
+  {$$= new Null();}
+| uniondef
+  {$$= new Null();}
 | error ";"    { $$ = new Null(); yyerrok; }
 
 brk_nxt_label:
