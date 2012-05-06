@@ -60,12 +60,12 @@ public:
   void print();
 };
 
-/*Tipo de pasaje para los argumentos de funciones*/
+/*Tipo de pasaje para los argumentos de funciones (Se usa solo en el parser)*/
 enum PassType {
- normal, // Uso normal porque 'default' está reservado por C++ -.-
+ normal, // Uso por 'default' (reservado por c++)
  readonly,
  reference
-};
+ };
 
 typedef std::list<SymVar*> ArgList;
 
