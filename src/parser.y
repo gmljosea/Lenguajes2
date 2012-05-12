@@ -976,5 +976,12 @@ int main (int argc, char **argv) {
 
   program.symtable.print();
 
+  // Generar codigo intermedio
+  /* Variable global que sera modificada por los metodos gen() de cada 
+   * instruccion en el arbol sintactico.
+   */
+  // IntermCode intCod; // estructura que puede tener una lista de instrucciones
+  // program.gen();
+
   return 0;
 }

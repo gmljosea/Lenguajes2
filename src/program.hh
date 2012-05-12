@@ -37,6 +37,11 @@ struct Program {
    * Calcula los offsets de los box declarados
    */
   void calcOffsets();
+  /**
+   * Genera el codigo intermedio del programa 
+   * El programa debe ser correcto sintactica y semanticamente
+   */
+  // void gen();
 };
 
 #endif
