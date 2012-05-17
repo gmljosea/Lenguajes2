@@ -33,7 +33,6 @@ void Expression::check() {
 }
 
 Type* Expression::getType() { return this->type; }
-bool Expression::isBad() { return false; }
 Expression* Expression::cfold() { return this; }
 bool Expression::isConstant() { return false; }
 int Expression::getInteger() { return 0; }
@@ -42,6 +41,7 @@ bool Expression::getBool() { return true; }
 bool Expression::isLvalue() { return false; }
 int Expression::getLvalue() { return 0; }
 bool Expression::isAssignable() { return false; }
+void Expression::gen(){};
 
 // BadExp
 BadExp::BadExp() {
@@ -58,6 +58,8 @@ VarExp::VarExp(SymVar* symv) {
   this->symv = symv;
   this->type = symv->getType();
 }
+
+SymVar* VarExp::getSym(){return symv;}
 
 void VarExp::print(int nesting) {
   std::string padding(nesting*2, ' ');

@@ -29,7 +29,6 @@ public:
   // esta expresión
   virtual void check();
   virtual Type* getType();
-  virtual bool isBad(); // obsoleto
 
   // Devuelve una nueva expresión que es el resultado de hacer constant folding
   // sobre esta expresión.
@@ -53,6 +52,8 @@ public:
   // Determina si la expresión es asignable, es decir, no es un l-value que
   // utilice una variable readonly.
   virtual bool isAssignable();
+  // Crea la instruccion de tres direcciones asociada a la expresion
+  virtual void gen();
 };
 
 // Expresión errónea (cuando se usa un símbolo que no existe)
@@ -68,6 +69,7 @@ private:
   SymVar* symv;
 public:
   VarExp(SymVar* symv);
+  SymVar* getSym();
   virtual void print(int nesting);
   virtual bool isLvalue();
   virtual bool isAssignable();

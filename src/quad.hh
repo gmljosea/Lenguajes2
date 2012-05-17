@@ -30,6 +30,9 @@ union Args{
   symvar *id;
   int constint;
   float constfloat;
+  bool constbool;
+  std::string conststring;
+  char constchar;
   // temporal?
 };
 
