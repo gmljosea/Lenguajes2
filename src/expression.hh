@@ -248,7 +248,7 @@ protected:
     : Logical(e1,e2,op) {};
   virtual void check();
   virtual void gen();
-  virtual Operator operator1()=0;
+  virtual Operator operatortype()=0;
 };
 
 // >
