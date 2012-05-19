@@ -15,6 +15,7 @@
 #include "program.hh"
 #include "statement.hh"
 #include "type.hh"
+#include "quad.hh"
 }
 
 %code {
@@ -980,8 +981,8 @@ int main (int argc, char **argv) {
   /* Variable global que sera modificada por los metodos gen() de cada 
    * instruccion en el arbol sintactico.
    */
-  // IntermCode intCod; // estructura que puede tener una lista de instrucciones
-  // program.gen();
+  //IntermCode intCod; // estructura que puede tener una lista de instrucciones
+  program.gen();
 
   return 0;
 }

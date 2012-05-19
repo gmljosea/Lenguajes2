@@ -1,9 +1,12 @@
+#ifndef DEVANIX_QUAD
+#define DEVANIX_QUAD
+
 class Quad{
 
 };
 
 enum Operator{
-  Sum,
+  sum,
   Substraction,
   Multiplication,
   Division,
@@ -27,7 +30,7 @@ enum ArgType{
 };
 
 union Args{
-  symvar *id;
+  SymVar *id;
   int constint;
   float constfloat;
   bool constbool;
@@ -42,6 +45,7 @@ union Args{
  *          result:= op arg1
  *          result:= arg1
  **/ 
+/*
 class AsignmentQ: Quad{
 private:
   Operator op;
@@ -80,3 +84,6 @@ public:
 		  Args arg2,Label* label): arg1Type(arg1Type),arg1(arg1),op(op),
 			     arg2Type(arg2Type),arg2(arg2),label(label);
 }; 
+  */
+
+#endif

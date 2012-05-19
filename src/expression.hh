@@ -3,6 +3,7 @@
 
 #include "symbol.hh"
 #include "type.hh"
+#include "quad.hh"
 
 /**
  * Representa una expresión en Devanix.
@@ -73,12 +74,14 @@ public:
   virtual void print(int nesting);
   virtual bool isLvalue();
   virtual bool isAssignable();
+  virtual void gen();
 };
 
 // Expresiones con valor constantes
 class Constant : public Expression {
 public:
   virtual bool isConstant();
+  
 };
 
 // Número entero
@@ -89,6 +92,7 @@ public:
   IntExp(int value);
   virtual void print(int nesting);
   virtual int getInteger();
+  virtual void gen();
 };
 
 // Número decimal
@@ -99,6 +103,7 @@ public:
   FloatExp(float value);
   virtual void print(int nesting);
   virtual double getFloat();
+  virtual void gen();
 };
 
 
@@ -110,6 +115,7 @@ public:
   BoolExp(bool value);
   virtual void print(int nesting);
   virtual bool getBool();
+  virtual void gen();
 };
 
 // Una cadena de caracteres de longitud arbitraria
@@ -120,6 +126,7 @@ public:
   StringExp(std::string str);
   virtual int getLength();
   virtual void print(int nesting);
+  virtual void gen();
 };
 
 // Un caracter
@@ -129,6 +136,7 @@ private:
 public:
   CharExp(std::string ch);
   virtual void print(int nesting);
+  virtual void gen();
 };
 
 // Operadores binarios
@@ -158,24 +166,28 @@ class Sum : public Arithmetic {
 public:
   Sum(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"+") {};
   virtual Expression* cfold();
+  virtual void gen();
 };
 
 class Substraction : public Arithmetic {
 public:
   Substraction(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"-") {};
   virtual Expression* cfold();
+  virtual void gen();
 };
 
 class Multiplication : public Arithmetic {
 public:
   Multiplication(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"*") {};
   virtual Expression* cfold();
+  virtual void gen();
 };
 
 class Division : public Arithmetic {
 public:
   Division(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"/") {};
   virtual Expression* cfold();
+  virtual void gen();
 };
 
 // Operador resto (%)
@@ -184,6 +196,7 @@ public:
   Remainder(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"%") {};
   virtual void check();
   virtual Expression* cfold();
+  virtual void gen();
 };
 
 // Menos unario
@@ -193,6 +206,7 @@ public:
   virtual void check();
   virtual Expression* cfold();
   void print(int nesting);
+  virtual void gen();
 };
 
 // Operadores lógicos AND, OR, NOT
@@ -201,18 +215,21 @@ protected:
   Logical(Expression* e1, Expression* e2, std::string op)
     : BinaryOp(e1,e2,op) {};
   virtual void check();
+  virtual void gen();
 };
 
 class And : public Logical {
 public:
   And(Expression* e1, Expression* e2) : Logical(e1,e2,"and") {};
   virtual Expression* cfold();
+  //virtual gen();
 };
 
 class Or : public Logical {
 public:
   Or(Expression* e1, Expression* e2) : Logical(e1,e2,"or") {};
   virtual Expression* cfold();
+  //virtual gen();
 };
 
 class Not : public Logical {
@@ -221,6 +238,7 @@ public:
   virtual void check();
   virtual Expression* cfold();
   void print(int nesting);
+  virtual void gen();
 };
 
 // Operadores relacionales
@@ -229,6 +247,8 @@ protected:
   Relational(Expression* e1, Expression* e2, std::string op)
     : Logical(e1,e2,op) {};
   virtual void check();
+  virtual void gen();
+  virtual Operator operator1()=0;
 };
 
 // >

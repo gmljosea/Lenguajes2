@@ -61,6 +61,11 @@ VarExp::VarExp(SymVar* symv) {
 
 SymVar* VarExp::getSym(){return symv;}
 
+void VarExp::gen(){
+//return intCod.temp(this->symv);
+std::cout << "temp = varExp";
+}
+
 void VarExp::print(int nesting) {
   std::string padding(nesting*2, ' ');
   std::cout << padding << this->symv->getType()->toString() << " "
@@ -95,6 +100,10 @@ int IntExp::getInteger() {
   return this->value;
 }
 
+void IntExp::gen(){
+//return intCod.temp(this->value);
+std::cout << "temp = int";
+}
 
 // FloatExp
 FloatExp::FloatExp(float value) {
@@ -111,6 +120,10 @@ double FloatExp::getFloat() {
   return this->value;
 }
 
+void FloatExp::gen(){
+//return intCod.temp(this->value);
+std::cout << "temp = float";
+}
 
 // BoolExp
 BoolExp::BoolExp(bool value) {
@@ -131,6 +144,10 @@ bool BoolExp::getBool() {
   return this->value;
 }
 
+void BoolExp::gen(){
+//return intCod.temp(this->value);
+std::cout << "temp = bool";
+}
 
 // StringExp
 StringExp::StringExp(std::string str) {
@@ -149,6 +166,10 @@ void StringExp::print(int nesting) {
   std::cout << padding << "\"" << this->str << "\"" << std::endl;
 }
 
+void StringExp::gen(){
+//return intCod.temp(this->str);
+std::cout << "temp = string";
+}
 
 // CharExp
 CharExp::CharExp(std::string ch) {
@@ -161,6 +182,10 @@ void CharExp::print(int nesting) {
   std::cout << padding << "'" << this->ch << "'" << std::endl;
 }
 
+void CharExp::gen(){
+//return intCod.temp(this->ch);
+std::cout << "temp = char";
+}
 
 // BinaryOp
 void BinaryOp::print(int nesting) {
@@ -217,6 +242,16 @@ Expression* Sum::cfold() {
   return result;
 }
 
+void Sum::gen(){
+/*
+r1= this->exp1->gen();
+r2= this->exp2->gen();
+result= intCod.temp();
+intCod.addInst(new AsignmentQ(r1,Sum,r2,result));
+*/
+std::cout << "temp = suma";
+}
+
 // Substraction
 Expression* Substraction::cfold() {
   this->exp1 = this->exp1->cfold();
@@ -237,6 +272,17 @@ Expression* Substraction::cfold() {
   delete exp2;
   delete this;
   return result;
+}
+
+void Substraction::gen(){
+/*
+r1= this->exp1->gen();
+r2= this->exp2->gen();
+result= intCod.temp();
+intCod.addInst(new AsignmentQ(r1,Substraction,r2,result));
+*/
+std::cout << "temp = substraction";
+
 }
 
 // Multiplication
@@ -261,6 +307,16 @@ Expression* Multiplication::cfold() {
   return result;
 }
 
+void Multiplication::gen(){
+/*
+r1= this->exp1->gen();
+r2= this->exp2->gen();
+result= intCod.temp();
+intCod.addInst(new AsignmentQ(r1,Multiplication,r2,result));
+*/
+std::cout << "temp = multiplication";
+}
+
 // Division
 Expression* Division::cfold() {
   this->exp1 = this->exp1->cfold();
@@ -281,6 +337,16 @@ Expression* Division::cfold() {
   delete exp2;
   delete this;
   return result;
+}
+
+void Division::gen(){
+/*
+r1= this->exp1->gen();
+r2= this->exp2->gen();
+result= intCod.temp();
+intCod.addInst(new AsignmentQ(r1,Division,r2,result));
+*/
+std::cout << "temp = division";
 }
 
 // Remainder
@@ -325,6 +391,16 @@ Expression* Remainder::cfold() {
   return result;
 }
 
+void Remainder::gen(){
+/*
+r1= this->exp1->gen();
+r2= this->exp2->gen();
+result= intCod.temp();
+intCod.addInst(new AsignmentQ(r1,Remainder,r2,result));
+*/
+std::cout << "temp = mod";
+}
+
 // Minus
 void Minus::check() {
   this->exp1->check();
@@ -364,6 +440,15 @@ void Minus::print(int nesting) {
   this->exp1->print(nesting+1);
 }
 
+void Minus::gen(){
+/*
+r1= this->exp1->gen();
+result= intCod.temp();
+intCod.addInst(new AsignmentQ(r1,Minus,result));
+*/
+std::cout << "temp = menos unario";
+}
+
 // Logical
 void Logical::check() {
   this->exp1->check();
@@ -382,6 +467,22 @@ void Logical::check() {
 		+t1->toString()+"' y '"+t2->toString()+"'",
 		this->fline, this->fcol);
   this->type = &(ErrorType::getInstance());
+}
+
+void Logical::gen(){
+  /*
+    lblfalse= intCod.newLabel();
+    lblFin=intCod.newLabel();
+    this->jumping(lblfalse);
+    tempTrue= intCod.temp(true);
+    tempFalse= intCod.temp(false);
+    result= intCod.temp();
+    intCod.addInst(new AsignmentQ(tempTrue,result));
+    intCod.addInst(new JumpQ(lblFin));
+    intCod.emitLabel(lblfalse);
+    intCod.addInst(new AsignmentQ(tempFalse,result));
+    intCod.emitLabel(lblFin)
+   */
 }
 
 // And
@@ -424,6 +525,24 @@ Expression* Or::cfold() {
   return result;
 }
 
+/*
+void Or::gen(){
+  /*
+    lblfalse= intCod.newLabel();
+    lblFin=intCod.newLabel();
+    this->jumping(lblfalse);
+    tempTrue= intCod.temp(true);
+    tempFalse= intCod.temp(false);
+    result= intCod.temp();
+    intCod.addInst(new AsignmentQ(tempTrue,result));
+    intCod.addInst(new JumpQ(lblFin));
+    intCod.emitLabel(lblfalse);
+    intCod.addInst(new AsignmentQ(tempFalse,result));
+    intCod.emitLabel(lblFin)
+   
+}
+*/
+
 // Not
 void Not::check() {
   this->exp1->check();
@@ -460,6 +579,22 @@ void Not::print(int nesting) {
   this->exp1->print(nesting+1);
 }
 
+void Not::gen(){
+  /*
+    lblfalse= intCod.newLabel();
+    lblFin=intCod.newLabel();
+    this->jumping(lblfalse);
+    tempTrue= intCod.temp(true);
+    tempFalse= intCod.temp(false);
+    result= intCod.temp();
+    intCod.addInst(new AsignmentQ(tempFalse,result));
+    intCod.addInst(new JumpQ(lblFin));
+    intCod.emitLabel(lblfalse);
+    intCod.addInst(new AsignmentQ(tempTrue,result));
+    intCod.emitLabel(lblFin)
+   */
+}
+
 // Relational
 void Relational::check() {
   exp1->check();
@@ -486,6 +621,30 @@ void Relational::check() {
   this->type = &(ErrorType::getInstance());
 }
 
+void Relational::gen(){
+  /*
+    // Verificar que tipo de operador es
+    Operator op= this->operatortype();
+
+    Temp r1,r2;
+    r1= this->exp1->gen();
+    r2= this->exp2->gen();
+    lbltrue=intCod.newLabel();
+    lblFin=intCod.newLabel();
+    tempTrue= intCod.temp(true);
+    tempFalse= intCod.temp(false);
+    result=intCod.temp();
+    intCod.addInst(new ConditionalJumpQ(r1,op,r2,lbltrue));
+    intCod.addInst(new AsignmentQ(tempFalse,result));
+    intCod.addInst(new JumpQ(lblFin));
+    intCod.emitLabel(lbltrue);
+    intCod.addInst(new AsignmentQ(tempTrue,result));
+    intCod.emitLabel(lblFin)
+    return result;
+  */
+std::cout << "temp = relational";
+}
+
 // Greater
 Expression* Greater::cfold() {
   this->exp1 = this->exp1->cfold();
@@ -509,6 +668,8 @@ Expression* Greater::cfold() {
   return result;
 }
 
+Operator Greater::operatortype(){return Operator::Greater;}
+
 // GreaterEq
 Expression* GreaterEq::cfold() {
   this->exp1 = this->exp1->cfold();
@@ -531,6 +692,8 @@ Expression* GreaterEq::cfold() {
   delete this;
   return result;
 }
+
+Operator GreaterEq::operatortype(){return Operator::GreaterEq;}
 
 // Equal
 // Sobrescribo check() de Relational porque Equal permite comparar booleanos
@@ -584,6 +747,8 @@ Expression* Equal::cfold() {
   return result;
 }
 
+Operator Equal::operatortype(){return Operator::Equal;}
+
 // NotEqual
 // misma razón que Equal para sobrescribir check()
 void NotEqual::check() {
@@ -636,6 +801,8 @@ Expression* NotEqual::cfold() {
   return result;
 }
 
+Operator NotEqual::operatortype(){return Operator::NotEqual;}
+
 // Less
 Expression* Less::cfold() {
   this->exp1 = this->exp1->cfold();
@@ -659,6 +826,8 @@ Expression* Less::cfold() {
   return result;
 }
 
+Operator Less::operatortype(){return Operator::Less;}
+
 // LessEq
 Expression* LessEq::cfold() {
   this->exp1 = this->exp1->cfold();
@@ -681,6 +850,8 @@ Expression* LessEq::cfold() {
   delete this;
   return result;
 }
+
+Operator LessEq::operatortype(){return Operator::LessEq;}
 
 // Index (operador [], acceso a arreglo)
 void Index::check() {

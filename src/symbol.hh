@@ -85,6 +85,7 @@ public:
   void print();
   ArgList* getArguments();
   void check();
+  void gen();
 };
 
 typedef std::unordered_multimap<std::string,SymVar*> varSymtable;

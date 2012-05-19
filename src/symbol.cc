@@ -123,6 +123,10 @@ void SymFunction::check() {
   }
 }
 
+void SymFunction::gen(){
+  //this->block->gen();
+}
+
 /**********************************/
 /*** Metodos de la clase SymVar ***/
 /**********************************/
@@ -135,6 +139,7 @@ SymVar::SymVar(std::string id,int line,int col,
   this->reference = false;
   //  std::cout << "SymVar creado";
 }
+
 
 void SymVar::print(){
   std::cout << this->type->toString() << " " << id << " (" << line << ":" << col
