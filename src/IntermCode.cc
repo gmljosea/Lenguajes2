@@ -1,20 +1,23 @@
 #include "IntermCode.hh"
 
 Label* IntermCode::newLabel(){
-  Label* newLabel= new Label(this->nextLabel++);
+  Label* newLabel= new Label(this->nextlabel++);
   return newLabel;   
 }
 
-void emitLabel(Label* label){
-  this->unSet.insert(label);
+void IntermCode::emitLabel(Label* label){
+  this->unSet.push_back(label);
 }
 
-void emitLabel2(Quad* instr){
+void IntermCode::emitLabel2(Quad* instr){
   // Asocia las etiquetas de unSet a la instruccion
  for (std::list<Label*>::iterator it = this->unSet.begin();
        it != this->unSet.end(); it++) {
-   this->labelset.insert(::value_type((*it)->getId(),instr));
+   this->labelset.insert(labels::value_type((*it)->getId(),(*it)));
+   (*it)->setInstruction(instr);
+   // Falta sacarlos de la lista, no quiero destructor
  }
+ 
 }
 
 bool IntermCode::areUnSet(){
@@ -29,3 +32,6 @@ void IntermCode::addInst(Quad* quad){
 void Label::setInstruction(Quad* instruction){
   this->instruction= instruction;
 }
+
+int Label::getId(){ return this->id;}
+

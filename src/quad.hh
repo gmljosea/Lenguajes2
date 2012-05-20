@@ -1,6 +1,8 @@
 #ifndef DEVANIX_QUAD
 #define DEVANIX_QUAD
 
+#include "symbol.hh"
+
 class Quad{
 
 };

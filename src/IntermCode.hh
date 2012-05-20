@@ -4,10 +4,11 @@
 
 
 class Label;
+class Temp;
 
-typedef std::unordered_multimap<int,Label> labels;
+typedef std::unordered_multimap<int,Label*> labels;
 
-class ItermCode {
+class IntermCode{
 private:
   // Conjunto de etiquetas asociadas a instrucciones
   labels labelset;
@@ -19,12 +20,12 @@ private:
   int nextlabel;
 
 public:
-  IntermCode ():nextlabel(0);
+  IntermCode(): nextlabel(0){};
   Label* newLabel();
-  Temp newTemp();
+  Temp* newTemp();
   void addInst(Quad* quad);
   void emitLabel(Label* label);
-  void emitLabel2();
+  void emitLabel2(Quad* instr);
   bool areUnSet();
 };
 
@@ -34,8 +35,12 @@ private:
   int id;
 
 public:
-  Label(int id): id(id);
+  Label(int id): id(id){};
   void setInstruction(Quad* quad);
+  int getId();
 };
 
 // Temp tendra varios constructores dependiendo de si es constant float int sym etc
+class Temp{
+
+};
