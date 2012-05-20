@@ -256,6 +256,7 @@ class Greater : public Relational {
 public:
   Greater(Expression* e1, Expression* e2) : Relational(e1,e2,">") {};
   virtual Expression* cfold();
+  virtual Operator operatortype();
 };
 
 // >=
@@ -263,6 +264,7 @@ class GreaterEq : public Relational {
 public:
   GreaterEq(Expression* e1, Expression* e2) : Relational(e1,e2,">=") {};
   virtual Expression* cfold();
+  virtual Operator operatortype();
 };
 
 // ==
@@ -271,6 +273,7 @@ public:
   Equal(Expression* e1, Expression* e2) : Relational(e1,e2,"==") {};
   virtual void check();
   virtual Expression* cfold();
+  virtual Operator operatortype();
 };
 
 // !=
@@ -279,6 +282,7 @@ public:
   NotEqual(Expression* e1, Expression* e2) : Relational(e1,e2,"!=") {};
   virtual void check();
   virtual Expression* cfold();
+  virtual Operator operatortype();
 };
 
 // <
@@ -286,6 +290,7 @@ class Less : public Relational {
 public:
   Less (Expression* e1, Expression* e2) : Relational(e1,e2,"<") {};
   virtual Expression* cfold();
+  virtual Operator operatortype();
 };
 
 // <=
@@ -293,6 +298,7 @@ class LessEq : public Relational {
 public:
   LessEq(Expression* e1, Expression* e2) : Relational(e1,e2,"<=") {};
   virtual Expression* cfold();
+  virtual Operator operatortype();
 };
 
 // Acceso a un arreglo, var[indice]

@@ -7,19 +7,19 @@ class Quad{
 
 enum Operator{
   sum,
-  Substraction,
-  Multiplication,
-  Division,
-  Remainder, // Operador 'resto' o mod
-  Minus, // Menos unario
-  And,
-  Or,
-  Greater,  // >
-  GreaterEq,// >=
-  Equal,   // ==
-  NotEqual,// !=
-  Less,    // <
-  LessEq  // <=
+  substraction,
+  multiplication,
+  division,
+  remainder, // Operador 'resto' o mod
+  minus, // Menos unario
+  AND,
+  OR,
+  greater,  // >
+  greaterEq,// >=
+  equal,   // ==
+  notEqual,// !=
+  less,    // <
+  lessEq  // <=
 };
 
 enum ArgType{

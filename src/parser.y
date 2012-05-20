@@ -15,7 +15,6 @@
 #include "program.hh"
 #include "statement.hh"
 #include "type.hh"
-#include "quad.hh"
 }
 
 %code {

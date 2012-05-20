@@ -668,7 +668,7 @@ Expression* Greater::cfold() {
   return result;
 }
 
-Operator Greater::operatortype(){return Operator::Greater;}
+Operator Greater::operatortype(){return Operator::greater;}
 
 // GreaterEq
 Expression* GreaterEq::cfold() {
@@ -693,7 +693,7 @@ Expression* GreaterEq::cfold() {
   return result;
 }
 
-Operator GreaterEq::operatortype(){return Operator::GreaterEq;}
+Operator GreaterEq::operatortype(){return Operator::greaterEq;}
 
 // Equal
 // Sobrescribo check() de Relational porque Equal permite comparar booleanos
@@ -747,7 +747,7 @@ Expression* Equal::cfold() {
   return result;
 }
 
-Operator Equal::operatortype(){return Operator::Equal;}
+Operator Equal::operatortype(){return Operator::equal;}
 
 // NotEqual
 // misma razón que Equal para sobrescribir check()
@@ -801,7 +801,7 @@ Expression* NotEqual::cfold() {
   return result;
 }
 
-Operator NotEqual::operatortype(){return Operator::NotEqual;}
+Operator NotEqual::operatortype(){return Operator::notEqual;}
 
 // Less
 Expression* Less::cfold() {
@@ -826,7 +826,7 @@ Expression* Less::cfold() {
   return result;
 }
 
-Operator Less::operatortype(){return Operator::Less;}
+Operator Less::operatortype(){return Operator::less;}
 
 // LessEq
 Expression* LessEq::cfold() {
@@ -851,7 +851,7 @@ Expression* LessEq::cfold() {
   return result;
 }
 
-Operator LessEq::operatortype(){return Operator::LessEq;}
+Operator LessEq::operatortype(){return Operator::lessEq;}
 
 // Index (operador [], acceso a arreglo)
 void Index::check() {
