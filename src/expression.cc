@@ -222,7 +222,7 @@ void Arithmetic::check() {
 
 void Arithmetic::gen(){
 /*
-SymVar r1,r2,result;
+SymVar* r1,r2,result;
 r1= this->exp1->gen();
 r2= this->exp2->gen();
 result= intCod.newTemp();
@@ -231,8 +231,9 @@ intCod.addInst(new AsignmentQ(r1,opI,r2,result));
 }else{ 
 intCod.addInst(new AsignmentQ(r1,opF,r2,result));
 }
+return result;
 */
-std::cout << "temp = suma";
+  std::cout << "temp = aritmetico+-*//";
 }
 
 // Sum
@@ -369,13 +370,16 @@ Expression* Remainder::cfold() {
 
 void Remainder::gen(){
 /*
+SymVar* r1,r2,result;
 r1= this->exp1->gen();
 r2= this->exp2->gen();
 result= intCod.temp();
-intCod.addInst(new AsignmentQ(r1,Remainder,r2,result));
+intCod.addInst(new AsignmentQ(r1,remainder,r2,result));
+return result;
 */
 std::cout << "temp = mod";
 }
+
 
 // Minus
 void Minus::check() {
@@ -418,12 +422,19 @@ void Minus::print(int nesting) {
 
 void Minus::gen(){
 /*
+SymVar* r1,r2,result;
 r1= this->exp1->gen();
 result= intCod.temp();
-intCod.addInst(new AsignmentQ(r1,Minus,result));
+if(*(this->type)==IntType::getInstance()){
+intCod.addInst(new AsignmentQ(r1,opI,result));
+}else{
+intCod.addInst(new AsignmentQ(r1,opF,result));
+}
+return result;
 */
 std::cout << "temp = menos unario";
 }
+
 
 // Logical
 void Logical::check() {
