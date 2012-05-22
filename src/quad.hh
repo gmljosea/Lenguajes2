@@ -8,12 +8,17 @@ class Quad{
 };
 
 enum Operator{
-  sum,
-  substraction,
-  multiplication,
-  division,
+  sumI,
+  sumF,
+  substractionI,
+  substractionF,
+  multiplicationI,
+  multiplicationF,
+  divisionI,
+  divisionF,
   remainder, // Operador 'resto' o mod
-  minus, // Menos unario
+  minusI, // Menos unario
+  minusF,
   AND,
   OR,
   greater,  // >
@@ -24,13 +29,7 @@ enum Operator{
   lessEq  // <=
 };
 
-enum ArgType{
-  id,
-  constint,
-  contfloat
-  //temporal
-};
-
+/*
 union Args{
   SymVar *id;
   int constint;
@@ -40,7 +39,7 @@ union Args{
   char constchar;
   // temporal?
 };
-
+*/
 /** 
  * Clase que representa la asignacion de copia o la de 3 o 2 direcciones
  * ejemplo: result:= arg1 op arg2  

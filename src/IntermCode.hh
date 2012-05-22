@@ -2,7 +2,6 @@
 #include <unordered_map>
 #include "quad.hh"
 
-
 class Label;
 class Temp;
 
@@ -40,7 +39,7 @@ public:
   int getId();
 };
 
-// Temp tendra varios constructores dependiendo de si es constant float int sym etc
+
 class Temp{
 
 };

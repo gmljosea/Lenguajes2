@@ -101,7 +101,7 @@ int IntExp::getInteger() {
 }
 
 void IntExp::gen(){
-//return intCod.temp(this->value);
+//return intCod.newtemp(this->value);
 std::cout << "temp = int";
 }
 
@@ -220,6 +220,21 @@ void Arithmetic::check() {
   this->type = &(ErrorType::getInstance());
 }
 
+void Arithmetic::gen(){
+/*
+SymVar r1,r2,result;
+r1= this->exp1->gen();
+r2= this->exp2->gen();
+result= intCod.newTemp();
+if(*(this->type)==IntType::getInstance()){
+intCod.addInst(new AsignmentQ(r1,opI,r2,result));
+}else{ 
+intCod.addInst(new AsignmentQ(r1,opF,r2,result));
+}
+*/
+std::cout << "temp = suma";
+}
+
 // Sum
 Expression* Sum::cfold() {
   this->exp1 = this->exp1->cfold();
@@ -240,16 +255,6 @@ Expression* Sum::cfold() {
   delete exp2;
   delete this;
   return result;
-}
-
-void Sum::gen(){
-/*
-r1= this->exp1->gen();
-r2= this->exp2->gen();
-result= intCod.temp();
-intCod.addInst(new AsignmentQ(r1,Sum,r2,result));
-*/
-std::cout << "temp = suma";
 }
 
 // Substraction
@@ -274,16 +279,6 @@ Expression* Substraction::cfold() {
   return result;
 }
 
-void Substraction::gen(){
-/*
-r1= this->exp1->gen();
-r2= this->exp2->gen();
-result= intCod.temp();
-intCod.addInst(new AsignmentQ(r1,Substraction,r2,result));
-*/
-std::cout << "temp = substraction";
-
-}
 
 // Multiplication
 Expression* Multiplication::cfold() {
@@ -305,16 +300,6 @@ Expression* Multiplication::cfold() {
   delete exp2;
   delete this;
   return result;
-}
-
-void Multiplication::gen(){
-/*
-r1= this->exp1->gen();
-r2= this->exp2->gen();
-result= intCod.temp();
-intCod.addInst(new AsignmentQ(r1,Multiplication,r2,result));
-*/
-std::cout << "temp = multiplication";
 }
 
 // Division
@@ -339,15 +324,6 @@ Expression* Division::cfold() {
   return result;
 }
 
-void Division::gen(){
-/*
-r1= this->exp1->gen();
-r2= this->exp2->gen();
-result= intCod.temp();
-intCod.addInst(new AsignmentQ(r1,Division,r2,result));
-*/
-std::cout << "temp = division";
-}
 
 // Remainder
 void Remainder::check() {
