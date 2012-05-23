@@ -48,11 +48,13 @@ constbool,
 conststring
 };
 
+/** 
+ * Representa una etiqueta asociada a una instruccion 
+ */
 class Label {
 private:
   Quad* instruction;
   int id;
-
 public:
   Label(int id): id(id){};
   void setInstruction(Quad* quad);
@@ -91,13 +93,17 @@ public:
     arg1Type(arg1Type), arg1(arg1),result(result){};
 };
 
-
+/**
+ * Representa la instruccion de salto incondicional
+ * ejemplo: goto label
+ */
 class JumpQ: Quad{
 private:
   Label *label;
 public:
   JumpQ(Label* label): label(label){};
 };
+
 /*
 class ConditionalJumpQ: Quad{
 private:

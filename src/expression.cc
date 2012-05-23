@@ -65,7 +65,12 @@ VarExp::VarExp(SymVar* symv) {
 SymVar* VarExp::getSym(){return symv;}
 
 void VarExp::gen(){
-//return intCod.temp(this->symv);
+  SymVar *result;
+  result= intCod.newTemp();
+  Args sym;
+  sym.id= this->symv;
+  //  intCod.addInst(new AsignmentQ(id,sym,result));
+//return result;
 std::cout << "temp = varExp";
 }
 
@@ -104,7 +109,12 @@ int IntExp::getInteger() {
 }
 
 void IntExp::gen(){
-//return intCod.newtemp(this->value);
+ SymVar *result;
+  result= intCod.newTemp();
+  Args cInt;
+  cInt.constint= this->value;
+  //  intCod.addInst(new AsignmentQ(constint,cInt,result));
+//return result;
 std::cout << "temp = int";
 }
 
@@ -124,7 +134,12 @@ double FloatExp::getFloat() {
 }
 
 void FloatExp::gen(){
-//return intCod.temp(this->value);
+ SymVar *result;
+  result= intCod.newTemp();
+  Args cFloat;
+  cFloat.constfloat= this->value;
+  //  intCod.addInst(new AsignmentQ(constfloat,cFloat,result));
+//return result;
 std::cout << "temp = float";
 }
 
@@ -148,7 +163,12 @@ bool BoolExp::getBool() {
 }
 
 void BoolExp::gen(){
-//return intCod.temp(this->value);
+ SymVar *result;
+  result= intCod.newTemp();
+  Args cBool;
+  cBool.constbool= this->value;
+  //  intCod.addInst(new AsignmentQ(constbool,cBool,result));
+//return result;
 std::cout << "temp = bool";
 }
 
@@ -170,7 +190,12 @@ void StringExp::print(int nesting) {
 }
 
 void StringExp::gen(){
-//return intCod.temp(this->str);
+ SymVar *result;
+  result= intCod.newTemp();
+  Args cString;
+  cString.conststring= &(this->str);
+  //intCod.addInst(new AsignmentQ(conststring,cString,result));
+//return result;
 std::cout << "temp = string";
 }
 
@@ -186,7 +211,12 @@ void CharExp::print(int nesting) {
 }
 
 void CharExp::gen(){
-//return intCod.temp(this->ch);
+ SymVar *result;
+  result= intCod.newTemp();
+  Args cChar;
+  //cChar.constchar= this->ch;
+  //  intCod.addInst(new AsignmentQ(constchar,cChar,result));
+//return result;
 std::cout << "temp = char";
 }
 
@@ -468,8 +498,10 @@ void Logical::gen(){
 
     SymVar* result;
     result= intCod.newTemp();
-    Args tempTrue= (bool) true;
-    Args tempFalse=(bool) false;
+    Args tempTrue;
+    Args tempFalse;
+    tempTrue.constbool= (bool) true;
+    tempFalse.constbool=(bool) false;
 
     //this->jumping(lblfalse);
 
@@ -478,6 +510,7 @@ void Logical::gen(){
     intCod.emitLabel(lblfalse);
     intCod.addInst(new AsignmentQ(constbool,tempFalse,result));
     intCod.emitLabel(lblFin);
+    return result;
   */
 }
 
