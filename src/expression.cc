@@ -2,8 +2,11 @@
 #include <string>
 #include "expression.hh"
 #include "program.hh"
+#include "quad.hh"
+#include "IntermCode.hh"
 
 extern Program program;
+extern IntermCode intCod;
 
 // Expression
 void Expression::print(int nesting) {
@@ -227,9 +230,9 @@ r1= this->exp1->gen();
 r2= this->exp2->gen();
 result= intCod.newTemp();
 if(*(this->type)==IntType::getInstance()){
-intCod.addInst(new AsignmentQ(r1,opI,r2,result));
+intCod.addInst(new AsignmentOpQ(r1,opI,r2,result));
 }else{ 
-intCod.addInst(new AsignmentQ(r1,opF,r2,result));
+intCod.addInst(new AsignmentOpQ(r1,opF,r2,result));
 }
 return result;
 */
@@ -374,7 +377,7 @@ SymVar* r1,r2,result;
 r1= this->exp1->gen();
 r2= this->exp2->gen();
 result= intCod.temp();
-intCod.addInst(new AsignmentQ(r1,remainder,r2,result));
+intCod.addInst(new AsignmentOpQ(r1,remainder,r2,result));
 return result;
 */
 std::cout << "temp = mod";
@@ -422,13 +425,13 @@ void Minus::print(int nesting) {
 
 void Minus::gen(){
 /*
-SymVar* r1,r2,result;
+SymVar* r1,result;
 r1= this->exp1->gen();
 result= intCod.temp();
 if(*(this->type)==IntType::getInstance()){
-intCod.addInst(new AsignmentQ(r1,opI,result));
+intCod.addInst(new AsignmentOpQ(r1,opI,result));
 }else{
-intCod.addInst(new AsignmentQ(r1,opF,result));
+intCod.addInst(new AsignmentOpQ(r1,opF,result));
 }
 return result;
 */
@@ -458,20 +461,24 @@ void Logical::check() {
 
 void Logical::gen(){
   /*
-    Label* lblfalse,lblFin;
-    SymVar* tempTrue, tempFalse,result;
-    lblfalse= intCod.newLabel();
-    lblFin=intCod.newLabel();
-    this->jumping(lblfalse);
-    tempTrue= intCod.newtemp(true);
-    tempFalse= intCod.newtemp(false);
+  Label* lblfalse;
+  Label* lblFin;
+  lblfalse= intCod.newLabel();
+  lblFin=intCod.newLabel();
+
+    SymVar* result;
     result= intCod.newTemp();
-    intCod.addInst(new AsignmentQ(tempTrue,result));
+    Args tempTrue= (bool) true;
+    Args tempFalse=(bool) false;
+
+    //this->jumping(lblfalse);
+
+    intCod.addInst(new AsignmentQ(constbool,tempTrue,result));
     intCod.addInst(new JumpQ(lblFin));
     intCod.emitLabel(lblfalse);
-    intCod.addInst(new AsignmentQ(tempFalse,result));
-    intCod.emitLabel(lblFin)
-   */
+    intCod.addInst(new AsignmentQ(constbool,tempFalse,result));
+    intCod.emitLabel(lblFin);
+  */
 }
 
 // And

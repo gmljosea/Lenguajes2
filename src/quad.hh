@@ -48,6 +48,17 @@ constbool,
 conststring
 };
 
+class Label {
+private:
+  Quad* instruction;
+  int id;
+
+public:
+  Label(int id): id(id){};
+  void setInstruction(Quad* quad);
+  int getId();
+};
+
 /** 
  * Clase que representa la asignacion de 3 o 2 direcciones
  * ejemplo: result:= arg1 op arg2  
@@ -81,14 +92,13 @@ public:
 };
 
 
-/*
 class JumpQ: Quad{
 private:
   Label *label;
 public:
-  JumpQ(Label* label): label(label);
+  JumpQ(Label* label): label(label){};
 };
-
+/*
 class ConditionalJumpQ: Quad{
 private:
   Operator op;
