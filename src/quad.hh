@@ -8,12 +8,17 @@ class Quad{
 };
 
 enum Operator{
-  sum,
-  substraction,
-  multiplication,
-  division,
+  sumI,
+  sumF,
+  substractionI,
+  substractionF,
+  multiplicationI,
+  multiplicationF,
+  divisionI,
+  divisionF,
   remainder, // Operador 'resto' o mod
-  minus, // Menos unario
+  minusI, // Menos unario
+  minusF,
   AND,
   OR,
   greater,  // >
@@ -24,48 +29,59 @@ enum Operator{
   lessEq  // <=
 };
 
-enum ArgType{
-  id,
-  constint,
-  contfloat
-  //temporal
-};
 
 union Args{
   SymVar *id;
   int constint;
   float constfloat;
   bool constbool;
-  std::string conststring;
+  std::string* conststring;
   char constchar;
-  // temporal?
+};
+
+enum ArgType{	
+id,
+constint,
+constfloat,
+constchar,
+constbool,
+conststring
 };
 
 /** 
- * Clase que representa la asignacion de copia o la de 3 o 2 direcciones
+ * Clase que representa la asignacion de 3 o 2 direcciones
  * ejemplo: result:= arg1 op arg2  
  *          result:= op arg1
- *          result:= arg1
  **/ 
-/*
-class AsignmentQ: Quad{
+class AsignmentOpQ: Quad{
 private:
   Operator op;
-  Args arg1;
-  ArgType arg1Type;
-  Args arg2;
-  ArgType arg2Type;
-  SymVar *result; // O temporal si decidimos hacer la clase 
+  SymVar *arg1;
+  SymVar *arg2;
+  SymVar *result; 
 public:
-  AsignmentQ(ArgType arg1Type,Args arg1,SymVar* result): 
-    arg1Type(arg1Type), arg1(arg1),result(result);
-  AsignmentQ(Operator op,ArgType arg1Type,Args arg1,SymVar* result): 
-    op(op),arg1Type(arg1Type), arg1(arg1),result(result);
-  AsignmentQ(ArgType arg1Type,Args arg1,Operator op,ArgType arg2Type,Args arg2,
-	     SymVar* result):arg1Type(arg1Type),arg1(arg1),op(op),
-			     arg2Type(arg2Type),arg2(arg2),result(result);
+  AsignmentOpQ(SymVar* arg1,Operator op,SymVar* result): 
+    op(op), arg1(arg1),result(result){};
+  AsignmentOpQ(SymVar* arg1,Operator op,SymVar* arg2,SymVar* result):
+    arg1(arg1),op(op),arg2(arg2),result(result){};
 };
 
+/** 
+ * Clase que representa la asignacion de copia
+ * ejemplo:  result:= arg1
+ **/ 
+class AsignmentQ: Quad{
+private:
+  Args arg1;
+  ArgType arg1Type;
+  SymVar *result; 
+public:
+  AsignmentQ(ArgType arg1Type,Args arg1,SymVar* result): 
+    arg1Type(arg1Type), arg1(arg1),result(result){};
+};
+
+
+/*
 class JumpQ: Quad{
 private:
   Label *label;
