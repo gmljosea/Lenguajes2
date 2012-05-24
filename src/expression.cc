@@ -553,23 +553,6 @@ Expression* Or::cfold() {
   return result;
 }
 
-/*
-void Or::gen(){
-  /*
-    lblfalse= intCod.newLabel();
-    lblFin=intCod.newLabel();
-    this->jumping(lblfalse);
-    tempTrue= intCod.temp(true);
-    tempFalse= intCod.temp(false);
-    result= intCod.temp();
-    intCod.addInst(new AsignmentQ(tempTrue,result));
-    intCod.addInst(new JumpQ(lblFin));
-    intCod.emitLabel(lblfalse);
-    intCod.addInst(new AsignmentQ(tempFalse,result));
-    intCod.emitLabel(lblFin)
-   
-}
-*/
 
 // Not
 void Not::check() {
@@ -609,19 +592,29 @@ void Not::print(int nesting) {
 
 void Not::gen(){
   /*
+    Label* lblfalse;
+    Label* lblFin;
     lblfalse= intCod.newLabel();
     lblFin=intCod.newLabel();
+
+    SymVar* result;
+    result= intCod.newTemp();
+    Args cTrue;
+    Args cFalse;
+    cTrue.constbool= (bool) true;
+    cFalse.constbool=(bool) false;
+
     this->jumping(lblfalse);
-    tempTrue= intCod.temp(true);
-    tempFalse= intCod.temp(false);
-    result= intCod.temp();
-    intCod.addInst(new AsignmentQ(tempFalse,result));
+
+    intCod.addInst(new AsignmentQ(constbool,cFalse,result));
     intCod.addInst(new JumpQ(lblFin));
     intCod.emitLabel(lblfalse);
-    intCod.addInst(new AsignmentQ(tempTrue,result));
-    intCod.emitLabel(lblFin)
+    intCod.addInst(new AsignmentQ(constbool,cTrue,result));
+    intCod.emitLabel(lblFin);
+    return result;
    */
 }
+
 
 // Relational
 void Relational::check() {
@@ -654,24 +647,31 @@ void Relational::gen(){
     // Verificar que tipo de operador es
     Operator op= this->operatortype();
 
-    Temp r1,r2;
+    SymVar* r1,r2,result;
     r1= this->exp1->gen();
     r2= this->exp2->gen();
+    result=intCod.temp();
+
+    Label* lbltrue,lblFin;
     lbltrue=intCod.newLabel();
     lblFin=intCod.newLabel();
-    tempTrue= intCod.temp(true);
-    tempFalse= intCod.temp(false);
-    result=intCod.temp();
+
+    Args cTrue;
+    Args cFalse;
+    cTrue.constbool= (bool) true;
+    cFalse.constbool=(bool) false;
+ 
     intCod.addInst(new ConditionalJumpQ(r1,op,r2,lbltrue));
-    intCod.addInst(new AsignmentQ(tempFalse,result));
+    intCod.addInst(new AsignmentQ(cFalse,result));
     intCod.addInst(new JumpQ(lblFin));
     intCod.emitLabel(lbltrue);
-    intCod.addInst(new AsignmentQ(tempTrue,result));
+    intCod.addInst(new AsignmentQ(cTrue,result));
     intCod.emitLabel(lblFin)
     return result;
   */
 std::cout << "temp = relational";
 }
+
 
 // Greater
 Expression* Greater::cfold() {
