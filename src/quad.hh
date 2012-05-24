@@ -36,7 +36,7 @@ union Args{
   int constint;
   float constfloat;
   bool constbool;
-  std::string conststring;
+  //  std::string conststring;
   char constchar;
   // temporal?
 };

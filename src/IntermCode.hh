@@ -1,3 +1,6 @@
+#ifndef INTERMCODE_DEVANIX
+#define INTERMCODE_DEVANIX
+
 #include <list>
 #include <unordered_map>
 #include "quad.hh"
@@ -44,3 +47,5 @@ public:
 class Temp{
 
 };
+
+#endif

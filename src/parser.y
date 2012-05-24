@@ -26,6 +26,8 @@ extern FILE *yyin;
 // Resultado del parseo
 Program program;
 
+IntermCode intCode; // estructura que puede tener una lista de instrucciones
+
 // Variables globales útiles para chequeos durante el parseo
 SymFunction* currentfun; // Función parseada actual
 std::list<Iteration*> loopstack;
@@ -873,7 +875,7 @@ void yyerror (char const *s) {
 int main (int argc, char **argv) {
   if (argc == 2) {
     yyin = fopen(argv[1], "r");
-  }
+  } 
 
   program.errorCount = 0;
 
@@ -952,7 +954,7 @@ int main (int argc, char **argv) {
   if (program.errorCount > 0) {
     return 1;
   }
-
+  /*
   std::cout << "-- Variables globales --" << std::endl << std::endl;
 
   for (std::list<VariableDec*>::iterator it = program.globalinits.begin();
@@ -974,14 +976,15 @@ int main (int argc, char **argv) {
     (**it).printDetail();
   }
 
-  program.symtable.print();
+  //program.symtable.print();
 
   // Generar codigo intermedio
-  /* Variable global que sera modificada por los metodos gen() de cada 
+  /* Variable global que sera modificada por los metodos gen() de cada
    * instruccion en el arbol sintactico.
-   */
-  //IntermCode intCod; // estructura que puede tener una lista de instrucciones
+   
+*/
   program.gen();
 
   return 0;
+
 }

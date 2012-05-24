@@ -124,7 +124,7 @@ void SymFunction::check() {
 }
 
 void SymFunction::gen(){
-  //this->block->gen();
+  this->block->gen(NULL);
 }
 
 /**********************************/
