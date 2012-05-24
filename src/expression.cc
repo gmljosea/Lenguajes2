@@ -115,7 +115,6 @@ void IntExp::gen(){
   cInt.constint= this->value;
   //  intCod.addInst(new AsignmentQ(constint,cInt,result));
 //return result;
-std::cout << "temp = int";
 }
 
 // FloatExp

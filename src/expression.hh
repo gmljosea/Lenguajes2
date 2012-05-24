@@ -158,9 +158,9 @@ class Arithmetic : public BinaryOp {
 protected:
   Operator opI;
   Operator opF;
-  Arithmetic(Expression* e1, Expression* e2, std::string op,Operator opI,
+  Arithmetic(Expression* e1, Expression* e2, std::string op, Operator opI,
 	     Operator opF)
-    : BinaryOp(e1,e2,op),opI(opI),opF(opF) {};
+    : BinaryOp(e1,e2,op),opI(opI),opF(opF){};
 public:
   virtual void check();
   virtual void gen();

@@ -572,7 +572,7 @@ Los operadores binarios son:
 *    **-**  Operador para la resta
 *    *****  Operador para la multiplicacion
 *    **/**  Operador para la división
-*    **%**  Operador para el modulo
+*    **%**  Operador para el modulo (sólo con tipos int)
 *    **==** Operador para la igualdad
 *    **!=** Operador para la desigualdad
 *    **>**  Mayor que

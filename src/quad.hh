@@ -93,6 +93,7 @@ public:
     arg1Type(arg1Type), arg1(arg1),result(result){};
 };
 
+
 /**
  * Representa la instruccion de salto incondicional
  * ejemplo: goto label
