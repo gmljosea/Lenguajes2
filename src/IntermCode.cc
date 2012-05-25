@@ -29,6 +29,10 @@ void IntermCode::addInst(Quad* quad){
   this->inst.push_back(quad);
 }
 
+SymVar* IntermCode::newTemp(){
+  return new SymVar(this->nextTemp++);
+}
+
 void Label::setInstruction(Quad* instruction){
   this->instruction= instruction;
 }

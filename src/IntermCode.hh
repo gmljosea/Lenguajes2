@@ -20,9 +20,11 @@ private:
   std::list<Quad*> inst;
   // Num prox etiqueta
   int nextlabel;
+  // Num prox temporal
+  int nextTemp;
 
 public:
-  IntermCode(): nextlabel(0){};
+  IntermCode(): nextlabel(0),nextTemp(0){};
   Label* newLabel();
   SymVar* newTemp();
   void addInst(Quad* quad);
