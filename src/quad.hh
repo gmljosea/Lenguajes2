@@ -105,20 +105,27 @@ public:
   JumpQ(Label* label): label(label){};
 };
 
-/*
 class ConditionalJumpQ: Quad{
 private:
   Operator op;
-  Args arg1;
-  ArgType arg1Type;
-  Args arg2;
-  ArgType arg2Type;
+  SymVar* arg1;
+  SymVar* arg2;
   Label *label;
 public:
- ConditionalJumpQ(ArgType arg1Type,Args arg1,Operator op,ArgType arg2Type,
-		  Args arg2,Label* label): arg1Type(arg1Type),arg1(arg1),op(op),
-			     arg2Type(arg2Type),arg2(arg2),label(label);
+ ConditionalJumpQ(SymVar* arg1,Operator op,SymVar* arg2,Label* label):
+   arg1(arg1),op(op),arg2(arg2),label(label){};
 }; 
-  */
+
+class ConditionalNJumpQ: Quad{
+private:
+  Operator op;
+  SymVar* arg1;
+  SymVar* arg2;
+  Label *label;
+public:
+ ConditionalNJumpQ(SymVar* arg1,Operator op,SymVar* arg2,Label* label):
+   arg1(arg1),op(op),arg2(arg2),label(label){};
+};
+
 
 #endif

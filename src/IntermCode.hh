@@ -1,3 +1,6 @@
+#ifndef DEVANIX_CODE
+#define DEVANIX_CODE
+
 #include <list>
 #include <unordered_map>
 #include "quad.hh"
@@ -28,9 +31,4 @@ public:
   bool areUnSet();
 };
 
-
-
-
-class Temp{
-
-};
+#endif
