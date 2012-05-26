@@ -94,6 +94,44 @@ public:
     Quad(), arg1Type(arg1Type), arg1(arg1),result(result){};
 };
 
+/** 
+ * Clase que representa la asignacion de referencias
+ * ejemplo:  result:= *arg1
+ **/ 
+class AsignmentPointQ:public Quad{
+private:
+  SymVar *arg1;
+  SymVar *result; 
+public:
+  AsignmentQ(SymVar* arg1,SymVar* result): 
+    Quad(), arg1(arg1),result(result){};
+};
+
+/** 
+ * Clase que representa la asignacion a referencias de temporales
+ * ejemplo:  *result:= arg1
+ **/ 
+class AsignmentToPointQ:public Quad{
+private:
+  SymVar *arg1;
+  SymVar *result; 
+public:
+  AsignmentQ(SymVar* arg1,SymVar* result): 
+    Quad(), arg1(arg1),result(result){};
+};
+
+/** 
+ * Clase que representa la asignacion de direccion
+ * ejemplo:  result:= &arg1
+ **/ 
+class AsignmentAddQ:public Quad{
+private:
+  SymVar *arg1;
+  SymVar *result; 
+public:
+  AsignmentQ(SymVar* arg1,SymVar* result): 
+    Quad(), arg1(arg1),result(result){};
+};
 
 /**
  * Representa la instruccion de salto incondicional
@@ -106,6 +144,11 @@ public:
   JumpQ(Label* label): Quad(), label(label){};
 };
 
+/**
+ * Clase que representa el salto condicional
+ * ejemplo: if arg1 op arg2 goto label
+ * En donde op es un operador relacional. 
+ */
 class ConditionalJumpQ:public Quad{
 private:
   Operator op;
@@ -117,6 +160,11 @@ public:
    Quad(), arg1(arg1),op(op),arg2(arg2),label(label){};
 }; 
 
+/**
+ * Clase que representa el salto condicional negado
+ * ejemplo: ifnot arg1 op arg2 goto label
+ * En donde op es un operador relacional. 
+ */
 class ConditionalNJumpQ:public Quad{
 private:
   Operator op;
@@ -127,6 +175,34 @@ public:
  ConditionalNJumpQ(SymVar* arg1,Operator op,SymVar* arg2,Label* label):
    Quad(), arg1(arg1),op(op),arg2(arg2),label(label){};
 };
+
+/**
+ * Clase que representa un parametro de una funcion
+ * Debe estar cargado en un temporal 
+ */
+class ParamQ: public Quad{
+private:
+  SymVar *param;
+public:
+  ParamQ(SymVar *param):Quad(),param(param){};
+};
+
+/**
+ * Clase que representa la llamada a una funcion
+ * ejemplo: returnVal:= call func numParam
+ */ 
+class CallQ: public Quad{
+private:
+  int numParam;
+  SymVar *returnVal;
+  Label *func;
+private:
+  CallQ(Label *func,int n,SymVar *retVal):func(func),numParam(n),
+					  returnVal(retVal){};
+}; 
+
+
+
 
 
 #endif

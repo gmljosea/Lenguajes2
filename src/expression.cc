@@ -110,7 +110,7 @@ int IntExp::getInteger() {
 }
 
 SymVar* IntExp::gen(){
- SymVar *result;
+  SymVar *result;
   result= intCode.newTemp();
   Args cInt;
   cInt.constint= this->value;
@@ -165,7 +165,7 @@ bool BoolExp::getBool() {
 }
 
 SymVar* BoolExp::gen(){
- SymVar *result;
+  SymVar *result;
   result= intCode.newTemp();
   Args cBool;
   cBool.constbool= this->value;
@@ -704,6 +704,23 @@ SymVar* Relational::gen(){
   std::cout << "temp = relational";
 }
 
+void Relational::jumping(Label* lbltrue,Label* lblfalse){
+  // Verificar que tipo de operador es
+  Operator op= this->operatortype();
+
+  SymVar *r1,*r2;
+  r1= this->exp1->gen();
+  r2= this->exp2->gen();
+  
+  if(lblfalse!=NULL & lbltrue!=NULL){
+    intCode.addInst(new ConditionalJumpQ(r1,op,r2,lbltrue));
+    intCode.addInst(new JumpQ(lblfalse));
+  }else if(lbltrue!=NULL){
+    intCode.addInst(new ConditionalJumpQ(r1,op,r2,lbltrue));
+  }else if(lblfalse!=NULL){
+     intCode.addInst(new ConditionalNJumpQ(r1,op,r2,lbltrue));
+  }
+}
 
 // Greater
 Expression* Greater::cfold() {
