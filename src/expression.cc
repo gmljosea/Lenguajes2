@@ -2,7 +2,7 @@
 #include <string>
 #include "expression.hh"
 #include "program.hh"
-#include "quad.hh"
+#include "Quad.hh"
 #include "IntermCode.hh"
 
 extern Program program;
@@ -69,7 +69,8 @@ SymVar* VarExp::gen(){
   result= intCode.newTemp();
   Args sym;
   sym.id= this->symv;
-  //  intCode.addInst(new AsignmentQ(id,sym,result));
+  intCode.addInst(new AsignmentQ(id,sym,result));
+  result->setType(this->symv->getType());
   return result;
 std::cout << "temp = varExp";
 }
@@ -113,8 +114,9 @@ SymVar* IntExp::gen(){
   result= intCode.newTemp();
   Args cInt;
   cInt.constint= this->value;
-  //  intCode.addInst(new AsignmentQ(constint,cInt,result));
-return result;
+  intCode.addInst(new AsignmentQ(constint,cInt,result));
+  result->setType(&(IntType::getInstance()));
+  return result;
 }
 
 // FloatExp
@@ -137,8 +139,9 @@ SymVar* FloatExp::gen(){
   result= intCode.newTemp();
   Args cFloat;
   cFloat.constfloat= this->value;
-  //  intCode.addInst(new AsignmentQ(constfloat,cFloat,result));
-return result;
+  intCode.addInst(new AsignmentQ(constfloat,cFloat,result));
+  result->setType(&(FloatType::getInstance()));
+  return result;
 std::cout << "temp = float";
 }
 
@@ -166,9 +169,10 @@ SymVar* BoolExp::gen(){
   result= intCode.newTemp();
   Args cBool;
   cBool.constbool= this->value;
-  //  intCode.addInst(new AsignmentQ(constbool,cBool,result));
+  intCode.addInst(new AsignmentQ(constbool,cBool,result));
+  result->setType(&(BoolType::getInstance()));
   return result;
-std::cout << "temp = bool";
+  std::cout << "temp = bool";
 }
 
 // StringExp
@@ -193,9 +197,10 @@ SymVar* StringExp::gen(){
   result= intCode.newTemp();
   Args cString;
   cString.conststring= &(this->str);
-  //intCode.addInst(new AsignmentQ(conststring,cString,result));
+  intCode.addInst(new AsignmentQ(conststring,cString,result));
+  result->setType(new StringType(this->str.length()));
   return result;
-std::cout << "temp = string";
+  std::cout << "temp = string";
 }
 
 // CharExp
@@ -213,10 +218,11 @@ SymVar* CharExp::gen(){
   SymVar *result;
   result= intCode.newTemp();
   Args cChar;
-  //cChar.constchar= this->ch;
-  //  intCode.addInst(new AsignmentQ(constchar,cChar,result));
+  //cChar.constchar= this-> ch;
+  intCode.addInst(new AsignmentQ(constchar,cChar,result));
+  result->setType(&(CharType::getInstance()));
   return result;
-std::cout << "temp = char";
+  std::cout << "temp = char";
 }
 
 // BinaryOp
@@ -255,14 +261,16 @@ void Arithmetic::check() {
 SymVar* Arithmetic::gen(){
 
   SymVar *r1,*r2,*result;
-/*r1= this->exp1->gen();
-r2= this->exp2->gen();
-result= intCode.newTemp();
-if(*(this->type)==IntType::getInstance()){
-intCode.addInst(new AsignmentOpQ(r1,opI,r2,result));
-}else{ 
-intCode.addInst(new AsignmentOpQ(r1,opF,r2,result));
-}*/
+  r1= this->exp1->gen();
+  r2= this->exp2->gen();
+  result= intCode.newTemp();
+  if(*(this->type)==IntType::getInstance()){
+    intCode.addInst(new AsignmentOpQ(r1,opI,r2,result));
+    result->setType(&(IntType::getInstance()));
+  }else{ 
+    intCode.addInst(new AsignmentOpQ(r1,opF,r2,result));
+    result->setType(&(FloatType::getInstance()));
+  }
   return result;
   std::cout << "temp = aritmetico+-*//";
 }
@@ -401,14 +409,15 @@ Expression* Remainder::cfold() {
 
 SymVar* Remainder::gen(){
 
-SymVar *r1,*r2,*result;
-/*r1= this->exp1->gen();
-r2= this->exp2->gen();
-result= intCode.temp();
-intCode.addInst(new AsignmentOpQ(r1,remainder,r2,result));
-*/return result;
+  SymVar *r1,*r2,*result;
+  r1= this->exp1->gen();
+  r2= this->exp2->gen();
+  result= intCode.newTemp();
+  intCode.addInst(new AsignmentOpQ(r1,remainder,r2,result));
+  result->setType(&(IntType::getInstance()));
+  return result;
 
-std::cout << "temp = mod";
+  std::cout << "temp = mod";
 }
 
 
@@ -453,16 +462,18 @@ void Minus::print(int nesting) {
 
 SymVar* Minus::gen(){
 
-SymVar *r1,*result;
-/*r1= this->exp1->gen();
-result= intCode.temp();
-if(*(this->type)==IntType::getInstance()){
-intCode.addInst(new AsignmentOpQ(r1,opI,result));
-}else{
-intCode.addInst(new AsignmentOpQ(r1,opF,result));
-}*/
-return result;
-std::cout << "temp = menos unario";
+  SymVar *r1,*result;
+  r1= this->exp1->gen();
+  result= intCode.newTemp();
+  if(*(this->type)==IntType::getInstance()){
+    intCode.addInst(new AsignmentOpQ(r1,opI,result));
+    result->setType(&(IntType::getInstance()));
+  }else{
+    intCode.addInst(new AsignmentOpQ(r1,opF,result));
+    result->setType(&(FloatType::getInstance()));
+  }
+  return result;
+  std::cout << "temp = menos unario";
 }
 
 
@@ -493,23 +504,23 @@ SymVar* Logical::gen(){
   lblfalse= intCode.newLabel();
   lblFin=intCode.newLabel();
 
-    SymVar* result;
-    result= intCode.newTemp();
-    Args tempTrue;
-    Args tempFalse;
-    tempTrue.constbool= (bool) true;
-    tempFalse.constbool=(bool) false;
-    /*
-    //this->jumping(lblfalse);
+  SymVar* result;
+  result= intCode.newTemp();
+  Args tempTrue;
+  Args tempFalse;
+  tempTrue.constbool= (bool) true;
+  tempFalse.constbool=(bool) false;
+    
+  this->jumping(NULL,lblfalse);
 
-    intCode.addInst(new AsignmentQ(constbool,tempTrue,result));
-    intCode.addInst(new JumpQ(lblFin));
-    intCode.emitLabel(lblfalse);
-    intCode.addInst(new AsignmentQ(constbool,tempFalse,result));
-    intCode.emitLabel(lblFin);
-    */return result;
+  intCode.addInst(new AsignmentQ(constbool,tempTrue,result));
+  intCode.addInst(new JumpQ(lblFin));
+  intCode.emitLabel(lblfalse);
+  intCode.addInst(new AsignmentQ(constbool,tempFalse,result));
+  intCode.emitLabel(lblFin);
+  result->setType(&(BoolType::getInstance()));
+  return result;
 }
-
 
 
 // And
@@ -621,15 +632,16 @@ SymVar* Not::gen(){
     Args cFalse;
     cTrue.constbool= (bool) true;
     cFalse.constbool=(bool) false;
-    /*
-    this->jumping(lblfalse);
+ 
+    this->jumping(NULL,lblfalse);
 
     intCode.addInst(new AsignmentQ(constbool,cFalse,result));
     intCode.addInst(new JumpQ(lblFin));
     intCode.emitLabel(lblfalse);
     intCode.addInst(new AsignmentQ(constbool,cTrue,result));
     intCode.emitLabel(lblFin);
-    */return result;
+    result->setType(&(BoolType::getInstance()));
+    return result;
 }
 
 void Not::jumping(Label *lbltrue,Label *lblfalse){
@@ -665,31 +677,31 @@ void Relational::check() {
 }
 
 SymVar* Relational::gen(){
-    // Verificar que tipo de operador es
-    Operator op= this->operatortype();
+  // Verificar que tipo de operador es
+  Operator op= this->operatortype();
 
-    SymVar *r1,*r2,*result;
-    r1= this->exp1->gen();
-    r2= this->exp2->gen();
-    result=intCode.newTemp();
+  SymVar *r1,*r2,*result;
+  r1= this->exp1->gen();
+  r2= this->exp2->gen();
+  result=intCode.newTemp();
 
-    Label *lbltrue,*lblFin;
-    lbltrue=intCode.newLabel();
-    lblFin=intCode.newLabel();
+  Label *lbltrue,*lblFin;
+  lbltrue=intCode.newLabel();
+  lblFin=intCode.newLabel();
 
-    Args cTrue;
-    Args cFalse;
-    cTrue.constbool= (bool) true;
-    cFalse.constbool=(bool) false;
-    /*
-    intCode.addInst(new ConditionalJumpQ(r1,op,r2,lbltrue));
-    intCode.addInst(new AsignmentQ(cFalse,result));
-    intCode.addInst(new JumpQ(lblFin));
-    intCode.emitLabel(lbltrue);
-    intCode.addInst(new AsignmentQ(cTrue,result));
-    intCode.emitLabel(lblFin)
-    */return result;
-std::cout << "temp = relational";
+  Args cTrue;
+  Args cFalse;
+  cTrue.constbool= (bool) true;
+  cFalse.constbool=(bool) false;
+ 
+  intCode.addInst(new ConditionalJumpQ(r1,op,r2,lbltrue));
+  intCode.addInst(new AsignmentQ(constbool,cFalse,result));
+  intCode.addInst(new JumpQ(lblFin));
+  intCode.emitLabel(lbltrue);
+  intCode.addInst(new AsignmentQ(constbool,cTrue,result));
+  intCode.emitLabel(lblFin);
+  return result;
+  std::cout << "temp = relational";
 }
 
 

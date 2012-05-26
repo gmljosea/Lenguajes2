@@ -3,7 +3,7 @@
 
 #include <list>
 #include <unordered_map>
-#include "quad.hh"
+#include "Quad.hh"
 
 class Label;
 class Temp;

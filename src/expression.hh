@@ -3,7 +3,7 @@
 
 #include "symbol.hh"
 #include "type.hh"
-#include "quad.hh"
+#include "Quad.hh"
 
 /**
  * Representa una expresión en Devanix.
