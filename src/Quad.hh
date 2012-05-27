@@ -103,7 +103,7 @@ private:
   SymVar *arg1;
   SymVar *result; 
 public:
-  AsignmentQ(SymVar* arg1,SymVar* result): 
+  AsignmentPointQ(SymVar* arg1,SymVar* result): 
     Quad(), arg1(arg1),result(result){};
 };
 
@@ -116,7 +116,7 @@ private:
   SymVar *arg1;
   SymVar *result; 
 public:
-  AsignmentQ(SymVar* arg1,SymVar* result): 
+  AsignmentToPointQ(SymVar* arg1,SymVar* result): 
     Quad(), arg1(arg1),result(result){};
 };
 
@@ -129,7 +129,7 @@ private:
   SymVar *arg1;
   SymVar *result; 
 public:
-  AsignmentQ(SymVar* arg1,SymVar* result): 
+  AsignmentAddQ(SymVar* arg1,SymVar* result): 
     Quad(), arg1(arg1),result(result){};
 };
 
@@ -195,9 +195,9 @@ class CallQ: public Quad{
 private:
   int numParam;
   SymVar *returnVal;
-  Label *func;
-private:
-  CallQ(Label *func,int n,SymVar *retVal):func(func),numParam(n),
+  SymFunction *func;
+public:
+  CallQ(SymFunction *func,int n,SymVar *retVal):func(func),numParam(n),
 					  returnVal(retVal){};
 }; 
 

@@ -260,6 +260,7 @@ protected:
   virtual void check();
   virtual SymVar* gen();
   virtual Operator operatortype()=0;
+  virtual void jumping(Label* lbltrue,Label* lblfalse);
 };
 
 // >
@@ -363,6 +364,7 @@ public:
   FunCallExp (std::string name, std::list<Expression*> args);
   virtual Type* getType();
   virtual void check();
+  virtual SymVar* gen();
 };
 
 #endif

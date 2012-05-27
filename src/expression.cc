@@ -1094,3 +1094,17 @@ void FunCallExp::check() {
 
   }
 }
+
+
+SymVar* FunCallExp::gen(){
+  // Generar las instrucciones para cargar los parametros
+  std::list<Expression*>::iterator arg= this->args.begin();
+  for(arg; arg!=this->args.end(); arg++){
+    SymVar *temp= (*arg)->gen();
+    intCode.addInst(new ParamQ(temp));
+  }
+  SymVar *result= intCode.newTemp();
+  // Llamada a la funcion
+  intCode.addInst(new CallQ(this->symf,this->symf->getArgumentCount(),result));
+  return result;
+}
