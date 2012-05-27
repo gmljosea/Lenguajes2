@@ -5,6 +5,7 @@
 #include <string>
 #include <utility>
 #include "expression.hh"
+#include "IntermCode.hh"
 #include "symbol.hh"
 
 /**
@@ -44,6 +45,8 @@ public:
   int getFirstCol();
 
   bool hasReturn();
+
+  virtual void gen(Label* next);
 };
 
 /**
@@ -63,6 +66,8 @@ public:
   void push_back(Statement *stmt);
   virtual void print(int);
   virtual void check();
+
+  virtual void gen(Label* next);
 };
 
 // Representa una instrucción vacía
@@ -70,6 +75,8 @@ class Null : public Statement {
 public:
   virtual void check();
   virtual void print(int);
+
+  virtual void gen(Label* next);
 };
 
 /**
@@ -84,6 +91,8 @@ public:
   If (Expression*, Block*, Block* bf = NULL);
   virtual void print(int);
   virtual void check();
+
+  virtual void gen(Label* next);
 };
 
 /**
@@ -96,6 +105,9 @@ protected:
   std::string* label;
   Block* block;
 public:
+  // Labels para el break y el next
+  Label* init;
+  Label* exit;
   Iteration (std::string* label, Block* block);
   void setBlock(Block* block);
   std::string* getLabel();
@@ -116,6 +128,8 @@ public:
 	      Expression* upperb, Expression* step, Block* block);
   virtual void print(int);
   virtual void check();
+
+  virtual void gen(Label* next);
 };
 
 /**
@@ -128,6 +142,8 @@ public:
   While (std::string* label, Expression* cond, Block* block);
   virtual void print(int);
   virtual void check();
+
+  virtual void gen(Label* next);
 };
 
 class ForEach : public Iteration {
@@ -139,6 +155,8 @@ public:
     : loopvar(loopvar), array(array), Iteration(label,block) {};
   virtual void print(int nesting);
   virtual void check();
+
+  virtual void gen(Label* next);
 };
 
 /**
@@ -156,6 +174,8 @@ public:
   Asignment (std::list<Expression*> lvalues, std::list<Expression*> exps);
   virtual void print(int nesting);
   virtual void check();
+
+  virtual void gen(Label* next);
 };
 
 /**
@@ -181,6 +201,8 @@ public:
   // Esto cambia la semántica de la instrucción y los chequeos que deben realizarse.
   void setGlobal(bool g);
   virtual void print(int nesting);
+
+  virtual void gen(Label* next);
 };
 
 /**
@@ -193,10 +215,13 @@ private:
   Iteration* loop;
   // Etiqueta de la iteración. Si no tiene es NULL.
   std::string* label;
+
 public:
   Break (std::string* label, Iteration* loop);
   virtual void check();
   virtual void print(int nesting);
+
+  virtual void gen(Label* next);
 };
 
 /**
@@ -213,6 +238,8 @@ public:
   Next (std::string* label, Iteration* loop);
   virtual void check();
   virtual void print(int nesting);
+
+  virtual void gen(Label* next);
 };
 
 /**
@@ -226,6 +253,8 @@ public:
   Return (SymFunction* symf, Expression* exp = NULL);
   virtual void check();
   virtual void print(int nesting);
+
+  virtual void gen(Label* next);
 };
 
 /**
@@ -238,6 +267,8 @@ public:
   FunctionCall (Expression* exp);
   virtual void check();
   virtual void print(int nesting);
+
+  virtual void gen(Label* next);
 };
 
 /**
@@ -251,6 +282,8 @@ public:
   Write (std::list<Expression*> exps, bool isLn);
   virtual void check();
   virtual void print(int nesting);
+
+  virtual void gen(Label* next);
 };
 
 /**
@@ -263,6 +296,8 @@ public:
   Read (Expression* lval);
   virtual void check();
   virtual void print(int nesting);
+
+  virtual void gen(Label* next);
 };
 
 #endif

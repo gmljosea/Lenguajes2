@@ -1,3 +1,4 @@
+#include <iostream>
 #include "IntermCode.hh"
 
 Label* IntermCode::newLabel(){
@@ -7,6 +8,7 @@ Label* IntermCode::newLabel(){
 
 void IntermCode::emitLabel(Label* label){
   this->unSet.push_back(label);
+  std::cout << "l" << label->getId() << ": ";
 }
 
 void IntermCode::emitLabel2(Quad* instr){

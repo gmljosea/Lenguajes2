@@ -44,8 +44,14 @@ bool Expression::getBool() { return true; }
 bool Expression::isLvalue() { return false; }
 int Expression::getLvalue() { return 0; }
 bool Expression::isAssignable() { return false; }
-SymVar* Expression::gen(){return new SymVar("",0,0,false,0);}
-void Expression::jumping(Label* lbltrue,Label* lblfalse){}
+SymVar* Expression::gen(){
+  std::cout << "gen exp" << std::endl;
+  return new SymVar("test",0,0,false,0);
+};
+
+void Expression::jumping(Label* ltrue, Label* lfalse) {
+  std::cout << "jumping exp" << std::endl;
+}
 
 // BadExp
 BadExp::BadExp() {
@@ -72,7 +78,7 @@ SymVar* VarExp::gen(){
   intCode.addInst(new AsignmentQ(id,sym,result));
   result->setType(this->symv->getType());
   return result;
-std::cout << "temp = varExp";
+  std::cout << "temp = varExp";
 }
 
 void VarExp::print(int nesting) {
@@ -297,6 +303,16 @@ Expression* Sum::cfold() {
   return result;
 }
 
+// void Sum::gen(){
+// /*
+// r1= this->exp1->gen();
+// r2= this->exp2->gen();
+// result= intCod.temp();
+// intCod.addInst(new AsignmentQ(r1,Sum,r2,result));
+// */
+// std::cout << "temp = suma";
+// }
+
 // Substraction
 Expression* Substraction::cfold() {
   this->exp1 = this->exp1->cfold();
@@ -319,6 +335,16 @@ Expression* Substraction::cfold() {
   return result;
 }
 
+// void Substraction::gen(){
+// /*
+// r1= this->exp1->gen();
+// r2= this->exp2->gen();
+// result= intCod.temp();
+// intCod.addInst(new AsignmentQ(r1,Substraction,r2,result));
+// */
+// std::cout << "temp = substraction";
+
+// }
 
 // Multiplication
 Expression* Multiplication::cfold() {
@@ -342,6 +368,17 @@ Expression* Multiplication::cfold() {
   return result;
 }
 
+// void Multiplication::gen(){
+// /*
+// r1= this->exp1->gen();
+// r2= this->exp2->gen();
+// result= intCod.temp();
+// intCod.addInst(new AsignmentQ(r1,Multiplication,r2,result));
+// */
+// std::cout << "temp = multiplication";
+// }
+
+
 // Division
 Expression* Division::cfold() {
   this->exp1 = this->exp1->cfold();
@@ -364,6 +401,15 @@ Expression* Division::cfold() {
   return result;
 }
 
+// void Division::gen(){
+// /*
+// r1= this->exp1->gen();
+// r2= this->exp2->gen();
+// result= intCod.temp();
+// intCod.addInst(new AsignmentQ(r1,Division,r2,result));
+// */
+// std::cout << "temp = division";
+// }
 
 // Remainder
 void Remainder::check() {
@@ -1056,8 +1102,7 @@ void FunCallExp::check() {
 		  this->fline, this->fcol);
     return;
   } 
-  
-  // Chequear que el numero de parametros y arg coincidan
+// Chequear que el numero de parametros y arg coincidan
   if(this->args.size()!= this->symf->getArgumentCount()){
     program.error("el numero de argumentos de la llamada a la funcion '"+name+"'"
                   +" es incorrecto", this->fline, this->fcol);

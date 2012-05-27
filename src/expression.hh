@@ -1,6 +1,7 @@
 #ifndef DEVANIX_EXPRESSION
 #define DEVANIX_EXPRESSION
 
+#include "IntermCode.hh"
 #include "symbol.hh"
 #include "type.hh"
 #include "Quad.hh"
@@ -55,6 +56,7 @@ public:
   virtual bool isAssignable();
   // Crea la instruccion de tres direcciones asociada a la expresion
   virtual SymVar* gen();
+
   virtual void jumping(Label* lbltrue,Label* lblfalse);
 };
 
@@ -248,6 +250,7 @@ public:
   virtual void check();
   virtual Expression* cfold();
   void print(int nesting);
+
   virtual SymVar* gen();
   virtual void jumping(Label* lbltrue,Label* lblfalse);
 };

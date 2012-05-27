@@ -879,7 +879,7 @@ void yyerror (char const *s) {
 int main (int argc, char **argv) {
   if (argc == 2) {
     yyin = fopen(argv[1], "r");
-  }
+  } 
 
   program.errorCount = 0;
 
@@ -958,7 +958,7 @@ int main (int argc, char **argv) {
   if (program.errorCount > 0) {
     return 1;
   }
-
+  /*
   std::cout << "-- Variables globales --" << std::endl << std::endl;
 
   for (std::list<VariableDec*>::iterator it = program.globalinits.begin();
@@ -980,10 +980,11 @@ int main (int argc, char **argv) {
     (**it).printDetail();
   }
 
-  program.symtable.print();
+  //program.symtable.print();
 
-  // Generar codigo intermedio
+  // Generar codigo intermedio */
   program.gen();
 
   return 0;
+
 }
