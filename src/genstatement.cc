@@ -79,7 +79,32 @@ void While::gen(Label* next) {
 }
 
 void ForEach::gen(Label* next) {
+  SymVar* sizet = intCode.newTemp();
+  SymVar* counter = intCode.newTemp();
 
+  std::pair<SymVar*,int> location = this->array->genlvalue();
+  if (!location.first->isReference()) {
+
+  }
+
+  // Falta generar el código que inicialice loopvar, sizet y counter
+  // Eso depende de la expresión: si se pasa o no por referencia, si es un
+  // o no
+
+  Label* init = intCode.newLabel();
+  intCode.emitLabel(init);
+  // if counter = 0 goto next
+  std::cout << "if " << counter->getId() << " = 0 goto l"
+	    << next->getId() << std::endl;
+  this->block->gen(init);
+  // i := i + sizet
+  std::cout << this->loopvar->getId() << " := " << this->loopvar->getId()
+	    << " + " << sizet->getId() << std::endl;
+  // counter = counter - 1
+  std::cout << counter->getId() << " := " << counter->getId()
+	    << " - 1" <<std::endl;
+  // goto init
+  std::cout << "goto l" << init->getId() << std::endl;
 }
 
 void Asignment::gen(Label* next) {
