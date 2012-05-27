@@ -51,6 +51,7 @@ public:
   // Devuelve el lugar en memoria que representa este l-value
   virtual int getLvalue();
 
+
   // Determina si la expresión es asignable, es decir, no es un l-value que
   // utilice una variable readonly.
   virtual bool isAssignable();
@@ -58,6 +59,9 @@ public:
   virtual SymVar* gen();
 
   virtual void jumping(Label* lbltrue,Label* lblfalse);
+
+  // Calcula la variable base y el offset necesario para acceder a esta expresión
+  virtual std::pair<SymVar*,int> genlvalue();
 };
 
 // Expresión errónea (cuando se usa un símbolo que no existe)

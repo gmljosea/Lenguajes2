@@ -1,4 +1,5 @@
 #include <iostream>
+#include <utility>
 #include "IntermCode.hh"
 #include "statement.hh"
 
@@ -82,7 +83,46 @@ void ForEach::gen(Label* next) {
 }
 
 void Asignment::gen(Label* next) {
-  std::cout << "Asignment" << std::endl;
+  std::list<SymVar*> temps;
+  for (std::list<Expression*>::iterator it = (this->exps).begin();
+       it != (this->exps).end(); it++) {
+    SymVar* addr = (*it)->gen();
+    temps.push_back(addr);
+  }
+  std::list<SymVar*>::iterator ittemps = temps.begin();
+  std::list<Expression*>::iterator itlvals = (this->lvalues).begin();
+  while (ittemps != temps.end()) {
+    std::pair<SymVar*,int> lvalue = (*itlvals)->genlvalue();
+    VarExp* var;
+    if (var = dynamic_cast<VarExp*>(*itlvals)) {
+      // Como es una variable, hay que generar a := b, o *a := b
+      if ((lvalue.first)->isReference()) {
+	std::cout << "*" << (lvalue.first)->getId() << " := "
+		  << (*ittemps)->getId() << std::endl;
+      } else {
+	std::cout << (lvalue.first)->getId() << " := "
+		  << (*ittemps)->getId() << std::endl;
+      }
+    } else {
+      // Si no es variable es box o arreglo, entonces hay que generar
+      // a[b] := c.
+
+      // Si la base es un apuntador a la base, entonces dereferenciarlo
+      SymVar* realval;
+      if ((lvalue.first)->isReference()) {
+	realval = intCode.newTemp();
+	std::cout << realval->getId() << " := *"
+		  << (lvalue.first)->getId() << std::endl;
+      } else {
+	realval = (lvalue.first);
+      }
+      std::cout << realval->getId() << "[" << lvalue.second
+		<< "] := " << (*ittemps)->getId() << std::endl;
+    }
+    ittemps++;
+    itlvals++;
+  }
+
 }
 
 void VariableDec::gen(Label* next) {
@@ -115,12 +155,47 @@ void Write::gen(Label* next) {
   for (std::list<Expression*>::iterator it = (this->exps).begin();
        it != (this->exps).end(); it++) {
     SymVar* addr = (*it)->gen();
-    // WARNING, falta que escupa writeln cuando debe
-    std::cout << "write " << (*it)->getType()->toString()
+    if (this->isLn) {
+      std::cout << "writeln";
+    } else {
+      std::cout << "write";
+    }
+    std::cout << (*it)->getType()->toString()
 	      << " " << addr->getId() << std::endl;
   }
 }
 
 void Read::gen(Label* next) {
-  std::cout << "read" << std::endl;
+  std::pair<SymVar*,int> lvalue = this->lval->genlvalue();
+  VarExp* var;
+  if (var = dynamic_cast<VarExp*>(this->lval)) {
+    if ((lvalue.first)->isReference()) {
+      // Generar *a := read type
+      std::cout << "*" << (lvalue.first)->getId() << " := read "
+		<< this->lval->getType()->toString() << std::endl;
+    } else {
+      // Generar a := read type
+      std::cout << (lvalue.first)->getId() << " := read "
+		<< this->lval->getType()->toString() << std::endl;
+    }
+  } else {
+    // Si no es variable es box o arreglo, entonces hay que generar
+    // a[b] := c.
+
+    // Si la base es un apuntador a la base, entonces dereferenciarlo
+    SymVar* realval;
+    if ((lvalue.first)->isReference()) {
+      // Genera t1 := *a
+      realval = intCode.newTemp();
+      std::cout << realval->getId() << " := *"
+		<< (lvalue.first)->getId() << std::endl;
+    } else {
+      realval = (lvalue.first);
+    }
+
+    // Genera base[off] := read type
+    std::cout << realval->getId() << "[" << lvalue.second
+	      << "] := read "
+	      << this->lval->getType()->toString() << std::endl;
+  }
 }
