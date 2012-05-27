@@ -177,14 +177,25 @@ public:
 };
 
 /**
- * Clase que representa un parametro de una funcion
- * Debe estar cargado en un temporal 
+ * Clase que representa un parametro de una funcion por valor
+ *  
  */
-class ParamQ: public Quad{
+class ParamVarQ: public Quad{
 private:
   SymVar *param;
 public:
-  ParamQ(SymVar *param):Quad(),param(param){};
+  ParamVarQ(SymVar *param):Quad(),param(param){};
+};
+
+/**
+ * Clase que representa un parametro de una funcion por referencia
+ *  
+ */
+class ParamRefQ: public Quad{
+private:
+  SymVar *param;
+public:
+  ParamRefQ(SymVar *param):Quad(),param(param){};
 };
 
 /**
