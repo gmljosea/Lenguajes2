@@ -2,5 +2,6 @@
 #include "expression.hh"
 
 std::pair<SymVar*,int> Expression::genlvalue() {
-  return std::pair<SymVar*,int>(NULL,0);
+  SymVar* t = new SymVar("test_genlvalue",0,0,false,0);
+  return std::pair<SymVar*,int>(t,0);
 }

@@ -46,7 +46,7 @@ int Expression::getLvalue() { return 0; }
 bool Expression::isAssignable() { return false; }
 SymVar* Expression::gen(){
   std::cout << "gen exp" << std::endl;
-  return new SymVar("test",0,0,false,0);
+  return new SymVar("test_gen",0,0,false,0);
 };
 
 void Expression::jumping(Label* ltrue, Label* lfalse) {
