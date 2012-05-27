@@ -49,18 +49,36 @@ void If::gen(Label* next) {
  * Recordar meter los labels en la clase para los Break y Next
  */
 void BoundedFor::gen(Label* next) {
-  std::cout << "bounded for" << std::endl;
+  this->init = intCode.newLabel();
+  this->exit = next;
+  SymVar* lowert = this->lowerb->gen();
+  SymVar* uppert = this->upperb->gen();
+  SymVar* stept = this->step ? this->step->gen() : NULL;
+  std::cout << this->varsym->getId() << " := " << lowert->getId() << std::endl;
+  std::cout << "if " << this->varsym->getId() << " >= "
+	    << uppert->getId() << " goto l" << next->getId() << std::endl;
+  intCode.emitLabel(this->init);
+  this->block->gen(init);
+  if (this->step) {
+    std::cout << this->varsym->getId() << " := " << this->varsym->getId()
+	      << " + " << stept->getId() << std::endl;
+  } else {
+    std::cout << this->varsym->getId() << " := " << this->varsym->getId()
+	      << " + 1" << std::endl;
+  }
+  std::cout << "goto l" << this->init->getId() << std::endl;
 }
 
 void While::gen(Label* next) {
   this->init = intCode.newLabel();
+  this->exit = next;
   this->cond->jumping(NULL, next);
   this->block->gen(init);
   std::cout << "goto l" << init->getId() << std::endl;
 }
 
 void ForEach::gen(Label* next) {
-  std::cout << "Foreach" << std::endl;
+
 }
 
 void Asignment::gen(Label* next) {

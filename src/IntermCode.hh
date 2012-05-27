@@ -5,7 +5,6 @@
 #include <unordered_map>
 #include "quad.hh"
 
-
 class Label;
 class Temp;
 
@@ -25,25 +24,16 @@ private:
 public:
   IntermCode(): nextlabel(0){};
   Label* newLabel();
-  Temp* newTemp();
+  SymVar* newTemp();
   void addInst(Quad* quad);
   void emitLabel(Label* label);
   void emitLabel2(Quad* instr);
   bool areUnSet();
 };
 
-class Label {
-private:
-  Quad* instruction;
-  int id;
 
-public:
-  Label(int id): id(id){};
-  void setInstruction(Quad* quad);
-  int getId();
-};
 
-// Temp tendra varios constructores dependiendo de si es constant float int sym etc
+
 class Temp{
 
 };

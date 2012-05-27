@@ -158,36 +158,44 @@ public:
 // Operadores Aritméticos
 class Arithmetic : public BinaryOp {
 protected:
-  Arithmetic(Expression* e1, Expression* e2, std::string op)
-    : BinaryOp(e1,e2,op) {};
+  Operator opI;
+  Operator opF;
+  Arithmetic(Expression* e1, Expression* e2, std::string op, Operator opI,
+	     Operator opF)
+    : BinaryOp(e1,e2,op),opI(opI),opF(opF){};
 public:
   virtual void check();
+  //  virtual void gen();
 };
 
 class Sum : public Arithmetic {
 public:
-  Sum(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"+") {};
+  Sum(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"+",sumI,sumF) {};
   virtual Expression* cfold();
   //virtual void gen();
 };
 
 class Substraction : public Arithmetic {
 public:
-  Substraction(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"-") {};
+  Substraction(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"-", substractionI,
+							    substractionF) {};
   virtual Expression* cfold();
   //virtual void gen();
 };
 
 class Multiplication : public Arithmetic {
 public:
-  Multiplication(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"*") {};
+  Multiplication(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"*",
+							      multiplicationI,
+							      multiplicationF) {};
   virtual Expression* cfold();
   //virtual void gen();
 };
 
 class Division : public Arithmetic {
 public:
-  Division(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"/") {};
+  Division(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"/",divisionI,
+							divisionF) {};
   virtual Expression* cfold();
   //virtual void gen();
 };
@@ -195,7 +203,8 @@ public:
 // Operador resto (%)
 class Remainder : public Arithmetic {
 public:
-  Remainder(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"%") {};
+  Remainder(Expression* e1, Expression* e2) : Arithmetic(e1,e2,"%",remainder,
+							 remainder) {};
   virtual void check();
   virtual Expression* cfold();
   //virtual void gen();
@@ -204,7 +213,7 @@ public:
 // Menos unario
 class Minus : public Arithmetic {
 public:
-  Minus(Expression* e) : Arithmetic(e,e,"-") {};
+  Minus(Expression* e) : Arithmetic(e,e,"-",minusI,minusF) {};
   virtual void check();
   virtual Expression* cfold();
   void print(int nesting);

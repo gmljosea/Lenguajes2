@@ -2,8 +2,11 @@
 #include <string>
 #include "expression.hh"
 #include "program.hh"
+#include "quad.hh"
+#include "IntermCode.hh"
 
 extern Program program;
+extern IntermCode intCod;
 
 // Expression
 void Expression::print(int nesting) {
@@ -69,7 +72,12 @@ VarExp::VarExp(SymVar* symv) {
 SymVar* VarExp::getSym(){return symv;}
 
 // void VarExp::gen(){
-// //return intCod.temp(this->symv);
+//   SymVar *result;
+//   result= intCod.newTemp();
+//   Args sym;
+//   sym.id= this->symv;
+//   //  intCod.addInst(new AsignmentQ(id,sym,result));
+// //return result;
 // std::cout << "temp = varExp";
 // }
 
@@ -108,8 +116,12 @@ int IntExp::getInteger() {
 }
 
 // void IntExp::gen(){
-// //return intCod.temp(this->value);
-// std::cout << "temp = int";
+//  SymVar *result;
+//   result= intCod.newTemp();
+//   Args cInt;
+//   cInt.constint= this->value;
+//   //  intCod.addInst(new AsignmentQ(constint,cInt,result));
+// //return result;
 // }
 
 // FloatExp
@@ -128,7 +140,12 @@ double FloatExp::getFloat() {
 }
 
 // void FloatExp::gen(){
-// //return intCod.temp(this->value);
+//  SymVar *result;
+//   result= intCod.newTemp();
+//   Args cFloat;
+//   cFloat.constfloat= this->value;
+//   //  intCod.addInst(new AsignmentQ(constfloat,cFloat,result));
+// //return result;
 // std::cout << "temp = float";
 // }
 
@@ -152,7 +169,12 @@ bool BoolExp::getBool() {
 }
 
 // void BoolExp::gen(){
-// //return intCod.temp(this->value);
+//  SymVar *result;
+//   result= intCod.newTemp();
+//   Args cBool;
+//   cBool.constbool= this->value;
+//   //  intCod.addInst(new AsignmentQ(constbool,cBool,result));
+// //return result;
 // std::cout << "temp = bool";
 // }
 
@@ -174,7 +196,12 @@ void StringExp::print(int nesting) {
 }
 
 // void StringExp::gen(){
-// //return intCod.temp(this->str);
+//  SymVar *result;
+//   result= intCod.newTemp();
+//   Args cString;
+//   cString.conststring= &(this->str);
+//   //intCod.addInst(new AsignmentQ(conststring,cString,result));
+// //return result;
 // std::cout << "temp = string";
 // }
 
@@ -190,7 +217,12 @@ void CharExp::print(int nesting) {
 }
 
 // void CharExp::gen(){
-// //return intCod.temp(this->ch);
+//  SymVar *result;
+//   result= intCod.newTemp();
+//   Args cChar;
+//   //cChar.constchar= this->ch;
+//   //  intCod.addInst(new AsignmentQ(constchar,cChar,result));
+// //return result;
 // std::cout << "temp = char";
 // }
 
@@ -226,6 +258,22 @@ void Arithmetic::check() {
 		this->fline, this->fcol);
   this->type = &(ErrorType::getInstance());
 }
+
+// void Arithmetic::gen(){
+// /*
+// SymVar* r1,r2,result;
+// r1= this->exp1->gen();
+// r2= this->exp2->gen();
+// result= intCod.newTemp();
+// if(*(this->type)==IntType::getInstance()){
+// intCod.addInst(new AsignmentOpQ(r1,opI,r2,result));
+// }else{ 
+// intCod.addInst(new AsignmentOpQ(r1,opF,r2,result));
+// }
+// return result;
+// */
+//   std::cout << "temp = aritmetico+-*//";
+// }
 
 // Sum
 Expression* Sum::cfold() {
@@ -324,6 +372,7 @@ Expression* Multiplication::cfold() {
 // std::cout << "temp = multiplication";
 // }
 
+
 // Division
 Expression* Division::cfold() {
   this->exp1 = this->exp1->cfold();
@@ -400,13 +449,16 @@ Expression* Remainder::cfold() {
 
 // void Remainder::gen(){
 // /*
+// SymVar* r1,r2,result;
 // r1= this->exp1->gen();
 // r2= this->exp2->gen();
 // result= intCod.temp();
-// intCod.addInst(new AsignmentQ(r1,Remainder,r2,result));
+// intCod.addInst(new AsignmentOpQ(r1,remainder,r2,result));
+// return result;
 // */
 // std::cout << "temp = mod";
 // }
+
 
 // Minus
 void Minus::check() {
@@ -449,12 +501,19 @@ void Minus::print(int nesting) {
 
 // void Minus::gen(){
 // /*
+// SymVar* r1,result;
 // r1= this->exp1->gen();
 // result= intCod.temp();
-// intCod.addInst(new AsignmentQ(r1,Minus,result));
+// if(*(this->type)==IntType::getInstance()){
+// intCod.addInst(new AsignmentOpQ(r1,opI,result));
+// }else{
+// intCod.addInst(new AsignmentOpQ(r1,opF,result));
+// }
+// return result;
 // */
 // std::cout << "temp = menos unario";
 // }
+
 
 // Logical
 void Logical::check() {
@@ -478,18 +537,27 @@ void Logical::check() {
 
 // void Logical::gen(){
 //   /*
-//     lblfalse= intCod.newLabel();
-//     lblFin=intCod.newLabel();
-//     this->jumping(lblfalse);
-//     tempTrue= intCod.temp(true);
-//     tempFalse= intCod.temp(false);
-//     result= intCod.temp();
-//     intCod.addInst(new AsignmentQ(tempTrue,result));
+//   Label* lblfalse;
+//   Label* lblFin;
+//   lblfalse= intCod.newLabel();
+//   lblFin=intCod.newLabel();
+
+//     SymVar* result;
+//     result= intCod.newTemp();
+//     Args tempTrue;
+//     Args tempFalse;
+//     tempTrue.constbool= (bool) true;
+//     tempFalse.constbool=(bool) false;
+
+//     //this->jumping(lblfalse);
+
+//     intCod.addInst(new AsignmentQ(constbool,tempTrue,result));
 //     intCod.addInst(new JumpQ(lblFin));
 //     intCod.emitLabel(lblfalse);
-//     intCod.addInst(new AsignmentQ(tempFalse,result));
-//     intCod.emitLabel(lblFin)
-//    */
+//     intCod.addInst(new AsignmentQ(constbool,tempFalse,result));
+//     intCod.emitLabel(lblFin);
+//     return result;
+//   */
 // }
 
 // And
@@ -532,23 +600,6 @@ Expression* Or::cfold() {
   return result;
 }
 
-/*
-void Or::gen(){
-  /*
-    lblfalse= intCod.newLabel();
-    lblFin=intCod.newLabel();
-    this->jumping(lblfalse);
-    tempTrue= intCod.temp(true);
-    tempFalse= intCod.temp(false);
-    result= intCod.temp();
-    intCod.addInst(new AsignmentQ(tempTrue,result));
-    intCod.addInst(new JumpQ(lblFin));
-    intCod.emitLabel(lblfalse);
-    intCod.addInst(new AsignmentQ(tempFalse,result));
-    intCod.emitLabel(lblFin)
-   
-}
-*/
 
 // Not
 void Not::check() {
@@ -588,19 +639,29 @@ void Not::print(int nesting) {
 
 // void Not::gen(){
 //   /*
+//     Label* lblfalse;
+//     Label* lblFin;
 //     lblfalse= intCod.newLabel();
 //     lblFin=intCod.newLabel();
+
+//     SymVar* result;
+//     result= intCod.newTemp();
+//     Args cTrue;
+//     Args cFalse;
+//     cTrue.constbool= (bool) true;
+//     cFalse.constbool=(bool) false;
+
 //     this->jumping(lblfalse);
-//     tempTrue= intCod.temp(true);
-//     tempFalse= intCod.temp(false);
-//     result= intCod.temp();
-//     intCod.addInst(new AsignmentQ(tempFalse,result));
+
+//     intCod.addInst(new AsignmentQ(constbool,cFalse,result));
 //     intCod.addInst(new JumpQ(lblFin));
 //     intCod.emitLabel(lblfalse);
-//     intCod.addInst(new AsignmentQ(tempTrue,result));
-//     intCod.emitLabel(lblFin)
+//     intCod.addInst(new AsignmentQ(constbool,cTrue,result));
+//     intCod.emitLabel(lblFin);
+//     return result;
 //    */
 // }
+
 
 // Relational
 void Relational::check() {
@@ -633,24 +694,31 @@ void Relational::check() {
 //     // Verificar que tipo de operador es
 //     Operator op= this->operatortype();
 
-//     Temp r1,r2;
+//     SymVar* r1,r2,result;
 //     r1= this->exp1->gen();
 //     r2= this->exp2->gen();
+//     result=intCod.temp();
+
+//     Label* lbltrue,lblFin;
 //     lbltrue=intCod.newLabel();
 //     lblFin=intCod.newLabel();
-//     tempTrue= intCod.temp(true);
-//     tempFalse= intCod.temp(false);
-//     result=intCod.temp();
+
+//     Args cTrue;
+//     Args cFalse;
+//     cTrue.constbool= (bool) true;
+//     cFalse.constbool=(bool) false;
+ 
 //     intCod.addInst(new ConditionalJumpQ(r1,op,r2,lbltrue));
-//     intCod.addInst(new AsignmentQ(tempFalse,result));
+//     intCod.addInst(new AsignmentQ(cFalse,result));
 //     intCod.addInst(new JumpQ(lblFin));
 //     intCod.emitLabel(lbltrue);
-//     intCod.addInst(new AsignmentQ(tempTrue,result));
+//     intCod.addInst(new AsignmentQ(cTrue,result));
 //     intCod.emitLabel(lblFin)
 //     return result;
 //   */
 // std::cout << "temp = relational";
 // }
+
 
 // Greater
 Expression* Greater::cfold() {
