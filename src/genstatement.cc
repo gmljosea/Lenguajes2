@@ -82,7 +82,7 @@ void ForEach::gen(Label* next) {
   SymVar* sizet = intCode.newTemp();
   SymVar* counter = intCode.newTemp();
 
-  std::pair<SymVar*,int> location = this->array->genlvalue();
+  std::pair<SymVar*,SymVar*> location = this->array->genlvalue();
   if (!location.first->isReference()) {
 
   }
@@ -90,6 +90,7 @@ void ForEach::gen(Label* next) {
   // Falta generar el código que inicialice loopvar, sizet y counter
   // Eso depende de la expresión: si se pasa o no por referencia, si es un
   // o no
+  std::cout << "Init foreach" << std::endl;
 
   Label* init = intCode.newLabel();
   intCode.emitLabel(init);
@@ -117,7 +118,7 @@ void Asignment::gen(Label* next) {
   std::list<SymVar*>::iterator ittemps = temps.begin();
   std::list<Expression*>::iterator itlvals = (this->lvalues).begin();
   while (ittemps != temps.end()) {
-    std::pair<SymVar*,int> lvalue = (*itlvals)->genlvalue();
+    std::pair<SymVar*,SymVar*> lvalue = (*itlvals)->genlvalue();
     VarExp* var;
     if (var = dynamic_cast<VarExp*>(*itlvals)) {
       // Como es una variable, hay que generar a := b, o *a := b
@@ -141,7 +142,7 @@ void Asignment::gen(Label* next) {
       } else {
 	realval = (lvalue.first);
       }
-      std::cout << realval->getId() << "[" << lvalue.second
+      std::cout << realval->getId() << "[" << (lvalue.second)->getId()
 		<< "] := " << (*ittemps)->getId() << std::endl;
     }
     ittemps++;
@@ -191,7 +192,7 @@ void Write::gen(Label* next) {
 }
 
 void Read::gen(Label* next) {
-  std::pair<SymVar*,int> lvalue = this->lval->genlvalue();
+  std::pair<SymVar*,SymVar*> lvalue = this->lval->genlvalue();
   VarExp* var;
   if (var = dynamic_cast<VarExp*>(this->lval)) {
     if ((lvalue.first)->isReference()) {
@@ -219,7 +220,7 @@ void Read::gen(Label* next) {
     }
 
     // Genera base[off] := read type
-    std::cout << realval->getId() << "[" << lvalue.second
+    std::cout << realval->getId() << "[" << (lvalue.second)->getId()
 	      << "] := read "
 	      << this->lval->getType()->toString() << std::endl;
   }

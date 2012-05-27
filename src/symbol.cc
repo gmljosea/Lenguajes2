@@ -138,6 +138,13 @@ SymVar::SymVar(std::string id,int line,int col,
   this->readonly = false;
   this->reference = false;
   //  std::cout << "SymVar creado";
+  this->isTemp = false; 
+}
+
+SymVar::SymVar(int idTemp) {
+  this->id = "_t"+std::to_string((long long int) idTemp);
+  this->idTemp = idTemp;
+  this->isTemp = true;
 }
 
 

@@ -46,10 +46,12 @@ private:
   int context;
   int size;
   int offset;
+
   int idTemp;
+  bool isTemp;
 public:
   SymVar (std::string id, int line,int col, bool isParam, int scope);
-  SymVar (int idTemp): idTemp(idTemp){};
+  SymVar (int idTemp);
   void setReadonly(bool readonly);
   void setReference(bool ref);
   bool isReadonly();

@@ -61,7 +61,7 @@ public:
   virtual void jumping(Label* lbltrue,Label* lblfalse);
 
   // Calcula la variable base y el offset necesario para acceder a esta expresión
-  virtual std::pair<SymVar*,int> genlvalue();
+  virtual std::pair<SymVar*,SymVar*> genlvalue();
 };
 
 // Expresión errónea (cuando se usa un símbolo que no existe)
@@ -82,6 +82,7 @@ public:
   virtual bool isLvalue();
   virtual bool isAssignable();
   virtual SymVar* gen();
+  virtual std::pair<SymVar*,SymVar*> genlvalue();
 };
 
 // Expresiones con valor constantes
@@ -332,6 +333,7 @@ public:
   void print(int nesting);
   virtual bool isLvalue();
   virtual bool isAssignable();
+  virtual std::pair<SymVar*,SymVar*> genlvalue();
 };
 
 // Acceso a un campo de un box, box.campo
@@ -345,6 +347,7 @@ public:
   void print(int nesting);
   virtual bool isLvalue();
   virtual bool isAssignable();
+  virtual std::pair<SymVar*,SymVar*> genlvalue();
 };
 
 
