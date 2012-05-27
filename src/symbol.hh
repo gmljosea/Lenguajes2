@@ -24,6 +24,7 @@ protected:
   bool duplicated;
 public:
   Symbol (std::string id,int line,int col);
+  Symbol() {};
   std::string getId();
   void setDuplicated(bool dup); // obsoleto
   bool isDuplicated(); // obsoleto
@@ -45,8 +46,10 @@ private:
   int context;
   int size;
   int offset;
+  int idTemp;
 public:
   SymVar (std::string id, int line,int col, bool isParam, int scope);
+  SymVar (int idTemp): idTemp(idTemp){};
   void setReadonly(bool readonly);
   void setReference(bool ref);
   bool isReadonly();

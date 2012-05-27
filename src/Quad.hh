@@ -4,7 +4,8 @@
 #include "symbol.hh"
 
 class Quad{
-
+public:
+  Quad(){};
 };
 
 enum Operator{
@@ -66,7 +67,7 @@ public:
  * ejemplo: result:= arg1 op arg2  
  *          result:= op arg1
  **/ 
-class AsignmentOpQ: Quad{
+class AsignmentOpQ:public Quad{
 private:
   Operator op;
   SymVar *arg1;
@@ -74,23 +75,23 @@ private:
   SymVar *result; 
 public:
   AsignmentOpQ(SymVar* arg1,Operator op,SymVar* result): 
-    op(op), arg1(arg1),result(result){};
+    Quad(), op(op), arg1(arg1),result(result){};
   AsignmentOpQ(SymVar* arg1,Operator op,SymVar* arg2,SymVar* result):
-    arg1(arg1),op(op),arg2(arg2),result(result){};
+    Quad(), arg1(arg1),op(op),arg2(arg2),result(result){};
 };
 
 /** 
  * Clase que representa la asignacion de copia
  * ejemplo:  result:= arg1
  **/ 
-class AsignmentQ: Quad{
+class AsignmentQ:public Quad{
 private:
   Args arg1;
   ArgType arg1Type;
   SymVar *result; 
 public:
   AsignmentQ(ArgType arg1Type,Args arg1,SymVar* result): 
-    arg1Type(arg1Type), arg1(arg1),result(result){};
+    Quad(), arg1Type(arg1Type), arg1(arg1),result(result){};
 };
 
 
@@ -98,27 +99,34 @@ public:
  * Representa la instruccion de salto incondicional
  * ejemplo: goto label
  */
-class JumpQ: Quad{
+class JumpQ:public Quad{
 private:
   Label *label;
 public:
-  JumpQ(Label* label): label(label){};
+  JumpQ(Label* label): Quad(), label(label){};
 };
 
-/*
-class ConditionalJumpQ: Quad{
+class ConditionalJumpQ:public Quad{
 private:
   Operator op;
-  Args arg1;
-  ArgType arg1Type;
-  Args arg2;
-  ArgType arg2Type;
+  SymVar* arg1;
+  SymVar* arg2;
   Label *label;
 public:
- ConditionalJumpQ(ArgType arg1Type,Args arg1,Operator op,ArgType arg2Type,
-		  Args arg2,Label* label): arg1Type(arg1Type),arg1(arg1),op(op),
-			     arg2Type(arg2Type),arg2(arg2),label(label);
+ ConditionalJumpQ(SymVar* arg1,Operator op,SymVar* arg2,Label* label):
+   Quad(), arg1(arg1),op(op),arg2(arg2),label(label){};
 }; 
-  */
+
+class ConditionalNJumpQ:public Quad{
+private:
+  Operator op;
+  SymVar* arg1;
+  SymVar* arg2;
+  Label *label;
+public:
+ ConditionalNJumpQ(SymVar* arg1,Operator op,SymVar* arg2,Label* label):
+   Quad(), arg1(arg1),op(op),arg2(arg2),label(label){};
+};
+
 
 #endif

@@ -27,8 +27,6 @@ extern FILE *yyin;
 // Resultado del parseo
 Program program;
 
-IntermCode intCode; // estructura que puede tener una lista de instrucciones
-
 // Variables globales útiles para chequeos durante el parseo
 SymFunction* currentfun; // Función parseada actual
 std::list<Iteration*> loopstack;
@@ -40,6 +38,11 @@ std::list<Iteration*> loopstack;
    la tabla de simbolos*/
  boxHash unknownBox;
  funcSymtable unknownFunc;
+
+ /* Variable global que sera modificada por los metodos gen() de cada 
+  * instruccion en el arbol sintactico.
+   */
+ IntermCode intCode;
 
 /**
  * Extrae los campos de yylloc y los utiliza para inicializar los campos
@@ -979,10 +982,7 @@ int main (int argc, char **argv) {
 
   //program.symtable.print();
 
-  // Generar codigo intermedio
-  /* Variable global que sera modificada por los metodos gen() de cada
-   * instruccion en el arbol sintactico.
-   */
+  // Generar codigo intermedio */
   program.gen();
 
   return 0;

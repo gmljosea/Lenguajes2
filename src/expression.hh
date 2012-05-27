@@ -4,7 +4,7 @@
 #include "IntermCode.hh"
 #include "symbol.hh"
 #include "type.hh"
-#include "quad.hh"
+#include "Quad.hh"
 
 /**
  * Representa una expresión en Devanix.
@@ -56,7 +56,8 @@ public:
   virtual bool isAssignable();
   // Crea la instruccion de tres direcciones asociada a la expresion
   virtual SymVar* gen();
-  virtual void jumping(Label* ltrue, Label* lfalse);
+
+  virtual void jumping(Label* lbltrue,Label* lblfalse);
 };
 
 // Expresión errónea (cuando se usa un símbolo que no existe)
@@ -76,7 +77,7 @@ public:
   virtual void print(int nesting);
   virtual bool isLvalue();
   virtual bool isAssignable();
-  //virtual void gen();
+  virtual SymVar* gen();
 };
 
 // Expresiones con valor constantes
@@ -94,7 +95,7 @@ public:
   IntExp(int value);
   virtual void print(int nesting);
   virtual int getInteger();
-  //virtual void gen();
+  virtual SymVar* gen();
 };
 
 // Número decimal
@@ -105,7 +106,7 @@ public:
   FloatExp(float value);
   virtual void print(int nesting);
   virtual double getFloat();
-  //virtual void gen();
+  virtual SymVar* gen();
 };
 
 
@@ -117,7 +118,7 @@ public:
   BoolExp(bool value);
   virtual void print(int nesting);
   virtual bool getBool();
-  //virtual void gen();
+  virtual SymVar* gen();
 };
 
 // Una cadena de caracteres de longitud arbitraria
@@ -128,7 +129,7 @@ public:
   StringExp(std::string str);
   virtual int getLength();
   virtual void print(int nesting);
-  //virtual void gen();
+  virtual SymVar* gen();
 };
 
 // Un caracter
@@ -138,7 +139,7 @@ private:
 public:
   CharExp(std::string ch);
   virtual void print(int nesting);
-  //virtual void gen();
+  virtual SymVar* gen();
 };
 
 // Operadores binarios
@@ -165,7 +166,7 @@ protected:
     : BinaryOp(e1,e2,op),opI(opI),opF(opF){};
 public:
   virtual void check();
-  //  virtual void gen();
+  virtual SymVar* gen();
 };
 
 class Sum : public Arithmetic {
@@ -207,7 +208,7 @@ public:
 							 remainder) {};
   virtual void check();
   virtual Expression* cfold();
-  //virtual void gen();
+  virtual SymVar* gen();
 };
 
 // Menos unario
@@ -217,7 +218,7 @@ public:
   virtual void check();
   virtual Expression* cfold();
   void print(int nesting);
-  //virtual void gen();
+  virtual SymVar* gen();
 };
 
 // Operadores lógicos AND, OR, NOT
@@ -226,21 +227,21 @@ protected:
   Logical(Expression* e1, Expression* e2, std::string op)
     : BinaryOp(e1,e2,op) {};
   virtual void check();
-  //virtual void gen();
+  virtual SymVar* gen();
 };
 
 class And : public Logical {
 public:
   And(Expression* e1, Expression* e2) : Logical(e1,e2,"and") {};
   virtual Expression* cfold();
-  //virtual gen();
+  virtual void jumping(Label* lbltrue,Label* lblfalse);
 };
 
 class Or : public Logical {
 public:
   Or(Expression* e1, Expression* e2) : Logical(e1,e2,"or") {};
   virtual Expression* cfold();
-  //virtual gen();
+  virtual void jumping(Label* lbltrue,Label* lblfalse);
 };
 
 class Not : public Logical {
@@ -249,7 +250,9 @@ public:
   virtual void check();
   virtual Expression* cfold();
   void print(int nesting);
-  //virtual void gen();
+
+  virtual SymVar* gen();
+  virtual void jumping(Label* lbltrue,Label* lblfalse);
 };
 
 // Operadores relacionales
@@ -258,7 +261,7 @@ protected:
   Relational(Expression* e1, Expression* e2, std::string op)
     : Logical(e1,e2,op) {};
   virtual void check();
-  //virtual void gen();
+  virtual SymVar* gen();
   virtual Operator operatortype()=0;
 };
 
