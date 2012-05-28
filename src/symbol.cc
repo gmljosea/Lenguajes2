@@ -145,7 +145,7 @@ SymVar::SymVar(int idTemp) {
   this->id = "_t"+std::to_string((long long int) idTemp);
   this->idTemp = idTemp;
   this->isTemp = true;
-  this->isReference=false;
+  this->reference=false;
 }
 
 

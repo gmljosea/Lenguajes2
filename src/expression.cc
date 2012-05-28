@@ -213,7 +213,7 @@ SymVar* StringExp::gen(){
 }
 
 // CharExp
-CharExp::CharExp(std::string ch) {
+CharExp::CharExp(char ch) {
   this->ch = ch;
   this->type = &(CharType::getInstance());
 }
@@ -1152,7 +1152,7 @@ SymVar* FunCallExp::gen(){
     if(temp->isReference()){
       intCode.addInst(new ParamRefQ(temp));
     }else{
-      intCode.addInst(new ParamValQ(temp));
+      intCode.addInst(new ParamVarQ(temp));
     }
   }
   SymVar *result= intCode.newTemp();
