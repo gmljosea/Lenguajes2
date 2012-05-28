@@ -6,6 +6,7 @@
 class Quad{
 public:
   Quad(){};
+  virtual void printQuad();
 };
 
 enum Operator{
@@ -92,6 +93,7 @@ private:
 public:
   AsignmentQ(ArgType arg1Type,Args arg1,SymVar* result): 
     Quad(), arg1Type(arg1Type), arg1(arg1),result(result){};
+  virtual void printQuad();
 };
 
 /** 

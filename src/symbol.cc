@@ -48,6 +48,7 @@ int Symbol::getColumn() {
   return this->col;
 }
 
+
 /***********************************/
 /* Metodos de la clase SymFunction*/
 /**********************************/
@@ -138,13 +139,13 @@ SymVar::SymVar(std::string id,int line,int col,
   this->readonly = false;
   this->reference = false;
   //  std::cout << "SymVar creado";
-  this->isTemp = false; 
+  this->temp = false; 
 }
 
 SymVar::SymVar(int idTemp) {
   this->id = "_t"+std::to_string((long long int) idTemp);
   this->idTemp = idTemp;
-  this->isTemp = true;
+  this->temp = true;
   this->reference=false;
 }
 
@@ -212,6 +213,10 @@ void SymVar::setType(Type* type) {
 		  this->line, this->col);
     return;
   }
+}
+
+bool SymVar::isTemp(){
+  return this->temp;
 }
 
 /************************************/

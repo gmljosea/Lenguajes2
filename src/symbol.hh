@@ -48,7 +48,7 @@ private:
   int offset;
 
   int idTemp;
-  bool isTemp;
+  bool temp;
 public:
   SymVar (std::string id, int line,int col, bool isParam, int scope);
   SymVar (int idTemp);
@@ -62,6 +62,7 @@ public:
   int getAlignment();
   int getOffset();
   void setType(Type* type);
+  bool isTemp();
   void print();
 };
 
