@@ -71,14 +71,17 @@ VarExp::VarExp(SymVar* symv) {
 SymVar* VarExp::getSym(){return symv;}
 
 SymVar* VarExp::gen(){
-  SymVar *result;
-  result= intCode.newTemp();
-  Args sym;
-  sym.id= this->symv;
-  intCode.addInst(new AsignmentQ(id,sym,result));
-  result->setType(this->symv->getType());
-  return result;
-  std::cout << "temp = varExp";
+  if(this->symv->isReference()){
+    SymVar *result;
+    result= intCode.newTemp();
+    intCode.addInst(new AsignmentPointQ(this->symv,result));
+    std::cout << "temp = varExpReferencia";
+    return result;
+  }else{
+    std::cout << "temp = varExp";
+    return this->symv;
+  }
+  
 }
 
 void VarExp::print(int nesting) {
@@ -210,7 +213,7 @@ SymVar* StringExp::gen(){
 }
 
 // CharExp
-CharExp::CharExp(std::string ch) {
+CharExp::CharExp(char ch) {
   this->ch = ch;
   this->type = &(CharType::getInstance());
 }
@@ -1146,7 +1149,11 @@ SymVar* FunCallExp::gen(){
   std::list<Expression*>::iterator arg= this->args.begin();
   for(arg; arg!=this->args.end(); arg++){
     SymVar *temp= (*arg)->gen();
-    intCode.addInst(new ParamQ(temp));
+    if(temp->isReference()){
+      intCode.addInst(new ParamRefQ(temp));
+    }else{
+      intCode.addInst(new ParamVarQ(temp));
+    }
   }
   SymVar *result= intCode.newTemp();
   // Llamada a la funcion

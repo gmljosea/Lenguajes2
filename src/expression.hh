@@ -140,9 +140,9 @@ public:
 // Un caracter
 class CharExp : public Constant {
 private:
-  std::string ch; // cambiar a char
+  char ch; // cambiar a char
 public:
-  CharExp(std::string ch);
+  CharExp(char ch);
   virtual void print(int nesting);
   virtual SymVar* gen();
 };

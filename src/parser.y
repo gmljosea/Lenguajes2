@@ -153,6 +153,7 @@ bool boxRedeclared(std::string id, YYLTYPE yylloc) {
 
 %union {
   int ival;
+  char chr;
   double fval;
   std::string *str;
   Statement *stmt;
@@ -788,7 +789,8 @@ expr:
                    $$->setLocation(@1.first_line, @1.first_column,0,0);}
 | TK_CONSTSTRING { $$ = new StringExp(*$1);
                    $$->setLocation(@1.first_line, @1.first_column,0,0);}
-| TK_CONSTCHAR   { $$ = new CharExp(*$1);
+| TK_CONSTCHAR   { char chrv= $1->at(0);
+                   $$ = new CharExp(chrv);
                    $$->setLocation(@1.first_line, @1.first_column,0,0); }
 
 | funcallexp
