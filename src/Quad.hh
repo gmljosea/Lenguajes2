@@ -212,7 +212,43 @@ public:
 					  returnVal(retVal){};
 }; 
 
+/**
+ * Clase que representa el retorno de una funcion
+ */
+class ReturnQ: public Quad{
+private:
+  SymVar* result;
+public:
+  ReturnQ(SymVar *result):Quad(),result(result){};
+};
 
+/**
+ * Clase que representa el acceso a un arreglo
+ * ejemplo: result:= a[index]
+ */
+class IndexQ: public Quad{
+private:
+  SymVar *array;
+  SymVar *index;
+  SymVar *result;
+public:
+  IndexQ(SymVar *array,SymVar *index,SymVar *result):
+    Quad(),array(array),index(index),result(result){};
+};
+
+/**
+ * Clase que representa la asignacion a un arreglo
+ * ejemplo: a[index]:= arg
+ */
+class IndexAsigQ: public Quad{
+private:
+  SymVar *array;
+  SymVar *index;
+  SymVar *arg;
+public:
+  IndexAsigQ(SymVar *array,SymVar *index,SymVar *arg):
+    Quad(),array(array),index(index),arg(arg){};
+};
 
 
 
