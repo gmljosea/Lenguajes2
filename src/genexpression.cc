@@ -13,7 +13,7 @@ std::pair<SymVar*,SymVar*> Expression::genlvalue() {
 }
 
 std::pair<SymVar*,SymVar*> VarExp::genlvalue() {
-  return std::pair<SymVar*,SymVar*>(this->symv,NULL);
+  return std::pair<SymVar*,SymVar*>(this->symv,(SymVar*)NULL);
 }
 
 std::pair<SymVar*,SymVar*> Index::genlvalue() {
