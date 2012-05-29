@@ -44,14 +44,14 @@ GenLvalue Index::genlvalue() {
   }
 }
 
-// GenLvalue Index::genlvalue() {
-// }
+GenLvalue Dot::genlvalue() {
+  GenLvalue boxloc = this->box->genlvalue();
+  BoxType* boxt = dynamic_cast<BoxType*>(this->box->getType());
+  BoxField* boxf = boxt->getField(this->field);
+  int offset = boxf->offset;
 
-// std::pair<SymVar*,SymVar*> Dot::genlvalue() {
-//   SymVar* t = new SymVar("lvalue_base",0,0,false,0);
-//   SymVar* o = new SymVar("lvalue_offset",0,0,false,0);
-//   return std::pair<SymVar*,SymVar*>(t,o);
-// }
+  return { boxloc.base, boxloc.doff, boxloc.coff+offset };
+}
 
 // Expression
 

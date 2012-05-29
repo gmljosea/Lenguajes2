@@ -354,7 +354,7 @@ public:
   void print(int nesting);
   virtual bool isLvalue();
   virtual bool isAssignable();
-  //virtual std::pair<SymVar*,SymVar*> genlvalue();
+  virtual GenLvalue genlvalue();
 };
 
 
