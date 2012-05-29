@@ -7,6 +7,7 @@
 extern IntermCode intCode;
 
 GenLvalue Expression::genlvalue() {
+  return { new SymVar(500), new SymVar(501), 0 };
 }
 
 GenLvalue VarExp::genlvalue() {

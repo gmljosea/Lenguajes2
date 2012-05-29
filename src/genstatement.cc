@@ -97,6 +97,53 @@ void ForEach::gen(Label* next) {
 }
 
 void Asignment::gen(Label* next) {
+  std::list<SymVar*> temps;
+  for (std::list<Expression*>::iterator it = (this->exps).begin();
+       it != (this->exps).end(); it++) {
+    SymVar* addr = (*it)->gen();
+    temps.push_back(addr);
+  }
+  std::list<SymVar*>::iterator ittemps = temps.begin();
+  std::list<Expression*>::iterator itlvals = (this->lvalues).begin();
+  while (ittemps != temps.end()) {
+
+    GenLvalue lvalue = (*itlvals)->genlvalue();
+    if ( (*itlvals)->getType() == &(IntType::getInstance()) ) {
+      if ( (lvalue.base)->isReference() ) {
+	// QUAD: *base := temp
+	std::cout << "*" << (lvalue.base)->getId() << " := "
+		  << (*ittemps)->getId() << std::endl;
+      } else {
+	// QUAD: base := temp
+	std::cout << (lvalue.base)->getId() << " := "
+		  << (*ittemps)->getId() << std::endl;
+      }
+    } else {
+      // QUAD: doff := doff + coff
+      std::cout << (lvalue.doff)->getId() << " := "
+		<< (lvalue.doff)->getId() << " + "
+		<< lvalue.coff << std::endl;
+
+      if ( (lvalue.base)->isReference() ) {
+	// QUAD: doff := doff + base
+	std::cout << (lvalue.doff)->getId() << " := "
+		  << (lvalue.doff)->getId() << " + "
+		  << (lvalue.base)->getId() << std::endl;
+	// QUAD: *doff := temp
+	std::cout << "*" << (lvalue.doff)->getId() << " := "
+		  << (*ittemps)->getId() << std::endl;
+
+      } else {
+	// QUAD: base[doff] := temp
+	std::cout << (lvalue.base)->getId() << "["
+		  << (lvalue.doff)->getId() << "] := "
+		  << (*ittemps)->getId() << std::endl;
+      }
+    }
+
+    ittemps++;
+    itlvals++;
+  }
 }
 
 void VariableDec::gen(Label* next) {
