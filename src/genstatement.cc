@@ -94,6 +94,56 @@ void While::gen(Label* next) {
 }
 
 void ForEach::gen(Label* next) {
+  GenLvalue arrayloc = this->array->genlvalue();
+  SymVar* counter = intCode.newTemp();
+
+  ArrayType* arrayt = dynamic_cast<ArrayType*>(this->array->getType());
+  int length = arrayt->getLength();
+  int elemsize = arrayt->getBaseType()->getSize();
+
+  // QUAD: doff := doff + coff
+  std::cout << (arrayloc.doff)->getId() << " := "
+	    << (arrayloc.doff)->getId() << " + "
+	    << arrayloc.coff << std::endl;
+
+  if ( (arrayloc.base)->isReference() ) {
+    // QUAD: i := base + doff
+    std::cout << this->loopvar->getId() << " := "
+	      << (arrayloc.base)->getId() << " + "
+	      << (arrayloc.doff)->getId() << std::endl;
+    // QUAD: counter := base[4]
+    std::cout << counter->getId() << " := "
+	      << (arrayloc.base)->getId() << "[4]" << std::endl;
+  } else {
+    // QUAD: i := &base
+    std::cout << this->loopvar->getId() << " := &"
+	      << (arrayloc.base)->getId() << std::endl;
+    // QUAD: i := i + doff
+    std::cout << this->loopvar->getId() << " := "
+	      << this->loopvar->getId() << " + "
+	      << (arrayloc.doff)->getId() << std::endl;
+    // QUAD: counter := <array length>
+    std::cout << counter->getId() << " := "
+	      << length << std::endl;
+  }
+  Label* init = intCode.newLabel();
+  intCode.emitLabel(init);
+
+  // QUAD: if counter = 0 goto next
+  std::cout << "if " << counter->getId() << " = 0 goto l"
+	    << next->getId() << std::endl;
+
+  this->block->gen(init);
+
+  // QUAD: i := i + <elemsize>
+  std::cout << this->loopvar->getId() << " := "
+	    << this->loopvar->getId() << " + "
+	    << elemsize << std::endl;
+  // QUAD: counter := counter - 1
+  std::cout << counter->getId() << " := "
+	    << counter->getId() << " - 1" << std::endl;
+  // QUAD: goto init
+  std::cout << "goto l" << init->getId() << std::endl;
 }
 
 void Asignment::gen(Label* next) {
