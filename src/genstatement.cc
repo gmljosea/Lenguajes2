@@ -29,7 +29,7 @@ void Block::gen(Label* next) {
 }
 
 void Null::gen(Label* next) {
-  std::cout << "nop" << std::endl;
+  //  std::cout << "nop" << std::endl;
 }
 
 void If::gen(Label* next) {
@@ -40,6 +40,7 @@ void If::gen(Label* next) {
   this->cond->jumping(NULL, cfalse);
   this->block_true->gen(next);
   if (this->block_false) {
+    // QUAD: goto next
     std::cout << "goto l" << next->getId() << std::endl;
     intCode.emitLabel(cfalse);
     this->block_false->gen(next);
@@ -55,18 +56,30 @@ void BoundedFor::gen(Label* next) {
   SymVar* lowert = this->lowerb->gen();
   SymVar* uppert = this->upperb->gen();
   SymVar* stept = this->step ? this->step->gen() : NULL;
-  std::cout << this->varsym->getId() << " := " << lowert->getId() << std::endl;
-  std::cout << "if " << this->varsym->getId() << " >= "
-	    << uppert->getId() << " goto l" << next->getId() << std::endl;
+
+  // QUAD: loopvar := lowerbound
+  std::cout << this->varsym->getId() << " := "
+	    << lowert->getId() << std::endl;
+
   intCode.emitLabel(this->init);
+
+  // QUAD: if loopvar >= upperbound goto next
+  std::cout << "if " << this->varsym->getId() << " >= "
+	    << uppert->getId()
+	    << " goto l" << next->getId() << std::endl;
+
   this->block->gen(init);
+
   if (this->step) {
+    // QUAD: loopvar := loopvar + step
     std::cout << this->varsym->getId() << " := " << this->varsym->getId()
 	      << " + " << stept->getId() << std::endl;
   } else {
+    // QUAD: loopvar := loopvar + 1
     std::cout << this->varsym->getId() << " := " << this->varsym->getId()
 	      << " + 1" << std::endl;
   }
+  // QUAD: goto init
   std::cout << "goto l" << this->init->getId() << std::endl;
 }
 
@@ -75,10 +88,14 @@ void While::gen(Label* next) {
   this->exit = next;
   this->cond->jumping(NULL, next);
   this->block->gen(init);
+
+  // QUAD: goto init
   std::cout << "goto l" << init->getId() << std::endl;
 }
 
 void ForEach::gen(Label* next) {
+  // WARNING: incompleto. Rehacer una vez vea como coño hago con los lvalues
+
   SymVar* sizet = intCode.newTemp();
   SymVar* counter = intCode.newTemp();
 
@@ -109,6 +126,8 @@ void ForEach::gen(Label* next) {
 }
 
 void Asignment::gen(Label* next) {
+  // WARNING: incompleto. Rehacer una vez vea como coño hago con los lvalues
+
   std::list<SymVar*> temps;
   for (std::list<Expression*>::iterator it = (this->exps).begin();
        it != (this->exps).end(); it++) {
@@ -156,21 +175,31 @@ void VariableDec::gen(Label* next) {
 	 (this->decls).begin(); it != (this->decls).end(); it++) {
     if (!it->second) continue;
     SymVar* addr = ((*it).second)->gen();
+
+    // QUAD: var := temp
     std::cout << ((*it).first)->getId() << " := " << addr->getId() << std::endl;
   }
 }
 
 void Break::gen(Label* next) {
+  // QUAD: goto next
   std::cout << "goto l" << this->loop->exit->getId() << std::endl;
 }
 
 void Next::gen(Label* next) {
+  // QUAD: goto init
   std::cout << "goto l" << this->loop->init->getId() << std::endl;
 }
 
 void Return::gen(Label* next) {
-  SymVar* addr = this->exp->gen();
-  std::cout << "return " << addr->getId() << std::endl;
+  if (this->exp) {
+    SymVar* addr = this->exp->gen();
+    // QUAD: return temp
+    std::cout << "return " << addr->getId() << std::endl;
+  } else{
+    // QUAD: return
+    std::cout << "return" << std::endl;
+  }
 }
 
 void FunctionCall::gen(Label* next) {
@@ -181,6 +210,8 @@ void Write::gen(Label* next) {
   for (std::list<Expression*>::iterator it = (this->exps).begin();
        it != (this->exps).end(); it++) {
     SymVar* addr = (*it)->gen();
+
+    // QUAD: write/writeln type temp
     if (this->isLn) {
       std::cout << "writeln";
     } else {
@@ -192,6 +223,8 @@ void Write::gen(Label* next) {
 }
 
 void Read::gen(Label* next) {
+  // WARNING: incompleto. Rehacer una vez vea como coño hago con los lvalues
+
   std::pair<SymVar*,SymVar*> lvalue = this->lval->genlvalue();
   VarExp* var;
   if (var = dynamic_cast<VarExp*>(this->lval)) {
