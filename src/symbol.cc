@@ -143,7 +143,7 @@ SymVar::SymVar(std::string id,int line,int col,
 }
 
 SymVar::SymVar(int idTemp) {
-  this->id = "_t"+std::to_string((long long int) idTemp);
+  this->id = ".t"+std::to_string((long long int) idTemp);
   this->idTemp = idTemp;
   this->temp = true;
   this->reference=false;

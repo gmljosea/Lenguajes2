@@ -95,6 +95,13 @@ void While::gen(Label* next) {
 
 void ForEach::gen(Label* next) {
   GenLvalue arrayloc = this->array->genlvalue();
+
+  if (arrayloc.doff == NULL) {
+    arrayloc.doff = intCode.newTemp();
+    // QUAD: doff := 0
+    std::cout << (arrayloc.doff)->getId() << " := 0" << std::endl;
+  }
+
   SymVar* counter = intCode.newTemp();
 
   ArrayType* arrayt = dynamic_cast<ArrayType*>(this->array->getType());
@@ -158,7 +165,8 @@ void Asignment::gen(Label* next) {
   while (ittemps != temps.end()) {
 
     GenLvalue lvalue = (*itlvals)->genlvalue();
-    if ( (*itlvals)->getType() == &(IntType::getInstance()) ) {
+
+    if ( dynamic_cast<VarExp*>(*itlvals)  ) {
       if ( (lvalue.base)->isReference() ) {
 	// QUAD: *base := temp
 	std::cout << "*" << (lvalue.base)->getId() << " := "
@@ -169,6 +177,13 @@ void Asignment::gen(Label* next) {
 		  << (*ittemps)->getId() << std::endl;
       }
     } else {
+
+      if (lvalue.doff == NULL) {
+	lvalue.doff = intCode.newTemp();
+	// QUAD: doff := 0
+      std::cout << (lvalue.doff)->getId() << " := 0" << std::endl;
+      }
+
       // QUAD: doff := doff + coff
       std::cout << (lvalue.doff)->getId() << " := "
 		<< (lvalue.doff)->getId() << " + "
@@ -250,6 +265,13 @@ void Write::gen(Label* next) {
 
 void Read::gen(Label* next) {
   GenLvalue lvalue = this->lval->genlvalue();
+
+ if (lvalue.doff == NULL) {
+    lvalue.doff = intCode.newTemp();
+    // QUAD: doff := 0
+    std::cout << (lvalue.doff)->getId() << " := 0" << std::endl;
+  }
+
   if ( this->lval->getType() == &(IntType::getInstance()) ) {
     if ( (lvalue.base)->isReference() ) {
       // QUAD: *base := read type

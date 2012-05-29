@@ -51,6 +51,12 @@ SymVar* Index::gen() {
 
   GenLvalue arrayloc = this->array->genlvalue();
 
+  if (arrayloc.doff == NULL) {
+    arrayloc.doff = intCode.newTemp();
+    // QUAD: doff := 0
+    std::cout << (arrayloc.doff)->getId() << " := 0" << std::endl;
+  }
+
   SymVar* addr = intCode.newTemp();
   IntExp* cind;
   if (cind = dynamic_cast<IntExp*>(this->index)) {
@@ -105,6 +111,12 @@ SymVar* Dot::gen() {
   BoxType* boxt = dynamic_cast<BoxType*>(this->box->getType());
   BoxField* boxf = boxt->getField(this->field);
   int offset = boxf->offset;
+
+ if (boxloc.doff == NULL) {
+    boxloc.doff = intCode.newTemp();
+    // QUAD: doff := 0
+    std::cout << (boxloc.doff)->getId() << " := 0" << std::endl;
+  }
 
   SymVar* addr = intCode.newTemp();
   // QUAD: doff := doff + <(coff+offset)>
