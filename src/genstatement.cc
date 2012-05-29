@@ -94,40 +94,66 @@ void While::gen(Label* next) {
 }
 
 void ForEach::gen(Label* next) {
-  // WARNING: incompleto. Rehacer una vez vea como coño hago con los lvalues
+  GenLvalue arrayloc = this->array->genlvalue();
 
-  SymVar* sizet = intCode.newTemp();
-  SymVar* counter = intCode.newTemp();
-
-  std::pair<SymVar*,SymVar*> location = this->array->genlvalue();
-  if (!location.first->isReference()) {
-
+  if (arrayloc.doff == NULL) {
+    arrayloc.doff = intCode.newTemp();
+    // QUAD: doff := 0
+    std::cout << (arrayloc.doff)->getId() << " := 0" << std::endl;
   }
 
-  // Falta generar el código que inicialice loopvar, sizet y counter
-  // Eso depende de la expresión: si se pasa o no por referencia, si es un
-  // o no
-  std::cout << "Init foreach" << std::endl;
+  SymVar* counter = intCode.newTemp();
 
+  ArrayType* arrayt = dynamic_cast<ArrayType*>(this->array->getType());
+  int length = arrayt->getLength();
+  int elemsize = arrayt->getBaseType()->getSize();
+
+  // QUAD: doff := doff + coff
+  std::cout << (arrayloc.doff)->getId() << " := "
+	    << (arrayloc.doff)->getId() << " + "
+	    << arrayloc.coff << std::endl;
+
+  if ( (arrayloc.base)->isReference() ) {
+    // QUAD: i := base + doff
+    std::cout << this->loopvar->getId() << " := "
+	      << (arrayloc.base)->getId() << " + "
+	      << (arrayloc.doff)->getId() << std::endl;
+    // QUAD: counter := base[4]
+    std::cout << counter->getId() << " := "
+	      << (arrayloc.base)->getId() << "[4]" << std::endl;
+  } else {
+    // QUAD: i := &base
+    std::cout << this->loopvar->getId() << " := &"
+	      << (arrayloc.base)->getId() << std::endl;
+    // QUAD: i := i + doff
+    std::cout << this->loopvar->getId() << " := "
+	      << this->loopvar->getId() << " + "
+	      << (arrayloc.doff)->getId() << std::endl;
+    // QUAD: counter := <array length>
+    std::cout << counter->getId() << " := "
+	      << length << std::endl;
+  }
   Label* init = intCode.newLabel();
   intCode.emitLabel(init);
-  // if counter = 0 goto next
+
+  // QUAD: if counter = 0 goto next
   std::cout << "if " << counter->getId() << " = 0 goto l"
 	    << next->getId() << std::endl;
+
   this->block->gen(init);
-  // i := i + sizet
-  std::cout << this->loopvar->getId() << " := " << this->loopvar->getId()
-	    << " + " << sizet->getId() << std::endl;
-  // counter = counter - 1
-  std::cout << counter->getId() << " := " << counter->getId()
-	    << " - 1" <<std::endl;
-  // goto init
+
+  // QUAD: i := i + <elemsize>
+  std::cout << this->loopvar->getId() << " := "
+	    << this->loopvar->getId() << " + "
+	    << elemsize << std::endl;
+  // QUAD: counter := counter - 1
+  std::cout << counter->getId() << " := "
+	    << counter->getId() << " - 1" << std::endl;
+  // QUAD: goto init
   std::cout << "goto l" << init->getId() << std::endl;
 }
 
 void Asignment::gen(Label* next) {
-  // WARNING: incompleto. Rehacer una vez vea como coño hago con los lvalues
-
   std::list<SymVar*> temps;
   for (std::list<Expression*>::iterator it = (this->exps).begin();
        it != (this->exps).end(); it++) {
@@ -137,37 +163,52 @@ void Asignment::gen(Label* next) {
   std::list<SymVar*>::iterator ittemps = temps.begin();
   std::list<Expression*>::iterator itlvals = (this->lvalues).begin();
   while (ittemps != temps.end()) {
-    std::pair<SymVar*,SymVar*> lvalue = (*itlvals)->genlvalue();
-    VarExp* var;
-    if (var = dynamic_cast<VarExp*>(*itlvals)) {
-      // Como es una variable, hay que generar a := b, o *a := b
-      if ((lvalue.first)->isReference()) {
-	std::cout << "*" << (lvalue.first)->getId() << " := "
+
+    GenLvalue lvalue = (*itlvals)->genlvalue();
+
+    if ( dynamic_cast<VarExp*>(*itlvals)  ) {
+      if ( (lvalue.base)->isReference() ) {
+	// QUAD: *base := temp
+	std::cout << "*" << (lvalue.base)->getId() << " := "
 		  << (*ittemps)->getId() << std::endl;
       } else {
-	std::cout << (lvalue.first)->getId() << " := "
+	// QUAD: base := temp
+	std::cout << (lvalue.base)->getId() << " := "
 		  << (*ittemps)->getId() << std::endl;
       }
     } else {
-      // Si no es variable es box o arreglo, entonces hay que generar
-      // a[b] := c.
 
-      // Si la base es un apuntador a la base, entonces dereferenciarlo
-      SymVar* realval;
-      if ((lvalue.first)->isReference()) {
-	realval = intCode.newTemp();
-	std::cout << realval->getId() << " := *"
-		  << (lvalue.first)->getId() << std::endl;
-      } else {
-	realval = (lvalue.first);
+      if (lvalue.doff == NULL) {
+	lvalue.doff = intCode.newTemp();
+	// QUAD: doff := 0
+      std::cout << (lvalue.doff)->getId() << " := 0" << std::endl;
       }
-      std::cout << realval->getId() << "[" << (lvalue.second)->getId()
-		<< "] := " << (*ittemps)->getId() << std::endl;
+
+      // QUAD: doff := doff + coff
+      std::cout << (lvalue.doff)->getId() << " := "
+		<< (lvalue.doff)->getId() << " + "
+		<< lvalue.coff << std::endl;
+
+      if ( (lvalue.base)->isReference() ) {
+	// QUAD: doff := doff + base
+	std::cout << (lvalue.doff)->getId() << " := "
+		  << (lvalue.doff)->getId() << " + "
+		  << (lvalue.base)->getId() << std::endl;
+	// QUAD: *doff := temp
+	std::cout << "*" << (lvalue.doff)->getId() << " := "
+		  << (*ittemps)->getId() << std::endl;
+
+      } else {
+	// QUAD: base[doff] := temp
+	std::cout << (lvalue.base)->getId() << "["
+		  << (lvalue.doff)->getId() << "] := "
+		  << (*ittemps)->getId() << std::endl;
+      }
     }
+
     ittemps++;
     itlvals++;
   }
-
 }
 
 void VariableDec::gen(Label* next) {
@@ -223,38 +264,44 @@ void Write::gen(Label* next) {
 }
 
 void Read::gen(Label* next) {
-  // WARNING: incompleto. Rehacer una vez vea como coño hago con los lvalues
+  GenLvalue lvalue = this->lval->genlvalue();
 
-  std::pair<SymVar*,SymVar*> lvalue = this->lval->genlvalue();
-  VarExp* var;
-  if (var = dynamic_cast<VarExp*>(this->lval)) {
-    if ((lvalue.first)->isReference()) {
-      // Generar *a := read type
-      std::cout << "*" << (lvalue.first)->getId() << " := read "
-		<< this->lval->getType()->toString() << std::endl;
+ if (lvalue.doff == NULL) {
+    lvalue.doff = intCode.newTemp();
+    // QUAD: doff := 0
+    std::cout << (lvalue.doff)->getId() << " := 0" << std::endl;
+  }
+
+  if ( this->lval->getType() == &(IntType::getInstance()) ) {
+    if ( (lvalue.base)->isReference() ) {
+      // QUAD: *base := read type
+      std::cout << "*" << (lvalue.base)->getId() << " := read <type>"
+		<< std::endl;
     } else {
-      // Generar a := read type
-      std::cout << (lvalue.first)->getId() << " := read "
-		<< this->lval->getType()->toString() << std::endl;
+      // QUAD: base := read type
+      std::cout << (lvalue.base)->getId() << " := read <type>"
+		<< std::endl;
     }
   } else {
-    // Si no es variable es box o arreglo, entonces hay que generar
-    // a[b] := c.
+    // QUAD: doff := doff + coff
+    std::cout << (lvalue.doff)->getId() << " := "
+	      << (lvalue.doff)->getId() << " + "
+	      << lvalue.coff << std::endl;
 
-    // Si la base es un apuntador a la base, entonces dereferenciarlo
-    SymVar* realval;
-    if ((lvalue.first)->isReference()) {
-      // Genera t1 := *a
-      realval = intCode.newTemp();
-      std::cout << realval->getId() << " := *"
-		<< (lvalue.first)->getId() << std::endl;
+    if ( (lvalue.base)->isReference() ) {
+      // QUAD: doff := doff + base
+      std::cout << (lvalue.doff)->getId() << " := "
+		<< (lvalue.doff)->getId() << " + "
+		<< (lvalue.base)->getId() << std::endl;
+      // QUAD: *doff := read type
+      std::cout << "*" << (lvalue.doff)->getId() << " := read <type>"
+		<< std::endl;
+
     } else {
-      realval = (lvalue.first);
+      // QUAD: base[doff] := read type
+      std::cout << (lvalue.base)->getId() << "["
+		<< (lvalue.doff)->getId() << "] := read <type>"
+		<< std::endl;
     }
-
-    // Genera base[off] := read type
-    std::cout << realval->getId() << "[" << (lvalue.second)->getId()
-	      << "] := read "
-	      << this->lval->getType()->toString() << std::endl;
   }
 }

@@ -651,7 +651,7 @@ foreach:
       SymVar* loopvar = new SymVar(*$3, @3.first_line, @3.first_column, false,
                                    program.symtable.current_scope());
       loopvar->setType(&(ErrorType::getInstance()));
-      //loopvar->isReference(true);
+      loopvar->setReference(true);
       program.symtable.insert(loopvar);
       ForEach* fe = new ForEach($1, loopvar, $5, NULL);
       pushLoop(fe, &@1);

@@ -6,6 +6,12 @@
 #include "type.hh"
 #include "Quad.hh"
 
+struct GenLvalue {
+  SymVar* base;
+  SymVar* doff;
+  int coff;
+};
+
 /**
  * Representa una expresión en Devanix.
  * Las expresiones pueden actuar como r-values o l-values dependiendo del
@@ -61,7 +67,7 @@ public:
   virtual void jumping(Label* lbltrue,Label* lblfalse);
 
   // Calcula la variable base y el offset necesario para acceder a esta expresión
-  virtual std::pair<SymVar*,SymVar*> genlvalue();
+  virtual GenLvalue genlvalue();
 };
 
 // Expresión errónea (cuando se usa un símbolo que no existe)
@@ -82,8 +88,8 @@ public:
   virtual bool isLvalue();
   virtual bool isAssignable();
   virtual SymVar* gen();
-  virtual std::pair<SymVar*,SymVar*> genlvalue();
   virtual void jumping(Label* lbltrue,Label* lblfalse);
+  virtual GenLvalue genlvalue();
 };
 
 // Expresiones con valor constantes
@@ -334,7 +340,8 @@ public:
   void print(int nesting);
   virtual bool isLvalue();
   virtual bool isAssignable();
-  virtual std::pair<SymVar*,SymVar*> genlvalue();
+  virtual GenLvalue genlvalue();
+  virtual SymVar* gen();
 };
 
 // Acceso a un campo de un box, box.campo
@@ -348,7 +355,8 @@ public:
   void print(int nesting);
   virtual bool isLvalue();
   virtual bool isAssignable();
-  virtual std::pair<SymVar*,SymVar*> genlvalue();
+  virtual GenLvalue genlvalue();
+  virtual SymVar* gen();
 };
 
 

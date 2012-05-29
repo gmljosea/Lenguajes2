@@ -6,49 +6,140 @@
 
 extern IntermCode intCode;
 
-std::pair<SymVar*,SymVar*> Expression::genlvalue() {
-  SymVar* t = new SymVar("lvalue_base",0,0,false,0);
-  SymVar* o = new SymVar("lvalue_offset",0,0,false,0);
-  return std::pair<SymVar*,SymVar*>(t,o);
+GenLvalue Expression::genlvalue() {
+  return { new SymVar(500), new SymVar(501), 0 };
 }
 
-std::pair<SymVar*,SymVar*> VarExp::genlvalue() {
-  return std::pair<SymVar*,SymVar*>(this->symv,(SymVar*)NULL);
+GenLvalue VarExp::genlvalue() {
+  return { this->symv, NULL, 0 };
 }
 
-std::pair<SymVar*,SymVar*> Index::genlvalue() {
-  SymVar* offset = this->index->gen();
-  // Este cast debe funcionar porque ya debió chequearse el tipo en check()
-  ArrayType* arrt = dynamic_cast<ArrayType*>(this->array->getType());
-  int elem_size = arrt->getBaseType()->getSize();
+GenLvalue Index::genlvalue() {
+  // Listo pero falta probar
+  ArrayType* arrayt = dynamic_cast<ArrayType*>(this->array->getType());
+  int elemsize = arrayt->getBaseType()->getSize();
 
-  std::pair<SymVar*,SymVar*> location = this->array->genlvalue();
-  if (location.second) {
-    // offset := offset * tamaño_elemento
-    std::cout << offset->getId() << " := "
-	      << offset->getId() << " * "
-	      << elem_size << std::endl;
-    return std::pair<SymVar*,SymVar*>(location.first, offset);
+  GenLvalue arrayloc = this->array->genlvalue();
+
+  IntExp* cind;
+  if (cind = dynamic_cast<IntExp*>(this->index)) {
+    return { arrayloc.base, arrayloc.doff,
+	arrayloc.coff + (cind->getInteger() * elemsize) };
   } else {
-    // off := off * tamaño_elemento
-    std::cout << offset->getId() << " := "
-	      << offset->getId() << " * "
-	      << elem_size << std::endl;
-    // base := base + offset
-    std::cout << (location.second)->getId() << " := "
-	      << (location.second)->getId() << " + "
-	      << offset->getId() << std::endl;
-    return location;
+    SymVar* indexaddr = this->index->gen();
+    SymVar* newindex = intCode.newTemp();
+    // QUAD: newindex := indexaddr * elemsize
+    std::cout << newindex->getId() << " := "
+	      << indexaddr->getId() << " * "
+	      << elemsize << std::endl;
+
+    if (arrayloc.doff == NULL) {
+      return { arrayloc.base, newindex, arrayloc.coff };
+    } else {
+      // QUAD: doff := doff + newindex
+      std::cout << (arrayloc.base)->getId() << " := "
+		<< (arrayloc.base)->getId() << " + "
+		<< newindex->getId() << std::endl;
+      return arrayloc;
+    }
   }
 }
 
-std::pair<SymVar*,SymVar*> Dot::genlvalue() {
-  SymVar* t = new SymVar("lvalue_base",0,0,false,0);
-  SymVar* o = new SymVar("lvalue_offset",0,0,false,0);
-  return std::pair<SymVar*,SymVar*>(t,o);
+SymVar* Index::gen() {
+  ArrayType* arrayt = dynamic_cast<ArrayType*>(this->array->getType());
+  int elemsize = arrayt->getBaseType()->getSize();
+
+  GenLvalue arrayloc = this->array->genlvalue();
+
+  if (arrayloc.doff == NULL) {
+    arrayloc.doff = intCode.newTemp();
+    // QUAD: doff := 0
+    std::cout << (arrayloc.doff)->getId() << " := 0" << std::endl;
+  }
+
+  SymVar* addr = intCode.newTemp();
+  IntExp* cind;
+  if (cind = dynamic_cast<IntExp*>(this->index)) {
+    // QUAD: doff := doff (coff + <index * elemsize>)
+    std::cout << (arrayloc.doff)->getId() << " := "
+	      << (arrayloc.doff)->getId() << " + "
+	      << arrayloc.coff + (cind->getInteger() * elemsize) << std::endl;
+  } else {
+    SymVar* indaddr = this->index->gen();
+    // QUAD: indaddr := indaddr * elemsize
+    std::cout << indaddr->getId() << " := "
+	      << indaddr->getId() << " * "
+	      << elemsize << std::endl;
+    // QUAD: doff := doff + coff
+    std::cout << (arrayloc.doff)->getId() << " := "
+	      << (arrayloc.doff)->getId() << " + "
+	      << arrayloc.coff << std::endl;
+    // QUAD: doff := doff + indaddr
+    std::cout << (arrayloc.doff)->getId() << " := "
+	      << (arrayloc.doff)->getId() << " + "
+	      << indaddr->getId() << std::endl;
+  }
+
+  if (arrayloc.base->isReference()) {
+    // QUAD: doff := doff + base
+    std::cout << (arrayloc.doff)->getId() << " := "
+	      << (arrayloc.doff)->getId() << " + "
+	      << (arrayloc.base)->getId() << std::endl;
+    // QUAD: addr := *doff
+    std::cout << addr->getId() << " := *"
+	      << (arrayloc.doff)->getId() << std::endl;
+  } else {
+    // QUAD: addr := base[doff]
+    std::cout << addr->getId() << " := "
+	      << (arrayloc.base)->getId() << "["
+	      << (arrayloc.doff)->getId() << "]" << std::endl;
+  }
+  return addr;
 }
 
-// Expression 
+GenLvalue Dot::genlvalue() {
+  GenLvalue boxloc = this->box->genlvalue();
+  BoxType* boxt = dynamic_cast<BoxType*>(this->box->getType());
+  BoxField* boxf = boxt->getField(this->field);
+  int offset = boxf->offset;
+
+  return { boxloc.base, boxloc.doff, boxloc.coff+offset };
+}
+
+SymVar* Dot::gen() {
+  GenLvalue boxloc = this->box->genlvalue();
+  BoxType* boxt = dynamic_cast<BoxType*>(this->box->getType());
+  BoxField* boxf = boxt->getField(this->field);
+  int offset = boxf->offset;
+
+ if (boxloc.doff == NULL) {
+    boxloc.doff = intCode.newTemp();
+    // QUAD: doff := 0
+    std::cout << (boxloc.doff)->getId() << " := 0" << std::endl;
+  }
+
+  SymVar* addr = intCode.newTemp();
+  // QUAD: doff := doff + <(coff+offset)>
+  std::cout << (boxloc.doff)->getId() << " := "
+	    << (boxloc.doff)->getId() << " + "
+	    << (boxloc.coff)+offset << std::endl;
+  if (boxloc.base->isReference()) {
+    // QUAD: doff := doff + base
+    std::cout << (boxloc.doff)->getId() << " := "
+	      << (boxloc.doff)->getId() << " + "
+	      << (boxloc.base)->getId() << std::endl;
+    // QUAD: addr := *doff
+    std::cout << addr->getId() << " := *"
+	      << (boxloc.doff)->getId() << std::endl;
+  } else {
+    // QUAD: addr := base[doff]
+    std::cout << addr->getId() << " := "
+	      << (boxloc.base)->getId() << "["
+	      << (boxloc.doff)->getId() << "]" << std::endl;
+  }
+}
+
+// Expression
 
 SymVar* Expression::gen(){
   std::cout << "gen exp" << std::endl;
