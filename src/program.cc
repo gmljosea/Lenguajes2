@@ -53,6 +53,12 @@ void Program::calcOffsets(){
 }
 
 void Program::gen(){
+   // Generar codigo para las variables gobales
+  for(std::list<VariableDec*>::iterator varIt=this->globalinits.begin();
+      varIt != this->globalinits.end(); varIt++){
+    (*varIt)->gen(NULL);
+  }
+
   //Generar el codigo de las funciones 
   for (std::list<SymFunction*>::iterator funIt= this->functions.begin();
        funIt != this->functions.end(); funIt++){

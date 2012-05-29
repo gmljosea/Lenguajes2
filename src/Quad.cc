@@ -13,10 +13,11 @@ void  AsignmentQ::printQuad(){
   }else if(arg1Type == constfloat){
     std::cout << this->arg1.constfloat;
   }else if(arg1Type == constchar){
-    std::cout << this->arg1.constchar;
+    printf("%c",this->arg1.constchar);
   }else if(arg1Type == constbool){
     std::cout << this->arg1.constbool;
   }else if(arg1Type == conststring){
-    std::cout << this->arg1.conststring;
+    std::cout << *(this->arg1.conststring);
   }
+  std::cout << std::endl;
 }

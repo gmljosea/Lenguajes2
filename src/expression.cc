@@ -44,14 +44,6 @@ bool Expression::getBool() { return true; }
 bool Expression::isLvalue() { return false; }
 int Expression::getLvalue() { return 0; }
 bool Expression::isAssignable() { return false; }
-SymVar* Expression::gen(){
-  std::cout << "gen exp" << std::endl;
-  return new SymVar("test_gen",0,0,false,0);
-};
-
-void Expression::jumping(Label* ltrue, Label* lfalse) {
-  std::cout << "jumping exp" << std::endl;
-}
 
 // BadExp
 BadExp::BadExp() {
@@ -69,20 +61,6 @@ VarExp::VarExp(SymVar* symv) {
 }
 
 SymVar* VarExp::getSym(){return symv;}
-
-SymVar* VarExp::gen(){
-  if(this->symv->isReference()){
-    SymVar *result;
-    result= intCode.newTemp();
-    intCode.addInst(new AsignmentPointQ(this->symv,result));
-    std::cout << "temp = varExpReferencia";
-    return result;
-  }else{
-    std::cout << "temp = varExp";
-    return this->symv;
-  }
-  
-}
 
 void VarExp::print(int nesting) {
   std::string padding(nesting*2, ' ');
@@ -118,16 +96,6 @@ int IntExp::getInteger() {
   return this->value;
 }
 
-SymVar* IntExp::gen(){
-  SymVar *result;
-  result= intCode.newTemp();
-  Args cInt;
-  cInt.constint= this->value;
-  intCode.addInst(new AsignmentQ(constint,cInt,result));
-  result->setType(&(IntType::getInstance()));
-  return result;
-}
-
 // FloatExp
 FloatExp::FloatExp(float value) {
   this->value = value;
@@ -141,17 +109,6 @@ void FloatExp::print(int nesting) {
 
 double FloatExp::getFloat() {
   return this->value;
-}
-
-SymVar* FloatExp::gen(){
- SymVar *result;
-  result= intCode.newTemp();
-  Args cFloat;
-  cFloat.constfloat= this->value;
-  intCode.addInst(new AsignmentQ(constfloat,cFloat,result));
-  result->setType(&(FloatType::getInstance()));
-  return result;
-std::cout << "temp = float";
 }
 
 // BoolExp
@@ -173,16 +130,6 @@ bool BoolExp::getBool() {
   return this->value;
 }
 
-SymVar* BoolExp::gen(){
-  SymVar *result;
-  result= intCode.newTemp();
-  Args cBool;
-  cBool.constbool= this->value;
-  intCode.addInst(new AsignmentQ(constbool,cBool,result));
-  result->setType(&(BoolType::getInstance()));
-  return result;
-  std::cout << "temp = bool";
-}
 
 // StringExp
 StringExp::StringExp(std::string str) {
@@ -201,16 +148,6 @@ void StringExp::print(int nesting) {
   std::cout << padding << "\"" << this->str << "\"" << std::endl;
 }
 
-SymVar* StringExp::gen(){
-  SymVar *result;
-  result= intCode.newTemp();
-  Args cString;
-  cString.conststring= &(this->str);
-  intCode.addInst(new AsignmentQ(conststring,cString,result));
-  result->setType(new StringType(this->str.length()));
-  return result;
-  std::cout << "temp = string";
-}
 
 // CharExp
 CharExp::CharExp(char ch) {
@@ -221,17 +158,6 @@ CharExp::CharExp(char ch) {
 void CharExp::print(int nesting) {
   std::string padding(nesting*2, ' ');
   std::cout << padding << "'" << this->ch << "'" << std::endl;
-}
-
-SymVar* CharExp::gen(){
-  SymVar *result;
-  result= intCode.newTemp();
-  Args cChar;
-  //cChar.constchar= this-> ch;
-  intCode.addInst(new AsignmentQ(constchar,cChar,result));
-  result->setType(&(CharType::getInstance()));
-  return result;
-  std::cout << "temp = char";
 }
 
 // BinaryOp
@@ -267,22 +193,6 @@ void Arithmetic::check() {
   this->type = &(ErrorType::getInstance());
 }
 
-SymVar* Arithmetic::gen(){
-
-  SymVar *r1,*r2,*result;
-  r1= this->exp1->gen();
-  r2= this->exp2->gen();
-  result= intCode.newTemp();
-  if(*(this->type)==IntType::getInstance()){
-    intCode.addInst(new AsignmentOpQ(r1,opI,r2,result));
-    result->setType(&(IntType::getInstance()));
-  }else{ 
-    intCode.addInst(new AsignmentOpQ(r1,opF,r2,result));
-    result->setType(&(FloatType::getInstance()));
-  }
-  return result;
-  std::cout << "temp = aritmetico+-*//";
-}
 
 // Sum
 Expression* Sum::cfold() {
@@ -306,16 +216,6 @@ Expression* Sum::cfold() {
   return result;
 }
 
-// void Sum::gen(){
-// /*
-// r1= this->exp1->gen();
-// r2= this->exp2->gen();
-// result= intCod.temp();
-// intCod.addInst(new AsignmentQ(r1,Sum,r2,result));
-// */
-// std::cout << "temp = suma";
-// }
-
 // Substraction
 Expression* Substraction::cfold() {
   this->exp1 = this->exp1->cfold();
@@ -338,16 +238,6 @@ Expression* Substraction::cfold() {
   return result;
 }
 
-// void Substraction::gen(){
-// /*
-// r1= this->exp1->gen();
-// r2= this->exp2->gen();
-// result= intCod.temp();
-// intCod.addInst(new AsignmentQ(r1,Substraction,r2,result));
-// */
-// std::cout << "temp = substraction";
-
-// }
 
 // Multiplication
 Expression* Multiplication::cfold() {
@@ -371,17 +261,6 @@ Expression* Multiplication::cfold() {
   return result;
 }
 
-// void Multiplication::gen(){
-// /*
-// r1= this->exp1->gen();
-// r2= this->exp2->gen();
-// result= intCod.temp();
-// intCod.addInst(new AsignmentQ(r1,Multiplication,r2,result));
-// */
-// std::cout << "temp = multiplication";
-// }
-
-
 // Division
 Expression* Division::cfold() {
   this->exp1 = this->exp1->cfold();
@@ -404,15 +283,6 @@ Expression* Division::cfold() {
   return result;
 }
 
-// void Division::gen(){
-// /*
-// r1= this->exp1->gen();
-// r2= this->exp2->gen();
-// result= intCod.temp();
-// intCod.addInst(new AsignmentQ(r1,Division,r2,result));
-// */
-// std::cout << "temp = division";
-// }
 
 // Remainder
 void Remainder::check() {
@@ -456,20 +326,6 @@ Expression* Remainder::cfold() {
   return result;
 }
 
-SymVar* Remainder::gen(){
-
-  SymVar *r1,*r2,*result;
-  r1= this->exp1->gen();
-  r2= this->exp2->gen();
-  result= intCode.newTemp();
-  intCode.addInst(new AsignmentOpQ(r1,remainder,r2,result));
-  result->setType(&(IntType::getInstance()));
-  return result;
-
-  std::cout << "temp = mod";
-}
-
-
 // Minus
 void Minus::check() {
   this->exp1->check();
@@ -509,23 +365,6 @@ void Minus::print(int nesting) {
   this->exp1->print(nesting+1);
 }
 
-SymVar* Minus::gen(){
-
-  SymVar *r1,*result;
-  r1= this->exp1->gen();
-  result= intCode.newTemp();
-  if(*(this->type)==IntType::getInstance()){
-    intCode.addInst(new AsignmentOpQ(r1,opI,result));
-    result->setType(&(IntType::getInstance()));
-  }else{
-    intCode.addInst(new AsignmentOpQ(r1,opF,result));
-    result->setType(&(FloatType::getInstance()));
-  }
-  return result;
-  std::cout << "temp = menos unario";
-}
-
-
 // Logical
 void Logical::check() {
   this->exp1->check();
@@ -545,32 +384,6 @@ void Logical::check() {
 		this->fline, this->fcol);
   this->type = &(ErrorType::getInstance());
 }
-
-SymVar* Logical::gen(){
-  
-  Label* lblfalse;
-  Label* lblFin;
-  lblfalse= intCode.newLabel();
-  lblFin=intCode.newLabel();
-
-  SymVar* result;
-  result= intCode.newTemp();
-  Args tempTrue;
-  Args tempFalse;
-  tempTrue.constbool= (bool) true;
-  tempFalse.constbool=(bool) false;
-    
-  this->jumping(NULL,lblfalse);
-
-  intCode.addInst(new AsignmentQ(constbool,tempTrue,result));
-  intCode.addInst(new JumpQ(lblFin));
-  intCode.emitLabel(lblfalse);
-  intCode.addInst(new AsignmentQ(constbool,tempFalse,result));
-  intCode.emitLabel(lblFin);
-  result->setType(&(BoolType::getInstance()));
-  return result;
-}
-
 
 // And
 Expression* And::cfold() {
@@ -592,16 +405,6 @@ Expression* And::cfold() {
   return result;
 }
 
-void And::jumping(Label *lbltrue,Label *lblfalse){
-
-  Label *lblFALSE;
-  lblFALSE= (lblfalse==NULL)? (intCode.newLabel()):lblfalse; 
-  this->exp1->jumping(NULL,lblFALSE);
-  this->exp2->jumping(lbltrue,lblfalse);
-  if(lblfalse==NULL) intCode.emitLabel(lblFALSE);
-
-}
-
 // Or
 Expression* Or::cfold() {
   this->exp1 = this->exp1->cfold();
@@ -620,16 +423,6 @@ Expression* Or::cfold() {
   delete exp2;
   delete this;
   return result;
-}
-
-void Or::jumping(Label *lbltrue,Label *lblfalse){
-
-  Label *lblTRUE;
-  lblTRUE= (lbltrue==NULL)? (intCode.newLabel()):lbltrue; 
-  this->exp1->jumping(lblTRUE,NULL);
-  this->exp2->jumping(lbltrue,lblfalse);
-  if(lbltrue==NULL) intCode.emitLabel(lblTRUE);
-
 }
 
 // Not
@@ -668,36 +461,6 @@ void Not::print(int nesting) {
   this->exp1->print(nesting+1);
 }
 
-SymVar* Not::gen(){
-  
-    Label* lblfalse;
-    Label* lblFin;
-    lblfalse= intCode.newLabel();
-    lblFin=intCode.newLabel();
-
-    SymVar* result;
-    result= intCode.newTemp();
-    Args cTrue;
-    Args cFalse;
-    cTrue.constbool= (bool) true;
-    cFalse.constbool=(bool) false;
- 
-    this->jumping(NULL,lblfalse);
-
-    intCode.addInst(new AsignmentQ(constbool,cFalse,result));
-    intCode.addInst(new JumpQ(lblFin));
-    intCode.emitLabel(lblfalse);
-    intCode.addInst(new AsignmentQ(constbool,cTrue,result));
-    intCode.emitLabel(lblFin);
-    result->setType(&(BoolType::getInstance()));
-    return result;
-}
-
-void Not::jumping(Label *lbltrue,Label *lblfalse){
- 
-  this->exp1->jumping(lblfalse,lbltrue);
-
-}
 
 // Relational
 void Relational::check() {
@@ -723,52 +486,6 @@ void Relational::check() {
 		+t1->toString()+"' y '"+t2->toString()+"'",
 		this->fline, this->fcol);
   this->type = &(ErrorType::getInstance());
-}
-
-SymVar* Relational::gen(){
-  // Verificar que tipo de operador es
-  Operator op= this->operatortype();
-
-  SymVar *r1,*r2,*result;
-  r1= this->exp1->gen();
-  r2= this->exp2->gen();
-  result=intCode.newTemp();
-
-  Label *lbltrue,*lblFin;
-  lbltrue=intCode.newLabel();
-  lblFin=intCode.newLabel();
-
-  Args cTrue;
-  Args cFalse;
-  cTrue.constbool= (bool) true;
-  cFalse.constbool=(bool) false;
- 
-  intCode.addInst(new ConditionalJumpQ(r1,op,r2,lbltrue));
-  intCode.addInst(new AsignmentQ(constbool,cFalse,result));
-  intCode.addInst(new JumpQ(lblFin));
-  intCode.emitLabel(lbltrue);
-  intCode.addInst(new AsignmentQ(constbool,cTrue,result));
-  intCode.emitLabel(lblFin);
-  return result;
-  std::cout << "temp = relational";
-}
-
-void Relational::jumping(Label* lbltrue,Label* lblfalse){
-  // Verificar que tipo de operador es
-  Operator op= this->operatortype();
-
-  SymVar *r1,*r2;
-  r1= this->exp1->gen();
-  r2= this->exp2->gen();
-  
-  if(lblfalse!=NULL & lbltrue!=NULL){
-    intCode.addInst(new ConditionalJumpQ(r1,op,r2,lbltrue));
-    intCode.addInst(new JumpQ(lblfalse));
-  }else if(lbltrue!=NULL){
-    intCode.addInst(new ConditionalJumpQ(r1,op,r2,lbltrue));
-  }else if(lblfalse!=NULL){
-     intCode.addInst(new ConditionalNJumpQ(r1,op,r2,lbltrue));
-  }
 }
 
 // Greater
@@ -1143,20 +860,3 @@ void FunCallExp::check() {
   }
 }
 
-
-SymVar* FunCallExp::gen(){
-  // Generar las instrucciones para cargar los parametros
-  std::list<Expression*>::iterator arg= this->args.begin();
-  for(arg; arg!=this->args.end(); arg++){
-    SymVar *temp= (*arg)->gen();
-    if(temp->isReference()){
-      intCode.addInst(new ParamRefQ(temp));
-    }else{
-      intCode.addInst(new ParamVarQ(temp));
-    }
-  }
-  SymVar *result= intCode.newTemp();
-  // Llamada a la funcion
-  intCode.addInst(new CallQ(this->symf,this->symf->getArgumentCount(),result));
-  return result;
-}

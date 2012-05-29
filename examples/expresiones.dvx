@@ -1,0 +1,42 @@
+-. Pruebas para las expresiones 
+
+-. Variables Globales con todos los tipos 
+
+int a=2,b;
+float d,e;
+bool g,h;
+char j,k;
+
+int array[9] arrayc;
+float array[1] arrayf;
+bool array[2] arrayi;
+char array[3] arrayl;
+
+int c=1,f=12;
+float i=2.0,l=3.0;
+bool o=true,p=false;
+char q= 'a',r= 'r';
+string s="Hola",t= "Chao";
+
+
+int main(){
+
+int a1=2,b1=a;
+float d1,e1;
+bool g1,h1;
+char j1,k1;
+
+int array[9] arrayc1;
+float array[1] arrayf1;
+bool array[2] arrayi1;
+char array[3] arrayl1;
+
+int c1=1,f1=12;
+float i1=2.0,l1=3.0;
+bool o1=true,p1=false;
+char q1= 'a',r1= 'r';
+string s1="Hola",t1= "Chao";
+
+
+return 0;
+}
