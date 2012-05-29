@@ -199,4 +199,37 @@ void Write::gen(Label* next) {
 }
 
 void Read::gen(Label* next) {
+  GenLvalue lvalue = this->lval->genlvalue();
+  if ( this->lval->getType() == &(IntType::getInstance()) ) {
+    if ( (lvalue.base)->isReference() ) {
+      // QUAD: *base := read type
+      std::cout << "*" << (lvalue.base)->getId() << " := read <type>"
+		<< std::endl;
+    } else {
+      // QUAD: base := read type
+      std::cout << (lvalue.base)->getId() << " := read <type>"
+		<< std::endl;
+    }
+  } else {
+    // QUAD: doff := doff + coff
+    std::cout << (lvalue.doff)->getId() << " := "
+	      << (lvalue.doff)->getId() << " + "
+	      << lvalue.coff << std::endl;
+
+    if ( (lvalue.base)->isReference() ) {
+      // QUAD: doff := doff + base
+      std::cout << (lvalue.doff)->getId() << " := "
+		<< (lvalue.doff)->getId() << " + "
+		<< (lvalue.base)->getId() << std::endl;
+      // QUAD: *doff := read type
+      std::cout << "*" << (lvalue.doff)->getId() << " := read <type>"
+		<< std::endl;
+
+    } else {
+      // QUAD: base[doff] := read type
+      std::cout << (lvalue.base)->getId() << "["
+		<< (lvalue.doff)->getId() << "] := read <type>"
+		<< std::endl;
+    }
+  }
 }
