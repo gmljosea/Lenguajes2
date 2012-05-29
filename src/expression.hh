@@ -341,6 +341,7 @@ public:
   virtual bool isLvalue();
   virtual bool isAssignable();
   virtual GenLvalue genlvalue();
+  virtual SymVar* gen();
 };
 
 // Acceso a un campo de un box, box.campo
@@ -355,6 +356,7 @@ public:
   virtual bool isLvalue();
   virtual bool isAssignable();
   virtual GenLvalue genlvalue();
+  virtual SymVar* gen();
 };
 
 

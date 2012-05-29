@@ -45,6 +45,52 @@ GenLvalue Index::genlvalue() {
   }
 }
 
+SymVar* Index::gen() {
+  ArrayType* arrayt = dynamic_cast<ArrayType*>(this->array->getType());
+  int elemsize = arrayt->getBaseType()->getSize();
+
+  GenLvalue arrayloc = this->array->genlvalue();
+
+  SymVar* addr = intCode.newTemp();
+  IntExp* cind;
+  if (cind = dynamic_cast<IntExp*>(this->index)) {
+    // QUAD: doff := doff (coff + <index * elemsize>)
+    std::cout << (arrayloc.doff)->getId() << " := "
+	      << (arrayloc.doff)->getId() << " + "
+	      << arrayloc.coff + (cind->getInteger() * elemsize) << std::endl;
+  } else {
+    SymVar* indaddr = this->index->gen();
+    // QUAD: indaddr := indaddr * elemsize
+    std::cout << indaddr->getId() << " := "
+	      << indaddr->getId() << " * "
+	      << elemsize << std::endl;
+    // QUAD: doff := doff + coff
+    std::cout << (arrayloc.doff)->getId() << " := "
+	      << (arrayloc.doff)->getId() << " + "
+	      << arrayloc.coff << std::endl;
+    // QUAD: doff := doff + indaddr
+    std::cout << (arrayloc.doff)->getId() << " := "
+	      << (arrayloc.doff)->getId() << " + "
+	      << indaddr->getId() << std::endl;
+  }
+
+  if (arrayloc.base->isReference()) {
+    // QUAD: doff := doff + base
+    std::cout << (arrayloc.doff)->getId() << " := "
+	      << (arrayloc.doff)->getId() << " + "
+	      << (arrayloc.base)->getId() << std::endl;
+    // QUAD: addr := *doff
+    std::cout << addr->getId() << " := *"
+	      << (arrayloc.doff)->getId() << std::endl;
+  } else {
+    // QUAD: addr := base[doff]
+    std::cout << addr->getId() << " := "
+	      << (arrayloc.base)->getId() << "["
+	      << (arrayloc.doff)->getId() << "]" << std::endl;
+  }
+  return addr;
+}
+
 GenLvalue Dot::genlvalue() {
   GenLvalue boxloc = this->box->genlvalue();
   BoxType* boxt = dynamic_cast<BoxType*>(this->box->getType());
@@ -52,6 +98,10 @@ GenLvalue Dot::genlvalue() {
   int offset = boxf->offset;
 
   return { boxloc.base, boxloc.doff, boxloc.coff+offset };
+}
+
+SymVar* Dot::gen() {
+  return NULL;
 }
 
 // Expression
