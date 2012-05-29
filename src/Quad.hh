@@ -23,6 +23,7 @@ enum Operator{
   minusF,
   AND,
   OR,
+  NOT,
   greater,  // >
   greaterEq,// >=
   equal,   // ==
@@ -47,7 +48,8 @@ constint,
 constfloat,
 constchar,
 constbool,
-conststring
+conststring,
+null
 };
 
 /** 
@@ -71,14 +73,17 @@ public:
 class AsignmentOpQ:public Quad{
 private:
   Operator op;
-  SymVar *arg1;
-  SymVar *arg2;
+  Args arg1;
+  ArgType arg1Type;
+  Args arg2;
+  ArgType arg2Type;
   SymVar *result; 
 public:
-  AsignmentOpQ(SymVar* arg1,Operator op,SymVar* result): 
-    Quad(), op(op), arg1(arg1),result(result){};
-  AsignmentOpQ(SymVar* arg1,Operator op,SymVar* arg2,SymVar* result):
-    Quad(), arg1(arg1),op(op),arg2(arg2),result(result){};
+  AsignmentOpQ(SymVar* arg1,Operator op,SymVar* arg2,SymVar* result);
+  AsignmentOpQ(ArgType arg1Type,Args arg1,Operator op,ArgType arg2Type,Args arg2,
+	     SymVar* result):arg1Type(arg1Type),arg1(arg1),op(op),
+			     arg2Type(arg2Type),arg2(arg2),result(result){};
+  virtual void printQuad();
 };
 
 /** 
@@ -115,6 +120,7 @@ public:
  **/ 
 class AsignmentToPointQ:public Quad{
 private:
+  // FIX ME 
   SymVar *arg1;
   SymVar *result; 
 public:
@@ -154,12 +160,16 @@ public:
 class ConditionalJumpQ:public Quad{
 private:
   Operator op;
-  SymVar* arg1;
-  SymVar* arg2;
+  Args arg1;
+  ArgType arg1Type;
+  Args arg2;
+  ArgType arg2Type;
   Label *label;
 public:
- ConditionalJumpQ(SymVar* arg1,Operator op,SymVar* arg2,Label* label):
-   Quad(), arg1(arg1),op(op),arg2(arg2),label(label){};
+  ConditionalJumpQ(SymVar* arg1,Operator op,SymVar* arg2,Label* label);
+  ConditionalJumpQ(ArgType arg1Type,Args arg1,Operator op,ArgType arg2Type,Args arg2,
+		   Label* label): arg1Type(arg1Type),arg1(arg1),op(op),
+				  arg2Type(arg2Type),arg2(arg2),label(label){};
 }; 
 
 /**

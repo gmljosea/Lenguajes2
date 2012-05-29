@@ -66,14 +66,28 @@ SymVar* VarExp::gen(){
     SymVar *result;
     result= intCode.newTemp();
     intCode.addInst(new AsignmentPointQ(this->symv,result));
-    std::cout << "temp = varExpReferencia";
     return result;
   }else{
-    std::cout << "temp = varExp";
     return this->symv;
   }
 }
 
+void VarExp::jumping(Label* lbltrue,Label* lblfalse){
+  Args sym;
+  sym.id= this->symv;
+
+  Args ctrue;
+  ctrue.constbool= true;
+
+  if(lblfalse!=NULL & lbltrue!=NULL){
+    intCode.addInst(new ConditionalJumpQ(sym,equal,ctrue,lbltrue));
+    intCode.addInst(new JumpQ(lblfalse));
+  }else if(lbltrue!=NULL){
+    intCode.addInst(new ConditionalJumpQ(sym,equal,ctrue,lbltrue));
+  }else if(lblfalse!=NULL){
+    intCode.addInst(new ConditionalJumpQ(sym,notEqual,ctrue,lbltrue));
+  }
+}
 // IntExp
 
 SymVar* IntExp::gen(){
@@ -153,7 +167,6 @@ SymVar* Arithmetic::gen(){
     result->setType(&(FloatType::getInstance()));
   }
   return result;
-  std::cout << "temp = aritmetico+-*//";
 }
 
 
@@ -167,8 +180,6 @@ SymVar* Remainder::gen(){
   intCode.addInst(new AsignmentOpQ(r1,remainder,r2,result));
   result->setType(&(IntType::getInstance()));
   return result;
-
-  std::cout << "temp = mod";
 }
 
 // Minus
@@ -178,14 +189,13 @@ SymVar* Minus::gen(){
   r1= this->exp1->gen();
   result= intCode.newTemp();
   if(*(this->type)==IntType::getInstance()){
-    intCode.addInst(new AsignmentOpQ(r1,opI,result));
+    intCode.addInst(new AsignmentOpQ(r1,opI,NULL,result));
     result->setType(&(IntType::getInstance()));
   }else{
-    intCode.addInst(new AsignmentOpQ(r1,opF,result));
+    intCode.addInst(new AsignmentOpQ(r1,opF,NULL,result));
     result->setType(&(FloatType::getInstance()));
   }
   return result;
-  std::cout << "temp = menos unario";
 }
 
 // Logical: AND OR 
@@ -295,7 +305,6 @@ SymVar* Relational::gen(){
   intCode.addInst(new AsignmentQ(constbool,cTrue,result));
   intCode.emitLabel(lblFin);
   return result;
-  std::cout << "temp = relational";
 }
 
 void Relational::jumping(Label* lbltrue,Label* lblfalse){

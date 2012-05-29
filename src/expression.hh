@@ -83,6 +83,7 @@ public:
   virtual bool isAssignable();
   virtual SymVar* gen();
   virtual std::pair<SymVar*,SymVar*> genlvalue();
+  virtual void jumping(Label* lbltrue,Label* lblfalse);
 };
 
 // Expresiones con valor constantes
