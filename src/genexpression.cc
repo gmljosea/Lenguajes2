@@ -101,7 +101,30 @@ GenLvalue Dot::genlvalue() {
 }
 
 SymVar* Dot::gen() {
-  return NULL;
+  GenLvalue boxloc = this->box->genlvalue();
+  BoxType* boxt = dynamic_cast<BoxType*>(this->box->getType());
+  BoxField* boxf = boxt->getField(this->field);
+  int offset = boxf->offset;
+
+  SymVar* addr = intCode.newTemp();
+  // QUAD: doff := doff + <(coff+offset)>
+  std::cout << (boxloc.doff)->getId() << " := "
+	    << (boxloc.doff)->getId() << " + "
+	    << (boxloc.coff)+offset << std::endl;
+  if (boxloc.base->isReference()) {
+    // QUAD: doff := doff + base
+    std::cout << (boxloc.doff)->getId() << " := "
+	      << (boxloc.doff)->getId() << " + "
+	      << (boxloc.base)->getId() << std::endl;
+    // QUAD: addr := *doff
+    std::cout << addr->getId() << " := *"
+	      << (boxloc.doff)->getId() << std::endl;
+  } else {
+    // QUAD: addr := base[doff]
+    std::cout << addr->getId() << " := "
+	      << (boxloc.base)->getId() << "["
+	      << (boxloc.doff)->getId() << "]" << std::endl;
+  }
 }
 
 // Expression
