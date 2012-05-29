@@ -6,49 +6,54 @@
 
 extern IntermCode intCode;
 
-std::pair<SymVar*,SymVar*> Expression::genlvalue() {
-  SymVar* t = new SymVar("lvalue_base",0,0,false,0);
-  SymVar* o = new SymVar("lvalue_offset",0,0,false,0);
-  return std::pair<SymVar*,SymVar*>(t,o);
+GenLvalue Expression::genlvalue() {
 }
 
-std::pair<SymVar*,SymVar*> VarExp::genlvalue() {
-  return std::pair<SymVar*,SymVar*>(this->symv,(SymVar*)NULL);
+GenLvalue VarExp::genlvalue() {
+  return { this->symv, NULL, 0 };
 }
 
-std::pair<SymVar*,SymVar*> Index::genlvalue() {
-  SymVar* offset = this->index->gen();
-  // Este cast debe funcionar porque ya debió chequearse el tipo en check()
-  ArrayType* arrt = dynamic_cast<ArrayType*>(this->array->getType());
-  int elem_size = arrt->getBaseType()->getSize();
+GenLvalue Index::genlvalue() {
+  // Listo pero falta probar
+  ArrayType* arrayt = dynamic_cast<ArrayType*>(this->array->getType());
+  int elemsize = arrayt->getBaseType()->getSize();
 
-  std::pair<SymVar*,SymVar*> location = this->array->genlvalue();
-  if (location.second) {
-    // offset := offset * tamaño_elemento
-    std::cout << offset->getId() << " := "
-	      << offset->getId() << " * "
-	      << elem_size << std::endl;
-    return std::pair<SymVar*,SymVar*>(location.first, offset);
+  GenLvalue arrayloc = this->array->genlvalue();
+
+  IntExp* cind;
+  if (cind = dynamic_cast<IntExp*>(this->index)) {
+    return { arrayloc.base, arrayloc.doff,
+	arrayloc.coff + (cind->getInteger() * elemsize) };
   } else {
-    // off := off * tamaño_elemento
-    std::cout << offset->getId() << " := "
-	      << offset->getId() << " * "
-	      << elem_size << std::endl;
-    // base := base + offset
-    std::cout << (location.second)->getId() << " := "
-	      << (location.second)->getId() << " + "
-	      << offset->getId() << std::endl;
-    return location;
+    SymVar* indexaddr = this->index->gen();
+    SymVar* newindex = intCode.newTemp();
+    // QUAD: newindex := indexaddr * elemsize
+    std::cout << newindex->getId() << " := "
+	      << indexaddr->getId() << " * "
+	      << elemsize << std::endl;
+
+    if (arrayloc.doff == NULL) {
+      return { arrayloc.base, newindex, arrayloc.coff };
+    } else {
+      // QUAD: doff := doff + newindex
+      std::cout << (arrayloc.base)->getId() << " := "
+		<< (arrayloc.base)->getId() << " + "
+		<< newindex->getId() << std::endl;
+      return arrayloc;
+    }
   }
 }
 
-std::pair<SymVar*,SymVar*> Dot::genlvalue() {
-  SymVar* t = new SymVar("lvalue_base",0,0,false,0);
-  SymVar* o = new SymVar("lvalue_offset",0,0,false,0);
-  return std::pair<SymVar*,SymVar*>(t,o);
-}
+// GenLvalue Index::genlvalue() {
+// }
 
-// Expression 
+// std::pair<SymVar*,SymVar*> Dot::genlvalue() {
+//   SymVar* t = new SymVar("lvalue_base",0,0,false,0);
+//   SymVar* o = new SymVar("lvalue_offset",0,0,false,0);
+//   return std::pair<SymVar*,SymVar*>(t,o);
+// }
+
+// Expression
 
 SymVar* Expression::gen(){
   std::cout << "gen exp" << std::endl;
