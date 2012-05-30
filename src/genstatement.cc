@@ -170,6 +170,9 @@ void ForEach::gen(Label* next) {
 }
 
 void Asignment::gen(Label* next) {
+  Args arg1;
+  Args arg2;
+
   std::list<SymVar*> temps;
   for (std::list<Expression*>::iterator it = (this->exps).begin();
        it != (this->exps).end(); it++) {
@@ -184,41 +187,53 @@ void Asignment::gen(Label* next) {
 
     if ( dynamic_cast<VarExp*>(*itlvals)  ) {
       if ( (lvalue.base)->isReference() ) {
-	// QUAD: *base := temp
-	std::cout << "*" << (lvalue.base)->getId() << " := "
-		  << (*ittemps)->getId() << std::endl;
+	// DONE QUAD: *base := temp
+	arg1.id = *ittemps;
+	intCode.addInst(new AsignmentToPointQ(ArgType::id, arg1,
+					      lvalue.base));
       } else {
-	// QUAD: base := temp
-	std::cout << (lvalue.base)->getId() << " := "
-		  << (*ittemps)->getId() << std::endl;
+	// DONE QUAD: base := temp
+	arg1.id = *ittemps;
+	intCode.addInst(new AsignmentQ(ArgType::id, arg1, lvalue.base));
       }
     } else {
 
       if (lvalue.doff == NULL) {
 	lvalue.doff = intCode.newTemp();
-	// QUAD: doff := 0
-      std::cout << (lvalue.doff)->getId() << " := 0" << std::endl;
+	// DONE QUAD: doff := 0
+	arg1.constint = 0;
+	intCode.addInst(new AsignmentQ(ArgType::constint, arg1, lvalue.doff));
       }
 
-      // QUAD: doff := doff + coff
-      std::cout << (lvalue.doff)->getId() << " := "
-		<< (lvalue.doff)->getId() << " + "
-		<< lvalue.coff << std::endl;
+      // DONE QUAD: doff := doff + coff
+      arg1.id = lvalue.doff;
+      arg2.constint = lvalue.coff;
+      intCode.addInst(new AsignmentOpQ(ArgType::id, arg1,
+					Operator::sumI,
+					ArgType::constint, arg2,
+					lvalue.doff));
 
       if ( (lvalue.base)->isReference() ) {
-	// QUAD: doff := doff + base
-	std::cout << (lvalue.doff)->getId() << " := "
-		  << (lvalue.doff)->getId() << " + "
-		  << (lvalue.base)->getId() << std::endl;
-	// QUAD: *doff := temp
-	std::cout << "*" << (lvalue.doff)->getId() << " := "
-		  << (*ittemps)->getId() << std::endl;
+	// DONE QUAD: doff := doff + base
+	arg1.id = lvalue.doff;
+	arg2.id = lvalue.base;
+	intCode.addInst(new AsignmentOpQ(ArgType::id, arg1,
+					 Operator::sumI,
+					 ArgType::id, arg2,
+					 lvalue.doff));
+
+	// DONE QUAD: *doff := temp
+	arg1.id = *ittemps;
+	intCode.addInst(new AsignmentToPointQ(ArgType::id, arg1,
+					      lvalue.doff));
 
       } else {
-	// QUAD: base[doff] := temp
-	std::cout << (lvalue.base)->getId() << "["
-		  << (lvalue.doff)->getId() << "] := "
-		  << (*ittemps)->getId() << std::endl;
+	// DONE QUAD: base[doff] := temp
+	arg1.id = lvalue.doff;
+	arg2.id = *ittemps;
+	intCode.addInst(new IndexAsigQ(lvalue.base,
+				       ArgType::id, arg1,
+				       ArgType::id, arg2));
       }
     }
 
