@@ -86,8 +86,7 @@ public:
 	     SymVar* result):arg1Type(arg1Type),arg1(arg1),op(op),
 			     arg2Type(arg2Type),arg2(arg2),result(result){};
   virtual void printQuad();
-
-  
+  virtual std::string toString();
 };
 
 /** 
@@ -103,6 +102,7 @@ public:
   AsignmentQ(ArgType arg1Type,Args arg1,SymVar* result): 
     Quad(), arg1Type(arg1Type), arg1(arg1),result(result){};
   virtual void printQuad();
+  virtual std::string toString();
 };
 
 /** 
@@ -117,6 +117,7 @@ public:
   AsignmentPointQ(SymVar* arg1,SymVar* result): 
     Quad(), arg1(arg1),result(result){};
   virtual void printQuad();
+  virtual std::string toString();
 };
 
 /** 
@@ -133,6 +134,7 @@ public:
   AsignmentToPointQ(ArgType arg1Type,Args arg1,SymVar* result):
     Quad(), arg1Type(arg1Type),arg1(arg1),result(result){};
   virtual void printQuad();
+  virtual std::string toString();
 };
 
 /** 

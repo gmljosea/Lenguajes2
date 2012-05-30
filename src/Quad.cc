@@ -6,6 +6,7 @@ extern Program program;
 
 // Funciones declaradas al final para simplificar la vida
 void printArg(ArgType argType,Args arg);
+std::string argToString(ArgType argtype, Args arg);
 std::string opToString(Operator op);
 
    /*****************
@@ -115,10 +116,17 @@ void Quad::printQuad(){}
  */
 void  AsignmentQ::printQuad(){
   // Nombre de la variable destino
-  std::cout << this->result->getId() << ":= ";
+  std::cout << this->result->getId() << " := ";
   //Nombre del argumento
   printArg(this->arg1Type,this->arg1);
   std::cout << std::endl;
+}
+
+std::string AsignmentQ::toString() {
+  std::string result(this->result->getId());
+  result.append(std::string(" := "));
+  result.append(argToString(this->arg1Type, this->arg1));
+  return result;
 }
 
 /** 
@@ -141,6 +149,19 @@ void AsignmentOpQ::printQuad(){
   std::cout << std::endl;
 }
 
+std::string AsignmentOpQ::toString() {
+  std::string result(this->result->getId());
+  if (this->arg2Type == ArgType::null) {
+    result.append(opToString(this->op));
+    result.append(argToString(this->arg1Type, this->arg1));
+  } else {
+    result.append(argToString(this->arg1Type, this->arg1));
+    result.append(opToString(this->op));
+    result.append(argToString(this->arg2Type, this->arg2));
+  }
+  return result;
+}
+
 /** 
  * AsignmentPointQ
  * Imprime la instruccion result:= *arg1
@@ -150,6 +171,13 @@ void AsignmentPointQ::printQuad(){
   std::cout << this->arg1->getId();
   std::cout << std::endl; 
 } 
+
+std::string AsignmentPointQ::toString() {
+  std::string result(this->result->getId());
+  result.append(" := *");
+  result.append(this->arg1->getId());
+  return result;
+}
 
 /** 
  * AsignmentToPointQ
@@ -161,6 +189,14 @@ void AsignmentToPointQ::printQuad(){
   printArg(this->arg1Type,this->arg1);
   std::cout << std::endl; 
 } 
+
+std::string AsignmentToPointQ::toString() {
+  std::string result("*");
+  result.append(this->result->getId());
+  result.append(" := ");
+  result.append(argToString(this->arg1Type, this->arg1));
+  return result;
+}
 
 /** 
  * AsignmentAddQ
@@ -417,6 +453,23 @@ void printArg(ArgType argType,Args arg){
     std::cout << arg.constbool;
   }else if(argType == conststring){
     std::cout << *(arg.conststring);
+  }
+}
+
+std::string argToString(ArgType argtype, Args arg) {
+  switch (argtype) {
+  case ArgType::id:
+    return std::string(arg.id->getId());
+  case ArgType::constint:
+    return std::to_string((long long int) arg.constint);
+  case ArgType::constfloat:
+    return std::to_string((long double) arg.constfloat);
+  case ArgType::constchar:
+    return std::string("<char>");
+  case ArgType::constbool:
+    return (arg.constbool) ? std::string("1") : std::string("0");
+  case ArgType::conststring:
+    return *arg.conststring;
   }
 }
 
