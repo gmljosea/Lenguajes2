@@ -260,12 +260,12 @@ void VariableDec::gen(Label* next) {
 
 void Break::gen(Label* next) {
   // QUAD: goto next
-  std::cout << "goto l" << this->loop->exit->getId() << std::endl;
+  intCode.addInst(new JumpQ(this->loop->exit));
 }
 
 void Next::gen(Label* next) {
   // QUAD: goto init
-  std::cout << "goto l" << this->loop->init->getId() << std::endl;
+  intCode.addInst(new JumpQ(this->loop->init));
 }
 
 void Return::gen(Label* next) {
