@@ -243,13 +243,18 @@ void Asignment::gen(Label* next) {
 }
 
 void VariableDec::gen(Label* next) {
+  Args arg1;
+  Args arg2;
+
   for (std::list<std::pair<SymVar*,Expression*>>::iterator it =
 	 (this->decls).begin(); it != (this->decls).end(); it++) {
     if (!it->second) continue;
     SymVar* addr = ((*it).second)->gen();
 
-    // QUAD: var := temp
-    std::cout << ((*it).first)->getId() << " := " << addr->getId() << std::endl;
+    // DONE QUAD: var := temp
+    arg1.id = addr;
+    intCode.addInst(new AsignmentQ(ArgType::id, arg1,
+				   (*it).first));
   }
 }
 
