@@ -179,6 +179,7 @@ void VarExp::jumping(Label* lbltrue,Label* lblfalse){
     intCode.addInst(new ConditionalJumpQ(id,sym,notEqual,constbool,ctrue,lblfalse));
   }
 }
+
 // IntExp
 
 SymVar* IntExp::gen(){
@@ -215,6 +216,14 @@ SymVar* BoolExp::gen(){
   result->setType(&(BoolType::getInstance()));
   return result;
   std::cout << "temp = bool";
+}
+
+void BoolExp::jumping(Label* lbltrue,Label* lblfalse){
+  if(this->value & lbltrue!=NULL){
+    intCode.addInst(new JumpQ(lbltrue));
+  }else if(!(this->value) & lblfalse!=NULL){
+    intCode.addInst(new JumpQ(lblfalse));			     
+  }
 }
 
 // StringExp

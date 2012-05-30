@@ -102,6 +102,15 @@ void ConditionalJumpQ::printQuad(){
  
 }
 
+/** 
+ * JumpQ
+ * Imprime la instruccion goto label
+ */
+void JumpQ::printQuad(){
+  printf(" goto ");
+  printf("l%d",this->label->getId());
+  std::cout << std::endl; 
+}
 
 /* Dado un union 'Args' y su tipo lo imprime por pantalla
  * (El 'tipo' viene del enum ArgType, para saber a que campo

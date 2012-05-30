@@ -131,6 +131,7 @@ public:
   virtual void print(int nesting);
   virtual bool getBool();
   virtual SymVar* gen();
+  virtual void jumping(Label* lbltrue,Label* lblfalse);
 };
 
 // Una cadena de caracteres de longitud arbitraria

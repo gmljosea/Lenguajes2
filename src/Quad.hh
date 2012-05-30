@@ -150,6 +150,7 @@ private:
   Label *label;
 public:
   JumpQ(Label* label): Quad(), label(label){};
+  virtual void printQuad();
 };
 
 /**
