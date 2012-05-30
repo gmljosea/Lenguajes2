@@ -139,6 +139,9 @@ GenLvalue Dot::genlvalue() {
 }
 
 SymVar* Dot::gen() {
+  Args arg1;
+  Args arg2;
+
   GenLvalue boxloc = this->box->genlvalue();
   BoxType* boxt = dynamic_cast<BoxType*>(this->box->getType());
   BoxField* boxf = boxt->getField(this->field);
@@ -146,28 +149,37 @@ SymVar* Dot::gen() {
 
  if (boxloc.doff == NULL) {
     boxloc.doff = intCode.newTemp();
-    // QUAD: doff := 0
-    std::cout << (boxloc.doff)->getId() << " := 0" << std::endl;
+    // DONE QUAD: doff := 0
+    arg1.constint = 0;
+    intCode.addInst(new AsignmentQ(ArgType::constint, arg1, boxloc.doff));
   }
 
   SymVar* addr = intCode.newTemp();
-  // QUAD: doff := doff + <(coff+offset)>
-  std::cout << (boxloc.doff)->getId() << " := "
-	    << (boxloc.doff)->getId() << " + "
-	    << (boxloc.coff)+offset << std::endl;
+  // DONE QUAD: doff := doff + <(coff+offset)>
+  arg1.id = boxloc.doff;
+  arg2.constint = boxloc.coff + offset;
+  intCode.addInst(new AsignmentOpQ(ArgType::id, arg1,
+				   Operator::sumI,
+				   ArgType::constint, arg2,
+				   boxloc.doff));
+
   if (boxloc.base->isReference()) {
-    // QUAD: doff := doff + base
-    std::cout << (boxloc.doff)->getId() << " := "
-	      << (boxloc.doff)->getId() << " + "
-	      << (boxloc.base)->getId() << std::endl;
-    // QUAD: addr := *doff
-    std::cout << addr->getId() << " := *"
-	      << (boxloc.doff)->getId() << std::endl;
+    // DONE QUAD: doff := doff + base
+    arg1.id = boxloc.doff;
+    arg2.id = boxloc.base;
+    intCode.addInst(new AsignmentOpQ(ArgType::id, arg1,
+				     Operator::sumI,
+				     ArgType::id, arg2,
+				     boxloc.doff));
+
+    // DONE QUAD: addr := *doff
+    intCode.addInst(new AsignmentPointQ(boxloc.doff, addr));
+
   } else {
-    // QUAD: addr := base[doff]
-    std::cout << addr->getId() << " := "
-	      << (boxloc.base)->getId() << "["
-	      << (boxloc.doff)->getId() << "]" << std::endl;
+    // DONE QUAD: addr := base[doff]
+    arg1.id = boxloc.doff;
+    intCode.addInst(new IndexQ(boxloc.base, ArgType::id, arg1, addr));
+
   }
 }
 
