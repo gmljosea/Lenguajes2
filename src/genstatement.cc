@@ -65,7 +65,7 @@ void BoundedFor::gen(Label* next) {
   arg1.id = lowert;
   intCode.addInst(new AsignmentQ(ArgType::id, arg1, this->varsym));
 
-  intCode.emitLabel(this->init);
+  //  intCode.emitLabel(this->init);
 
   // DONE QUAD: if loopvar >= upperbound goto next
   arg1.id = this->varsym;
@@ -75,7 +75,11 @@ void BoundedFor::gen(Label* next) {
 				       ArgType::id, arg2,
 				       next));
 
-  this->block->gen(init);
+  this->block->gen(this->init);
+
+  // El 'init' de este loop lo genero no al principio donde se evalúa
+  // la condición, sino al final donde se incremente el contador
+  intCode.emitLabel(this->init);
 
   if (this->step) {
     // DONE QUAD: loopvar := loopvar + step
@@ -110,6 +114,9 @@ void While::gen(Label* next) {
 }
 
 void ForEach::gen(Label* next) {
+  this->init = intCode.newLabel();
+  this->exit = next;
+
   GenLvalue arrayloc = this->array->genlvalue();
 
   if (arrayloc.doff == NULL) {
@@ -149,14 +156,16 @@ void ForEach::gen(Label* next) {
     std::cout << counter->getId() << " := "
 	      << length << std::endl;
   }
-  Label* init = intCode.newLabel();
-  intCode.emitLabel(init);
+
+  //  intCode.emitLabel(init);
 
   // QUAD: if counter = 0 goto next
   std::cout << "if " << counter->getId() << " = 0 goto l"
 	    << next->getId() << std::endl;
 
-  this->block->gen(init);
+  this->block->gen(this->init);
+
+  intCode.emitLabel(this->init);
 
   // QUAD: i := i + <elemsize>
   std::cout << this->loopvar->getId() << " := "
