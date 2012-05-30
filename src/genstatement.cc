@@ -268,23 +268,25 @@ void VariableDec::gen(Label* next) {
 }
 
 void Break::gen(Label* next) {
-  // QUAD: goto next
+  // DONE QUAD: goto next
   intCode.addInst(new JumpQ(this->loop->exit));
 }
 
 void Next::gen(Label* next) {
-  // QUAD: goto init
+  // DONE QUAD: goto init
   intCode.addInst(new JumpQ(this->loop->init));
 }
 
 void Return::gen(Label* next) {
+  Args arg1;
   if (this->exp) {
     SymVar* addr = this->exp->gen();
-    // QUAD: return temp
-    std::cout << "return " << addr->getId() << std::endl;
+    // DONE QUAD: return temp
+    arg1.id = addr;
+    intCode.addInst(new ReturnQ(ArgType::id, arg1));
   } else{
-    // QUAD: return
-    std::cout << "return" << std::endl;
+    // DONE QUAD: return
+    intCode.addInst(new ReturnQ());
   }
 }
 
