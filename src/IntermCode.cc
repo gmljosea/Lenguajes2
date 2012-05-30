@@ -97,6 +97,7 @@ BasicBlock* IntermCode::splitBlocks() {
 
   //entry_block->addEdge(block_list.front());
   BasicBlock* previous_block = entry_block;
+  Instruction* previous_inst = NULL;
 
   for (std::list<BasicBlock*>::iterator it = block_list.begin();
        it != block_list.end(); it++)  {
@@ -107,19 +108,15 @@ BasicBlock* IntermCode::splitBlocks() {
 
     //    b->addEdges(&succ);
 
-    std::cout << "Voy de " << b->toString() << std::endl;
+    //    std::cout << "Voy de " << b->toString() << std::endl;
     for (std::list<BasicBlock*>::iterator it = succ.begin();
 	 it != succ.end(); it++) {
-      std::cout << "   suc: " << (*it)->toString() << std::endl;
+      //std::cout << "   suc: " << (*it)->toString() << std::endl;
       b->addEdge(*it);
     }
 
-    if (!li->isHardJump()) {
-      if (b != block_list.back()) {
+    if (previous_inst == NULL or !previous_inst->isHardJump()) {
 	previous_block->addEdge(b);
-      } else {
-	b->addEdge(exit_block);
-      }
     }
 
     if (li->isMainReturn()) {
@@ -127,6 +124,7 @@ BasicBlock* IntermCode::splitBlocks() {
     }
 
     previous_block = b;
+    previous_inst = li;
 
   }
 

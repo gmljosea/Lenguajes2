@@ -243,6 +243,8 @@ std::string ConditionalJumpQ::toString() {
   result.append(argToString(this->arg1Type, this->arg1));
   result.append(" ");
   result.append(opToString(this->op));
+  result.append(" ");
+  result.append(argToString(this->arg2Type, this->arg2));
   result.append(" goto l");
   result.append(std::to_string((long long int) this->label->getId()));
   return result;
@@ -284,6 +286,8 @@ std::string ConditionalNJumpQ::toString() {
   result.append(argToString(this->arg1Type, this->arg1));
   result.append(" ");
   result.append(opToString(this->op));
+  result.append(" ");
+  result.append(argToString(this->arg2Type, this->arg2));
   result.append(" goto l");
   result.append(std::to_string((long long int) this->label->getId()));
   return result;

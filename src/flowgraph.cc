@@ -1,6 +1,7 @@
 #include <string>
 
 #include "flowgraph.hh"
+#include "Quad.hh"
 
 BasicBlock::BasicBlock() {
   static int name_counter;
