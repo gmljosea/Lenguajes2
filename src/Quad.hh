@@ -288,6 +288,26 @@ public:
   virtual void printQuad();
 };
 
+// write <type> <arg>
+class WriteQ : Quad {
+private:
+  ArgType argt;
+  Args arg;
+  Type* type;
+  bool isLn;
+public:
+  WriteQ(ArgType argt, Args arg, Type* type, bool isLn);
+  virtual void printQuad();
+};
 
+// <result> := read <type>
+class ReadQ : Quad {
+private:
+  SymVar* result;
+  Type* type;
+public:
+  ReadQ(SymVar* result, Type* type);
+  virtual void printQuad();
+};
 
 #endif

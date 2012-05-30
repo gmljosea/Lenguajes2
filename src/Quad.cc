@@ -367,4 +367,30 @@ std::string opToString(Operator op){
   return oper;
 }
 
+WriteQ::WriteQ(ArgType argt, Args arg, Type* type, bool isLn) {
+  this->argt = argt;
+  this->arg = arg;
+  this->type = type;
+  this->isLn = isLn;
+}
 
+void WriteQ::printQuad() {
+  if (this->isLn) {
+    std::cout << "write ";
+  } else {
+    std::cout << "writeln ";
+  }
+  std::cout << this->type->toString() << " ";
+  printArg(this->argt, this->arg);
+  std::cout << std::endl;
+}
+
+ReadQ::ReadQ(SymVar* result, Type* type) {
+  this->result = result;
+  this->type = type;
+}
+
+void ReadQ::printQuad() {
+  std::cout << this->result->getId() << " := read "
+	    << this->type->toString() << std::endl;
+}
