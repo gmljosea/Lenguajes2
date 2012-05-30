@@ -55,6 +55,9 @@ GenLvalue Index::genlvalue() {
 }
 
 SymVar* Index::gen() {
+  Args arg1;
+  Args arg2;
+
   ArrayType* arrayt = dynamic_cast<ArrayType*>(this->array->getType());
   int elemsize = arrayt->getBaseType()->getSize();
 
@@ -62,46 +65,66 @@ SymVar* Index::gen() {
 
   if (arrayloc.doff == NULL) {
     arrayloc.doff = intCode.newTemp();
-    // QUAD: doff := 0
-    std::cout << (arrayloc.doff)->getId() << " := 0" << std::endl;
+    // DONE QUAD: doff := 0
+    arg1.constint = 0;
+    intCode.addInst(new AsignmentQ(ArgType::constint, arg1, arrayloc.doff));
   }
 
   SymVar* addr = intCode.newTemp();
   IntExp* cind;
   if (cind = dynamic_cast<IntExp*>(this->index)) {
-    // QUAD: doff := doff (coff + <index * elemsize>)
-    std::cout << (arrayloc.doff)->getId() << " := "
-	      << (arrayloc.doff)->getId() << " + "
-	      << arrayloc.coff + (cind->getInteger() * elemsize) << std::endl;
+    // DONE QUAD: doff := doff + (coff + <index * elemsize>)
+    arg1.id = arrayloc.doff;
+    arg2.constint = arrayloc.coff + (cind->getInteger() * elemsize);
+    intCode.addInst(new AsignmentOpQ(ArgType::id, arg1,
+				     Operator::sumI,
+				     ArgType::constint, arg2,
+				     arrayloc.doff));
   } else {
     SymVar* indaddr = this->index->gen();
-    // QUAD: indaddr := indaddr * elemsize
-    std::cout << indaddr->getId() << " := "
-	      << indaddr->getId() << " * "
-	      << elemsize << std::endl;
-    // QUAD: doff := doff + coff
-    std::cout << (arrayloc.doff)->getId() << " := "
-	      << (arrayloc.doff)->getId() << " + "
-	      << arrayloc.coff << std::endl;
-    // QUAD: doff := doff + indaddr
-    std::cout << (arrayloc.doff)->getId() << " := "
-	      << (arrayloc.doff)->getId() << " + "
-	      << indaddr->getId() << std::endl;
+    // DONE QUAD: indaddr := indaddr * elemsize
+    arg1.id = indaddr;
+    arg2.constint = elemsize;
+    intCode.addInst(new AsignmentOpQ(ArgType::id, arg1,
+				     Operator::multiplicationI,
+				     ArgType::constint, arg2,
+				     indaddr));
+
+    // DONE QUAD: doff := doff + coff
+    arg1.id = arrayloc.doff;
+    arg2.constint = arrayloc.coff;
+    intCode.addInst(new AsignmentOpQ(ArgType::id, arg1,
+				     Operator::sumI,
+				     ArgType::constint, arg2,
+				     arrayloc.doff));
+
+    // DONE QUAD: doff := doff + indaddr
+    arg1.id = arrayloc.doff;
+    arg2.id = indaddr;
+    intCode.addInst(new AsignmentOpQ(ArgType::id, arg1,
+				     Operator::sumI,
+				     ArgType::id, arg2,
+				     arrayloc.doff));
+
   }
 
   if (arrayloc.base->isReference()) {
-    // QUAD: doff := doff + base
-    std::cout << (arrayloc.doff)->getId() << " := "
-	      << (arrayloc.doff)->getId() << " + "
-	      << (arrayloc.base)->getId() << std::endl;
-    // QUAD: addr := *doff
-    std::cout << addr->getId() << " := *"
-	      << (arrayloc.doff)->getId() << std::endl;
+    // DONE QUAD: doff := doff + base
+    arg1.id = arrayloc.doff;
+    arg2.id = arrayloc.base;
+    intCode.addInst(new AsignmentOpQ(ArgType::id, arg1,
+				     Operator::sumI,
+				     ArgType::id, arg2,
+				     arrayloc.doff));
+
+    // DONE QUAD: addr := *doff
+    arg1.id = arrayloc.doff;
+    intCode.addInst(new AsignmentPointQ(arrayloc.doff, addr));
+
   } else {
-    // QUAD: addr := base[doff]
-    std::cout << addr->getId() << " := "
-	      << (arrayloc.base)->getId() << "["
-	      << (arrayloc.doff)->getId() << "]" << std::endl;
+    // DONE QUAD: addr := base[doff]
+    arg1.id = arrayloc.doff;
+    intCode.addInst(new IndexQ(arrayloc.base, ArgType::id, arg1, addr));
   }
   return addr;
 }
