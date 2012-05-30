@@ -289,7 +289,7 @@ public:
 };
 
 // write <type> <arg>
-class WriteQ : Quad {
+class WriteQ : public Quad {
 private:
   ArgType argt;
   Args arg;
@@ -301,7 +301,7 @@ public:
 };
 
 // <result> := read <type>
-class ReadQ : Quad {
+class ReadQ : public Quad {
 private:
   SymVar* result;
   Type* type;
