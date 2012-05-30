@@ -176,7 +176,7 @@ void VarExp::jumping(Label* lbltrue,Label* lblfalse){
   }else if(lbltrue!=NULL){
     intCode.addInst(new ConditionalJumpQ(id,sym,equal,constbool,ctrue,lbltrue));
   }else if(lblfalse!=NULL){
-    intCode.addInst(new ConditionalJumpQ(id,sym,notEqual,constbool,ctrue,lbltrue));
+    intCode.addInst(new ConditionalJumpQ(id,sym,notEqual,constbool,ctrue,lblfalse));
   }
 }
 // IntExp

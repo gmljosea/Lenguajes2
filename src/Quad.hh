@@ -170,6 +170,7 @@ public:
   ConditionalJumpQ(ArgType arg1Type,Args arg1,Operator op,ArgType arg2Type,Args arg2,
 		   Label* label): arg1Type(arg1Type),arg1(arg1),op(op),
 				  arg2Type(arg2Type),arg2(arg2),label(label){};
+  virtual void printQuad();
 }; 
 
 /**
