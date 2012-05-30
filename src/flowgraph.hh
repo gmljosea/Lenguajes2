@@ -14,6 +14,8 @@ class BasicBlock {
   std::list<BasicBlock*> children;
   std::string name;
 
+  bool visited;
+
 public:
   BasicBlock();
   void addInst(Instruction* i);
@@ -23,6 +25,8 @@ public:
   void addEdges(std::list<BasicBlock*> bs);
 
   void outputAsDot(std::ofstream& output);
+
+  std::string toString();
 };
 
 class EntryBlock : public BasicBlock {

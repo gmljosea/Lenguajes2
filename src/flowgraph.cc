@@ -4,6 +4,7 @@
 
 BasicBlock::BasicBlock() {
   static int name_counter;
+  this->visited = false;
   this->name = std::string("B")
     + std::to_string((long long int) name_counter++);
 }
@@ -30,4 +31,29 @@ void BasicBlock::addEdges(std::list<BasicBlock*> bs) {
 }
 
 void BasicBlock::outputAsDot(std::ofstream& output) {
+  std::cout << "Mandaron: " << this->name << std::endl;
+  if (this->visited == true) return;
+  std::cout << "Mandaron2: " << this->name << std::endl;
+  this->visited = true;
+  std::string node_start = this->toString();
+  for (std::list<BasicBlock*>::iterator it = this->children.begin();
+       it != this->children.end(); it++) {
+    std::string node_end = (*it)->toString();
+    output << "\"" << node_start << "\" -> \"" << node_end << "\""
+	   << std::endl;
+    (*it)->outputAsDot(output);
+  }
+}
+
+std::string BasicBlock::toString() {
+  std::string result(this->name);
+  std::string nl("\\n");
+
+  for (std::list<Instruction*>::iterator it = this->insts.begin();
+       it != this->insts.end(); it++) {
+    result.append(nl);
+    result.append((*it)->toString());
+  }
+
+  return result;
 }

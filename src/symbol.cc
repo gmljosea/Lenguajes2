@@ -61,6 +61,7 @@ SymFunction::SymFunction(std::string id, ArgList* arguments, Type* ret,
   this->setType(ret); //tipo del retorno de la función
 
   this->start = intCode.newLabel();
+  this->generated = false;
 }
 
 void SymFunction::setBlock(Block* block) {
@@ -129,9 +130,12 @@ void SymFunction::check() {
 }
 
 void SymFunction::gen(){
-  intCode.emitLabel(this->start);
-  intCode.addInst(new PrologueQ(this));
-  this->block->gen(NULL);
+  if (!this->generated) {
+    this->generated = true;
+    intCode.emitLabel(this->start);
+    intCode.addInst(new PrologueQ(this));
+    this->block->gen(NULL);
+  }
 }
 
 Label* SymFunction::getLabel() {

@@ -54,7 +54,7 @@ BasicBlock* IntermCode::splitBlocks() {
   // Primera pasada: crear bloques
 
   std::list<BasicBlock*> block_list;
-  BasicBlock* current_block;
+  BasicBlock* current_block = new BasicBlock();
 
   for (std::list<Instruction*>::iterator it = (this->inst).begin();
        it != (this->inst).end(); it++) {
@@ -78,13 +78,18 @@ BasicBlock* IntermCode::splitBlocks() {
   BasicBlock* entry_block = new EntryBlock();
   BasicBlock* exit_block = new ExitBlock();
 
-  entry_block->addEdge(block_list.front());
+  //entry_block->addEdge(block_list.front());
   BasicBlock* previous_block = entry_block;
 
   for (std::list<BasicBlock*>::iterator it = block_list.begin();
        it != block_list.end(); it++)  {
     BasicBlock* b = *it;
     Instruction* li = b->getLastInst();
+
+    /*    std::cout << "Here, bloccking" << std::endl;
+    Quad* p = dynamic_cast<Quad*>(li);
+    p->printQuad();*/
+
 
     std::list<BasicBlock*> succ = li->getTargetBlocks();
     b->addEdges(succ);
@@ -104,14 +109,6 @@ BasicBlock* IntermCode::splitBlocks() {
     previous_block = b;
 
   }
-
-  /*  ofstream output;
-  output.open("flowgraph.dot", ios::out | ios::trunc);
-  output << "digraph flow { " << std::endl;
-	 << "  node [shape=box]" << std::endl;
-  entry_block->outputAsDot(output);
-  output << "}" << std::endl;
-  output.close();*/
 
   return entry_block;
 }
