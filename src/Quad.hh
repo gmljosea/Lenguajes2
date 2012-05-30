@@ -290,6 +290,7 @@ public:
   virtual bool isJump();
   virtual std::list<BasicBlock*> getTargetBlocks();
   virtual bool isHardJump();
+  virtual bool isMainReturn();
 };
 
 /**

@@ -59,6 +59,9 @@ void Program::gen(){
     (*varIt)->gen(NULL);
   }
 
+  // Generar el main:
+  this->main->gen();
+
   //Generar el codigo de las funciones
   for (std::list<SymFunction*>::iterator funIt= this->functions.begin();
        funIt != this->functions.end(); funIt++){

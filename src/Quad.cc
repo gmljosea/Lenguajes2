@@ -1,5 +1,8 @@
 #include "Quad.hh"
+#include "program.hh"
 #include <iostream>
+
+extern Program program;
 
 // Funciones declaradas al final para simplificar la vida
 void printArg(ArgType argType,Args arg);
@@ -363,6 +366,10 @@ std::list<BasicBlock*> ReturnQ::getTargetBlocks() {
 
 bool ReturnQ::isHardJump() {
   return true;
+}
+
+bool ReturnQ::isMainReturn() {
+  return this->symf == program.main;
 }
 
 /** 

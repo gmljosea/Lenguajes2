@@ -89,6 +89,8 @@ private:
   std::list<BasicBlock*> ret_targets;
   Label* start;
 
+  bool generated;
+
 public:
   SymFunction (std::string id, ArgList* arguments, Type* rtype,
                int line, int col);

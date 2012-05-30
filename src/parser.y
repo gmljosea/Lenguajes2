@@ -7,6 +7,7 @@
 %code requires {
 #include <cstdio>
 #include <iostream>
+#include <fstream>
 #include <list>
 #include <set>
 #include <string>
@@ -882,7 +883,7 @@ void yyerror (char const *s) {
 int main (int argc, char **argv) {
   if (argc == 2) {
     yyin = fopen(argv[1], "r");
-  } 
+  }
 
   program.errorCount = 0;
 
@@ -941,6 +942,7 @@ int main (int argc, char **argv) {
   if(main==NULL){
     std::cerr << "Error: No se ha definido la función main." << std::endl;
   }else{
+    program.main = main;
     int line= main->getLine();
     int col= main->getColumn();
     // Si existe, verificar que no tenga agumentos y que sea tipo int
@@ -987,6 +989,18 @@ int main (int argc, char **argv) {
 
   // Generar codigo intermedio */
   program.gen();
+
+
+  BasicBlock* flowgraph = intCode.splitBlocks();
+
+  std::ofstream output;
+  output.open("flowgraph.dot", std::ios::trunc);
+  output << "digraph flowgraph {" << std::endl;
+  output << "  node [shape=box]" << std::endl;
+
+  flowgraph->outputAsDot(output);
+
+  output << "}" << std::endl;
 
   return 0;
 
