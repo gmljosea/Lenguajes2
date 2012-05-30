@@ -15,6 +15,9 @@ GenLvalue VarExp::genlvalue() {
 }
 
 GenLvalue Index::genlvalue() {
+  Args arg1;
+  Args arg2;
+
   // Listo pero falta probar
   ArrayType* arrayt = dynamic_cast<ArrayType*>(this->array->getType());
   int elemsize = arrayt->getBaseType()->getSize();
@@ -28,18 +31,24 @@ GenLvalue Index::genlvalue() {
   } else {
     SymVar* indexaddr = this->index->gen();
     SymVar* newindex = intCode.newTemp();
-    // QUAD: newindex := indexaddr * elemsize
-    std::cout << newindex->getId() << " := "
-	      << indexaddr->getId() << " * "
-	      << elemsize << std::endl;
+    // DONE QUAD: newindex := indexaddr * elemsize
+    arg1.id = indexaddr;
+    arg2.constint = elemsize;
+    intCode.addInst(new AsignmentOpQ(ArgType::id, arg1,
+				     Operator::multiplicationI,
+				     ArgType::constint, arg2,
+				     newindex));
 
     if (arrayloc.doff == NULL) {
       return { arrayloc.base, newindex, arrayloc.coff };
     } else {
-      // QUAD: doff := doff + newindex
-      std::cout << (arrayloc.base)->getId() << " := "
-		<< (arrayloc.base)->getId() << " + "
-		<< newindex->getId() << std::endl;
+      // DONE QUAD: doff := doff + newindex
+      arg1.id = arrayloc.doff;
+      arg2.id = newindex;
+      intCode.addInst(new AsignmentOpQ(ArgType::id, arg1,
+				       Operator::sumI,
+				       ArgType::id, arg2,
+				       arrayloc.doff));
       return arrayloc;
     }
   }
