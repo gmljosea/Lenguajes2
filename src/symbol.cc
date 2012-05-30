@@ -1,10 +1,12 @@
 #include <string>
 #include <iostream>
+#include "IntermCode.hh"
 #include "symbol.hh"
 #include "statement.hh"
 #include "program.hh"
 
 extern Program program;
+extern IntermCode intCode;
 
 /*******************************/
 /* Metodos de la clase Symbol */
@@ -57,6 +59,8 @@ SymFunction::SymFunction(std::string id, ArgList* arguments, Type* ret,
 			 int line, int col) : Symbol(id,line,col) {
   this->args = arguments;
   this->setType(ret); //tipo del retorno de la función
+
+  this->start = intCode.newLabel();
 }
 
 void SymFunction::setBlock(Block* block) {
@@ -125,7 +129,13 @@ void SymFunction::check() {
 }
 
 void SymFunction::gen(){
+  intCode.emitLabel(this->start);
+  intCode.addInst(new PrologueQ(this));
   this->block->gen(NULL);
+}
+
+Label* SymFunction::getLabel() {
+  return this->start;
 }
 
 void SymFunction::addReturnTarget(BasicBlock* b) {

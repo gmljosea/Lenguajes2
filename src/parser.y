@@ -11,6 +11,7 @@
 #include <set>
 #include <string>
 
+#include "flowgraph.hh"
 #include "expression.hh"
 #include "program.hh"
 #include "statement.hh"

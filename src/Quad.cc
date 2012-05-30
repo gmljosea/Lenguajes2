@@ -321,19 +321,23 @@ bool CallQ::isHardJump() {
 }
 
 // ReturnQ
-ReturnQ::ReturnQ(SymVar* res) {
+ReturnQ::ReturnQ(SymVar* res, SymFunction* symf) {
   this->argt = ArgType::id;
   this->arg.id = res;
+  this->symf = symf;
 }
 
-ReturnQ::ReturnQ(ArgType argt, Args arg) {
+ReturnQ::ReturnQ(ArgType argt, Args arg, SymFunction* symf) {
   this->argt = argt;
   this->arg = arg;
+  this->symf = symf;
+
 }
 
-ReturnQ::ReturnQ() {
+ReturnQ::ReturnQ(SymFunction* symf) {
   this->argt = ArgType::null;
   this->arg.id = NULL;
+  this->symf = symf;
 }
 
 /** 

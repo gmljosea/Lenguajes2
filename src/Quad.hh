@@ -245,9 +245,9 @@ public:
  * Clase que representa el prologo de la funcion func
  */ 
 class PrologueQ: public Quad{
-public:
-  SymFunction *func;
 private:
+  SymFunction *func;
+public:
   PrologueQ(SymFunction *func): func(func) {}; 
   virtual void printQuad();
 };
@@ -280,10 +280,11 @@ class ReturnQ: public Quad{
 private:
   ArgType argt;
   Args arg;
+  SymFunction* symf;
 public:
-  ReturnQ(SymVar *result);
-  ReturnQ(ArgType argt, Args arg);
-  ReturnQ();
+  ReturnQ(SymVar *result, SymFunction* symf);
+  ReturnQ(ArgType argt, Args arg, SymFunction* symf);
+  ReturnQ(SymFunction* symf);
   virtual void printQuad();
 
   virtual bool isJump();

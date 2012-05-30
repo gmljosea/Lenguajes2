@@ -311,10 +311,10 @@ void Return::gen(Label* next) {
     SymVar* addr = this->exp->gen();
     // DONE QUAD: return temp
     arg1.id = addr;
-    intCode.addInst(new ReturnQ(ArgType::id, arg1));
+    intCode.addInst(new ReturnQ(ArgType::id, arg1, this->symf));
   } else{
     // DONE QUAD: return
-    intCode.addInst(new ReturnQ());
+    intCode.addInst(new ReturnQ(this->symf));
   }
 }
 

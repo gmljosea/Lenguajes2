@@ -8,10 +8,12 @@
 #include <utility>
 
 #include "flowgraph.hh"
+//#include "Quad.hh"
 #include "type.hh"
 
 class BasicBlock;
 class Block;
+class Label;
 
 /**
  * Clase abstracta que representa un objeto de la tabla de simbolos.
@@ -85,6 +87,8 @@ private:
   Block *block;
   ArgList *args; // Lista de argumentos (SymVar)
   std::list<BasicBlock*> ret_targets;
+  Label* start;
+
 public:
   SymFunction (std::string id, ArgList* arguments, Type* rtype,
                int line, int col);
@@ -95,6 +99,8 @@ public:
   ArgList* getArguments();
   void check();
   void gen();
+
+  Label* getLabel();
 
   void addReturnTarget(BasicBlock* b);
   std::list<BasicBlock*> getReturnTargets();
