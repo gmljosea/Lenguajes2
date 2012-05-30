@@ -112,6 +112,7 @@ private:
 public:
   AsignmentPointQ(SymVar* arg1,SymVar* result): 
     Quad(), arg1(arg1),result(result){};
+  virtual void printQuad();
 };
 
 /** 
@@ -120,12 +121,14 @@ public:
  **/ 
 class AsignmentToPointQ:public Quad{
 private:
-  // FIX ME 
-  SymVar *arg1;
+  Args arg1;
+  ArgType arg1Type;
   SymVar *result; 
 public:
-  AsignmentToPointQ(SymVar* arg1,SymVar* result): 
-    Quad(), arg1(arg1),result(result){};
+  AsignmentToPointQ(SymVar* arg1,SymVar* result);
+  AsignmentToPointQ(ArgType arg1Type,Args arg1,SymVar* result):
+    Quad(), arg1Type(arg1Type),arg1(arg1),result(result){};
+  virtual void printQuad();
 };
 
 /** 
@@ -139,6 +142,7 @@ private:
 public:
   AsignmentAddQ(SymVar* arg1,SymVar* result): 
     Quad(), arg1(arg1),result(result){};
+  virtual void printQuad();
 };
 
 /**

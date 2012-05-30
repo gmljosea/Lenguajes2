@@ -89,6 +89,15 @@ ParamValQ::ParamValQ(SymVar *param){
   this->param=sym;
 }
 
+AsignmentToPointQ::AsignmentToPointQ(SymVar* arg1,SymVar* result){
+  this->result= result;
+  
+  this->arg1Type= id;
+  Args sym;
+  sym.id= arg1;
+  this->arg1=sym;
+}
+
 
        /******************************
         * METODOS PRINT DE LOS QUADS *
@@ -128,6 +137,37 @@ void AsignmentOpQ::printQuad(){
   }
   std::cout << std::endl;
 }
+
+/** 
+ * AsignmentPointQ
+ * Imprime la instruccion result:= *arg1
+ */
+void AsignmentPointQ::printQuad(){
+  std::cout << this->result->getId() << ":= *";
+  std::cout << this->arg1->getId();
+  std::cout << std::endl; 
+} 
+
+/** 
+ * AsignmentToPointQ
+ * Imprime la instruccion *result:= arg1
+ */
+void AsignmentToPointQ::printQuad(){
+  std::cout << "*";
+  std::cout << this->result->getId() << ":= ";
+  printArg(this->arg1Type,this->arg1);
+  std::cout << std::endl; 
+} 
+
+/** 
+ * AsignmentAddQ
+ * Imprime la instruccion result:= &arg1
+ */
+void AsignmentAddQ::printQuad(){
+  std::cout << this->result->getId() << ":= &";
+  std::cout << this->arg1->getId();
+  std::cout << std::endl; 
+} 
 
 /** 
  * ConditionalJumpQ
