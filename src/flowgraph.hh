@@ -24,7 +24,7 @@ public:
   bool isEmpty();
   void addEdge(BasicBlock* b);
   Instruction* getLastInst();
-  void addEdges(std::list<BasicBlock*> bs);
+  void addEdges(std::list<BasicBlock*>* bs);
 
   void outputAsDot(std::ofstream& output);
 

@@ -49,6 +49,7 @@ ConditionalJumpQ::ConditionalJumpQ(SymVar* arg1,Operator op,SymVar* arg2,Label* 
 
   // Label
   this->label= label;
+  this->label->setActive(true);
 }
 
 ConditionalNJumpQ::ConditionalNJumpQ(SymVar* arg1,Operator op,SymVar* arg2,
@@ -69,6 +70,7 @@ ConditionalNJumpQ::ConditionalNJumpQ(SymVar* arg1,Operator op,SymVar* arg2,
 
   // Label
   this->label= label;
+  this->label->setActive(true);
 }
 
 IndexAsigQ::IndexAsigQ(SymVar *array,SymVar *index,SymVar *arg){
@@ -100,6 +102,11 @@ AsignmentToPointQ::AsignmentToPointQ(SymVar* arg1,SymVar* result){
   Args sym;
   sym.id= arg1;
   this->arg1=sym;
+}
+
+JumpQ::JumpQ(Label* label) {
+  this->label = label;
+  this->label->setActive(true);
 }
 
 
@@ -326,7 +333,7 @@ std::list<BasicBlock*> JumpQ::getTargetBlocks() {
 }
 
 bool JumpQ::isHardJump() {
-  return false;
+  return true;
 }
 
 /** 

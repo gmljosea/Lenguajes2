@@ -18,10 +18,12 @@ void IntermCode::emitLabel(Label* label){
 
 void IntermCode::emitLabel2(Quad* instr){
   // Asocia las etiquetas de unSet a la instruccion
+  instr->setLabels(this->unSet);
  for (std::list<Label*>::iterator it = this->unSet.begin();
        it != this->unSet.end(); it++) {
    this->labelset.insert(labels::value_type((*it)->getId(),(*it)));
    (*it)->setInstruction(instr);
+   instr->setJumpTarget(true);
  } 
  this->unSet.clear();
 }
@@ -44,6 +46,14 @@ void Label::setInstruction(Quad* instruction){
   this->instruction= instruction;
 }
 
+void Label::setActive(bool a) {
+  this->active = a;
+}
+
+bool Label::isActive() {
+  return this->active;
+}
+
 Quad* Label::getInstruction() {
   return this->instruction;
 }
@@ -59,8 +69,15 @@ BasicBlock* IntermCode::splitBlocks() {
   for (std::list<Instruction*>::iterator it = (this->inst).begin();
        it != (this->inst).end(); it++) {
     Instruction* q = *it;
+
+    if (q->isJumpTarget() and !current_block->isEmpty()) {
+      block_list.push_back(current_block);
+      current_block = new BasicBlock();
+    }
+
     q->setBlock(current_block);
     current_block->addInst(q);
+
     if (q->isJump()) {
       block_list.push_back(current_block);
       current_block = new BasicBlock();
@@ -86,13 +103,16 @@ BasicBlock* IntermCode::splitBlocks() {
     BasicBlock* b = *it;
     Instruction* li = b->getLastInst();
 
-    /*    std::cout << "Here, bloccking" << std::endl;
-    Quad* p = dynamic_cast<Quad*>(li);
-    p->printQuad();*/
-
-
     std::list<BasicBlock*> succ = li->getTargetBlocks();
-    b->addEdges(succ);
+
+    //    b->addEdges(&succ);
+
+    std::cout << "Voy de " << b->toString() << std::endl;
+    for (std::list<BasicBlock*>::iterator it = succ.begin();
+	 it != succ.end(); it++) {
+      std::cout << "   suc: " << (*it)->toString() << std::endl;
+      b->addEdge(*it);
+    }
 
     if (!li->isHardJump()) {
       if (b != block_list.back()) {

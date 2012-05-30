@@ -133,6 +133,7 @@ void SymFunction::gen(){
   if (!this->generated) {
     this->generated = true;
     intCode.emitLabel(this->start);
+    this->start->setActive(true);
     intCode.addInst(new PrologueQ(this));
     this->block->gen(NULL);
   }

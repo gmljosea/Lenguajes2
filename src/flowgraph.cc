@@ -26,8 +26,15 @@ Instruction* BasicBlock::getLastInst() {
   return this->insts.back();
 }
 
-void BasicBlock::addEdges(std::list<BasicBlock*> bs) {
-  this->children.insert(this->children.end(), bs.begin(), bs.end());
+void BasicBlock::addEdges(std::list<BasicBlock*>* bss) {
+  //this->children.insert(this->children.end(), bs.begin(), bs.end());
+  std::list<BasicBlock*> bs = *bss;
+  std::cout << "Te lo tengo" << std::endl;
+  for (std::list<BasicBlock*>::iterator it = this->children.begin();
+       it != this->children.end(); it++) {
+    std::cout << "BLABLE: " << (*it)->toString() << std::endl;
+    this->children.push_back(*it);
+  }
 }
 
 void BasicBlock::outputAsDot(std::ofstream& output) {

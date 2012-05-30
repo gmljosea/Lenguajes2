@@ -60,9 +60,12 @@ class Label {
 private:
   Quad* instruction;
   int id;
+  bool active;
 public:
-  Label(int id): id(id){};
+  Label(int id): id(id), active(false){};
   void setInstruction(Quad* quad);
+  void setActive(bool act);
+  bool isActive();
   Quad* getInstruction();
   int getId();
 };
@@ -160,7 +163,7 @@ class JumpQ:public Quad{
 private:
   Label *label;
 public:
-  JumpQ(Label* label): Quad(), label(label){};
+  JumpQ(Label* label);
   virtual void printQuad();
 
   virtual bool isJump();

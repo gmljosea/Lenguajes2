@@ -1,5 +1,10 @@
 #include "instruction.hh"
 #include "symbol.hh"
+#include "Quad.hh"
+
+Instruction::Instruction() {
+  isTarget = false;
+}
 
 void Instruction::setBlock(BasicBlock* b) {
   this->b = b;
@@ -31,6 +36,22 @@ bool Instruction::isHardJump() {
 }
 
 bool Instruction::isMainReturn() {
+  return false;
+}
+
+void Instruction::setLabels(std::list<Label*> labels) {
+  this->labels.splice(this->labels.end(), labels);
+}
+
+bool Instruction::setJumpTarget(bool set) {
+  this->isTarget = set;
+}
+
+bool Instruction::isJumpTarget() {
+  for (std::list<Label*>::iterator it = this->labels.begin();
+       it != this->labels.end(); it++) {
+    if ((*it)->isActive()) return true;
+  }
   return false;
 }
 
