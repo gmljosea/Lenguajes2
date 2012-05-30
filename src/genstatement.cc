@@ -114,6 +114,9 @@ void While::gen(Label* next) {
 }
 
 void ForEach::gen(Label* next) {
+  Args arg1;
+  Args arg2;
+
   this->init = intCode.newLabel();
   this->exit = next;
 
@@ -121,8 +124,9 @@ void ForEach::gen(Label* next) {
 
   if (arrayloc.doff == NULL) {
     arrayloc.doff = intCode.newTemp();
-    // QUAD: doff := 0
-    std::cout << (arrayloc.doff)->getId() << " := 0" << std::endl;
+    // DONE QUAD: doff := 0
+    arg1.constint = 0;
+    intCode.addInst(new AsignmentQ(ArgType::constint, arg1, arrayloc.doff));
   }
 
   SymVar* counter = intCode.newTemp();
@@ -131,50 +135,74 @@ void ForEach::gen(Label* next) {
   int length = arrayt->getLength();
   int elemsize = arrayt->getBaseType()->getSize();
 
-  // QUAD: doff := doff + coff
-  std::cout << (arrayloc.doff)->getId() << " := "
-	    << (arrayloc.doff)->getId() << " + "
-	    << arrayloc.coff << std::endl;
+  // DONE QUAD: doff := doff + coff
+  arg1.id = arrayloc.doff;
+  arg2.constint = arrayloc.coff;
+  intCode.addInst(new AsignmentOpQ(ArgType::id, arg1,
+				   Operator::sumI,
+				   ArgType::constint, arg2,
+				   arrayloc.doff));
 
   if ( (arrayloc.base)->isReference() ) {
-    // QUAD: i := base + doff
-    std::cout << this->loopvar->getId() << " := "
-	      << (arrayloc.base)->getId() << " + "
-	      << (arrayloc.doff)->getId() << std::endl;
-    // QUAD: counter := base[4]
-    std::cout << counter->getId() << " := "
-	      << (arrayloc.base)->getId() << "[4]" << std::endl;
+    // DONE QUAD: i := base + doff
+    arg1.id = arrayloc.base;
+    arg2.id = arrayloc.doff;
+    intCode.addInst(new AsignmentOpQ(ArgType::id, arg1,
+				     Operator::sumI,
+				     ArgType::id, arg2,
+				     this->loopvar));
+
+    // DONE QUAD: counter := base[4]
+    arg1.constint = 4;
+    intCode.addInst(new IndexQ(arrayloc.base, ArgType::constint, arg1,
+			       counter));
   } else {
-    // QUAD: i := &base
-    std::cout << this->loopvar->getId() << " := &"
-	      << (arrayloc.base)->getId() << std::endl;
-    // QUAD: i := i + doff
-    std::cout << this->loopvar->getId() << " := "
-	      << this->loopvar->getId() << " + "
-	      << (arrayloc.doff)->getId() << std::endl;
-    // QUAD: counter := <array length>
-    std::cout << counter->getId() << " := "
-	      << length << std::endl;
+    // DONE QUAD: i := &base
+    intCode.addInst(new AsignmentAddQ(arrayloc.base, this->loopvar));
+
+    // DONE QUAD: i := i + doff
+    arg1.id = this->loopvar;
+    arg2.id = arrayloc.doff;
+    intCode.addInst(new AsignmentOpQ(ArgType::id, arg1,
+				     Operator::sumI,
+				     ArgType::id, arg2,
+				     this->loopvar));
+
+    // DONE QUAD: counter := <array length>
+    arg1.constint = length;
+    intCode.addInst(new AsignmentQ(ArgType::constint, arg1, counter));
   }
 
-  //  intCode.emitLabel(init);
-
-  // QUAD: if counter = 0 goto next
-  std::cout << "if " << counter->getId() << " = 0 goto l"
-	    << next->getId() << std::endl;
+  // DONE QUAD: if counter = 0 goto next
+  arg1.id = counter;
+  arg2.constint = 0;
+  intCode.addInst(new ConditionalJumpQ(ArgType::id, arg1,
+				       Operator::equal,
+				       ArgType::constint, arg2,
+				       next));
 
   this->block->gen(this->init);
 
   intCode.emitLabel(this->init);
 
-  // QUAD: i := i + <elemsize>
-  std::cout << this->loopvar->getId() << " := "
-	    << this->loopvar->getId() << " + "
-	    << elemsize << std::endl;
-  // QUAD: counter := counter - 1
-  std::cout << counter->getId() << " := "
-	    << counter->getId() << " - 1" << std::endl;
-  // QUAD: goto init
+  // DONE QUAD: i := i + <elemsize>
+  arg1.id = this->loopvar;
+  arg2.constint = elemsize;
+  intCode.addInst(new AsignmentOpQ(ArgType::id, arg1,
+				   Operator::sumI,
+				   ArgType::constint, arg2,
+				   this->loopvar));
+
+  // DONE QUAD: counter := counter - 1
+  arg1.id = counter;
+  arg2.constint = 1;
+  intCode.addInst(new AsignmentOpQ(ArgType::id, arg1,
+				   Operator::substractionI,
+				   ArgType::constint, arg2,
+				   counter));
+
+  // DONE QUAD: goto init
+  intCode.addInst(new JumpQ(init));
   std::cout << "goto l" << init->getId() << std::endl;
 }
 
