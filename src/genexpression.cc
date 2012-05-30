@@ -171,12 +171,12 @@ void VarExp::jumping(Label* lbltrue,Label* lblfalse){
   ctrue.constbool= true;
 
   if(lblfalse!=NULL & lbltrue!=NULL){
-    intCode.addInst(new ConditionalJumpQ(sym,equal,ctrue,lbltrue));
+    intCode.addInst(new ConditionalJumpQ(id,sym,equal,constbool,ctrue,lbltrue));
     intCode.addInst(new JumpQ(lblfalse));
   }else if(lbltrue!=NULL){
-    intCode.addInst(new ConditionalJumpQ(sym,equal,ctrue,lbltrue));
+    intCode.addInst(new ConditionalJumpQ(id,sym,equal,constbool,ctrue,lbltrue));
   }else if(lblfalse!=NULL){
-    intCode.addInst(new ConditionalJumpQ(sym,notEqual,ctrue,lbltrue));
+    intCode.addInst(new ConditionalJumpQ(id,sym,notEqual,constbool,ctrue,lbltrue));
   }
 }
 // IntExp
