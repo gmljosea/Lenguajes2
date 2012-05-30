@@ -101,11 +101,12 @@ void BoundedFor::gen(Label* next) {
 void While::gen(Label* next) {
   this->init = intCode.newLabel();
   this->exit = next;
+  intCode.emitLabel(init);
   this->cond->jumping(NULL, next);
   this->block->gen(init);
 
-  // QUAD: goto init
-  std::cout << "goto l" << init->getId() << std::endl;
+  // DONE QUAD: goto init
+  intCode.addInst(new JumpQ(init));
 }
 
 void ForEach::gen(Label* next) {
