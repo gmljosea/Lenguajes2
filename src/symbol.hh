@@ -97,6 +97,7 @@ public:
   void gen();
 
   void addReturnTarget(BasicBlock* b);
+  std::list<BasicBlock*> getReturnTargets();
 };
 
 typedef std::unordered_multimap<std::string,SymVar*> varSymtable;

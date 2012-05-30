@@ -44,6 +44,10 @@ void Label::setInstruction(Quad* instruction){
   this->instruction= instruction;
 }
 
+Quad* Label::getInstruction() {
+  return this->instruction;
+}
+
 int Label::getId(){ return this->id;}
 
 BasicBlock* IntermCode::splitBlocks() {

@@ -185,6 +185,21 @@ void ConditionalJumpQ::printQuad(){
  
 }
 
+bool ConditionalJumpQ::isJump() {
+  return true;
+}
+
+std::list<BasicBlock*> ConditionalJumpQ::getTargetBlocks() {
+  BasicBlock* b = this->label->getInstruction()->getBlock();
+  std::list<BasicBlock*> list;
+  list.push_back(b);
+  return list;
+}
+
+bool ConditionalJumpQ::isHardJump() {
+  return false;
+}
+
 /** 
  * ConditionalNJumpQ
  * Imprime la instruccion ifnot arg1 REL arg2 goto label
@@ -201,6 +216,22 @@ void ConditionalNJumpQ::printQuad(){
  
 }
 
+
+bool ConditionalNJumpQ::isJump() {
+  return true;
+}
+
+std::list<BasicBlock*> ConditionalNJumpQ::getTargetBlocks() {
+  BasicBlock* b = this->label->getInstruction()->getBlock();
+  std::list<BasicBlock*> list;
+  list.push_back(b);
+  return list;
+}
+
+bool ConditionalNJumpQ::isHardJump() {
+  return false;
+}
+
 /** 
  * JumpQ
  * Imprime la instruccion goto label
@@ -209,6 +240,21 @@ void JumpQ::printQuad(){
   printf(" goto ");
   printf("l%d",this->label->getId());
   std::cout << std::endl; 
+}
+
+bool JumpQ::isJump() {
+  return true;
+}
+
+std::list<BasicBlock*> JumpQ::getTargetBlocks() {
+  BasicBlock* b = this->label->getInstruction()->getBlock();
+  std::list<BasicBlock*> list;
+  list.push_back(b);
+  return list;
+}
+
+bool JumpQ::isHardJump() {
+  return false;
 }
 
 /** 
@@ -251,6 +297,29 @@ void CallQ::printQuad(){
   std::cout << std::endl; 
 }
 
+bool CallQ::isJump() {
+  return true;
+}
+
+bool CallQ::isCall() {
+  return true;
+}
+
+SymFunction* CallQ::getCallTarget() {
+  return this->func;
+}
+
+std::list<BasicBlock*> CallQ::getTargetBlocks() {
+  // BasicBlock* b = this->func->getLabel()->getInstruction()->getBlock();
+  std::list<BasicBlock*> list;
+  //list.push_back(b);
+  return list;
+}
+
+bool CallQ::isHardJump() {
+  return false;
+}
+
 // ReturnQ
 ReturnQ::ReturnQ(SymVar* res) {
   this->argt = ArgType::id;
@@ -278,6 +347,23 @@ void ReturnQ::printQuad(){
     printArg(this->argt, this->arg);
     std::cout << std::endl;
   }
+}
+
+bool ReturnQ::isJump() {
+  return true;
+}
+
+std::list<BasicBlock*> ReturnQ::getTargetBlocks() {
+  // BasicBlock* b = this->func->getLabel()->getInstruction()->getBlock();
+  std::list<BasicBlock*> list;
+  //list.push_back(b);
+  return list;
+
+  //return this->symf->getReturnTargets();
+}
+
+bool ReturnQ::isHardJump() {
+  return true;
 }
 
 /** 

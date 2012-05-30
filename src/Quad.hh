@@ -63,6 +63,7 @@ private:
 public:
   Label(int id): id(id){};
   void setInstruction(Quad* quad);
+  Quad* getInstruction();
   int getId();
 };
 
@@ -85,6 +86,8 @@ public:
 	     SymVar* result):arg1Type(arg1Type),arg1(arg1),op(op),
 			     arg2Type(arg2Type),arg2(arg2),result(result){};
   virtual void printQuad();
+
+  
 };
 
 /** 
@@ -156,6 +159,10 @@ private:
 public:
   JumpQ(Label* label): Quad(), label(label){};
   virtual void printQuad();
+
+  virtual bool isJump();
+  virtual std::list<BasicBlock*> getTargetBlocks();
+  virtual bool isHardJump();
 };
 
 /**
@@ -177,6 +184,10 @@ public:
 		   Label* label): arg1Type(arg1Type),arg1(arg1),op(op),
 				  arg2Type(arg2Type),arg2(arg2),label(label){};
   virtual void printQuad();
+
+  virtual bool isJump();
+  virtual std::list<BasicBlock*> getTargetBlocks();
+  virtual bool isHardJump();
 }; 
 
 /**
@@ -198,6 +209,10 @@ public:
 		   Label* label): arg1Type(arg1Type),arg1(arg1),op(op),
 				  arg2Type(arg2Type),arg2(arg2),label(label){};
   virtual void printQuad();
+
+  virtual bool isJump();
+  virtual std::list<BasicBlock*> getTargetBlocks();
+  virtual bool isHardJump();
 };
 
 /**
@@ -250,6 +265,12 @@ public:
   CallQ(SymFunction *func,int n,SymVar *retVal):func(func),numParam(n),
 					  returnVal(retVal){};
   virtual void printQuad();
+
+  virtual bool isJump();
+  virtual bool isCall();
+  virtual SymFunction* getCallTarget();
+  virtual std::list<BasicBlock*> getTargetBlocks();
+  virtual bool isHardJump();
 }; 
 
 /**
@@ -264,6 +285,10 @@ public:
   ReturnQ(ArgType argt, Args arg);
   ReturnQ();
   virtual void printQuad();
+
+  virtual bool isJump();
+  virtual std::list<BasicBlock*> getTargetBlocks();
+  virtual bool isHardJump();
 };
 
 /**

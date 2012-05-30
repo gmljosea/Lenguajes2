@@ -132,6 +132,10 @@ void SymFunction::addReturnTarget(BasicBlock* b) {
   this->ret_targets.push_back(b);
 }
 
+std::list<BasicBlock*> SymFunction::getReturnTargets() {
+  return this->ret_targets;
+}
+
 /**********************************/
 /*** Metodos de la clase SymVar ***/
 /**********************************/
