@@ -226,6 +226,17 @@ public:
 };
 
 /**
+ * Clase que representa el prologo de la funcion func
+ */ 
+class PrologueQ: public Quad{
+public:
+  SymFunction *func;
+private:
+  PrologueQ(SymFunction *func): func(func) {}; 
+  virtual void printQuad();
+};
+
+/**
  * Clase que representa la llamada a una funcion
  * ejemplo: returnVal:= call func numParam
  */ 
@@ -284,7 +295,5 @@ public:
     Quad(),array(array),indexType(indexType),index(index),argType(argType),arg(arg){};
   virtual void printQuad();
 };
-
-
 
 #endif

@@ -232,6 +232,16 @@ void ParamRefQ::printQuad(){
 }
 
 /** 
+ * PrologueQ
+ * Imprime la instruccion prologue fuc 
+ */
+void PrologueQ::printQuad(){
+  printf("prologue ");
+  std::cout << this->func->getId();
+  std::cout << std::endl; 
+}
+
+/** 
  * CallQ
  * Imprime la instruccion returnVal:= call func numParam
  */
