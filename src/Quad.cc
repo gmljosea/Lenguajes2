@@ -385,12 +385,27 @@ void WriteQ::printQuad() {
   std::cout << std::endl;
 }
 
-ReadQ::ReadQ(SymVar* result, Type* type) {
+ReadQ::ReadQ(SymVar* result, Type* type, bool deref) {
+  this->result = result;
+  this->type = type;
+  this->deref = deref;
+}
+
+void ReadQ::printQuad() {
+  if (deref) std::cout << "*";
+  std::cout << this->result->getId() << " := read "
+	    << this->type->toString() << std::endl;
+}
+
+ReadIndexQ::ReadIndexQ(SymVar* result, ArgType indext, Args index, Type* type) {
+  this->indext = indext;
+  this->index = index;
   this->result = result;
   this->type = type;
 }
 
-void ReadQ::printQuad() {
-  std::cout << this->result->getId() << " := read "
-	    << this->type->toString() << std::endl;
+void ReadIndexQ::printQuad() {
+  std::cout << this->result->getId() << "[";
+  printArg(this->indext, this->index);
+  std::cout << "] := read " << this->type->toString() << std::endl;
 }

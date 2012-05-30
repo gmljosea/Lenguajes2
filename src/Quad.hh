@@ -300,13 +300,27 @@ public:
   virtual void printQuad();
 };
 
-// <result> := read <type>
+// <result> := read <type>, si deref = false
+// *<result> := read <type>, si deref = true
 class ReadQ : public Quad {
 private:
   SymVar* result;
   Type* type;
+  bool deref;
 public:
-  ReadQ(SymVar* result, Type* type);
+  ReadQ(SymVar* result, Type* type, bool deref);
+  virtual void printQuad();
+};
+
+// <result>[<index>] := read <type>
+class ReadIndexQ : public Quad {
+private:
+  ArgType indext;
+  Args index;
+  SymVar* result;
+  Type* type;
+public:
+  ReadIndexQ(SymVar* result, ArgType indext, Args index, Type* type);
   virtual void printQuad();
 };
 

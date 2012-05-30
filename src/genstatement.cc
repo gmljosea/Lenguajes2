@@ -308,44 +308,52 @@ void Write::gen(Label* next) {
 }
 
 void Read::gen(Label* next) {
+  Args arg1;
+  Args arg2;
   GenLvalue lvalue = this->lval->genlvalue();
 
- if (lvalue.doff == NULL) {
+  if (lvalue.doff == NULL) {
     lvalue.doff = intCode.newTemp();
-    // QUAD: doff := 0
-    std::cout << (lvalue.doff)->getId() << " := 0" << std::endl;
+    // DONE QUAD: doff := 0
+    arg1.constint = 0;
+    intCode.addInst(new AsignmentQ(ArgType::constint, arg1, lvalue.doff));
   }
 
-  if ( this->lval->getType() == &(IntType::getInstance()) ) {
+  if ( dynamic_cast<VarExp*>(this->lval)  ) {
     if ( (lvalue.base)->isReference() ) {
-      // QUAD: *base := read type
-      std::cout << "*" << (lvalue.base)->getId() << " := read <type>"
-		<< std::endl;
+      // DONE QUAD: *base := read type
+      intCode.addInst(new ReadQ(lvalue.base, this->lval->getType(), true));
     } else {
-      // QUAD: base := read type
-      std::cout << (lvalue.base)->getId() << " := read <type>"
-		<< std::endl;
+      // DONE QUAD: base := read type
+      intCode.addInst(new ReadQ(lvalue.base, this->lval->getType(), false));
     }
   } else {
-    // QUAD: doff := doff + coff
-    std::cout << (lvalue.doff)->getId() << " := "
-	      << (lvalue.doff)->getId() << " + "
-	      << lvalue.coff << std::endl;
+    // DONE QUAD: doff := doff + coff
+    arg1.id = lvalue.doff;
+    arg1.constint = lvalue.coff;
+    intCode.addInst(new AsignmentOpQ(ArgType::id, arg1,
+				     Operator::sumI,
+				     ArgType::constint, arg2,
+				     lvalue.doff));
 
     if ( (lvalue.base)->isReference() ) {
-      // QUAD: doff := doff + base
-      std::cout << (lvalue.doff)->getId() << " := "
-		<< (lvalue.doff)->getId() << " + "
-		<< (lvalue.base)->getId() << std::endl;
-      // QUAD: *doff := read type
-      std::cout << "*" << (lvalue.doff)->getId() << " := read <type>"
-		<< std::endl;
+      // DONE QUAD: doff := doff + base
+      arg1.id = lvalue.doff;
+      arg2.id = lvalue.base;
+      intCode.addInst(new AsignmentOpQ(ArgType::id, arg1,
+				       Operator::sumI,
+				       ArgType::id, arg2,
+				       lvalue.doff));
+
+      // DONE QUAD: *doff := read type
+      intCode.addInst(new ReadQ(lvalue.doff, this->lval->getType(), true));
 
     } else {
-      // QUAD: base[doff] := read type
-      std::cout << (lvalue.base)->getId() << "["
-		<< (lvalue.doff)->getId() << "] := read <type>"
-		<< std::endl;
+      // DONE QUAD: base[doff] := read type
+      arg1.id = lvalue.doff;
+      intCode.addInst(new ReadIndexQ(lvalue.base,
+				     ArgType::id, arg1,
+				     this->lval->getType()));
     }
   }
 }
