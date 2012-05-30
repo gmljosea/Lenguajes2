@@ -241,14 +241,33 @@ void CallQ::printQuad(){
   std::cout << std::endl; 
 }
 
+// ReturnQ
+ReturnQ::ReturnQ(SymVar* res) {
+  this->argt = ArgType::id;
+  this->arg.id = res;
+}
+
+ReturnQ::ReturnQ(ArgType argt, Args arg) {
+  this->argt = argt;
+  this->arg = arg;
+}
+
+ReturnQ::ReturnQ() {
+  this->argt = ArgType::null;
+  this->arg.id = NULL;
+}
+
 /** 
  * ReturnQ
  * Imprime la instruccion return result
  */
 void ReturnQ::printQuad(){
   printf("return ");
-  std::cout << this->result->getId();
-  std::cout << std::endl;
+  if (this->argt != ArgType::null) {
+    // std::cout << this->result->getId();
+    printArg(this->argt, this->arg);
+    std::cout << std::endl;
+  }
 }
 
 /** 

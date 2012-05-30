@@ -245,9 +245,12 @@ public:
  */
 class ReturnQ: public Quad{
 private:
-  SymVar* result;
+  ArgType argt;
+  Args arg;
 public:
-  ReturnQ(SymVar *result):Quad(),result(result){};
+  ReturnQ(SymVar *result);
+  ReturnQ(ArgType argt, Args arg);
+  ReturnQ();
   virtual void printQuad();
 };
 
