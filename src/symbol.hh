@@ -7,8 +7,10 @@
 #include <unordered_map>
 #include <utility>
 
+#include "flowgraph.hh"
 #include "type.hh"
 
+class BasicBlock;
 class Block;
 
 /**
@@ -82,6 +84,7 @@ class SymFunction: public Symbol {
 private:
   Block *block;
   ArgList *args; // Lista de argumentos (SymVar)
+  std::list<BasicBlock*> ret_targets;
 public:
   SymFunction (std::string id, ArgList* arguments, Type* rtype,
                int line, int col);
@@ -92,6 +95,8 @@ public:
   ArgList* getArguments();
   void check();
   void gen();
+
+  void addReturnTarget(BasicBlock* b);
 };
 
 typedef std::unordered_multimap<std::string,SymVar*> varSymtable;

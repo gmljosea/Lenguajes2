@@ -1,4 +1,8 @@
 #include <iostream>
+#include <fstream>
+#include <list>
+
+#include "flowgraph.hh"
 #include "IntermCode.hh"
 
 Label* IntermCode::newLabel(){
@@ -42,3 +46,68 @@ void Label::setInstruction(Quad* instruction){
 
 int Label::getId(){ return this->id;}
 
+BasicBlock* IntermCode::splitBlocks() {
+  // Primera pasada: crear bloques
+
+  std::list<BasicBlock*> block_list;
+  BasicBlock* current_block;
+
+  for (std::list<Instruction*>::iterator it = (this->inst).begin();
+       it != (this->inst).end(); it++) {
+    Instruction* q = *it;
+    q->setBlock(current_block);
+    current_block->addInst(q);
+    if (q->isJump()) {
+      block_list.push_back(current_block);
+      current_block = new BasicBlock();
+      if (q->isCall()) {
+	q->getCallTarget()->addReturnTarget(current_block);
+      }
+    }
+  }
+
+  if (!current_block->isEmpty()) {
+    block_list.push_back(current_block);
+  }
+
+  // Segunda pasada: conectar bloques
+  BasicBlock* entry_block = new EntryBlock();
+  BasicBlock* exit_block = new ExitBlock();
+
+  entry_block->addEdge(block_list.front());
+  BasicBlock* previous_block = entry_block;
+
+  for (std::list<BasicBlock*>::iterator it = block_list.begin();
+       it != block_list.end(); it++)  {
+    BasicBlock* b = *it;
+    Instruction* li = b->getLastInst();
+
+    std::list<BasicBlock*> succ = li->getTargetBlocks();
+    b->addEdges(succ);
+
+    if (!li->isHardJump()) {
+      if (b != block_list.back()) {
+	previous_block->addEdge(b);
+      } else {
+	b->addEdge(exit_block);
+      }
+    }
+
+    if (li->isMainReturn()) {
+      b->addEdge(exit_block);
+    }
+
+    previous_block = b;
+
+  }
+
+  /*  ofstream output;
+  output.open("flowgraph.dot", ios::out | ios::trunc);
+  output << "digraph flow { " << std::endl;
+	 << "  node [shape=box]" << std::endl;
+  entry_block->outputAsDot(output);
+  output << "}" << std::endl;
+  output.close();*/
+
+  return entry_block;
+}

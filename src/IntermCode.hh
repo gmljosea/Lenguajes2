@@ -3,6 +3,8 @@
 
 #include <list>
 #include <unordered_map>
+
+#include "flowgraph.hh"
 #include "Quad.hh"
 
 class Label;
@@ -17,7 +19,7 @@ private:
   // Conjunto de etiquetas sin asignar
   std::list<Label*> unSet;
   // Lista de instrucciones
-  std::list<Quad*> inst;
+  std::list<Instruction*> inst;
   // Num prox etiqueta
   int nextlabel;
   // Num prox temporal
@@ -31,6 +33,7 @@ public:
   void emitLabel(Label* label);
   void emitLabel2(Quad* instr);
   bool areUnSet();
+  BasicBlock* splitBlocks();
 };
 
 #endif

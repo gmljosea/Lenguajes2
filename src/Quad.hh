@@ -1,9 +1,10 @@
 #ifndef DEVANIX_QUAD
 #define DEVANIX_QUAD
 
+#include "instruction.hh"
 #include "symbol.hh"
 
-class Quad{
+class Quad : public Instruction {
 public:
   Quad(){};
   virtual void printQuad();

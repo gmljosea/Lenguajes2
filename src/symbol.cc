@@ -128,6 +128,10 @@ void SymFunction::gen(){
   this->block->gen(NULL);
 }
 
+void SymFunction::addReturnTarget(BasicBlock* b) {
+  this->ret_targets.push_back(b);
+}
+
 /**********************************/
 /*** Metodos de la clase SymVar ***/
 /**********************************/
