@@ -355,11 +355,11 @@ void BoxType::check() {
       // Verificar que el box ha sido declarado
       if( !cast_tbox->isIncomplete() ){
         // Verificar si existen ciclos
-        if( this->reaches(*cast_tbox))
+        /*if( this->reaches(*cast_tbox))
           program.error("tipo '"+this->toString()+
                         "' tiene referencia ciclica a traves del campo '"
                         +((*FieldIt)->name)+"'",(*FieldIt)->line,
-                        (*FieldIt)->column);
+                        (*FieldIt)->column);*/
       }else{
         program.error("tipo '"+(*FieldIt)->type->toString()+"' no ha sido definido",
                       (*FieldIt)->line,(*FieldIt)->column );
@@ -390,11 +390,11 @@ void BoxType::check() {
       // Verificar que el box ha sido declarado
       if( !cast_tbox->isIncomplete() ){
         // Verificar si existen ciclos
-        if( this->reaches(*cast_tbox))
+        /*if( this->reaches(*cast_tbox))
           program.error("tipo '"+this->toString()+
                         "' tiene referencia ciclica a traves del campo '"
                         +((*FieldIt)->name)+"'",(*FieldIt)->line,
-                        (*FieldIt)->column);
+                        (*FieldIt)->column);*/
       }else{
         program.error("tipo '"+(*FieldIt)->type->toString()+"' no ha sido definido",
                       (*FieldIt)->line,(*FieldIt)->column );
