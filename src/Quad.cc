@@ -310,9 +310,9 @@ SymFunction* CallQ::getCallTarget() {
 }
 
 std::list<BasicBlock*> CallQ::getTargetBlocks() {
-  // BasicBlock* b = this->func->getLabel()->getInstruction()->getBlock();
+  BasicBlock* b = this->func->getLabel()->getInstruction()->getBlock();
   std::list<BasicBlock*> list;
-  //list.push_back(b);
+  list.push_back(b);
   return list;
 }
 
@@ -358,12 +358,7 @@ bool ReturnQ::isJump() {
 }
 
 std::list<BasicBlock*> ReturnQ::getTargetBlocks() {
-  // BasicBlock* b = this->func->getLabel()->getInstruction()->getBlock();
-  std::list<BasicBlock*> list;
-  //list.push_back(b);
-  return list;
-
-  //return this->symf->getReturnTargets();
+  return this->symf->getReturnTargets();
 }
 
 bool ReturnQ::isHardJump() {
