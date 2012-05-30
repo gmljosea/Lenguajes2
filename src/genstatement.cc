@@ -295,18 +295,15 @@ void FunctionCall::gen(Label* next) {
 }
 
 void Write::gen(Label* next) {
+  Args arg1;
   for (std::list<Expression*>::iterator it = (this->exps).begin();
        it != (this->exps).end(); it++) {
     SymVar* addr = (*it)->gen();
 
-    // QUAD: write/writeln type temp
-    if (this->isLn) {
-      std::cout << "writeln";
-    } else {
-      std::cout << "write";
-    }
-    std::cout << (*it)->getType()->toString()
-	      << " " << addr->getId() << std::endl;
+    // DONE QUAD: write/ln type temp
+    arg1.id = addr;
+    intCode.addInst(new WriteQ(ArgType::id, arg1,
+			       (*it)->getType(), this->isLn));
   }
 }
 
