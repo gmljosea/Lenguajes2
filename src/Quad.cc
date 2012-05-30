@@ -250,9 +250,6 @@ bool JumpQ::isJump() {
 }
 
 std::list<BasicBlock*> JumpQ::getTargetBlocks() {
-  std::cout << "Target: " << this->label->getId() << ", ";
-  Quad* p = dynamic_cast<Quad*>(this->label->getInstruction());
-  p->printQuad();
   BasicBlock* b = this->label->getInstruction()->getBlock();
   std::list<BasicBlock*> list;
   list.push_back(b);

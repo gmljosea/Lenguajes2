@@ -21,6 +21,8 @@ public:
   virtual bool isMainReturn();
 
   virtual std::string toString();
+
+  
 };
 
 #endif
