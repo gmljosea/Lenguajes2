@@ -149,6 +149,7 @@ public:
   AsignmentAddQ(SymVar* arg1,SymVar* result): 
     Quad(), arg1(arg1),result(result){};
   virtual void printQuad();
+  virtual std::string toString();
 };
 
 /**
@@ -165,6 +166,7 @@ public:
   virtual bool isJump();
   virtual std::list<BasicBlock*> getTargetBlocks();
   virtual bool isHardJump();
+  virtual std::string toString();
 };
 
 /**
@@ -190,6 +192,7 @@ public:
   virtual bool isJump();
   virtual std::list<BasicBlock*> getTargetBlocks();
   virtual bool isHardJump();
+  virtual std::string toString();
 }; 
 
 /**
@@ -215,6 +218,8 @@ public:
   virtual bool isJump();
   virtual std::list<BasicBlock*> getTargetBlocks();
   virtual bool isHardJump();
+
+  virtual std::string toString();
 };
 
 /**
@@ -229,6 +234,8 @@ public:
   ParamValQ(ArgType paramType,Args param):Quad(),param(param),paramType(paramType){};
   ParamValQ(SymVar *param);
   virtual void printQuad();
+  
+  virtual std::string toString();
 };
 
 /**
@@ -241,6 +248,8 @@ private:
 public:
   ParamRefQ(SymVar *param):Quad(),param(param){};
   virtual void printQuad();
+
+  virtual std::string toString();
 };
 
 /**
@@ -252,6 +261,8 @@ private:
 public:
   PrologueQ(SymFunction *func): func(func) {}; 
   virtual void printQuad();
+
+  virtual std::string toString();
 };
 
 /**
@@ -273,6 +284,8 @@ public:
   virtual SymFunction* getCallTarget();
   virtual std::list<BasicBlock*> getTargetBlocks();
   virtual bool isHardJump();
+
+  virtual std::string toString();
 }; 
 
 /**
@@ -293,6 +306,8 @@ public:
   virtual std::list<BasicBlock*> getTargetBlocks();
   virtual bool isHardJump();
   virtual bool isMainReturn();
+
+  virtual std::string toString();
 };
 
 /**
@@ -309,6 +324,8 @@ public:
   IndexQ(SymVar *array,ArgType indexType,Args index,SymVar *result):
     Quad(),array(array),indexType(indexType),index(index),result(result){};
   virtual void printQuad();
+
+  virtual std::string toString();
 };
 
 /**
@@ -327,6 +344,8 @@ public:
   IndexAsigQ(SymVar *array,ArgType indexType,Args index,ArgType argType,Args arg):
     Quad(),array(array),indexType(indexType),index(index),argType(argType),arg(arg){};
   virtual void printQuad();
+
+  virtual std::string toString();
 };
 
 // write <type> <arg>
@@ -339,6 +358,8 @@ private:
 public:
   WriteQ(ArgType argt, Args arg, Type* type, bool isLn);
   virtual void printQuad();
+
+  virtual std::string toString();
 };
 
 // <result> := read <type>, si deref = false
@@ -351,6 +372,8 @@ private:
 public:
   ReadQ(SymVar* result, Type* type, bool deref);
   virtual void printQuad();
+
+  virtual std::string toString();
 };
 
 // <result>[<index>] := read <type>
@@ -363,6 +386,8 @@ private:
 public:
   ReadIndexQ(SymVar* result, ArgType indext, Args index, Type* type);
   virtual void printQuad();
+
+  virtual std::string toString();
 };
 
 #endif
