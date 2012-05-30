@@ -464,7 +464,7 @@ void Relational::jumping(Label* lbltrue,Label* lblfalse){
   }else if(lbltrue!=NULL){
     intCode.addInst(new ConditionalJumpQ(r1,op,r2,lbltrue));
   }else if(lblfalse!=NULL){
-     intCode.addInst(new ConditionalNJumpQ(r1,op,r2,lbltrue));
+     intCode.addInst(new ConditionalNJumpQ(r1,op,r2,lblfalse));
   }
 }
 
