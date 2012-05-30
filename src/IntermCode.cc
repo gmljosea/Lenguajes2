@@ -7,6 +7,7 @@
 
 Label* IntermCode::newLabel(){
   Label* newLabel= new Label(this->nextlabel++);
+  //std::cout << "emiti etiqueta" << newLabel->getId(); 
   return newLabel;   
 }
 
@@ -21,9 +22,8 @@ void IntermCode::emitLabel2(Quad* instr){
        it != this->unSet.end(); it++) {
    this->labelset.insert(labels::value_type((*it)->getId(),(*it)));
    (*it)->setInstruction(instr);
-   // Falta sacarlos de la lista, no quiero destructor
- }
- 
+ } 
+ this->unSet.clear();
 }
 
 bool IntermCode::areUnSet(){
