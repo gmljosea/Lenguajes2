@@ -47,6 +47,49 @@ ConditionalJumpQ::ConditionalJumpQ(SymVar* arg1,Operator op,SymVar* arg2,Label* 
   this->label= label;
 }
 
+ConditionalNJumpQ::ConditionalNJumpQ(SymVar* arg1,Operator op,SymVar* arg2,
+				     Label* label){
+  this->op= op;
+
+  //Argumento 1 
+  this->arg1Type= id;
+  Args sym;
+  sym.id= arg1;
+  this->arg1=sym;
+
+  //Argumento 2
+  this->arg2Type= (arg2==NULL)? null:id;
+  Args sym2;
+  sym2.id= arg2;
+  this->arg2=sym2;
+
+  // Label
+  this->label= label;
+}
+
+IndexAsigQ::IndexAsigQ(SymVar *array,SymVar *index,SymVar *arg){
+  this->array=array;
+  // Index
+  this->indexType= id;
+  Args sym;
+  sym.id= index;
+  this->index=sym;
+  // Argumento
+  this->argType= id;
+  Args symv;
+  symv.id= arg;
+  this->arg=symv;
+
+}
+
+ParamValQ::ParamValQ(SymVar *param){
+  this->paramType= id;
+  Args sym;
+  sym.id= param;
+  this->param=sym;
+}
+
+
        /******************************
         * METODOS PRINT DE LOS QUADS *
         ******************************/
@@ -103,6 +146,22 @@ void ConditionalJumpQ::printQuad(){
 }
 
 /** 
+ * ConditionalNJumpQ
+ * Imprime la instruccion ifnot arg1 REL arg2 goto label
+ */
+void ConditionalNJumpQ::printQuad(){
+
+  printf("ifnot ");
+  printArg(this->arg1Type,this->arg1);
+  std::cout << opToString(this->op);
+  printArg(this->arg2Type,this->arg2);
+  printf(" goto ");
+  printf("l%d",this->label->getId());
+  std::cout << std::endl;
+ 
+}
+
+/** 
  * JumpQ
  * Imprime la instruccion goto label
  */
@@ -111,6 +170,74 @@ void JumpQ::printQuad(){
   printf("l%d",this->label->getId());
   std::cout << std::endl; 
 }
+
+/** 
+ * ParamValQ
+ * Imprime la instruccion paramVal arg
+ */
+void ParamValQ::printQuad(){
+  printf("paramVal ");
+  printArg(this->paramType,this->param);
+  std::cout << std::endl; 
+}
+
+/** 
+ * ParamRefQ
+ * Imprime la instruccion paramRef arg
+ */
+void ParamRefQ::printQuad(){
+  printf("paramRef ");
+  std::cout << this->param->getId();
+  std::cout << std::endl; 
+}
+
+/** 
+ * CallQ
+ * Imprime la instruccion returnVal:= call func numParam
+ */
+void CallQ::printQuad(){
+  printf("call ");
+  std::cout << this->func->getId() << " " << this->numParam;
+  std::cout << std::endl; 
+}
+
+/** 
+ * ReturnQ
+ * Imprime la instruccion return result
+ */
+void ReturnQ::printQuad(){
+  printf("return ");
+  std::cout << this->result->getId();
+  std::cout << std::endl;
+}
+
+/** 
+ * IndexQ
+ * Imprime la instruccion result:= a[index]
+ */
+void IndexQ::printQuad(){
+  std::cout <<this->result->getId();
+  printf(":= ");
+  std::cout <<this->array->getId();
+  printf("[");
+  printArg(this->indexType,this->index);
+  printf("]");
+  std::cout << std::endl;
+}
+
+/** 
+ * IndexAsigQ
+ * Imprime la instruccion a[index]:= arg
+ */
+void IndexAsigQ::printQuad(){
+  std::cout <<this->array->getId();
+  printf("[");
+  printArg(this->indexType,this->index);
+  printf("]:= ");
+  printArg(this->argType,this->arg);
+  std::cout << std::endl;
+}
+
 
 /* Dado un union 'Args' y su tipo lo imprime por pantalla
  * (El 'tipo' viene del enum ArgType, para saber a que campo

@@ -215,7 +215,6 @@ SymVar* BoolExp::gen(){
   intCode.addInst(new AsignmentQ(constbool,cBool,result));
   result->setType(&(BoolType::getInstance()));
   return result;
-  std::cout << "temp = bool";
 }
 
 void BoolExp::jumping(Label* lbltrue,Label* lblfalse){
@@ -435,7 +434,7 @@ SymVar* FunCallExp::gen(){
     if(temp->isReference()){
       intCode.addInst(new ParamRefQ(temp));
     }else{
-      intCode.addInst(new ParamVarQ(temp));
+      intCode.addInst(new ParamValQ(temp));
     }
   }
   SymVar *result= intCode.newTemp();

@@ -182,23 +182,31 @@ public:
 class ConditionalNJumpQ:public Quad{
 private:
   Operator op;
-  SymVar* arg1;
-  SymVar* arg2;
+  Args arg1;
+  ArgType arg1Type;
+  Args arg2;
+  ArgType arg2Type;
   Label *label;
 public:
- ConditionalNJumpQ(SymVar* arg1,Operator op,SymVar* arg2,Label* label):
-   Quad(), arg1(arg1),op(op),arg2(arg2),label(label){};
+  ConditionalNJumpQ(SymVar* arg1,Operator op,SymVar* arg2,Label* label);
+  ConditionalNJumpQ(ArgType arg1Type,Args arg1,Operator op,ArgType arg2Type,Args arg2,
+		   Label* label): arg1Type(arg1Type),arg1(arg1),op(op),
+				  arg2Type(arg2Type),arg2(arg2),label(label){};
+  virtual void printQuad();
 };
 
 /**
  * Clase que representa un parametro de una funcion por valor
  *  
  */
-class ParamVarQ: public Quad{
+class ParamValQ: public Quad{
 private:
-  SymVar *param;
+  ArgType paramType;
+  Args param;
 public:
-  ParamVarQ(SymVar *param):Quad(),param(param){};
+  ParamValQ(ArgType paramType,Args param):Quad(),param(param),paramType(paramType){};
+  ParamValQ(SymVar *param);
+  virtual void printQuad();
 };
 
 /**
@@ -210,6 +218,7 @@ private:
   SymVar *param;
 public:
   ParamRefQ(SymVar *param):Quad(),param(param){};
+  virtual void printQuad();
 };
 
 /**
@@ -224,6 +233,7 @@ private:
 public:
   CallQ(SymFunction *func,int n,SymVar *retVal):func(func),numParam(n),
 					  returnVal(retVal){};
+  virtual void printQuad();
 }; 
 
 /**
@@ -234,6 +244,7 @@ private:
   SymVar* result;
 public:
   ReturnQ(SymVar *result):Quad(),result(result){};
+  virtual void printQuad();
 };
 
 /**
@@ -243,11 +254,13 @@ public:
 class IndexQ: public Quad{
 private:
   SymVar *array;
-  SymVar *index;
+  Args index;
+  ArgType indexType;
   SymVar *result;
 public:
-  IndexQ(SymVar *array,SymVar *index,SymVar *result):
-    Quad(),array(array),index(index),result(result){};
+  IndexQ(SymVar *array,ArgType indexType,Args index,SymVar *result):
+    Quad(),array(array),indexType(indexType),index(index),result(result){};
+  virtual void printQuad();
 };
 
 /**
@@ -257,11 +270,15 @@ public:
 class IndexAsigQ: public Quad{
 private:
   SymVar *array;
-  SymVar *index;
-  SymVar *arg;
+  Args index;
+  ArgType indexType;
+  Args arg;
+  ArgType argType;
 public:
-  IndexAsigQ(SymVar *array,SymVar *index,SymVar *arg):
-    Quad(),array(array),index(index),arg(arg){};
+  IndexAsigQ(SymVar *array,SymVar *index,SymVar *arg);
+  IndexAsigQ(SymVar *array,ArgType indexType,Args index,ArgType argType,Args arg):
+    Quad(),array(array),indexType(indexType),index(index),argType(argType),arg(arg){};
+  virtual void printQuad();
 };
 
 
