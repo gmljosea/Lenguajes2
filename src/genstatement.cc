@@ -6,7 +6,7 @@
 extern IntermCode intCode;
 
 void Statement::gen(Label* next) {
-  std::cout << " ! No implementado" << std::endl;
+  //  std::cout << " ! No implementado" << std::endl;
 }
 
 void Block::gen(Label* next) {
@@ -40,8 +40,9 @@ void If::gen(Label* next) {
   this->cond->jumping(NULL, cfalse);
   this->block_true->gen(next);
   if (this->block_false) {
-    // QUAD: goto next
-    std::cout << "goto l" << next->getId() << std::endl;
+    // DONE QUAD: goto next
+    intCode.addInst(new JumpQ(next));
+    //std::cout << "goto l" << next->getId() << std::endl;
     intCode.emitLabel(cfalse);
     this->block_false->gen(next);
   }
@@ -57,30 +58,44 @@ void BoundedFor::gen(Label* next) {
   SymVar* uppert = this->upperb->gen();
   SymVar* stept = this->step ? this->step->gen() : NULL;
 
-  // QUAD: loopvar := lowerbound
-  std::cout << this->varsym->getId() << " := "
-	    << lowert->getId() << std::endl;
+  Args arg1;
+  Args arg2;
+
+  // DONE QUAD: loopvar := lowerbound
+  arg1.id = lowert;
+  intCode.addInst(new AsignmentQ(ArgType::id, arg1, this->varsym));
 
   intCode.emitLabel(this->init);
 
-  // QUAD: if loopvar >= upperbound goto next
-  std::cout << "if " << this->varsym->getId() << " >= "
-	    << uppert->getId()
-	    << " goto l" << next->getId() << std::endl;
+  // DONE QUAD: if loopvar >= upperbound goto next
+  arg1.id = this->varsym;
+  arg2.id = uppert;
+  intCode.addInst(new ConditionalJumpQ(ArgType::id, arg1,
+				       Operator::greaterEq,
+				       ArgType::id, arg2,
+				       next));
 
   this->block->gen(init);
 
   if (this->step) {
-    // QUAD: loopvar := loopvar + step
-    std::cout << this->varsym->getId() << " := " << this->varsym->getId()
-	      << " + " << stept->getId() << std::endl;
+    // DONE QUAD: loopvar := loopvar + step
+    arg1.id = this->varsym;
+    arg2.id = stept;
+    intCode.addInst(new AsignmentOpQ(ArgType::id, arg1,
+				     Operator::sumI,
+				     ArgType::id, arg2,
+				     this->varsym));
   } else {
-    // QUAD: loopvar := loopvar + 1
-    std::cout << this->varsym->getId() << " := " << this->varsym->getId()
-	      << " + 1" << std::endl;
+    // DONE QUAD: loopvar := loopvar + 1
+    arg1.id = this->varsym;
+    arg2.constint = 1;
+    intCode.addInst(new AsignmentOpQ(ArgType::id, arg1,
+				     Operator::sumI,
+				     ArgType::constint, arg2,
+				     this->varsym));
   }
-  // QUAD: goto init
-  std::cout << "goto l" << this->init->getId() << std::endl;
+  // DONE QUAD: goto init
+  intCode.addInst(new JumpQ(init));
 }
 
 void While::gen(Label* next) {
