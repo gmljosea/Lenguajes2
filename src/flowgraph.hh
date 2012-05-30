@@ -12,9 +12,11 @@ class Instruction;
 class BasicBlock {
   std::list<Instruction*> insts;
   std::list<BasicBlock*> children;
-  std::string name;
 
   bool visited;
+
+protected:
+  std::string name;
 
 public:
   BasicBlock();
@@ -26,13 +28,17 @@ public:
 
   void outputAsDot(std::ofstream& output);
 
-  std::string toString();
+  virtual std::string toString();
 };
 
 class EntryBlock : public BasicBlock {
+public:
+  EntryBlock();
 };
 
 class ExitBlock : public BasicBlock {
+public:
+  ExitBlock();
 };
 
 #endif

@@ -996,7 +996,7 @@ int main (int argc, char **argv) {
   std::ofstream output;
   output.open("flowgraph.dot", std::ios::trunc);
   output << "digraph flowgraph {" << std::endl;
-  output << "  node [shape=box]" << std::endl;
+  output << "  node [shape=box, nojustify=true]" << std::endl;
 
   flowgraph->outputAsDot(output);
 

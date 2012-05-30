@@ -31,9 +31,7 @@ void BasicBlock::addEdges(std::list<BasicBlock*> bs) {
 }
 
 void BasicBlock::outputAsDot(std::ofstream& output) {
-  std::cout << "Mandaron: " << this->name << std::endl;
   if (this->visited == true) return;
-  std::cout << "Mandaron2: " << this->name << std::endl;
   this->visited = true;
   std::string node_start = this->toString();
   for (std::list<BasicBlock*>::iterator it = this->children.begin();
@@ -56,4 +54,12 @@ std::string BasicBlock::toString() {
   }
 
   return result;
+}
+
+EntryBlock::EntryBlock() {
+  this->name = std::string("ENTRY");
+}
+
+ExitBlock::ExitBlock() {
+  this->name = std::string("EXIT");
 }
