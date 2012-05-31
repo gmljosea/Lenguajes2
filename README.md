@@ -49,17 +49,17 @@ Hemos colocado algunos ejemplos en la carpeta examples/
 Detalles a considerar sobre esta entrega:
 
 *   No hemos hehco los cambios sugeridos a nuestro lenguaje, por lo que aún no tenemos
-    arreglos multidimensionales ni tipos *box* declarables en cualquier bloque.
+    arreglos multidimensionales ni tipos **box** declarables en cualquier bloque.
     Hemos tratado de que el generador de TAC sea neutral con respecto a estos aspectos.
 *   Se nos olvidó por completo tratar los cast y por lo tanto no funcionan. Intentar
     usar uno causa segfault.
-*   Desactivamos el chequeo de referencias cíclicas entre tipos *box*. Encontramos
+*   Desactivamos el chequeo de referencias cíclicas entre tipos **box**. Encontramos
     un bug que luego decidimos no resolver porque pretendemos que al implantar
     la posibilidad de declarar tipos *box* en cualquier contexto, eliminaremos
-    la visibilidad de los *box* hacia otros *box* declarados debajo.
-*   Los bloques básicos que terminan con *return* apuntan a todos aquellos bloques
-    a los que pertenezcan las instrucciones que seguían directamente a un *call* de
-    esa función en el código original. Los *call* se tratan como saltos incondicionales.
+    la visibilidad de los **box** hacia otros **box** declarados debajo.
+*   Los bloques básicos que terminan con **return** apuntan a todos aquellos bloques
+    a los que pertenezcan las instrucciones que seguían directamente a un **call** de
+    esa función en el código original. Los **call** se tratan como saltos incondicionales.
 
 
 ### Entrega 2
