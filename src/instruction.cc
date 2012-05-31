@@ -56,5 +56,12 @@ bool Instruction::isJumpTarget() {
 }
 
 std::string Instruction::toString() {
-  return std::string("hola");
+  std::string result("");
+  for (std::list<Label*>::iterator it = this->labels.begin();
+       it != this->labels.end(); it++) {
+    result.append("l");
+    result.append(std::to_string((long long int) (*it)->getId()));
+    result.append(": ");
+  }
+  return result;
 }

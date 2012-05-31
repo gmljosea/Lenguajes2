@@ -130,7 +130,8 @@ void  AsignmentQ::printQuad(){
 }
 
 std::string AsignmentQ::toString() {
-  std::string result(this->result->getId());
+  std::string result = Instruction::toString();
+  result.append(this->result->getId());
   result.append(std::string(" := "));
   result.append(argToString(this->arg1Type, this->arg1));
   return result;
@@ -157,7 +158,8 @@ void AsignmentOpQ::printQuad(){
 }
 
 std::string AsignmentOpQ::toString() {
-  std::string result(this->result->getId());
+  std::string result = Instruction::toString();
+  result.append(this->result->getId());
   result.append(" := ");
   if (this->arg2Type == ArgType::null) {
     result.append(opToString(this->op));
@@ -184,7 +186,8 @@ void AsignmentPointQ::printQuad(){
 } 
 
 std::string AsignmentPointQ::toString() {
-  std::string result(this->result->getId());
+  std::string result = Instruction::toString();
+  result.append(this->result->getId());
   result.append(" := *");
   result.append(this->arg1->getId());
   return result;
@@ -202,7 +205,8 @@ void AsignmentToPointQ::printQuad(){
 } 
 
 std::string AsignmentToPointQ::toString() {
-  std::string result("*");
+  std::string result = Instruction::toString();
+  result.append("*");
   result.append(this->result->getId());
   result.append(" := ");
   result.append(argToString(this->arg1Type, this->arg1));
@@ -220,7 +224,8 @@ void AsignmentAddQ::printQuad(){
 }
 
 std::string AsignmentAddQ::toString() {
-  std::string result(this->result->getId());
+  std::string result = Instruction::toString();
+  result.append(this->result->getId());
   result.append(" := &");
   result.append(this->arg1->getId());
   return result;
@@ -243,7 +248,8 @@ void ConditionalJumpQ::printQuad(){
 }
 
 std::string ConditionalJumpQ::toString() {
-  std::string result("if ");
+  std::string result = Instruction::toString();
+  result.append("if ");
   result.append(argToString(this->arg1Type, this->arg1));
   result.append(" ");
   result.append(opToString(this->op));
@@ -286,7 +292,8 @@ void ConditionalNJumpQ::printQuad(){
 }
 
 std::string ConditionalNJumpQ::toString() {
-  std::string result("ifnot ");
+  std::string result = Instruction::toString();
+  result.append("ifnot ");
   result.append(argToString(this->arg1Type, this->arg1));
   result.append(" ");
   result.append(opToString(this->op));
@@ -324,7 +331,8 @@ void JumpQ::printQuad(){
 }
 
 std::string JumpQ::toString() {
-  std::string result("goto l");
+  std::string result = Instruction::toString();
+  result.append("goto l");
   result.append(std::to_string((long long int) this->label->getId()));
   return result;
 }
@@ -355,7 +363,8 @@ void ParamValQ::printQuad(){
 }
 
 std::string ParamValQ::toString() {
-  std::string result("param val ");
+  std::string result = Instruction::toString();
+  result.append("param val ");
   result.append(argToString(this->paramType, this->param));
   return result;
 }
@@ -371,7 +380,8 @@ void ParamRefQ::printQuad(){
 }
 
 std::string ParamRefQ::toString() {
-  std::string result("param ref ");
+  std::string result = Instruction::toString();
+  result.append("param ref ");
   result.append(this->param->getId());
   return result;
 }
@@ -387,7 +397,8 @@ void PrologueQ::printQuad(){
 }
 
 std::string PrologueQ::toString() {
-  std::string result("prologue ");
+  std::string result = Instruction::toString();
+  result.append("prologue ");
   result.append(this->func->getId());
   return result;
 }
@@ -403,7 +414,8 @@ void CallQ::printQuad(){
 }
 
 std::string CallQ::toString() {
-  std::string result("call ");
+  std::string result = Instruction::toString();
+  result.append("call ");
   result.append(this->func->getId());
   result.append(" ");
   result.append(std::to_string((long long int) this->numParam));
@@ -467,7 +479,8 @@ void ReturnQ::printQuad(){
 }
 
 std::string ReturnQ::toString() {
-  std::string result("return ");
+  std::string result = Instruction::toString();
+  result.append("return ");
   if (this->argt != ArgType::null) {
     result.append(argToString(this->argt, this->arg));
   }
@@ -505,7 +518,8 @@ void IndexQ::printQuad(){
 }
 
 std::string IndexQ::toString() {
-  std::string result(this->result->getId());
+  std::string result = Instruction::toString();
+  result.append(this->result->getId());
   result.append(" := ");
   result.append(this->array->getId());
   result.append("[");
@@ -528,7 +542,8 @@ void IndexAsigQ::printQuad(){
 }
 
 std::string IndexAsigQ::toString() {
-  std::string result(this->array->getId());
+  std::string result = Instruction::toString();
+  result.append(this->array->getId());
   result.append("[");
   result.append(argToString(this->indexType, this->index));
   result.append("] := ");
@@ -642,7 +657,7 @@ void WriteQ::printQuad() {
 }
 
 std::string WriteQ::toString() {
-  std::string result("");
+  std::string result = Instruction::toString();
   if (this->isLn)
     result.append("write ");
   else
@@ -666,7 +681,7 @@ void ReadQ::printQuad() {
 }
 
 std::string ReadQ::toString() {
-  std::string result("");
+  std::string result = Instruction::toString();
   if (deref)
     result.append("*");
   result.append(this->result->getId());
@@ -689,7 +704,8 @@ void ReadIndexQ::printQuad() {
 }
 
 std::string ReadIndexQ::toString() {
-  std::string result(this->result->getId());
+  std::string result = Instruction::toString();
+  result.append(this->result->getId());
   result.append("[");
   result.append(argToString(this->indext, this->index));
   result.append("] := read ");

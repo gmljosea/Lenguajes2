@@ -136,6 +136,9 @@ void SymFunction::gen(){
     this->start->setActive(true);
     intCode.addInst(new PrologueQ(this));
     this->block->gen(NULL);
+    if (this->type == &(VoidType::getInstance())) {
+      intCode.addInst(new ReturnQ(this));
+    }
   }
 }
 
