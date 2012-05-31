@@ -595,27 +595,27 @@ std::string argToString(ArgType argtype, Args arg) {
 std::string opToString(Operator op){
   std::string oper;
   if(op == sumI){
-    oper= "sumI";
+    oper= "+";
   }else if(op== sumF){
-    oper= "sumF";
+    oper= "f_sum";
   }else if(op== substractionI){
-    oper="subsI";
+    oper="-";
   }else if(op== substractionF){
-    oper= "subsF";
+    oper= "f_sub";
   }else if(op== multiplicationI){
-    oper= "multI";
+    oper= "*";
   }else if(op== multiplicationF){
-    oper= "multF";
+    oper= "f_mul";
   }else if(op== divisionI){
-    oper= "divI";
+    oper= "/";
   }else if(op== divisionF){
-    oper= "divF";
+    oper= "f_div";
   }else if(op== remainder){
     oper= "%";
   }else if(op== minusI){
-    oper= "minI";
+    oper= "-";
   }else if(op== minusF){
-    oper="minF";
+    oper="f_minus";
   }else if(op== AND){
     oper= "and";
   }else if(op== OR){
