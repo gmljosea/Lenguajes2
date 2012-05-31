@@ -30,7 +30,39 @@ En la documentación se incluye la representación gráfica
 de la jerarquía de clases utilizadas para la elaboración del compilador de Devanix. Esta 
 puede facilitar la comprension de la estructura que lleva el proyecto.  
 
-## Entrega 2
+## Entrega 3
+
+Para esta entrega se implantó lo siguiente:
+
+*   Traducción de Devanix a TAC. Hemos colocado una definición del TAC usado en
+    el archivo doc/TAC.md. No se realizó ninguna optimización después de generar
+    el código.
+*   Partición de TAC generado en bloques básicos y generación del grafo de control
+    de flujo.
+
+El compilador devuelve por la salida estándar el TAC generado, y el grafo de control
+se genera siempre en un archivo llamado 'flowgraph.dot'. Es necesario tener instalada
+alguna herramienta capaz de traducir del lenguaje DOT a una representación gráfica.
+
+Hemos colocado algunos ejemplos en la carpeta examples/
+
+Detalles a considerar sobre esta entrega:
+
+*   No hemos hehco los cambios sugeridos a nuestro lenguaje, por lo que aún no tenemos
+    arreglos multidimensionales ni tipos **box** declarables en cualquier bloque.
+    Hemos tratado de que el generador de TAC sea neutral con respecto a estos aspectos.
+*   Se nos olvidó por completo tratar los cast y por lo tanto no funcionan. Intentar
+    usar uno causa segfault.
+*   Desactivamos el chequeo de referencias cíclicas entre tipos **box**. Encontramos
+    un bug que luego decidimos no resolver porque pretendemos que al implantar
+    la posibilidad de declarar tipos *box* en cualquier contexto, eliminaremos
+    la visibilidad de los **box** hacia otros **box** declarados debajo.
+*   Los bloques básicos que terminan con **return** apuntan a todos aquellos bloques
+    a los que pertenezcan las instrucciones que seguían directamente a un **call** de
+    esa función en el código original. Los **call** se tratan como saltos incondicionales.
+
+
+### Entrega 2
 
 Para esta entrega se implantaron los siguientes elementos:
 
@@ -45,7 +77,7 @@ Para esta entrega se implantaron los siguientes elementos:
 En los directorios examples/ y tests/ hay ejemplos, casi todos con errores, que
 muestran parte de los chequeos que realiza el compilador.
 
-### Entrega 1
+#### Entrega 1
 
 Hasta ahora el parser detecta:
 
