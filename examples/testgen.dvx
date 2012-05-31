@@ -1,0 +1,14 @@
+-. Pruebas con jumping y while 
+
+int d;
+
+int main(){
+
+bool a,b;
+
+while((a and b)or (d!=2)){
+  read d; 
+}
+
+return 0;
+}
