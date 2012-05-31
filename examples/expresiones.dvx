@@ -5,11 +5,18 @@ float d=2.3,e=5.3;
 bool g=true,h=false;
 char j='a',k='b';
 
+box items{
+  float gastos;
+  float balance;
+  int mes;
+}
+
 int main(){
 float array[5] bb;
-
 float min= minArray(bb,a);
 
+items oneIt;
+oneIt.gastos= 2.0 + d;
 
 return 0;
 }
