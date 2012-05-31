@@ -158,12 +158,16 @@ void AsignmentOpQ::printQuad(){
 
 std::string AsignmentOpQ::toString() {
   std::string result(this->result->getId());
+  result.append(" := ");
   if (this->arg2Type == ArgType::null) {
     result.append(opToString(this->op));
+    result.append(" ");
     result.append(argToString(this->arg1Type, this->arg1));
   } else {
     result.append(argToString(this->arg1Type, this->arg1));
+    result.append(" ");
     result.append(opToString(this->op));
+    result.append(" ");
     result.append(argToString(this->arg2Type, this->arg2));
   }
   return result;

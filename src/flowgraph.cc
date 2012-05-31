@@ -53,13 +53,14 @@ void BasicBlock::outputAsDot(std::ofstream& output) {
 
 std::string BasicBlock::toString() {
   std::string result(this->name);
-  std::string nl("\\n");
+  std::string nl("\\l\\n");
 
   for (std::list<Instruction*>::iterator it = this->insts.begin();
        it != this->insts.end(); it++) {
     result.append(nl);
     result.append((*it)->toString());
   }
+  result.append(std::string("\\l"));
 
   return result;
 }
