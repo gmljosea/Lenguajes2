@@ -35,8 +35,9 @@ puede facilitar la comprension de la estructura que lleva el proyecto.
 Para esta entrega se implantó lo siguiente:
 
 *   Traducción de Devanix a TAC. Hemos colocado una definición del TAC usado en
-    el archivo doc/TAC.md. No se realizó ninguna optimización después de generar
-    el código.
+    el archivo doc/TAC.md. 
+*   Durante la generación de código usamos Fall Through Optimization.
+*   No se realizó ninguna optimización después de generar el código.
 *   Partición de TAC generado en bloques básicos y generación del grafo de control
     de flujo.
 
@@ -48,7 +49,7 @@ Hemos colocado algunos ejemplos en la carpeta examples/
 
 Detalles a considerar sobre esta entrega:
 
-*   No hemos hehco los cambios sugeridos a nuestro lenguaje, por lo que aún no tenemos
+*   No hemos hecho los cambios sugeridos a nuestro lenguaje, por lo que aún no tenemos
     arreglos multidimensionales ni tipos **box** declarables en cualquier bloque.
     Hemos tratado de que el generador de TAC sea neutral con respecto a estos aspectos.
 *   Se nos olvidó por completo tratar los cast y por lo tanto no funcionan. Intentar
