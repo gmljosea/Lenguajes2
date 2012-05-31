@@ -1,0 +1,58 @@
+-. Pruebas para las expresiones, comenzando con asignaciones 
+
+-.. Definicion de variables Globales ..-
+-. Variables con todos los tipos 
+
+-. Sin inicializaciones 
+
+int a=2,b;
+float d,e;
+bool g,h;
+char j,k;
+
+int array[9] arrayc;
+float array[1] arrayf;
+bool array[2] arrayi;
+char array[3] arrayl;
+
+-. Con inicializaciones,sin aritmetica(la semantica no lo permite) 
+
+int c=1,f=12;
+float i=2.0,l=3.0;
+bool o=true,p=false;
+char q= 'a',r= 'r';
+string s="Hola",t= "Chao";
+
+
+int main(){
+
+-. Declaracion de varables locales sin inicializacion 
+int a1,b1;
+float d1,e1;
+bool g1,h1;
+char j1,k1;
+
+int array[9] arrayc1;
+float array[1] arrayf1;
+bool array[2] arrayi1;
+char array[3] arrayl1;
+
+-. Declaracion de varables locales con inicializacion
+
+int c1=1,f1=12;   -.Si colocamos f1=c error, f1= c1+1 segmentation
+float i1=2.0,l1=3.0;
+bool o1=true,p1=false;
+char q1= 'a',r1= 'r';
+string s1="Hola",t1= "Chao";
+
+-. Asignacion de variables (Pendiente con Read)
+
+a1,b1=9,((a1+7-b1)*4)/2%3;
+d1,e1=9.0,d1+5.0;
+g1=true;
+h1= g1 and (false or false);
+j1='a';
+
+
+return 0;
+}
