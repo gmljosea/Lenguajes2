@@ -71,6 +71,7 @@ Los operadores disponibles son:
     a := b f_sub c
     a := b f_mul c
     a := b f_div c
+    a := f_minus
     
     -- Operadores relacionales
     b > c
