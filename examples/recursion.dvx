@@ -1,0 +1,26 @@
+int j = 5, i = 10;
+
+void bla() {
+  int x;
+  x = x + 1;
+  return;
+}
+
+-. Esta funcion es inalcanzable
+int ble(int x) {
+  x = x*3;
+  return x;
+}
+
+int main() {
+  int a,b;
+  bla();
+  if a < b { return 1; } else { bla(); }
+  
+  rec(10);
+  return 0;
+}
+
+void rec(int r) {
+  if r > 0 { rec(r-1); } else { write "hola"; }
+}
