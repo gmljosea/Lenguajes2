@@ -442,7 +442,7 @@ std::list<BasicBlock*> CallQ::getTargetBlocks() {
 }
 
 bool CallQ::isHardJump() {
-  return false;
+  return true;
 }
 
 // ReturnQ
