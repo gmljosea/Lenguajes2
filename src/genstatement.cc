@@ -66,6 +66,8 @@ void BoundedFor::gen(Label* next) {
   intCode.addInst(new AsignmentQ(ArgType::id, arg1, this->varsym));
 
   //  intCode.emitLabel(this->init);
+  Label* cond = intCode.newLabel();
+  intCode.emitLabel(cond);
 
   // DONE QUAD: if loopvar >= upperbound goto next
   arg1.id = this->varsym;
@@ -98,8 +100,8 @@ void BoundedFor::gen(Label* next) {
 				     ArgType::constint, arg2,
 				     this->varsym));
   }
-  // DONE QUAD: goto init
-  intCode.addInst(new JumpQ(init));
+  // DONE QUAD: goto cond
+  intCode.addInst(new JumpQ(cond));
 }
 
 void While::gen(Label* next) {
@@ -173,6 +175,9 @@ void ForEach::gen(Label* next) {
     intCode.addInst(new AsignmentQ(ArgType::constint, arg1, counter));
   }
 
+  Label* cond = intCode.newLabel();
+  intCode.emitLabel(cond);
+
   // DONE QUAD: if counter = 0 goto next
   arg1.id = counter;
   arg2.constint = 0;
@@ -201,9 +206,9 @@ void ForEach::gen(Label* next) {
 				   ArgType::constint, arg2,
 				   counter));
 
-  // DONE QUAD: goto init
-  intCode.addInst(new JumpQ(init));
-  std::cout << "goto l" << init->getId() << std::endl;
+  // DONE QUAD: goto cond
+  intCode.addInst(new JumpQ(cond));
+  //  std::cout << "goto l" << init->getId() << std::endl;
 }
 
 void Asignment::gen(Label* next) {
