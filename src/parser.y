@@ -543,10 +543,10 @@ statement:
                         @2.first_line, @2.first_column);
           $$ = new Null();
         } else {
-          $$ = new Break($2, it);
+          $$ = new Break($2, it); 
         }
       } else {
-        $$ = new Break($2, NULL);
+        $$ = new Break($2, enclosing);
       }
     }
 | "next" brk_nxt_label ";"
@@ -565,7 +565,7 @@ statement:
           $$ = new Next($2, it);
         }
       } else {
-        $$ = new Next($2, NULL);
+        $$ = new Next($2, enclosing);
       }
     }
 | "return" expr ";"

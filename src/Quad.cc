@@ -474,8 +474,8 @@ void ReturnQ::printQuad(){
   if (this->argt != ArgType::null) {
     // std::cout << this->result->getId();
     printArg(this->argt, this->arg);
-    std::cout << std::endl;
   }
+  std::cout << std::endl;
 }
 
 std::string ReturnQ::toString() {
