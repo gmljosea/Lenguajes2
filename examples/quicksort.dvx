@@ -1,0 +1,34 @@
+-. Ejemplo de quicksort tomado de la clase
+
+int array[20] a;
+
+int main(){
+
+return 0;
+}
+
+void quicksort(int m,int n){
+  int i,j,v,x;
+  if(n<=m){ return;}
+
+  i= m-1;
+  j=n;
+  v= a[n];
+
+  while(true){
+   i= i+1;
+   while(a[i]<v){
+     i=i+1;
+   }
+   j=j-1;
+   while(a[j]>v){
+     j=j-1;
+   }
+   if (i>=j){ break;}
+   x= a[i]; a[i]= a[j] ; a[j]=x;
+  } 
+  x=a[i]; a[i]=a[n]; a[n]=x;
+  quicksort(m,j); quicksort(i+1,n);
+  return;
+
+}
