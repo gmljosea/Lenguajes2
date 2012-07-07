@@ -7,45 +7,30 @@ class MIPSinstruction : public Instruction{
 
 };
 
-// Registros que seran usados por el generador de codigo
-enum Reg{
+enum mode{
+  direct,
+  indirect
+}
 
-  t0,
-  t1,
-  t2,
-  t3,
-  t4,
-  t5,
-  t6,
-  t7,
-
-  s0,
-  s1,
-  s2,
-  s3,
-  s4,
-  s5,
-  s6,
-  s7,
-
-  t8,
-  t9,
-
-};
-
-/* Load address La Rd,var */
+/* Load address La Rd,var  direct
+ *              La Rd,offset(Rx) indirect
+ */
 class La : public MIPSinstruction{
 private:
+  mode mode;
   Reg Rd;
-  // La verdadera instruccion usa el nombre de la global
-  // Y si es local usar indireccion const(reg)
-  SymVar *addr;
+  // En caso de ser direct (Con etiqueta) 
+  SymVar *addr; // Tomar el nombre de la variable
+  // En caso de ser indirect
+  int offset;
+  Reg Rx;
 
 public:
-  Lw(Reg Rd,SymVar* addr): Rd(Rd),addr(addr){};
+  La(Reg Rd,SymVar* addr): Rd(Rd),addr(addr),mode(direct){};
+  La(Reg Rd,int offs,Reg Rx): Rd(Rd),offset(offs),Rx(Rx),mode(indirect){};
 };
 
-/* Load inmediate */
+/* Load inmediate Li Rd, #a */
 class Li : MIPSinstruction{
 private:
   Reg Rd;
@@ -55,16 +40,22 @@ public:
   Li(Reg Rd,int inmed): Rd(Rd),inmediate(inmed){};
 };
 
-/* Load Word  Lw Rd,addr */
+/* Load Word  Lw Rd,var
+ *            Lw Rd,offset(Rx)
+ */
 class Lw : public MIPSinstruction{
 private:
+  mode mode;
   Reg Rd;
-  // La verdadera instruccion usa el nombre de la global si lo es
-  // o el offset de la local y el $fp
+  // Direct, label of var
   SymVar *addr;
+  // Indirect
+  int offset;
+  Reg Rx;
 
 public:
-  Lw(Reg Rd,SymVar* addr): Rd(Rd),addr(addr){};
+  Lw(Reg Rd,SymVar* addr): Rd(Rd),addr(addr),mode(direct){};
+  Lw(Reg Rd,int offs,Reg Rx): Rd(Rd),offset(offs),Rx(Rx),mode(indirect){};
 };
 
 // Store word Sw Rx,addr
