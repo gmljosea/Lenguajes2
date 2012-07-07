@@ -17,12 +17,16 @@
  */
 struct Program {
   SymTable symtable;
+
   std::list<VariableDec*> globalinits;
   std::list<SymFunction*> functions;
   SymFunction* main;
   std::list<BoxType*> boxes;
+
   int offsetVarDec;
   std::deque<int> stackOffsets;
+
+  Program();
 
   int errorCount; // Número de errores encontrados
   /**
