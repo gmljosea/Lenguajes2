@@ -35,7 +35,7 @@ bool IntermCode::areUnSet(){
 void IntermCode::addInst(Quad* quad){
   if(areUnSet()) emitLabel2(quad);
   this->inst.push_back(quad);
-  quad->printQuad();
+  //  quad->printQuad();
 }
 
 SymVar* IntermCode::newTemp(){
@@ -129,4 +129,14 @@ BasicBlock* IntermCode::splitBlocks() {
   }
 
   return entry_block;
+}
+
+std::list<Instruction*> IntermCode::getInstructions() {
+  return inst;
+}
+
+void IntermCode::clear() {
+  unSet.clear();
+  inst.clear();
+  labelset.clear();
 }

@@ -34,6 +34,9 @@ public:
   void emitLabel2(Quad* instr);
   bool areUnSet();
   BasicBlock* splitBlocks();
+
+  std::list<Instruction*> getInstructions();
+  void clear();
 };
 
 #endif

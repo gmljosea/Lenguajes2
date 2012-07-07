@@ -1,7 +1,10 @@
 #include <iostream>
 
+#include "IntermCode.hh"
 #include "program.hh"
 #include "symbol.hh"
+
+extern IntermCode intCode;
 
 Program::Program() {
   // Inicializar un Programa, inicialmente vacío y sin errores
@@ -112,19 +115,29 @@ void Program::calcOffsets(){
 }
 
 void Program::gen(){
-   // Generar codigo para las variables gobales
+  // A cambiar seriamente las cosas aquí
+
+  // Generar codigo para las variables gobales
   for(std::list<VariableDec*>::iterator varIt=this->globalinits.begin();
       varIt != this->globalinits.end(); varIt++){
     (*varIt)->gen(NULL);
   }
 
-  // Generar el main:
-  this->main->gen();
+  std::list<Instruction*> test = intCode.getInstructions();
+  for (std::list<Instruction*>::iterator it = test.begin();
+       it != test.end(); it++) {
+    std::cout << (*it)->toString() << std::endl;
+  }
 
-  //Generar el codigo de las funciones
+  intCode.clear();
+
+  // Generar el main:
+  //  this->main->gen();
+
+  /*//Generar el codigo de las funciones
   for (std::list<SymFunction*>::iterator funIt= this->functions.begin();
        funIt != this->functions.end(); funIt++){
     (*funIt)->gen();
-  }
+    }*/
 
 }

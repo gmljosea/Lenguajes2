@@ -908,6 +908,7 @@ int main (int argc, char **argv) {
   std::ofstream output;
   output.open("a.out.s", std::ios::trunc);
   //program.gen(output);
+  program.gen();
 
   return 0;
 }
