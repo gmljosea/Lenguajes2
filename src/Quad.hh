@@ -397,4 +397,60 @@ public:
   virtual std::string toString();
 };
 
+// a := (float to int) b
+class CastFtoIQ : public Quad {
+private:
+  SymVar* result;
+  ArgType argt;
+  Args arg;
+public:
+  CastFtoIQ(SymVar* result, ArgType argt, Args arg) : result(result),
+						      argt(argt),
+						      arg(arg) {};
+  virtual void printQuad();
+  virtual std::string toString();
+};
+
+// a := (int to float) b
+class CastItoFQ : public Quad {
+private:
+  SymVar* result;
+  ArgType argt;
+  Args arg;
+public:
+  CastItoFQ(SymVar* result, ArgType argt, Args arg) : result(result),
+						      argt(argt),
+						      arg(arg) {};
+  virtual void printQuad();
+  virtual std::string toString();
+};
+
+// a := (char to int) b
+class CastCtoIQ : public Quad {
+private:
+  SymVar* result;
+  ArgType argt;
+  Args arg;
+public:
+  CastCtoIQ(SymVar* result, ArgType argt, Args arg) : result(result),
+						      argt(argt),
+						      arg(arg) {};
+  virtual void printQuad();
+  virtual std::string toString();
+};
+
+// a := (int to char) b
+class CastItoCQ : public Quad {
+private:
+  SymVar* result;
+  ArgType argt;
+  Args arg;
+public:
+  CastItoCQ(SymVar* result, ArgType argt, Args arg) : result(result),
+						      argt(argt),
+						      arg(arg) {};
+  virtual void printQuad();
+  virtual std::string toString();
+};
+
 #endif

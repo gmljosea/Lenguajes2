@@ -714,3 +714,63 @@ std::string ReadIndexQ::toString() {
   result.append(this->type->toString());
   return result;
 }
+
+// CastFtoIQ
+void CastFtoIQ::printQuad() {
+  std::cout << result->getId() << " := (float to int) ";
+  printArg(argt, arg);
+  std::cout << std::endl;
+}
+
+std::string CastFtoIQ::toString() {
+  std::string result = Instruction::toString();
+  result.append(this->result->getId());
+  result.append(" := (float to int) ");
+  result.append(argToString(argt, arg));
+  return result;
+}
+
+// CastItoFQ
+void CastItoFQ::printQuad() {
+  std::cout << result->getId() << " := (int to float) ";
+  printArg(argt, arg);
+  std::cout << std::endl;
+}
+
+std::string CastItoFQ::toString() {
+  std::string result = Instruction::toString();
+  result.append(this->result->getId());
+  result.append(" := (int to float) ");
+  result.append(argToString(argt, arg));
+  return result;
+}
+
+// CastCtoIQ
+void CastCtoIQ::printQuad() {
+  std::cout << result->getId() << " := (char to int) ";
+  printArg(argt, arg);
+  std::cout << std::endl;
+}
+
+std::string CastCtoIQ::toString() {
+  std::string result = Instruction::toString();
+  result.append(this->result->getId());
+  result.append(" := (char to int) ");
+  result.append(argToString(argt, arg));
+  return result;
+}
+
+// CastItoCQ
+void CastItoCQ::printQuad() {
+  std::cout << result->getId() << " := (int to char) ";
+  printArg(argt, arg);
+  std::cout << std::endl;
+}
+
+std::string CastItoCQ::toString() {
+  std::string result = Instruction::toString();
+  result.append(this->result->getId());
+  result.append(" := (int to char) ");
+  result.append(argToString(argt, arg));
+  return result;
+}
