@@ -16,7 +16,7 @@ std::string opToString(Operator op);
 AsignmentOpQ::AsignmentOpQ(SymVar* arg1,Operator op,SymVar* arg2,SymVar* result){
   this->op= op;
 
-  //Argumento 1 
+  //Argumento 1
   this->arg1Type= id;
   Args sym;
   sym.id= arg1;
@@ -28,14 +28,14 @@ AsignmentOpQ::AsignmentOpQ(SymVar* arg1,Operator op,SymVar* arg2,SymVar* result)
   sym2.id= arg2;
   this->arg2=sym2;
 
-  // Result 
+  // Result
   this->result= result;
 }
 
 ConditionalJumpQ::ConditionalJumpQ(SymVar* arg1,Operator op,SymVar* arg2,Label* label){
   this->op= op;
 
-  //Argumento 1 
+  //Argumento 1
   this->arg1Type= id;
   Args sym;
   sym.id= arg1;
@@ -56,7 +56,7 @@ ConditionalNJumpQ::ConditionalNJumpQ(SymVar* arg1,Operator op,SymVar* arg2,
 				     Label* label){
   this->op= op;
 
-  //Argumento 1 
+  //Argumento 1
   this->arg1Type= id;
   Args sym;
   sym.id= arg1;
@@ -97,7 +97,7 @@ ParamValQ::ParamValQ(SymVar *param){
 
 AsignmentToPointQ::AsignmentToPointQ(SymVar* arg1,SymVar* result){
   this->result= result;
-  
+
   this->arg1Type= id;
   Args sym;
   sym.id= arg1;
@@ -117,7 +117,7 @@ JumpQ::JumpQ(Label* label) {
 // Para que no fastidie el compilador, mientras.
 void Quad::printQuad(){}
 
-/** 
+/**
  * AsignmentQ
  * Imprime la instruccion result:= arg
  */
@@ -137,7 +137,7 @@ std::string AsignmentQ::toString() {
   return result;
 }
 
-/** 
+/**
  * AsignmentOpQ
  * Imprime la instruccion result:= arg1 OP arg2
  *                        result:= OP arg1
@@ -175,15 +175,15 @@ std::string AsignmentOpQ::toString() {
   return result;
 }
 
-/** 
+/**
  * AsignmentPointQ
  * Imprime la instruccion result:= *arg1
  */
 void AsignmentPointQ::printQuad(){
   std::cout << this->result->getId() << ":= *";
   std::cout << this->arg1->getId();
-  std::cout << std::endl; 
-} 
+  std::cout << std::endl;
+}
 
 std::string AsignmentPointQ::toString() {
   std::string result = Instruction::toString();
@@ -193,7 +193,7 @@ std::string AsignmentPointQ::toString() {
   return result;
 }
 
-/** 
+/**
  * AsignmentToPointQ
  * Imprime la instruccion *result:= arg1
  */
@@ -201,8 +201,8 @@ void AsignmentToPointQ::printQuad(){
   std::cout << "*";
   std::cout << this->result->getId() << " := ";
   printArg(this->arg1Type,this->arg1);
-  std::cout << std::endl; 
-} 
+  std::cout << std::endl;
+}
 
 std::string AsignmentToPointQ::toString() {
   std::string result = Instruction::toString();
@@ -213,14 +213,14 @@ std::string AsignmentToPointQ::toString() {
   return result;
 }
 
-/** 
+/**
  * AsignmentAddQ
  * Imprime la instruccion result:= &arg1
  */
 void AsignmentAddQ::printQuad(){
   std::cout << this->result->getId() << ":= &";
   std::cout << this->arg1->getId();
-  std::cout << std::endl; 
+  std::cout << std::endl;
 }
 
 std::string AsignmentAddQ::toString() {
@@ -231,7 +231,7 @@ std::string AsignmentAddQ::toString() {
   return result;
 }
 
-/** 
+/**
  * ConditionalJumpQ
  * Imprime la instruccion if arg1 REL arg2 goto label
  */
@@ -244,7 +244,7 @@ void ConditionalJumpQ::printQuad(){
   printf(" goto ");
   printf("l%d",this->label->getId());
   std::cout << std::endl;
- 
+
 }
 
 std::string ConditionalJumpQ::toString() {
@@ -275,7 +275,7 @@ bool ConditionalJumpQ::isHardJump() {
   return false;
 }
 
-/** 
+/**
  * ConditionalNJumpQ
  * Imprime la instruccion ifnot arg1 REL arg2 goto label
  */
@@ -288,7 +288,7 @@ void ConditionalNJumpQ::printQuad(){
   printf(" goto ");
   printf("l%d",this->label->getId());
   std::cout << std::endl;
- 
+
 }
 
 std::string ConditionalNJumpQ::toString() {
@@ -320,14 +320,14 @@ bool ConditionalNJumpQ::isHardJump() {
   return false;
 }
 
-/** 
+/**
  * JumpQ
  * Imprime la instruccion goto label
  */
 void JumpQ::printQuad(){
   printf(" goto ");
   printf("l%d",this->label->getId());
-  std::cout << std::endl; 
+  std::cout << std::endl;
 }
 
 std::string JumpQ::toString() {
@@ -352,14 +352,14 @@ bool JumpQ::isHardJump() {
   return true;
 }
 
-/** 
+/**
  * ParamValQ
  * Imprime la instruccion paramVal arg
  */
 void ParamValQ::printQuad(){
   printf("paramVal ");
   printArg(this->paramType,this->param);
-  std::cout << std::endl; 
+  std::cout << std::endl;
 }
 
 std::string ParamValQ::toString() {
@@ -369,14 +369,14 @@ std::string ParamValQ::toString() {
   return result;
 }
 
-/** 
+/**
  * ParamRefQ
  * Imprime la instruccion paramRef arg
  */
 void ParamRefQ::printQuad(){
   printf("paramRef ");
   std::cout << this->param->getId();
-  std::cout << std::endl; 
+  std::cout << std::endl;
 }
 
 std::string ParamRefQ::toString() {
@@ -386,14 +386,14 @@ std::string ParamRefQ::toString() {
   return result;
 }
 
-/** 
+/**
  * PrologueQ
- * Imprime la instruccion prologue fuc 
+ * Imprime la instruccion prologue fuc
  */
 void PrologueQ::printQuad(){
   printf("prologue ");
   std::cout << this->func->getId();
-  std::cout << std::endl; 
+  std::cout << std::endl;
 }
 
 std::string PrologueQ::toString() {
@@ -403,14 +403,14 @@ std::string PrologueQ::toString() {
   return result;
 }
 
-/** 
+/**
  * CallQ
- * Imprime la instruccion returnVal:= call func numParam
+ * Imprime la instruccion call func numParam
  */
 void CallQ::printQuad(){
-  printf("call ");
-  std::cout << this->func->getId() << " " << this->numParam;
-  std::cout << std::endl; 
+  std::cout << "call " << std::endl;
+  std::cout << this->func->getId() << ", " << this->numParam;
+  std::cout << std::endl;
 }
 
 std::string CallQ::toString() {
@@ -422,18 +422,12 @@ std::string CallQ::toString() {
   return result;
 }
 
-bool CallQ::isJump() {
-  return true;
-}
-
-bool CallQ::isCall() {
-  return true;
-}
-
+// OBSOLETO
 SymFunction* CallQ::getCallTarget() {
   return this->func;
 }
 
+// OBSOLETO
 std::list<BasicBlock*> CallQ::getTargetBlocks() {
   BasicBlock* b = this->func->getLabel()->getInstruction()->getBlock();
   std::list<BasicBlock*> list;
@@ -441,8 +435,16 @@ std::list<BasicBlock*> CallQ::getTargetBlocks() {
   return list;
 }
 
-bool CallQ::isHardJump() {
-  return true;
+// RetrieveQ
+void RetrieveQ::printQuad() {
+  std::cout << "retrieve " << var->getId() << std::endl;
+}
+
+std::string RetrieveQ::toString() {
+  std::string result = Instruction::toString();
+  result.append("retrieve ");
+  result.append(var->getId());
+  return result;
 }
 
 // ReturnQ
@@ -465,7 +467,7 @@ ReturnQ::ReturnQ(SymFunction* symf) {
   this->symf = symf;
 }
 
-/** 
+/**
  * ReturnQ
  * Imprime la instruccion return result
  */
@@ -503,7 +505,7 @@ bool ReturnQ::isMainReturn() {
   return this->symf == program.main;
 }
 
-/** 
+/**
  * IndexQ
  * Imprime la instruccion result:= a[index]
  */
@@ -528,7 +530,7 @@ std::string IndexQ::toString() {
   return result;
 }
 
-/** 
+/**
  * IndexAsigQ
  * Imprime la instruccion a[index]:= arg
  */
@@ -554,8 +556,8 @@ std::string IndexAsigQ::toString() {
 
 /* Dado un union 'Args' y su tipo lo imprime por pantalla
  * (El 'tipo' viene del enum ArgType, para saber a que campo
- * del union se debe acceder) 
- */ 
+ * del union se debe acceder)
+ */
 void printArg(ArgType argType,Args arg){
  if(argType == id){
    std::cout << arg.id->getId();
@@ -589,7 +591,7 @@ std::string argToString(ArgType argtype, Args arg) {
   }
 }
 
-/* Dado el nombre de un operador (del enum Operator) devuelve el string 
+/* Dado el nombre de un operador (del enum Operator) devuelve el string
  * asociado a el. Este metodo es para usar en los printQuad y no repetir
  * el codigo*/
 std::string opToString(Operator op){

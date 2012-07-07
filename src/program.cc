@@ -115,13 +115,17 @@ void Program::calcOffsets(){
 }
 
 void Program::gen(){
-  // A cambiar seriamente las cosas aquí
+  // Escupir runtime en la salida
 
   // Generar codigo para las variables gobales
   for(std::list<VariableDec*>::iterator varIt=this->globalinits.begin();
       varIt != this->globalinits.end(); varIt++){
     (*varIt)->gen(NULL);
+    // Ir recogiendo una lista de variables globales para meterlas en
+    // .data
   }
+
+  // Agregar la instrucción call main
 
   std::list<Instruction*> test = intCode.getInstructions();
   for (std::list<Instruction*>::iterator it = test.begin();
@@ -130,6 +134,10 @@ void Program::gen(){
   }
 
   intCode.clear();
+
+  // Escupir en la salida los .data necesarios
+
+  // Pasar el TAC de inicialización a MIPS y escupirlo a la salida
 
   // Generar el main:
   //  this->main->gen();

@@ -483,6 +483,7 @@ SymVar* FunCallExp::gen(){
   }
   SymVar *result= intCode.newTemp();
   // Llamada a la funcion
-  intCode.addInst(new CallQ(this->symf,this->symf->getArgumentCount(),result));
+  intCode.addInst(new CallQ(this->symf,this->symf->getArgumentCount()));
+  intCode.addInst(new RetrieveQ(result));
   return result;
 }
