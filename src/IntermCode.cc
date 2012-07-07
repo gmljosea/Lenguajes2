@@ -35,7 +35,7 @@ bool IntermCode::areUnSet(){
 void IntermCode::addInst(Quad* quad){
   if(areUnSet()) emitLabel2(quad);
   this->inst.push_back(quad);
-  //  quad->printQuad();
+  quad->printQuad();
 }
 
 SymVar* IntermCode::newTemp(){

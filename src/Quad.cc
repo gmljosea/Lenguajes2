@@ -408,7 +408,7 @@ std::string PrologueQ::toString() {
  * Imprime la instruccion call func numParam
  */
 void CallQ::printQuad(){
-  std::cout << "call " << std::endl;
+  std::cout << "call ";
   std::cout << this->func->getId() << ", " << this->numParam;
   std::cout << std::endl;
 }

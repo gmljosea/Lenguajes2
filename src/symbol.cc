@@ -129,19 +129,6 @@ void SymFunction::check() {
   }
 }
 
-void SymFunction::gen(){
-  if (!this->generated) {
-    this->generated = true;
-    intCode.emitLabel(this->start);
-    this->start->setActive(true);
-    intCode.addInst(new PrologueQ(this));
-    this->block->gen(NULL);
-    if (this->type == &(VoidType::getInstance())) {
-      intCode.addInst(new ReturnQ(this));
-    }
-  }
-}
-
 Label* SymFunction::getLabel() {
   return this->start;
 }

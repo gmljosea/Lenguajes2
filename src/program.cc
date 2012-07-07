@@ -116,6 +116,7 @@ void Program::calcOffsets(){
 
 void Program::gen(){
   // Escupir runtime en la salida
+  // Ridiculo, escupir un string a la salida y ya
 
   // Generar codigo para las variables gobales
   for(std::list<VariableDec*>::iterator varIt=this->globalinits.begin();
@@ -126,26 +127,20 @@ void Program::gen(){
   }
 
   // Agregar la instrucción call main
-
+  intCode.addInst(new CallQ(main, 0));
   std::list<Instruction*> test = intCode.getInstructions();
-  for (std::list<Instruction*>::iterator it = test.begin();
-       it != test.end(); it++) {
-    std::cout << (*it)->toString() << std::endl;
-  }
-
   intCode.clear();
 
-  // Escupir en la salida los .data necesarios
+  // Escupir en la salida los .data de variables
 
   // Pasar el TAC de inicialización a MIPS y escupirlo a la salida
 
-  // Generar el main:
-  //  this->main->gen();
+  // Escupir los .data de strings y borrar MIPSCode
 
-  /*//Generar el codigo de las funciones
+  this->main->gen();
   for (std::list<SymFunction*>::iterator funIt= this->functions.begin();
        funIt != this->functions.end(); funIt++){
     (*funIt)->gen();
-    }*/
+  }
 
 }
