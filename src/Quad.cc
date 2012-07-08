@@ -266,7 +266,8 @@ void ConditionalJumpQ::printQuad(){
   std::cout << opToString(this->op);
   printArg(this->arg2Type,this->arg2);
   printf(" goto ");
-  printf("l%d",this->label->getId());
+  std::cout << this->label->toString();
+  //  printf("l%d",this->label->getId());
   std::cout << std::endl;
 
 }
@@ -279,8 +280,8 @@ std::string ConditionalJumpQ::toString() {
   result.append(opToString(this->op));
   result.append(" ");
   result.append(argToString(this->arg2Type, this->arg2));
-  result.append(" goto l");
-  result.append(std::to_string((long long int) this->label->getId()));
+  result.append(" goto ");
+  result.append(label->toString());
   return result;
 }
 
@@ -310,7 +311,7 @@ void ConditionalNJumpQ::printQuad(){
   std::cout << opToString(this->op);
   printArg(this->arg2Type,this->arg2);
   printf(" goto ");
-  printf("l%d",this->label->getId());
+  std::cout << this->label->toString();
   std::cout << std::endl;
 
 }
@@ -323,8 +324,8 @@ std::string ConditionalNJumpQ::toString() {
   result.append(opToString(this->op));
   result.append(" ");
   result.append(argToString(this->arg2Type, this->arg2));
-  result.append(" goto l");
-  result.append(std::to_string((long long int) this->label->getId()));
+  result.append(" goto ");
+  result.append(label->toString());
   return result;
 }
 
@@ -350,14 +351,15 @@ bool ConditionalNJumpQ::isHardJump() {
  */
 void JumpQ::printQuad(){
   printf(" goto ");
-  printf("l%d",this->label->getId());
+  std::cout << this->label->toString();
+  //  printf("l%d",this->label->getId());
   std::cout << std::endl;
 }
 
 std::string JumpQ::toString() {
   std::string result = Instruction::toString();
-  result.append("goto l");
-  result.append(std::to_string((long long int) this->label->getId()));
+  result.append("goto ");
+  result.append(this->label->toString());
   return result;
 }
 
