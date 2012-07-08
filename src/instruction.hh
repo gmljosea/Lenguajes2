@@ -2,6 +2,7 @@
 #define DEVANIX_INSTRUCTION
 
 #include <list>
+#include <set>
 #include "flowgraph.hh"
 #include "symbol.hh"
 
@@ -30,7 +31,9 @@ public:
 
   virtual std::string toString();
 
-  
+  // Devuelve la traducción en MIPS, modificando la tabla de descriptores etc
+  virtual std::list<Instruction*> gen();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> set);
 };
 
 #endif

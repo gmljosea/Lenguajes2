@@ -5,7 +5,7 @@
 
 #include "instruction.hh"
 
-class Quad;
+class Instruction;
 
 /**
  * Representa una etiqueta asociada a una instruccion

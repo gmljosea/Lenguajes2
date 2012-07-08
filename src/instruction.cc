@@ -1,9 +1,20 @@
+#include <list>
+
 #include "instruction.hh"
 #include "symbol.hh"
 #include "Quad.hh"
 
 Instruction::Instruction() {
   isTarget = false;
+}
+
+std::list<Instruction*> Instruction::gen() {
+  std::list<Instruction*> temp;
+  return temp;
+}
+
+std::set<SymVar*> Instruction::recalcIN(std::set<SymVar*> set) {
+  return set;
 }
 
 void Instruction::setBlock(BasicBlock* b) {

@@ -60,7 +60,7 @@ SymFunction::SymFunction(std::string id, ArgList* arguments, Type* ret,
   this->args = arguments;
   this->setType(ret); //tipo del retorno de la función
 
-  this->start = intCode.newLabel();
+  this->start = new Label(std::string("f_")+id);
   this->generated = false;
 }
 

@@ -4,11 +4,16 @@
 #include <iostream>
 #include <fstream>
 #include <list>
+#include <map>
+#include <set>
 
 #include "instruction.hh"
+#include "label.hh"
+#include "symbol.hh"
 
 class Instruction;
 class BasicBlock;
+class Label;
 
 class FlowGraph {
   std::list<BasicBlock*> blocks;
@@ -18,41 +23,46 @@ class FlowGraph {
   void analyzeTemps();
 
 public:
-  FlowGraph(std::list<Instruction*> insts);
+  FlowGraph(std::list<Instruction*> insts, std::string base);
   void toMIPS();
   void emitCode();
+  BasicBlock* getExit();
 };
 
 class BasicBlock {
   std::list<Instruction*> insts;
-  std::list<BasicBlock*> children;
+
+  BasicBlock* next;
+  BasicBlock* alternate;
 
   bool visited;
+  Label* label;
 
-protected:
-  std::string name;
+  std::set<SymVar*> t_in;
+  std::set<SymVar*> t_out;
 
 public:
-  BasicBlock();
+  BasicBlock(Label* label) : visited(false), label(label), next(NULL),
+			     alternate(NULL) {};
   void addInst(Instruction* i);
   bool isEmpty();
-  void addEdge(BasicBlock* b);
   Instruction* getLastInst();
-  void addEdges(std::list<BasicBlock*>* bs);
 
   void outputAsDot(std::ofstream& output);
 
+  void setNext(BasicBlock* next);
+  void setAlternate(BasicBlock* alt);
+
+  void toMIPS();
+  void emitCode();
+
+  void setVisited(bool v);
+  Label* getLabel();
+
+  bool recalcIN(); // Actualiza el IN y devuelve si hubo algun cambio
+  std::set<SymVar*> getIN();
+
   virtual std::string toString();
-};
-
-class EntryBlock : public BasicBlock {
-public:
-  EntryBlock();
-};
-
-class ExitBlock : public BasicBlock {
-public:
-  ExitBlock();
 };
 
 #endif

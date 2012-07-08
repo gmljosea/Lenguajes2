@@ -146,7 +146,7 @@ void Program::gen(){
   intCode.clear();
 
   // Generar grafo y pasarlo a MIPS
-  FlowGraph* global_graph = new FlowGraph(global_tac);
+  FlowGraph* global_graph = new FlowGraph(global_tac, std::string("init_"));
   // global_graph.optimize();
   global_graph->toMIPS(); // Como efecto de borde se emiten los .data de los
                          // strings que se consigan en el TAC
