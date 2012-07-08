@@ -475,25 +475,25 @@ SymVar* FunCallExp::gen(){
 
   // Ugly hack para los casts
   Args arg1;
-  if (symf->getId().compare("inttofloat")) {
+  if (symf->getId().compare("inttofloat") == 0) {
     SymVar* temp = args.front()->gen();
     arg1.id = temp;
     intCode.addInst(new CastItoFQ(result, ArgType::id, arg1));
     return temp;
   }
-  if (symf->getId().compare("floattoint")) {
+  if (symf->getId().compare("floattoint") == 0) {
     SymVar* temp = args.front()->gen();
     arg1.id = temp;
     intCode.addInst(new CastFtoIQ(result, ArgType::id, arg1));
     return temp;
   }
-  if (symf->getId().compare("chartoint")) {
+  if (symf->getId().compare("chartoint") == 0) {
     SymVar* temp = args.front()->gen();
     arg1.id = temp;
     intCode.addInst(new CastCtoIQ(result, ArgType::id, arg1));
     return temp;
   }
-  if (symf->getId().compare("inttochar")) {
+  if (symf->getId().compare("inttochar") == 0) {
     SymVar* temp = args.front()->gen();
     arg1.id = temp;
     intCode.addInst(new CastItoCQ(result, ArgType::id, arg1));
@@ -501,6 +501,7 @@ SymVar* FunCallExp::gen(){
   }
 
   // Generar las instrucciones para cargar los parametros
+  //std::list<SymVar*>::iterator arglist = symf->getArguments().begin();
   std::list<Expression*>::iterator arg= this->args.begin();
   for(arg; arg!=this->args.end(); arg++){
     SymVar *temp= (*arg)->gen();

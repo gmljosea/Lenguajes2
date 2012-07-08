@@ -128,12 +128,13 @@ void Program::gen(){
 
   // Agregar la instrucción call main
   intCode.addInst(new CallQ(main, 0));
-  std::list<Instruction*> test = intCode.getInstructions();
+  std::list<Quad*> global_tac = intCode.getInstructions();
   intCode.clear();
 
   // Escupir en la salida los .data de variables
 
   // Pasar el TAC de inicialización a MIPS y escupirlo a la salida
+  // Pasarlo a grafo, pasarlo a mips, optimizar
 
   // Escupir los .data de strings y borrar MIPSCode
 

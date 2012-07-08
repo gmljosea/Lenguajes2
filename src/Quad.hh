@@ -3,6 +3,7 @@
 
 #include "instruction.hh"
 #include "symbol.hh"
+#include "label.hh"
 
 class Quad : public Instruction {
 public:
@@ -51,23 +52,6 @@ constchar,
 constbool,
 conststring,
 null
-};
-
-/**
- * Representa una etiqueta asociada a una instruccion
- */
-class Label {
-private:
-  Quad* instruction;
-  int id;
-  bool active;
-public:
-  Label(int id): id(id), active(false){};
-  void setInstruction(Quad* quad);
-  void setActive(bool act);
-  bool isActive();
-  Quad* getInstruction();
-  int getId();
 };
 
 /**

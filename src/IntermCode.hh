@@ -19,7 +19,7 @@ private:
   // Conjunto de etiquetas sin asignar
   std::list<Label*> unSet;
   // Lista de instrucciones
-  std::list<Instruction*> inst;
+  std::list<Quad*> inst;
   // Num prox etiqueta
   int nextlabel;
   // Num prox temporal
@@ -35,7 +35,7 @@ public:
   bool areUnSet();
   BasicBlock* splitBlocks();
 
-  std::list<Instruction*> getInstructions();
+  std::list<Quad*> getInstructions();
   void clear();
 };
 

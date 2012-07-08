@@ -14,6 +14,7 @@
 
 #include "flowgraph.hh"
 #include "expression.hh"
+#include "mipscode.hh"
 #include "program.hh"
 #include "statement.hh"
 #include "type.hh"
@@ -905,9 +906,6 @@ int main (int argc, char **argv) {
   }
 
   // Generar código
-  std::ofstream output;
-  output.open("a.out.s", std::ios::trunc);
-  //program.gen(output);
   program.gen();
 
   return 0;

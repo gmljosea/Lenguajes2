@@ -4,6 +4,10 @@
 
 #include "flowgraph.hh"
 #include "IntermCode.hh"
+#include "parser.hh"
+#include "symbol.hh"
+
+extern SymFunction* currentfun;
 
 Label* IntermCode::newLabel(){
   Label* newLabel= new Label(this->nextlabel++);
@@ -42,28 +46,11 @@ SymVar* IntermCode::newTemp(){
   return new SymVar(this->nextTemp++);
 }
 
-void Label::setInstruction(Quad* instruction){
-  this->instruction= instruction;
-}
-
-void Label::setActive(bool a) {
-  this->active = a;
-}
-
-bool Label::isActive() {
-  return this->active;
-}
-
-Quad* Label::getInstruction() {
-  return this->instruction;
-}
-
-int Label::getId(){ return this->id;}
 
 BasicBlock* IntermCode::splitBlocks() {
   // Primera pasada: crear bloques
 
-  std::list<BasicBlock*> block_list;
+  /*  std::list<BasicBlock*> block_list;
   BasicBlock* current_block = new BasicBlock();
 
   for (std::list<Instruction*>::iterator it = (this->inst).begin();
@@ -128,10 +115,10 @@ BasicBlock* IntermCode::splitBlocks() {
 
   }
 
-  return entry_block;
+  return entry_block;*/
 }
 
-std::list<Instruction*> IntermCode::getInstructions() {
+std::list<Quad*> IntermCode::getInstructions() {
   return inst;
 }
 
