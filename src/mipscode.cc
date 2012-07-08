@@ -6,7 +6,7 @@
 Label* MIPSCode::emitString(std::string str) {
   Label* l = new Label(std::string("str")
 		       +std::to_string((long long int) str_count++));
-  std::cout << l->toString() << ": .asciiz " << str << std::endl;
+  std::cout << l->toString() << ": .asciiz \"" << str << "\"" << std::endl;
   return l;
 }
 

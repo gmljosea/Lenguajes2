@@ -203,6 +203,7 @@ public:
   virtual void print(int nesting);
 
   virtual void gen(Label* next);
+  std::list<SymVar*> getVars();
 };
 
 /**

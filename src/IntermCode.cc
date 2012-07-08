@@ -17,7 +17,7 @@ Label* IntermCode::newLabel(){
 
 void IntermCode::emitLabel(Label* label){
   this->unSet.push_back(label);
-  std::cout << "l" << label->getId() << ": ";
+  //  std::cout << "l" << label->getId() << ": ";
 }
 
 void IntermCode::emitLabel2(Quad* instr){
@@ -39,7 +39,7 @@ bool IntermCode::areUnSet(){
 void IntermCode::addInst(Quad* quad){
   if(areUnSet()) emitLabel2(quad);
   this->inst.push_back(quad);
-  quad->printQuad();
+  //  quad->printQuad();
 }
 
 SymVar* IntermCode::newTemp(){

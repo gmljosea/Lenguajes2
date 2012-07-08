@@ -20,5 +20,5 @@ Quad* Label::getInstruction() {
 int Label::getId(){ return this->id;}
 
 std::string Label::toString() {
-  return std::string(" ");
+  return this->new_id;
 }

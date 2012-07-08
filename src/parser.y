@@ -47,6 +47,8 @@ std::list<Iteration*> loopstack;
    */
  IntermCode intCode;
 
+ MIPSCode mipscode;
+
 /**
  * Extrae los campos de yylloc y los utiliza para inicializar los campos
  * de ubicación de un Statement cualquiera.

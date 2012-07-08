@@ -1,10 +1,12 @@
 #include <iostream>
 
 #include "IntermCode.hh"
+#include "mipscode.hh"
 #include "program.hh"
 #include "symbol.hh"
 
 extern IntermCode intCode;
+extern MIPSCode mipscode;
 
 Program::Program() {
   // Inicializar un Programa, inicialmente vacío y sin errores
@@ -119,11 +121,20 @@ void Program::gen(){
   // Ridiculo, escupir un string a la salida y ya
 
   // Generar codigo para las variables gobales
-  for(std::list<VariableDec*>::iterator varIt=this->globalinits.begin();
+  mipscode.emitData();
+
+  for(std::list<VariableDec*>::iterator varIt = this->globalinits.begin();
       varIt != this->globalinits.end(); varIt++){
     (*varIt)->gen(NULL);
-    // Ir recogiendo una lista de variables globales para meterlas en
-    // .data
+    std::list<SymVar*> t = (*varIt)->getVars();
+
+    // Generar los .data para las variables globales
+    for (std::list<SymVar*>::iterator it = t.begin();
+	 it != t.end(); it++) {
+      SymVar* var = *it;
+      Label* l = mipscode.emitVar(var->getId(), var->getType()->getSize(),
+				  var->getType()->getAlignment());
+    }
   }
 
   // Agregar la instrucción call main
@@ -131,12 +142,14 @@ void Program::gen(){
   std::list<Quad*> global_tac = intCode.getInstructions();
   intCode.clear();
 
-  // Escupir en la salida los .data de variables
-
+  // FIXME
   // Pasar el TAC de inicialización a MIPS y escupirlo a la salida
   // Pasarlo a grafo, pasarlo a mips, optimizar
 
-  // Escupir los .data de strings y borrar MIPSCode
+  mipscode.emitText();
+
+  // FIXME
+  // Emitir las instrucciones en el grafo
 
   this->main->gen();
   for (std::list<SymFunction*>::iterator funIt= this->functions.begin();
