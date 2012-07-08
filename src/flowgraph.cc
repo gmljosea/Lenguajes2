@@ -25,10 +25,70 @@ void FlowGraph::analyzeTemps() {
   }
 }
 
-// FIXME
+
+Label* genBlockLabel(std::string base, int n) {
+  return new Label(base+std::to_string((long long int) n));
+}
+
 FlowGraph::FlowGraph(std::list<Instruction*> insts, std::string base) {
   // base es el nombre base para los labels de los bloques
-  // do nothing, por ahora
+  entry = new BasicBlock(new Label(base+std::string("entry")));
+  exit  = new BasicBlock(new Label(base+std::string("exit")));
+
+  int block_counter = 0;
+
+  // Primera pasada: crear bloques
+  BasicBlock* current_block = new BasicBlock(genBlockLabel(base, block_counter++));
+
+  for (std::list<Instruction*>::iterator it = insts.begin();
+       it != insts.end(); it++) {
+
+    Instruction* q = *it;
+
+    if (q->isJumpTarget() and !current_block->isEmpty()) {
+      blocks.push_back(current_block);
+      current_block = new BasicBlock(genBlockLabel(base, block_counter++));
+    }
+
+    q->setBlock(current_block);
+    current_block->addInst(q);
+
+    if (q->isJump()) {
+      blocks.push_back(current_block);
+      current_block = new BasicBlock(genBlockLabel(base, block_counter++));
+    }
+  }
+
+  if (!current_block->isEmpty()) {
+    blocks.push_back(current_block);
+  }
+
+  // Segunda pasada: agregar arcos
+  BasicBlock* previous_block = entry;
+  Instruction* previous_inst = NULL;
+
+  for (std::list<BasicBlock*>::iterator it = blocks.begin();
+       it != blocks.end(); it++) {
+    BasicBlock* b = *it;
+    Instruction* li = b->getLastInst();
+
+    if (li->isJump() && !li->isReturn()) {
+      BasicBlock* target_block = li->getTargetLabel()->getInstruction()->getBlock();
+      li->replaceTargetLabel(target_block->getLabel());
+      b->setAlternate(target_block);
+    }
+
+    if (previous_inst == NULL or !previous_inst->isHardJump()) {
+      previous_block->setNext(b);
+    }
+
+    if (li->isReturn()) {
+      b->setAlternate(exit);
+    }
+
+    previous_block = b;
+    previous_inst = li;
+  }
 }
 
 void FlowGraph::toMIPS() {

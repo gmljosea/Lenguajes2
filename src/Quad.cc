@@ -52,6 +52,14 @@ ConditionalJumpQ::ConditionalJumpQ(SymVar* arg1,Operator op,SymVar* arg2,Label* 
   this->label->setActive(true);
 }
 
+Label* ConditionalJumpQ::getTargetLabel() {
+  return this->label;
+}
+
+void ConditionalJumpQ::replaceTargetLabel(Label* l) {
+  this->label = l;
+}
+
 ConditionalNJumpQ::ConditionalNJumpQ(SymVar* arg1,Operator op,SymVar* arg2,
 				     Label* label){
   this->op= op;
@@ -71,6 +79,14 @@ ConditionalNJumpQ::ConditionalNJumpQ(SymVar* arg1,Operator op,SymVar* arg2,
   // Label
   this->label= label;
   this->label->setActive(true);
+}
+
+Label* ConditionalNJumpQ::getTargetLabel() {
+  return this->label;
+}
+
+void ConditionalNJumpQ::replaceTargetLabel(Label* l) {
+  this->label = l;
 }
 
 IndexAsigQ::IndexAsigQ(SymVar *array,SymVar *index,SymVar *arg){
@@ -107,6 +123,14 @@ AsignmentToPointQ::AsignmentToPointQ(SymVar* arg1,SymVar* result){
 JumpQ::JumpQ(Label* label) {
   this->label = label;
   this->label->setActive(true);
+}
+
+Label* JumpQ::getTargetLabel() {
+  return this->label;
+}
+
+void JumpQ::replaceTargetLabel(Label* l) {
+  this->label = l;
 }
 
 
@@ -465,6 +489,10 @@ ReturnQ::ReturnQ(SymFunction* symf) {
   this->argt = ArgType::null;
   this->arg.id = NULL;
   this->symf = symf;
+}
+
+bool ReturnQ::isReturn() {
+  return true;
 }
 
 /**

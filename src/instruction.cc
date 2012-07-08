@@ -66,6 +66,18 @@ bool Instruction::isJumpTarget() {
   return false;
 }
 
+bool Instruction::isReturn() {
+  return false;
+}
+
+Label* Instruction::getTargetLabel() {
+  return NULL;
+}
+
+void Instruction::replaceTargetLabel(Label* l) {
+  return;
+}
+
 std::string Instruction::toString() {
   std::string result("");
   for (std::list<Label*>::iterator it = this->labels.begin();

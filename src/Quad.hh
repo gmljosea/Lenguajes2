@@ -154,6 +154,9 @@ public:
   virtual std::list<BasicBlock*> getTargetBlocks();
   virtual bool isHardJump();
   virtual std::string toString();
+
+  virtual Label* getTargetLabel();
+  virtual void replaceTargetLabel(Label* l);
 };
 
 /**
@@ -180,6 +183,9 @@ public:
   virtual std::list<BasicBlock*> getTargetBlocks();
   virtual bool isHardJump();
   virtual std::string toString();
+
+  virtual Label* getTargetLabel();
+  virtual void replaceTargetLabel(Label* l);
 };
 
 /**
@@ -207,6 +213,9 @@ public:
   virtual bool isHardJump();
 
   virtual std::string toString();
+
+  virtual Label* getTargetLabel();
+  virtual void replaceTargetLabel(Label* l);
 };
 
 /**
@@ -297,6 +306,7 @@ public:
   virtual std::list<BasicBlock*> getTargetBlocks();
   virtual bool isHardJump();
   virtual bool isMainReturn();
+  virtual bool isReturn();
 
   virtual std::string toString();
 };

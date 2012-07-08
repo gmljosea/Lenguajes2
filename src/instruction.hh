@@ -29,6 +29,10 @@ public:
   virtual bool setJumpTarget(bool ist);
   virtual bool isJumpTarget();
 
+  virtual bool isReturn();
+  virtual Label* getTargetLabel();
+  virtual void replaceTargetLabel(Label* l);
+
   virtual std::string toString();
 
   // Devuelve la traducción en MIPS, modificando la tabla de descriptores etc
