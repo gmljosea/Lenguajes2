@@ -20,7 +20,7 @@ void IntermCode::emitLabel(Label* label){
   //  std::cout << "l" << label->getId() << ": ";
 }
 
-void IntermCode::emitLabel2(Quad* instr){
+void IntermCode::emitLabel2(Instruction* instr){
   // Asocia las etiquetas de unSet a la instruccion
   instr->setLabels(this->unSet);
  for (std::list<Label*>::iterator it = this->unSet.begin();
@@ -36,7 +36,7 @@ bool IntermCode::areUnSet(){
   return this->unSet.size()!=0;
 }
 
-void IntermCode::addInst(Quad* quad){
+void IntermCode::addInst(Instruction* quad){
   if(areUnSet()) emitLabel2(quad);
   this->inst.push_back(quad);
   //  quad->printQuad();
@@ -118,7 +118,7 @@ BasicBlock* IntermCode::splitBlocks() {
   return entry_block;*/
 }
 
-std::list<Quad*> IntermCode::getInstructions() {
+std::list<Instruction*> IntermCode::getInstructions() {
   return inst;
 }
 

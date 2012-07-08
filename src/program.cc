@@ -117,6 +117,7 @@ void Program::calcOffsets(){
 }
 
 void Program::gen(){
+  // FIXME
   // Escupir runtime en la salida
   // Ridiculo, escupir un string a la salida y ya
 
@@ -134,23 +135,34 @@ void Program::gen(){
       SymVar* var = *it;
       Label* l = mipscode.emitVar(var->getId(), var->getType()->getSize(),
 				  var->getType()->getAlignment());
+      // FIXME
+      // Pegarle al SymVar el label generado
     }
   }
 
   // Agregar la instrucción call main
   intCode.addInst(new CallQ(main, 0));
-  std::list<Quad*> global_tac = intCode.getInstructions();
+  std::list<Instruction*> global_tac = intCode.getInstructions();
   intCode.clear();
 
-  // FIXME
-  // Pasar el TAC de inicialización a MIPS y escupirlo a la salida
-  // Pasarlo a grafo, pasarlo a mips, optimizar
+  // Generar grafo y pasarlo a MIPS
+  FlowGraph* global_graph = new FlowGraph(global_tac);
+  // global_graph.optimize();
+  global_graph->toMIPS(); // Como efecto de borde se emiten los .data de los
+                         // strings que se consigan en el TAC
 
+  // Colapsar el grafo a código en la salida estándar
+  // Se emiten .text para indicar que viene código
+  // y la etiqueta main: para indicar donde comienza el programa
   mipscode.emitText();
+  mipscode.emitLabel(new Label(std::string("main")));
+  global_graph->emitCode();
 
   // FIXME
-  // Emitir las instrucciones en el grafo
+  // Emitir código MIPS para terminar el programa
+  // Esencialmente hacer syscall 10
 
+  // Generar primero el main, y luego el resto de las funciones
   this->main->gen();
   for (std::list<SymFunction*>::iterator funIt= this->functions.begin();
        funIt != this->functions.end(); funIt++){

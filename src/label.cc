@@ -1,7 +1,7 @@
 #include "label.hh"
 #include "Quad.hh"
 
-void Label::setInstruction(Quad* instruction){
+void Label::setInstruction(Instruction* instruction){
   this->instruction= instruction;
 }
 
@@ -13,7 +13,7 @@ bool Label::isActive() {
   return this->active;
 }
 
-Quad* Label::getInstruction() {
+Instruction* Label::getInstruction() {
   return this->instruction;
 }
 

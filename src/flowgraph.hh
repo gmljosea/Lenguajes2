@@ -8,6 +8,20 @@
 #include "instruction.hh"
 
 class Instruction;
+class BasicBlock;
+
+class FlowGraph {
+  std::list<BasicBlock*> blocks;
+  BasicBlock* entry;
+  BasicBlock* exit;
+
+  void analyzeTemps();
+
+public:
+  FlowGraph(std::list<Instruction*> insts);
+  void toMIPS();
+  void emitCode();
+};
 
 class BasicBlock {
   std::list<Instruction*> insts;

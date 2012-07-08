@@ -3,6 +3,23 @@
 #include "flowgraph.hh"
 #include "Quad.hh"
 
+void FlowGraph::analyzeTemps() {
+  // do nothing
+  return;
+}
+
+FlowGraph::FlowGraph(std::list<Instruction*> insts) {
+  // do nothing, por ahora
+}
+
+void FlowGraph::toMIPS() {
+  return;
+}
+
+void FlowGraph::emitCode() {
+  return;
+}
+
 BasicBlock::BasicBlock() {
   static int name_counter;
   this->visited = false;

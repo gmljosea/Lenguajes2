@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "Quad.hh"
+#include "instruction.hh"
 
 class Quad;
 
@@ -12,17 +12,17 @@ class Quad;
  */
 class Label {
 private:
-  Quad* instruction;
+  Instruction* instruction;
   int id;
   std::string new_id;
   bool active;
 public:
   Label(int id): id(id), active(false){};
   Label(std::string str) : new_id(str), id(-1), active(false) {};
-  void setInstruction(Quad* quad);
+  void setInstruction(Instruction* quad);
   void setActive(bool act);
   bool isActive();
-  Quad* getInstruction();
+  Instruction* getInstruction();
   int getId();
   std::string toString();
 };

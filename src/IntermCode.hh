@@ -19,7 +19,7 @@ private:
   // Conjunto de etiquetas sin asignar
   std::list<Label*> unSet;
   // Lista de instrucciones
-  std::list<Quad*> inst;
+  std::list<Instruction*> inst;
   // Num prox etiqueta
   int nextlabel;
   // Num prox temporal
@@ -29,13 +29,13 @@ public:
   IntermCode(): nextlabel(0),nextTemp(0){};
   Label* newLabel();
   SymVar* newTemp();
-  void addInst(Quad* quad);
+  void addInst(Instruction* quad);
   void emitLabel(Label* label);
-  void emitLabel2(Quad* instr);
+  void emitLabel2(Instruction* instr);
   bool areUnSet();
   BasicBlock* splitBlocks();
 
-  std::list<Quad*> getInstructions();
+  std::list<Instruction*> getInstructions();
   void clear();
 };
 
