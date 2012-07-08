@@ -2,6 +2,8 @@
 #include <set>
 #include <string>
 
+#include <fstream>
+
 #include "flowgraph.hh"
 #include "mipscode.hh"
 #include "symbol.hh"
@@ -89,6 +91,26 @@ FlowGraph::FlowGraph(std::list<Instruction*> insts, std::string base) {
     previous_block = b;
     previous_inst = li;
   }
+
+  if (previous_inst == NULL or !previous_inst->isHardJump()) {
+    previous_block->setNext(exit);
+  }
+
+  std::ofstream output;
+  output.open(base+std::string(".dot"), std::ios::trunc);
+  output << "digraph flowgraph {" << std::endl;
+  output << "  node [shape=box, nojustify=true]" << std::endl;
+
+  for (std::list<BasicBlock*>::iterator it = blocks.begin();
+       it != blocks.end(); it++){
+    (*it)->setVisited(false);
+  }
+  entry->setVisited(false);
+  exit->setVisited(false);
+
+  entry->outputAsDot(output);
+
+  output << "}" << std::endl;
 }
 
 void FlowGraph::toMIPS() {
@@ -131,7 +153,7 @@ Instruction* BasicBlock::getLastInst() {
 }
 
 void BasicBlock::outputAsDot(std::ofstream& output) {
-  if (this->visited == true) return;
+  if (this->visited) return;
   this->visited = true;
   std::string node_start = this->toString();
   if (next) {
