@@ -30,6 +30,18 @@ GenLvalue Index::genlvalue() {
 	arrayloc.coff + (cind->getInteger() * elemsize) };
   } else {
     SymVar* indexaddr = this->index->gen();
+
+    // Para rreglar un bug cuando el indice ya era un SymVar
+    // Entonces el gen() devolvia el propio SymVar
+    // Entonces hay que ver, si no es temporal, copiamos la variable en un
+    // temporal
+    if (!indexaddr->isTemp()) {
+      SymVar* nt = intCode.newTemp();
+      arg1.id = nt;
+      intCode.addInst(new AsignmentQ(ArgType::id, arg1, indexaddr));
+      indexaddr = nt;
+    }
+
     SymVar* newindex = intCode.newTemp();
     // DONE QUAD: newindex := indexaddr * elemsize
     arg1.id = indexaddr;
@@ -82,6 +94,18 @@ SymVar* Index::gen() {
 				     arrayloc.doff));
   } else {
     SymVar* indaddr = this->index->gen();
+
+    // Para rreglar un bug cuando el indice ya era un SymVar
+    // Entonces el gen() devolvia el propio SymVar
+    // Entonces hay que ver, si no es temporal, copiamos la variable en un
+    // temporal
+    if (!indaddr->isTemp()) {
+      SymVar* nt = intCode.newTemp();
+      arg1.id = nt;
+      intCode.addInst(new AsignmentQ(ArgType::id, arg1, indaddr));
+      indaddr = nt;
+    }
+
     // DONE QUAD: indaddr := indaddr * elemsize
     arg1.id = indaddr;
     arg2.constint = elemsize;
