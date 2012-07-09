@@ -165,6 +165,8 @@ public:
 
   virtual Label* getTargetLabel();
   virtual void replaceTargetLabel(Label* l);
+
+  virtual std::list<Instruction*> gen();
 };
 
 /**
@@ -291,6 +293,7 @@ public:
   virtual std::string toString();
   virtual bool isJumpTarget(); // Hack necesario para no dañar los registros
   // cuando se traduzcan las llamadas a funciones
+  virtual std::list<Instruction*> gen();
 };
 
 class RetrieveQ : public Quad {

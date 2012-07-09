@@ -29,6 +29,9 @@ void SymFunction::gen(){
   std::list<Instruction*> fun_tac = intCode.getInstructions();
   intCode.clear();
   FlowGraph* fun_graph = new FlowGraph(fun_tac, std::string("f_")+id+std::string("_"));
+
+  this->epilogue = fun_graph->getExit()->getLabel();
+
   mipscode.emitComment(std::string("Función ")+this->id);
   mipscode.emitComment(std::string("Espacio en pila: ")+
 		       std::to_string((long long int)this->local_space)

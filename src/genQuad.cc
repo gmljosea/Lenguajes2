@@ -47,3 +47,15 @@ std::list<MIPSinstruction*> AsignmentOpQ::gen(){
   }
 }
 */
+
+std::list<Instruction*> JumpQ::gen() {
+  std::list<Instruction*> res;
+  res.push_back(new J(this->label));
+  return res;
+}
+
+std::list<Instruction*> CallQ::gen() {
+  std::list<Instruction*> res;
+  res.push_back(new Jal(func->getLabel()));
+  return res;
+}

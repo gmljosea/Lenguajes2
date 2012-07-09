@@ -133,6 +133,10 @@ Label* SymFunction::getLabel() {
   return this->start;
 }
 
+Label* SymFunction::getEpilogueLabel() {
+  return this->epilogue;
+}
+
 void SymFunction::addReturnTarget(BasicBlock* b) {
   this->ret_targets.push_back(b);
 }

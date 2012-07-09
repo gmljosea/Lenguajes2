@@ -305,6 +305,7 @@ private:
 
 public:
   J(Label* label): label(label){};
+  virtual std::string toString();
 };
 
 // Jump and Link
@@ -314,6 +315,7 @@ private:
 
 public:
   Jal(Label* label): label(label){};
+  virtual std::string toString();
 };
 
 // Jump Register 

@@ -89,6 +89,7 @@ private:
   ArgList *args; // Lista de argumentos (SymVar)
   std::list<BasicBlock*> ret_targets; // Obsoleto
   Label* start;
+  Label* epilogue;
 
   int local_space;
 
@@ -109,6 +110,7 @@ public:
   int getLocalSpace();
 
   Label* getLabel();
+  Label* getEpilogueLabel();
 
   void addReturnTarget(BasicBlock* b);
   std::list<BasicBlock*> getReturnTargets();

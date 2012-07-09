@@ -48,6 +48,14 @@ std::string Sw::toString() {
   return result;
 }
 
+std::string J::toString() {
+  return (std::string("j ")+label->toString());
+}
+
+std::string Jal::toString() {
+  return (std::string("jal ")+label->toString());
+}
+
 std::string Jr::toString() {
   return (std::string("jr ")+regToString(Rx));
 }
