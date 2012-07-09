@@ -22,13 +22,6 @@ void FlowGraph::analyzeTemps() {
     for (std::list<BasicBlock*>::iterator it = blocks.begin();
 	 it != blocks.end(); it++) {
       change = change || (*it)->recalcIN();
-      std::cout << "{";
-      std::set<SymVar*> g = (*it)->getIN();
-      for (std::set<SymVar*>::iterator it2 = g.begin();
-	   it2 != g.end(); it2++) {
-	std::cout << (*it2)->getId();
-      }
-      std::cout << "}" << std::endl;
     }
 
   }
@@ -125,9 +118,9 @@ void FlowGraph::emitCode() {
   entry->emitCode();
 }
 
-void FlowGraph::output() {
+void FlowGraph::output(std::string prefix) {
   std::ofstream output;
-  output.open(base+std::string(".dot"), std::ios::trunc);
+  output.open(prefix+base+std::string(".dot"), std::ios::trunc);
   output << "digraph flowgraph {" << std::endl;
   output << "  node [shape=box, nojustify=true]" << std::endl;
 

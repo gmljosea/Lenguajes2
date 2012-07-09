@@ -30,7 +30,7 @@ public:
   void emitCode();
   BasicBlock* getExit();
   BasicBlock* getEntry();
-  void output();
+  void output(std::string prefix);
 };
 
 class BasicBlock {
