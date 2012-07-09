@@ -3,6 +3,8 @@
 #include "registers.hh"
 #include "MIPSinstruction.hh"
 
+std::string comma(" , ");
+
 std::string La::toString() {
   std::string result("la ");
   result.append(regToString(Rd));
@@ -15,6 +17,22 @@ std::string La::toString() {
     result.append(regToString(Rx));
     result.append(")");
   }
+  return result;
+}
+
+std::string Li::toString() {
+  std::string result("li ");
+  result.append(regToString(Rd));
+  result.append(std::string(" , "));
+  result.append(std::to_string((long long int) inmediate));
+  return result;
+}
+
+std::string LiS::toString() {
+  std::string result("li.s ");
+  result.append(regToString(Rd));
+  result.append(std::string(" , "));
+  result.append(std::to_string((long double) inmediate));
   return result;
 }
 
@@ -45,6 +63,216 @@ std::string Sw::toString() {
     result.append(regToString(Rd));
     result.append(")");
   }
+  return result;
+}
+
+std::string Add::toString() {
+  std::string result("add ");
+  result.append(regToString(Rd));
+  result.append(std::string(" , "));
+  result.append(regToString(Rx));
+  result.append(std::string(" , "));
+  result.append(regToString(Ry));
+  return result;
+}
+
+std::string Addi::toString() {
+  std::string result("addi ");
+  result.append(regToString(Rd));
+  result.append(std::string(" , "));
+  result.append(regToString(Rx));
+  result.append(std::string(" , "));
+  result.append(std::to_string((long long int) inmediate));
+  return result;
+}
+
+std::string AddS::toString() {
+  std::string result("add.s ");
+  result.append(regToString(Rfd));
+  result.append(comma);
+  result.append(regToString(Rfx));
+  result.append(comma);
+  result.append(regToString(Rfy));
+  return result;
+}
+
+std::string Sub::toString() {
+  std::string result("sub ");
+  result.append(regToString(Rd));
+  result.append(std::string(" , "));
+  result.append(regToString(Rx));
+  result.append(std::string(" , "));
+  result.append(regToString(Ry));
+  return result;
+}
+
+std::string Subi::toString() {
+  std::string result("subi ");
+  result.append(regToString(Rd));
+  result.append(std::string(" , "));
+  result.append(regToString(Rx));
+  result.append(std::string(" , "));
+  result.append(std::to_string((long long int) inmediate));
+  return result;
+}
+
+std::string SubS::toString() {
+  std::string result("sub.s ");
+  result.append(regToString(Rfd));
+  result.append(comma);
+  result.append(regToString(Rfx));
+  result.append(comma);
+  result.append(regToString(Rfy));
+  return result;
+}
+
+std::string Mul::toString() {
+  std::string result("mul ");
+  result.append(regToString(Rd));
+  result.append(std::string(" , "));
+  result.append(regToString(Rx));
+  result.append(std::string(" , "));
+  result.append(regToString(Ry));
+  return result;
+}
+
+std::string MulS::toString() {
+  std::string result("mul.s ");
+  result.append(regToString(Rfd));
+  result.append(comma);
+  result.append(regToString(Rfx));
+  result.append(comma);
+  result.append(regToString(Rfy));
+  return result;
+}
+
+std::string Div::toString() {
+  std::string result("div ");
+  result.append(regToString(Rd));
+  result.append(std::string(" , "));
+  result.append(regToString(Rx));
+  result.append(std::string(" , "));
+  result.append(regToString(Ry));
+  return result;
+}
+
+std::string DivS::toString() {
+  std::string result("div.s ");
+  result.append(regToString(Rfd));
+  result.append(comma);
+  result.append(regToString(Rfx));
+  result.append(comma);
+  result.append(regToString(Rfy));
+  return result;
+}
+
+std::string Rem::toString() {
+  std::string result("rem ");
+  result.append(regToString(Rd));
+  result.append(std::string(" , "));
+  result.append(regToString(Rx));
+  result.append(std::string(" , "));
+  result.append(regToString(Ry));
+  return result;
+}
+
+std::string Mfhi::toString() {
+  std::string result("mfhi ");
+  result.append(regToString(reg));
+  return result;
+}
+
+std::string Mflo::toString() {
+  std::string result("mflo ");
+  result.append(regToString(reg));
+  return result;
+}
+
+std::string Move::toString() {
+  std::string result("move ");
+  result.append(regToString(Rd));
+  result.append(std::string(" , "));
+  result.append(regToString(Rx));
+  return result;
+}
+
+std::string ShiftL::toString() {
+  std::string result("sll ");
+  result.append(regToString(Rd));
+  result.append(std::string(" , "));
+  result.append(regToString(Rx));
+  result.append(std::string(" , "));
+  result.append(std::to_string((long long int) shamt));
+  return result;
+}
+
+std::string ShiftR::toString() {
+  std::string result("srl ");
+  result.append(regToString(Rd));
+  result.append(std::string(" , "));
+  result.append(regToString(Rx));
+  result.append(std::string(" , "));
+  result.append(std::to_string((long long int) shamt));
+  return result;
+}
+
+std::string Blt::toString() {
+  std::string result("blt ");
+  result.append(regToString(Rx));
+  result.append(comma);
+  result.append(regToString(Ry));
+  result.append(comma);
+  result.append(label->toString());
+  return result;
+}
+
+std::string Ble::toString() {
+  std::string result("ble ");
+  result.append(regToString(Rx));
+  result.append(comma);
+  result.append(regToString(Ry));
+  result.append(comma);
+  result.append(label->toString());
+  return result;
+}
+
+std::string Beq::toString() {
+  std::string result("beq ");
+  result.append(regToString(Rx));
+  result.append(comma);
+  result.append(regToString(Ry));
+  result.append(comma);
+  result.append(label->toString());
+  return result;
+}
+
+std::string Bne::toString() {
+  std::string result("bne ");
+  result.append(regToString(Rx));
+  result.append(comma);
+  result.append(regToString(Ry));
+  result.append(comma);
+  result.append(label->toString());
+  return result;
+}
+
+std::string Bgt::toString() {
+  std::string result("bgt ");
+  result.append(regToString(Rx));
+  result.append(comma);
+  result.append(regToString(Ry));
+  result.append(comma);
+  result.append(label->toString());
+  return result;
+}
+
+std::string Bge::toString() {
+  std::string result("bge ");
+  result.append(regToString(Rx));
+  result.append(comma);
+  result.append(regToString(Ry));
+  result.append(comma);
+  result.append(label->toString());
   return result;
 }
 
