@@ -20,13 +20,13 @@ private:
   mode mode;
   Reg Rd;
   // En caso de ser direct (Con etiqueta) 
-  SymVar *addr; // Tomar el nombre de la variable
+  Label *varLabel;
   // En caso de ser indirect
   int offset;
   Reg Rx;
 
 public:
-  La(Reg Rd,SymVar* addr): Rd(Rd),addr(addr),mode(direct){};
+  La(Reg Rd,Label* varLabel): Rd(Rd),varLabel(varLabel),mode(direct){};
   La(Reg Rd,int offs,Reg Rx): Rd(Rd),offset(offs),Rx(Rx),mode(indirect){};
 };
 
@@ -40,6 +40,16 @@ public:
   Li(Reg Rd,int inmed): Rd(Rd),inmediate(inmed){};
 };
 
+/* Load inmediate flotante simple Li.s Rd, #a */
+class LiS : MIPSinstruction{
+private:
+  Reg Rd;
+  float inmediate;
+
+public:
+  Li(Reg Rd,float inmed): Rd(Rd),inmediate(inmed){};
+};
+
 /* Load Word  Lw Rd,var
  *            Lw Rd,offset(Rx)
  */
@@ -48,76 +58,112 @@ private:
   mode mode;
   Reg Rd;
   // Direct, label of var
-  SymVar *addr;
+  Label *varLabel;
   // Indirect
   int offset;
   Reg Rx;
 
 public:
-  Lw(Reg Rd,SymVar* addr): Rd(Rd),addr(addr),mode(direct){};
+  Lw(Reg Rd,Label* varLabel): Rd(Rd),varLabel(varLabel),mode(direct){};
   Lw(Reg Rd,int offs,Reg Rx): Rd(Rd),offset(offs),Rx(Rx),mode(indirect){};
 };
 
-// Store word Sw Rx,addr
-class Sw : public MIPSinstruction{
+/* Store Word Sw Rs,var
+ *            Sw Rs,offset(Rd)
+ */
+class Lw : public MIPSinstruction{
 private:
-  // Si es una local hay que tomar el offset mas el $fp
-  SymVar *addr;
-  Reg Rx;
+  mode mode;
+  Reg Rs;
+  // Direct, label of var
+  Label *varLabel;
+  // Indirect
+  int offset;
+  Reg Rd;
+
 public:
-  Sw(SymVar* addr,Reg Rx): Rx(Rx),addr(addr){};
+  Lw(Reg Rs,Label* varLabel): Rs(Rs),varLabel(varLabel),mode(direct){};
+  Lw(Reg Rs,int offs,Reg Rd): Rs(Rs),offset(offs),Rd(Rd),mode(indirect){};
 };
 
+/*Add Rd, Rx, Ry*/
 class Add : public MIPSinstruction{
 private:
+  Reg Rd;
   Reg Rx;
   Reg Ry;
-  Reg Rz;
 public:
-  Add(Reg Rx,Reg Ry,Reg Rz): Rx(Rx),Ry(Ry),Rz(Rz){};
+  Add(Reg Rd,Reg Rx,Reg Ry): Rd(Rd),Rx(Rx),Ry(Ry){};
 };
 
+/*Addi Rd, Rx, #a */
 class Addi : public MIPSinstruction{
 private:
+  Reg Rd;
   Reg Rx;
-  Reg Ry;
   int inmediate;
 public:
-  Add(Reg Rx,Reg Ry,int inmed): Rx(Rx),Ry(Ry),inmediate(inmed){};
+  Addi(Reg Rd,Reg Rx,int inmed): Rd(Rd),Rx(Rx),inmediate(inmed){};
 };
 
-class AddS : MIPSinstruction{
-
+/* Add.s Rfd, Rfx, Rfy*/
+class AddS : public MIPSinstruction{
+private:
+  Reg Rfd;
+  Reg Rfx;
+  Reg Rfy;
+public:
+  AddS(Reg Rfd,Reg Rfx,Reg Rfy): Rfd(Rfd),Rfx(Rfx),Rfy(Rfy){};
 };
 
+/*Sub Rd, Rx,Ry*/
 class Sub : public MIPSinstruction{
 private:
+  Reg Rd;
   Reg Rx;
   Reg Ry;
-  Reg Rz;
 public:
-  Sub(Reg Rx,Reg Ry,Reg Rz): Rx(Rx),Ry(Ry),Rz(Rz){};
+  Sub(Reg Rd,Reg Rx,Reg Ry): Rd(Rd),Rx(Rx),Ry(Ry){};
 };
 
-class Subi : MIPSinstruction{
-
+/*Subi Rd, Rx, #a*/
+class Subi : public MIPSinstruction{
+private:
+  Reg Rd;
+  Reg Rx;
+  int inmediate;
+public:
+  Subi(Reg Rd,Reg Rx,int inmed): Rd(Rd),Rx(Rx),inmediate(inmed){};
 };
 
-class SubS : MIPSinstruction{
-
+/* Sub.s Rfd, Rfx, Rfy*/
+class SubS : public MIPSinstruction{
+private:
+  Reg Rfd;
+  Reg Rfx;
+  Reg Rfy;
+public:
+  SubS(Reg Rfd,Reg Rfx,Reg Rfy): Rfd(Rfd),Rfx(Rfx),Rfy(Rfy){};
 };
 
+/*Mul Rd, Rx,Ry*/
 class Mul : public MIPSinstruction{
 private:
+  Reg Rd;
   Reg Rx;
   Reg Ry;
-  Reg Rz;
 public:
-  Mul(Reg Rx,Reg Ry,Reg Rz): Rx(Rx),Ry(Ry),Rz(Rz){};
+  Mul(Reg Rd,Reg Rx,Reg Ry): Rd(Rd),Rx(Rx),Ry(Ry){};
 };
 
-class MulS : MIPSinstruction{
-
+/* Mul.s Rfd, Rfx, Rfy*/
+class MulS : public MIPSinstruction{
+private:
+  Reg Rfd;
+  Reg Rfx;
+  Reg Rfy;
+public:
+  MulS(Reg Rfd,Reg Rfx,Reg Rfy): Rfd(Rfd),Rfx(Rfx),Rfy(Rfy){};
 };
 
 // Deja el resultado en Lo y Hi
@@ -129,6 +175,7 @@ public:
   Div(Reg Rx,Reg Ry): Rx(Rx),Ry(Ry){};
 };
 
+/*Move From Hi*/
 class Mfhi : public MIPSinstruction{
 private:
   Reg reg;
@@ -136,6 +183,7 @@ public:
   Mfhi(Reg reg): reg(reg){};
 };
 
+/*Move From Lo*/
 class Mflo : public MIPSinstruction{
 private:
   Reg reg;
@@ -143,8 +191,14 @@ public:
   Mflo(Reg reg): reg(reg){};
 };
 
+/*Div.s Rfd, Rfx, Rfy*/
 class DivS : MIPSinstruction{
-
+private:
+  Reg Rfd;
+  Reg Rfx;
+  Reg Rfy;
+public:
+  DivS(Reg Rfd,Reg Rfx,Reg Rfy): Rfd(Rfd),Rfx(Rfx),Rfy(Rfy){};
 };
 
 
@@ -171,16 +225,18 @@ class Ori : MIPSinstruction{
 class Not : MIPSinstruction{
 
 };
+
+/*    Jumps and Branches    */
   
 // Branch less than  <
 class Blt : public MIPSinstruction{
 private:
   Reg Rx;
   Reg Ry;
-  std::string label;
+  Label* label;
 
 public:
-  Blt(Reg Rx,Reg Ry,std::string label): Rx(Rx),Ry(Ry),label(label){};
+  Blt(Reg Rx,Reg Ry,Label* label): Rx(Rx),Ry(Ry),label(label){};
 };
 
 // Branch less Eq <=
@@ -188,10 +244,10 @@ class Ble :public MIPSinstruction{
 private:
   Reg Rx;
   Reg Ry;
-  std::string label;
+  Label* label;
 
 public:
-  Ble(Reg Rx,Reg Ry,std::string label): Rx(Rx),Ry(Ry),label(label){};
+  Ble(Reg Rx,Reg Ry,Label* label): Rx(Rx),Ry(Ry),label(label){};
 };
 
 // Branch Eq == 
@@ -199,10 +255,10 @@ class Beq : public MIPSinstruction{
 private:
   Reg Rx;
   Reg Ry;
-  std::string label;
+  Label* label;
 
 public:
-  Beq(Reg Rx,Reg Ry,std::string label): Rx(Rx),Ry(Ry),label(label){};
+  Beq(Reg Rx,Reg Ry,Label* label): Rx(Rx),Ry(Ry),label(label){};
 };
 
 // Branch Not Eq !=
@@ -210,10 +266,10 @@ class Bne : public MIPSinstruction{
 private:
   Reg Rx;
   Reg Ry;
-  std::string label;
+  Label* label;
 
 public:
-  Bne(Reg Rx,Reg Ry,std::string label): Rx(Rx),Ry(Ry),label(label){};
+  Bne(Reg Rx,Reg Ry,Label* label): Rx(Rx),Ry(Ry),label(label){};
 };
 
 // Branch Greather than >
@@ -221,10 +277,10 @@ class Bgt : public MIPSinstruction{
 private:
   Reg Rx;
   Reg Ry;
-  std::string label;
+  Label* label;
 
 public:
-  Bgt(Reg Rx,Reg Ry,std::string label): Rx(Rx),Ry(Ry),label(label){};
+  Bgt(Reg Rx,Reg Ry,Label* label): Rx(Rx),Ry(Ry),label(label){};
 };
 
 // Branch Greater Eq >=
@@ -232,31 +288,31 @@ class Bge : public MIPSinstruction{
 private:
   Reg Rx;
   Reg Ry;
-  std::string label;
+  Label* label;
 
 public:
-  Bge(Reg Rx,Reg Ry,std::string label): Rx(Rx),Ry(Ry),label(label){};
+  Bge(Reg Rx,Reg Ry,Label* label): Rx(Rx),Ry(Ry),label(label){};
 };
 
 // Jump
 class J : public MIPSinstruction{
 private:
-  std::string label;
+  Label* label;
 
 public:
-  Bge(std::string label): label(label){};
+  Bge(Label* label): label(label){};
 };
 
 // Jump and Link
 class Jal : public MIPSinstruction{
 private:
-  std::string label;
+  Label *label;
 
 public:
-  Jal(std::string label): label(label){};
+  Jal(Label* label): label(label){};
 };
 
-// Jr 
+// Jump Register 
 class Jr : public MIPSinstruction{
 private:
   Reg Rx;
