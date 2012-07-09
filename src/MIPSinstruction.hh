@@ -241,8 +241,13 @@ public:
   virtual std::string toString();
 };
 
+// neg Rd, Rx
 class Negu : MIPSinstruction{
-
+  Reg Rd;
+  Reg Rx;
+public:
+  Negu (Reg Rd, Reg Rx) : Rd(Rd), Rx(Rx) {};
+  virtual std::string toString();
 };
 
 class AndM : MIPSinstruction{

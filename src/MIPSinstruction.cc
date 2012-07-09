@@ -196,6 +196,14 @@ std::string Move::toString() {
   return result;
 }
 
+std::string Negu::toString() {
+  std::string result("neg ");
+  result.append(regToString(Rd));
+  result.append(std::string(" , "));
+  result.append(regToString(Rx));
+  return result;
+}
+
 std::string ShiftL::toString() {
   std::string result("sll ");
   result.append(regToString(Rd));
