@@ -448,6 +448,10 @@ std::string CallQ::toString() {
   return result;
 }
 
+bool CallQ::isJumpTarget() {
+  return true;
+}
+
 // OBSOLETO
 SymFunction* CallQ::getCallTarget() {
   return this->func;

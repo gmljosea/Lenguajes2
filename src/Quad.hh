@@ -289,6 +289,8 @@ public:
   virtual std::list<BasicBlock*> getTargetBlocks(); // Obsoleto
 
   virtual std::string toString();
+  virtual bool isJumpTarget(); // Hack necesario para no dañar los registros
+  // cuando se traduzcan las llamadas a funciones
 };
 
 class RetrieveQ : public Quad {

@@ -6,6 +6,8 @@
 #include "type.hh"
 #include "parser.hh"
 #include "program.hh"
+#include "registers.hh"
+#include "MIPSinstruction.hh"
 
 #include <iostream>
 
@@ -46,16 +48,17 @@ void SymFunction::gen(){
   // Emitir label donde comienza esta función
   mipscode.emitLabel(this->start);
 
-  // FIXME
-  // Escupir el prólogo (incluyendo su label)
-  // -- Instanciar una pila de MIPS y hacer emitInst
+  // Prólogo
+  mipscode.emitInst(new Sw(Reg::fp, -4, Reg::sp));
+  mipscode.emitInst(new Sw(Reg::ra, -8, Reg::sp));
+  mipscode.emitInst(new La(Reg::fp, 0, Reg::sp));
+  mipscode.emitInst(new La(Reg::sp, -local_space-8, Reg::sp));
+
   /*
     sw $fp, -4($sp)
     sw $ra, -8($sp)
     la $fp, 0($sp)
-    la $sp -n($sp)
-    --> n offset de la funcion
-    (tamaño total de las locales)
+    la $sp -local_space($sp)
    */
 
   // Escupir el MIPS generado
@@ -63,13 +66,16 @@ void SymFunction::gen(){
 
   mipscode.emitLabel(fun_graph->getExit()->getLabel());
 
-  // FIXME
-  // Escupir el epílogo (incluyendo su label)
-  // -- Instanciar una pila de MIPS y hacer emitInst
+  // Epílogo
+  mipscode.emitInst(new La(Reg::sp, 0, Reg::fp));
+  mipscode.emitInst(new Lw(Reg::ra, -8, Reg::sp));
+  mipscode.emitInst(new Lw(Reg::fp, -4, Reg::sp));
+  mipscode.emitInst(new Jr(Reg::ra));
+
   /*
     la $sp, 0($fp)
     lw $ra, -8($sp)
     lw $fp, -4($sp)
     jr $ra
-   */
+  */
 }

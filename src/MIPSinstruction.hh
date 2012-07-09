@@ -1,23 +1,24 @@
 #ifndef DEVANIX_MIPS
 #define DEVANIX_MIPS
 
+#include "registers.hh"
 #include "instruction.hh"
 
 class MIPSinstruction : public Instruction{
 
 };
 
-enum mode{
+enum Mode{
   direct,
   indirect
-}
+};
 
 /* Load address La Rd,var  direct
  *              La Rd,offset(Rx) indirect
  */
 class La : public MIPSinstruction{
 private:
-  mode mode;
+  Mode mode;
   Reg Rd;
   // En caso de ser direct (Con etiqueta) 
   Label *varLabel;
@@ -27,7 +28,8 @@ private:
 
 public:
   La(Reg Rd,Label* varLabel): Rd(Rd),varLabel(varLabel),mode(direct){};
-  La(Reg Rd,int offs,Reg Rx): Rd(Rd),offset(offs),Rx(Rx),mode(indirect){};
+  La(Reg Rd,int offs,Reg Rx): Rd(Rd),offset(offs),Rx(Rx),mode(indirect),varLabel(NULL) {};
+  virtual std::string toString();
 };
 
 /* Load inmediate Li Rd, #a */
@@ -47,7 +49,7 @@ private:
   float inmediate;
 
 public:
-  Li(Reg Rd,float inmed): Rd(Rd),inmediate(inmed){};
+  LiS(Reg Rd,float inmed): Rd(Rd),inmediate(inmed){};
 };
 
 /* Load Word  Lw Rd,var
@@ -55,7 +57,7 @@ public:
  */
 class Lw : public MIPSinstruction{
 private:
-  mode mode;
+  Mode mode;
   Reg Rd;
   // Direct, label of var
   Label *varLabel;
@@ -65,15 +67,16 @@ private:
 
 public:
   Lw(Reg Rd,Label* varLabel): Rd(Rd),varLabel(varLabel),mode(direct){};
-  Lw(Reg Rd,int offs,Reg Rx): Rd(Rd),offset(offs),Rx(Rx),mode(indirect){};
+  Lw(Reg Rd,int offs,Reg Rx): Rd(Rd),offset(offs),Rx(Rx),mode(indirect),varLabel(NULL){};
+  virtual std::string toString();
 };
 
 /* Store Word Sw Rs,var
  *            Sw Rs,offset(Rd)
  */
-class Lw : public MIPSinstruction{
+class Sw : public MIPSinstruction{
 private:
-  mode mode;
+  Mode mode;
   Reg Rs;
   // Direct, label of var
   Label *varLabel;
@@ -82,8 +85,9 @@ private:
   Reg Rd;
 
 public:
-  Lw(Reg Rs,Label* varLabel): Rs(Rs),varLabel(varLabel),mode(direct){};
-  Lw(Reg Rs,int offs,Reg Rd): Rs(Rs),offset(offs),Rd(Rd),mode(indirect){};
+  Sw(Reg Rs,Label* varLabel): Rs(Rs),varLabel(varLabel),mode(direct){};
+  Sw(Reg Rs,int offs,Reg Rd): Rs(Rs),offset(offs),Rd(Rd),mode(indirect),varLabel(NULL){};
+  virtual std::string toString();
 };
 
 /*Add Rd, Rx, Ry*/
@@ -206,7 +210,7 @@ class Negu : MIPSinstruction{
 
 };
 
-class And : MIPSinstruction{
+class AndM : MIPSinstruction{
 
 };
 
@@ -214,7 +218,7 @@ class Andi : MIPSinstruction{
 
 };
 
-class Or : MIPSinstruction{
+class OrM : MIPSinstruction{
 
 };
 
@@ -222,7 +226,7 @@ class Ori : MIPSinstruction{
 
 };
 
-class Not : MIPSinstruction{
+class NotM : MIPSinstruction{
 
 };
 
@@ -300,7 +304,7 @@ private:
   Label* label;
 
 public:
-  Bge(Label* label): label(label){};
+  J(Label* label): label(label){};
 };
 
 // Jump and Link
@@ -319,6 +323,7 @@ private:
 
 public:
   Jr(Reg Rx): Rx(Rx){};
+  virtual std::string toString();
 };
 
 #endif
