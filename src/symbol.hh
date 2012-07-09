@@ -53,6 +53,7 @@ private:
 
   int idTemp;
   bool temp;
+
 public:
   SymVar (std::string id, int line,int col, bool isParam, int scope);
   SymVar (int idTemp);

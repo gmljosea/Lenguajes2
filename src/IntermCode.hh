@@ -29,11 +29,14 @@ public:
   IntermCode(): nextlabel(0),nextTemp(0){};
   Label* newLabel();
   SymVar* newTemp();
-  void addInst(Quad* quad);
+  void addInst(Instruction* quad);
   void emitLabel(Label* label);
-  void emitLabel2(Quad* instr);
+  void emitLabel2(Instruction* instr);
   bool areUnSet();
   BasicBlock* splitBlocks();
+
+  std::list<Instruction*> getInstructions();
+  void clear();
 };
 
 #endif

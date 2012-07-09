@@ -30,6 +30,18 @@ GenLvalue Index::genlvalue() {
 	arrayloc.coff + (cind->getInteger() * elemsize) };
   } else {
     SymVar* indexaddr = this->index->gen();
+
+    // Para rreglar un bug cuando el indice ya era un SymVar
+    // Entonces el gen() devolvia el propio SymVar
+    // Entonces hay que ver, si no es temporal, copiamos la variable en un
+    // temporal
+    if (!indexaddr->isTemp()) {
+      SymVar* nt = intCode.newTemp();
+      arg1.id = indexaddr;
+      intCode.addInst(new AsignmentQ(ArgType::id, arg1, nt));
+      indexaddr = nt;
+    }
+
     SymVar* newindex = intCode.newTemp();
     // DONE QUAD: newindex := indexaddr * elemsize
     arg1.id = indexaddr;
@@ -82,6 +94,18 @@ SymVar* Index::gen() {
 				     arrayloc.doff));
   } else {
     SymVar* indaddr = this->index->gen();
+
+    // Para rreglar un bug cuando el indice ya era un SymVar
+    // Entonces el gen() devolvia el propio SymVar
+    // Entonces hay que ver, si no es temporal, copiamos la variable en un
+    // temporal
+    if (!indaddr->isTemp()) {
+      SymVar* nt = intCode.newTemp();
+      arg1.id = indaddr;
+      intCode.addInst(new AsignmentQ(ArgType::id, arg1, nt));
+      indaddr = nt;
+    }
+
     // DONE QUAD: indaddr := indaddr * elemsize
     arg1.id = indaddr;
     arg2.constint = elemsize;
@@ -471,7 +495,37 @@ void Relational::jumping(Label* lbltrue,Label* lblfalse){
 // FunCallExp
 
 SymVar* FunCallExp::gen(){
+  SymVar *result= intCode.newTemp();
+
+  // Ugly hack para los casts
+  Args arg1;
+  if (symf->getId().compare("inttofloat") == 0) {
+    SymVar* temp = args.front()->gen();
+    arg1.id = temp;
+    intCode.addInst(new CastItoFQ(result, ArgType::id, arg1));
+    return temp;
+  }
+  if (symf->getId().compare("floattoint") == 0) {
+    SymVar* temp = args.front()->gen();
+    arg1.id = temp;
+    intCode.addInst(new CastFtoIQ(result, ArgType::id, arg1));
+    return temp;
+  }
+  if (symf->getId().compare("chartoint") == 0) {
+    SymVar* temp = args.front()->gen();
+    arg1.id = temp;
+    intCode.addInst(new CastCtoIQ(result, ArgType::id, arg1));
+    return temp;
+  }
+  if (symf->getId().compare("inttochar") == 0) {
+    SymVar* temp = args.front()->gen();
+    arg1.id = temp;
+    intCode.addInst(new CastItoCQ(result, ArgType::id, arg1));
+    return temp;
+  }
+
   // Generar las instrucciones para cargar los parametros
+  //std::list<SymVar*>::iterator arglist = symf->getArguments().begin();
   std::list<Expression*>::iterator arg= this->args.begin();
   for(arg; arg!=this->args.end(); arg++){
     SymVar *temp= (*arg)->gen();
@@ -481,8 +535,9 @@ SymVar* FunCallExp::gen(){
       intCode.addInst(new ParamValQ(temp));
     }
   }
-  SymVar *result= intCode.newTemp();
+
   // Llamada a la funcion
-  intCode.addInst(new CallQ(this->symf,this->symf->getArgumentCount(),result));
+  intCode.addInst(new CallQ(this->symf,this->symf->getArgumentCount()));
+  intCode.addInst(new RetrieveQ(result));
   return result;
 }

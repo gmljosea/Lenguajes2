@@ -4,6 +4,10 @@
 
 #include "flowgraph.hh"
 #include "IntermCode.hh"
+#include "parser.hh"
+#include "symbol.hh"
+
+extern SymFunction* currentfun;
 
 Label* IntermCode::newLabel(){
   Label* newLabel= new Label(this->nextlabel++);
@@ -13,10 +17,10 @@ Label* IntermCode::newLabel(){
 
 void IntermCode::emitLabel(Label* label){
   this->unSet.push_back(label);
-  std::cout << "l" << label->getId() << ": ";
+  //  std::cout << "l" << label->getId() << ": ";
 }
 
-void IntermCode::emitLabel2(Quad* instr){
+void IntermCode::emitLabel2(Instruction* instr){
   // Asocia las etiquetas de unSet a la instruccion
   instr->setLabels(this->unSet);
  for (std::list<Label*>::iterator it = this->unSet.begin();
@@ -32,38 +36,21 @@ bool IntermCode::areUnSet(){
   return this->unSet.size()!=0;
 }
 
-void IntermCode::addInst(Quad* quad){
+void IntermCode::addInst(Instruction* quad){
   if(areUnSet()) emitLabel2(quad);
   this->inst.push_back(quad);
-  quad->printQuad();
+  //  quad->printQuad();
 }
 
 SymVar* IntermCode::newTemp(){
   return new SymVar(this->nextTemp++);
 }
 
-void Label::setInstruction(Quad* instruction){
-  this->instruction= instruction;
-}
-
-void Label::setActive(bool a) {
-  this->active = a;
-}
-
-bool Label::isActive() {
-  return this->active;
-}
-
-Quad* Label::getInstruction() {
-  return this->instruction;
-}
-
-int Label::getId(){ return this->id;}
 
 BasicBlock* IntermCode::splitBlocks() {
   // Primera pasada: crear bloques
 
-  std::list<BasicBlock*> block_list;
+  /*  std::list<BasicBlock*> block_list;
   BasicBlock* current_block = new BasicBlock();
 
   for (std::list<Instruction*>::iterator it = (this->inst).begin();
@@ -128,5 +115,15 @@ BasicBlock* IntermCode::splitBlocks() {
 
   }
 
-  return entry_block;
+  return entry_block;*/
+}
+
+std::list<Instruction*> IntermCode::getInstructions() {
+  return inst;
+}
+
+void IntermCode::clear() {
+  unSet.clear();
+  inst.clear();
+  labelset.clear();
 }

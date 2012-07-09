@@ -14,6 +14,7 @@
 
 #include "flowgraph.hh"
 #include "expression.hh"
+#include "mipscode.hh"
 #include "program.hh"
 #include "statement.hh"
 #include "type.hh"
@@ -45,6 +46,8 @@ std::list<Iteration*> loopstack;
   * instruccion en el arbol sintactico.
    */
  IntermCode intCode;
+
+ MIPSCode mipscode;
 
 /**
  * Extrae los campos de yylloc y los utiliza para inicializar los campos
@@ -879,129 +882,33 @@ void yyerror (char const *s) {
   program.error(s, yylloc.first_line, yylloc.first_column);
 }
 
-// Por ahora el main está aquí, pero luego hay que moverlo
 int main (int argc, char **argv) {
+  /*
+   * Lo más interesante sería que pongamos los siguientes flags:
+   * -a fil : emite la salida del AST en el archivo fil.
+   * -f dir : pone en dir un grafo de flujo de Quads por función y el init.
+   * -m dir : pone en dir un grafo de flujo de MIPS por función y el init.
+   * -o fil : emite el ensamblable en el archivo fil
+   */
+
   if (argc == 2) {
     yyin = fopen(argv[1], "r");
   }
 
-  program.errorCount = 0;
-
-  // Agregar las funciones embebidas del lenguaje
-
-  //Argumentos Dummy de cada tipo
-  SymVar *argInt= new SymVar("a",0,0,true,0);
-  SymVar *argFloat= new SymVar("b",0,0,true,0);
-  SymVar *argChar= new SymVar("c",0,0,true,0);
-
-  /* De verdad hace falta agregarlos a la tabla?
-     --> Cuando generemos código vemos como manejamos las funciones
-     de cast, porque también sería ineficiente generar una llamada a
-     función para una simple conversión.
-  program.symtable.insert(argInt);
-  program.symtable.insert(argFloat);
-  program.symtable.insert(argChar);
-  */
-
-  // pero ya me da fastidio cambiar las firmas de los getInstance - JA
-  argInt->setType(&(IntType::getInstance()));
-  argInt->setReference(false);
-  argFloat->setType(&(FloatType::getInstance()));
-  argFloat->setReference(false);
-  argChar->setType(&(CharType::getInstance()));
-  argChar->setReference(false);
-
-  ArgList *listargInt = new ArgList();
-  ArgList *listargFloat = new ArgList();
-  ArgList *listargChar = new ArgList();
-
-  listargInt->push_back(argInt);
-  listargFloat->push_back(argFloat);
-  listargChar->push_back(argChar);
-
-  SymFunction *inttofloat
-    = new SymFunction("inttofloat",listargInt, &(FloatType::getInstance()),0,0);
-  SymFunction *floattoint
-    = new SymFunction("floattoint",listargFloat, &(IntType::getInstance()),0,0);
-  SymFunction *chartoint
-    = new SymFunction("chartoint",listargChar, &(IntType::getInstance()), 0,0);
-  SymFunction *inttochar
-    = new SymFunction("inttochar", listargInt, &(CharType::getInstance()),0,0);
-
-  program.symtable.insert(inttofloat);
-  program.symtable.insert(floattoint);
-  program.symtable.insert(chartoint);
-  program.symtable.insert(inttochar);
-
+  // Parsea la entrada puesta en yyin.
+  // El AST se guarda en la variable global program.
   yyparse();
 
-  // Segunda vuelta haciendo chequeos semánticos
-
-  // Chequear que existe una función llamada main()
-  SymFunction *main= program.symtable.lookup_function("main");
-  if(main==NULL){
-    std::cerr << "Error: No se ha definido la función main." << std::endl;
-  }else{
-    program.main = main;
-    int line= main->getLine();
-    int col= main->getColumn();
-    // Si existe, verificar que no tenga agumentos y que sea tipo int
-    if(main->getArgumentCount()!=0){
-      program.error("la funcion main no debe tener argumentos",line,col);
-    }
-    IntType& i = IntType::getInstance();
-    if(!(*(main->getType()) == i)){
-      main->getType()->print();
-      program.error("La funcion main debe ser de tipo 'int'",line,col);
-    }
-  }
-
-  // Chequear el AST
+  // Chequear el AST. Los errores encontrados se emiten por stderr.
   program.check();
 
-  // Si hay algun error, no imprimir el árbol.
+  // Si hay algun error, detenerse
   if (program.errorCount > 0) {
     return 1;
   }
-  /*
-  std::cout << "-- Variables globales --" << std::endl << std::endl;
 
-  for (std::list<VariableDec*>::iterator it = program.globalinits.begin();
-       it != program.globalinits.end(); it++) {
-    (**it).print(0);
-  }
-
-  std::cout << std::endl << "-- Funciones definidas --" << std::endl << std::endl;
-
-  for (std::list<SymFunction*>::iterator it = program.functions.begin();
-       it != program.functions.end(); it++) {
-    (**it).print();
-  }
-
-  std::cout << std::endl << "-- Tipos Box definidos --" << std::endl << std::endl;
-
-  for (std::list<BoxType*>::iterator it = program.boxes.begin();
-       it != program.boxes.end(); it++) {
-    (**it).printDetail();
-  }
-
-  //program.symtable.print();
-
-  // Generar codigo intermedio */
+  // Generar código
   program.gen();
 
-
-  BasicBlock* flowgraph = intCode.splitBlocks();
-
-  std::ofstream output;
-  output.open("flowgraph.dot", std::ios::trunc);
-  output << "digraph flowgraph {" << std::endl;
-  output << "  node [shape=box, nojustify=true]" << std::endl;
-
-  flowgraph->outputAsDot(output);
-
-  output << "}" << std::endl;
-
   return 0;
-
 }

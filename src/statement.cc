@@ -460,6 +460,17 @@ void VariableDec::print(int nesting) {
   }
 }
 
+std::list<SymVar*> VariableDec::getVars() {
+  std::list<SymVar*> res;
+
+  for (std::list<std::pair<SymVar*,Expression*>>::iterator it = decls.begin();
+       it != decls.end(); it++) {
+    res.push_back((*it).first);
+  }
+
+  return res;
+}
+
 /*********** BREAK ************/
 
 Break::Break(std::string* label, Iteration* loop) {

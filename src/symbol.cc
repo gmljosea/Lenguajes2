@@ -60,7 +60,7 @@ SymFunction::SymFunction(std::string id, ArgList* arguments, Type* ret,
   this->args = arguments;
   this->setType(ret); //tipo del retorno de la función
 
-  this->start = intCode.newLabel();
+  this->start = new Label(std::string("f_")+id);
   this->generated = false;
 }
 
@@ -126,19 +126,6 @@ void SymFunction::check() {
     offset += (align - (offset % align)) % align;
     (*it)->setOffset(offset);
     offset += (*it)->getSize();
-  }
-}
-
-void SymFunction::gen(){
-  if (!this->generated) {
-    this->generated = true;
-    intCode.emitLabel(this->start);
-    this->start->setActive(true);
-    intCode.addInst(new PrologueQ(this));
-    this->block->gen(NULL);
-    if (this->type == &(VoidType::getInstance())) {
-      intCode.addInst(new ReturnQ(this));
-    }
   }
 }
 

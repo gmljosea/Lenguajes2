@@ -324,6 +324,8 @@ void Return::gen(Label* next) {
 }
 
 void FunctionCall::gen(Label* next) {
+  // FIXME: cuando la función es void, igual se genera un retrieve al temporal
+  // generado, que igual no se usa.
   this->exp->gen();
 }
 

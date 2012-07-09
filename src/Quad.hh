@@ -3,6 +3,7 @@
 
 #include "instruction.hh"
 #include "symbol.hh"
+#include "label.hh"
 
 class Quad : public Instruction {
 public:
@@ -43,7 +44,7 @@ union Args{
   char constchar;
 };
 
-enum ArgType{	
+enum ArgType{
 id,
 constint,
 constfloat,
@@ -53,28 +54,11 @@ conststring,
 null
 };
 
-/** 
- * Representa una etiqueta asociada a una instruccion 
- */
-class Label {
-private:
-  Quad* instruction;
-  int id;
-  bool active;
-public:
-  Label(int id): id(id), active(false){};
-  void setInstruction(Quad* quad);
-  void setActive(bool act);
-  bool isActive();
-  Quad* getInstruction();
-  int getId();
-};
-
-/** 
+/**
  * Clase que representa la asignacion de 3 o 2 direcciones
- * ejemplo: result:= arg1 op arg2  
+ * ejemplo: result:= arg1 op arg2
  *          result:= op arg1
- **/ 
+ **/
 class AsignmentOpQ:public Quad{
 private:
   Operator op;
@@ -82,7 +66,7 @@ private:
   ArgType arg1Type;
   Args arg2;
   ArgType arg2Type;
-  SymVar *result; 
+  SymVar *result;
 public:
   AsignmentOpQ(SymVar* arg1,Operator op,SymVar* arg2,SymVar* result);
   AsignmentOpQ(ArgType arg1Type,Args arg1,Operator op,ArgType arg2Type,Args arg2,
@@ -90,69 +74,77 @@ public:
 			     arg2Type(arg2Type),arg2(arg2),result(result){};
   virtual void printQuad();
   virtual std::string toString();
+
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
-/** 
+
+/**
  * Clase que representa la asignacion de copia
  * ejemplo:  result:= arg1
- **/ 
+ **/
 class AsignmentQ:public Quad{
 private:
   Args arg1;
   ArgType arg1Type;
-  SymVar *result; 
+  SymVar *result;
 public:
-  AsignmentQ(ArgType arg1Type,Args arg1,SymVar* result): 
+  AsignmentQ(ArgType arg1Type,Args arg1,SymVar* result):
     Quad(), arg1Type(arg1Type), arg1(arg1),result(result){};
   virtual void printQuad();
   virtual std::string toString();
+
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
-/** 
+/**
  * Clase que representa la asignacion de referencias
  * ejemplo:  result:= *arg1
- **/ 
+ **/
 class AsignmentPointQ:public Quad{
 private:
   SymVar *arg1;
-  SymVar *result; 
+  SymVar *result;
 public:
-  AsignmentPointQ(SymVar* arg1,SymVar* result): 
+  AsignmentPointQ(SymVar* arg1,SymVar* result):
     Quad(), arg1(arg1),result(result){};
   virtual void printQuad();
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
-/** 
+/**
  * Clase que representa la asignacion a referencias de temporales
  * ejemplo:  *result:= arg1
- **/ 
+ **/
 class AsignmentToPointQ:public Quad{
 private:
   Args arg1;
   ArgType arg1Type;
-  SymVar *result; 
+  SymVar *result;
 public:
   AsignmentToPointQ(SymVar* arg1,SymVar* result);
   AsignmentToPointQ(ArgType arg1Type,Args arg1,SymVar* result):
     Quad(), arg1Type(arg1Type),arg1(arg1),result(result){};
   virtual void printQuad();
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
-/** 
+/**
  * Clase que representa la asignacion de direccion
  * ejemplo:  result:= &arg1
- **/ 
+ **/
 class AsignmentAddQ:public Quad{
 private:
   SymVar *arg1;
-  SymVar *result; 
+  SymVar *result;
 public:
-  AsignmentAddQ(SymVar* arg1,SymVar* result): 
+  AsignmentAddQ(SymVar* arg1,SymVar* result):
     Quad(), arg1(arg1),result(result){};
   virtual void printQuad();
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 /**
@@ -170,12 +162,15 @@ public:
   virtual std::list<BasicBlock*> getTargetBlocks();
   virtual bool isHardJump();
   virtual std::string toString();
+
+  virtual Label* getTargetLabel();
+  virtual void replaceTargetLabel(Label* l);
 };
 
 /**
  * Clase que representa el salto condicional
  * ejemplo: if arg1 op arg2 goto label
- * En donde op es un operador relacional. 
+ * En donde op es un operador relacional.
  */
 class ConditionalJumpQ:public Quad{
 private:
@@ -196,12 +191,16 @@ public:
   virtual std::list<BasicBlock*> getTargetBlocks();
   virtual bool isHardJump();
   virtual std::string toString();
-}; 
+
+  virtual Label* getTargetLabel();
+  virtual void replaceTargetLabel(Label* l);
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
+};
 
 /**
  * Clase que representa el salto condicional negado
  * ejemplo: ifnot arg1 op arg2 goto label
- * En donde op es un operador relacional. 
+ * En donde op es un operador relacional.
  */
 class ConditionalNJumpQ:public Quad{
 private:
@@ -223,11 +222,15 @@ public:
   virtual bool isHardJump();
 
   virtual std::string toString();
+
+  virtual Label* getTargetLabel();
+  virtual void replaceTargetLabel(Label* l);
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 /**
  * Clase que representa un parametro de una funcion por valor
- *  
+ *
  */
 class ParamValQ: public Quad{
 private:
@@ -237,13 +240,14 @@ public:
   ParamValQ(ArgType paramType,Args param):Quad(),param(param),paramType(paramType){};
   ParamValQ(SymVar *param);
   virtual void printQuad();
-  
+
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 /**
  * Clase que representa un parametro de una funcion por referencia
- *  
+ *
  */
 class ParamRefQ: public Quad{
 private:
@@ -253,16 +257,17 @@ public:
   virtual void printQuad();
 
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 /**
  * Clase que representa el prologo de la funcion func
- */ 
+ */
 class PrologueQ: public Quad{
 private:
   SymFunction *func;
 public:
-  PrologueQ(SymFunction *func): func(func) {}; 
+  PrologueQ(SymFunction *func): func(func) {};
   virtual void printQuad();
 
   virtual std::string toString();
@@ -270,26 +275,31 @@ public:
 
 /**
  * Clase que representa la llamada a una funcion
- * ejemplo: returnVal:= call func numParam
- */ 
+ * ejemplo: call func numParam
+ */
 class CallQ: public Quad{
 private:
   int numParam;
-  SymVar *returnVal;
   SymFunction *func;
 public:
-  CallQ(SymFunction *func,int n,SymVar *retVal):func(func),numParam(n),
-					  returnVal(retVal){};
+  CallQ(SymFunction *func,int n):func(func),numParam(n){};
   virtual void printQuad();
 
-  virtual bool isJump();
-  virtual bool isCall();
-  virtual SymFunction* getCallTarget();
-  virtual std::list<BasicBlock*> getTargetBlocks();
-  virtual bool isHardJump();
+  virtual SymFunction* getCallTarget(); // Obsoleto
+  virtual std::list<BasicBlock*> getTargetBlocks(); // Obsoleto
 
   virtual std::string toString();
-}; 
+};
+
+class RetrieveQ : public Quad {
+private:
+  SymVar* var;
+public:
+  RetrieveQ(SymVar* var) : var(var) {};
+  virtual void printQuad();
+  virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
+};
 
 /**
  * Clase que representa el retorno de una funcion
@@ -309,8 +319,10 @@ public:
   virtual std::list<BasicBlock*> getTargetBlocks();
   virtual bool isHardJump();
   virtual bool isMainReturn();
+  virtual bool isReturn();
 
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 /**
@@ -329,6 +341,7 @@ public:
   virtual void printQuad();
 
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 /**
@@ -349,6 +362,7 @@ public:
   virtual void printQuad();
 
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 // write <type> <arg>
@@ -363,6 +377,7 @@ public:
   virtual void printQuad();
 
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 // <result> := read <type>, si deref = false
@@ -377,6 +392,7 @@ public:
   virtual void printQuad();
 
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 // <result>[<index>] := read <type>
@@ -391,6 +407,67 @@ public:
   virtual void printQuad();
 
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
+};
+
+// a := (float to int) b
+class CastFtoIQ : public Quad {
+private:
+  SymVar* result;
+  ArgType argt;
+  Args arg;
+public:
+  CastFtoIQ(SymVar* result, ArgType argt, Args arg) : result(result),
+						      argt(argt),
+						      arg(arg) {};
+  virtual void printQuad();
+  virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
+};
+
+// a := (int to float) b
+class CastItoFQ : public Quad {
+private:
+  SymVar* result;
+  ArgType argt;
+  Args arg;
+public:
+  CastItoFQ(SymVar* result, ArgType argt, Args arg) : result(result),
+						      argt(argt),
+						      arg(arg) {};
+  virtual void printQuad();
+  virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
+};
+
+// a := (char to int) b
+class CastCtoIQ : public Quad {
+private:
+  SymVar* result;
+  ArgType argt;
+  Args arg;
+public:
+  CastCtoIQ(SymVar* result, ArgType argt, Args arg) : result(result),
+						      argt(argt),
+						      arg(arg) {};
+  virtual void printQuad();
+  virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
+};
+
+// a := (int to char) b
+class CastItoCQ : public Quad {
+private:
+  SymVar* result;
+  ArgType argt;
+  Args arg;
+public:
+  CastItoCQ(SymVar* result, ArgType argt, Args arg) : result(result),
+						      argt(argt),
+						      arg(arg) {};
+  virtual void printQuad();
+  virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 #endif
