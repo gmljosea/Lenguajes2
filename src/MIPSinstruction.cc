@@ -196,6 +196,38 @@ std::string Move::toString() {
   return result;
 }
 
+std::string Mtc1::toString() {
+  std::string result("mtc1 ");
+  result.append(regToString(Rfd));
+  result.append(std::string(" , "));
+  result.append(regToString(Rx));
+  return result;
+}
+
+std::string Mfc1::toString() {
+  std::string result("mfc1 ");
+  result.append(regToString(Rd));
+  result.append(std::string(" , "));
+  result.append(regToString(Rfx));
+  return result;
+}
+
+std::string CvtIF::toString() {
+  std::string result("cvt.s.w ");
+  result.append(regToString(Rfd));
+  result.append(std::string(" , "));
+  result.append(regToString(Rx));
+  return result;
+}
+
+std::string CvtFI::toString() {
+  std::string result("cvt.w.s ");
+  result.append(regToString(Rfd));
+  result.append(std::string(" , "));
+  result.append(regToString(Rx));
+  return result;
+}
+
 std::string Negu::toString() {
   std::string result("neg ");
   result.append(regToString(Rd));

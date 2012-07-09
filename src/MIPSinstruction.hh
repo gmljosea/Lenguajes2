@@ -241,6 +241,44 @@ public:
   virtual std::string toString();
 };
 
+// mtc1 Rfd, Rx
+class Mtc1 : public MIPSinstruction {
+  Reg Rfd;
+  Reg Rx;
+public:
+  Mtc1 (Reg Rfd, Reg Rx) : Rfd(Rfd), Rx(Rx) {};
+  virtual std::string toString();
+};
+
+// mfc1 Rd, Rfx
+class Mfc1 : public MIPSinstruction {
+  Reg Rd;
+  Reg Rfx;
+public:
+  Mfc1 (Reg Rd, Reg Rfx) : Rd(Rd), Rfx(Rfx) {};
+  virtual std::string toString();
+};
+
+// cvt.s.w Rfd, Rfx
+// Convierte el entero en Rfx a un flotante precision simple
+class CvtIF : public MIPSinstruction {
+  Reg Rfd;
+  Reg Rx;
+public:
+  CvtIF (Reg Rfd, Reg Rx) : Rfd(Rfd), Rx(Rx) {};
+  virtual std::string toString();
+};
+
+// cvt.w.s Rfd, Rfx
+// Convierte el flotante en Rfx a entero
+class CvtFI : public MIPSinstruction {
+  Reg Rfd;
+  Reg Rx;
+public:
+  CvtFI (Reg Rfd, Reg Rx) : Rfd(Rfd), Rx(Rx) {};
+  virtual std::string toString();
+};
+
 // neg Rd, Rx
 class Negu : MIPSinstruction{
   Reg Rd;
