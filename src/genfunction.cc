@@ -5,12 +5,14 @@
 #include "symbol.hh"
 #include "type.hh"
 #include "parser.hh"
+#include "program.hh"
 
 #include <iostream>
 
 extern IntermCode intCode;
 extern MIPSCode mipscode;
 extern SymFunction* currentfun;
+extern Program program;
 
 void SymFunction::gen(){
   if (generated) return;
@@ -25,6 +27,11 @@ void SymFunction::gen(){
   std::list<Instruction*> fun_tac = intCode.getInstructions();
   intCode.clear();
   FlowGraph* fun_graph = new FlowGraph(fun_tac, std::string("f_")+id+std::string("_"));
+  mipscode.emitComment(std::string("Función ")+this->id);
+  mipscode.emitComment(std::string("Espacio en pila: ")+
+		       std::to_string((long long int)this->local_space)
+		       +std::string(" bytes"));
+
   mipscode.emitData();
 
   fun_graph->output(std::string("tac_"));

@@ -525,15 +525,95 @@ SymVar* FunCallExp::gen(){
   }
 
   // Generar las instrucciones para cargar los parametros
-  //std::list<SymVar*>::iterator arglist = symf->getArguments().begin();
+  std::list<SymVar*>::iterator argList = symf->getArguments()->begin();
   std::list<Expression*>::iterator arg= this->args.begin();
   for(arg; arg!=this->args.end(); arg++){
-    SymVar *temp= (*arg)->gen();
-    if(temp->isReference()){
-      intCode.addInst(new ParamRefQ(temp));
-    }else{
-      intCode.addInst(new ParamValQ(temp));
+    SymVar* formalp = *argList;
+    Expression* actualp = *arg;
+
+
+    // Si el parámetro formal es por valor
+    // Evaluamos la exppresión relajados y pasamos el temporal
+    if (!formalp->isReference()) {
+      SymVar* t = actualp->gen();
+      Args arg1;
+      arg1.id = t;
+      intCode.addInst(new ParamValQ(ArgType::id, arg1));
+      argList++;
+      continue;
     }
+
+    // A partir de aquí ajuro el parámetor formal es referencia
+    // Aquí empiezan las complicaciones
+
+    // Si es una variable normal, usar ParamRef que luego
+    // la traducción a MIPS se saca la dirección en pila o global que le toca
+    VarExp* ve;
+    if (ve = dynamic_cast<VarExp*>(actualp)) {
+      intCode.addInst(new ParamRefQ(actualp->gen()));
+      argList++;
+      continue;
+    }
+
+    // Si es un lvalue pero no es VarExp, entonces es un arreglo o box
+    // Entonces sacamos las cuentas locas para determinar el lvalue
+    // y lo ponemos directamente por valor con ParamVal
+    if (actualp->isLvalue()) {
+      GenLvalue lvalue = actualp->genlvalue();
+      Args arg1;
+      Args arg2;
+
+      if (lvalue.doff == NULL) {
+	lvalue.doff = intCode.newTemp();
+	// DONE QUAD: doff := 0
+	arg1.constint = 0;
+	intCode.addInst(new AsignmentQ(ArgType::constint, arg1, lvalue.doff));
+      }
+
+      // DONE QUAD: doff := doff + coff
+      arg1.id = lvalue.doff;
+      arg2.constint = lvalue.coff;
+      intCode.addInst(new AsignmentOpQ(ArgType::id, arg1,
+					Operator::sumI,
+					ArgType::constint, arg2,
+					lvalue.doff));
+
+      if ( (lvalue.base)->isReference() ) {
+	// DONE QUAD: doff := doff + base
+	arg1.id = lvalue.doff;
+	arg2.id = lvalue.base;
+	intCode.addInst(new AsignmentOpQ(ArgType::id, arg1,
+					 Operator::sumI,
+					 ArgType::id, arg2,
+					 lvalue.doff));
+	intCode.addInst(new ParamRefQ(lvalue.doff));
+      } else {
+	SymVar* t = intCode.newTemp();
+	// QUAD: t := &base
+	intCode.addInst(new AsignmentAddQ(lvalue.base, t));
+
+	// QUAD: doff := doff + t
+	arg1.id = lvalue.doff;
+	arg2.id = t;
+	intCode.addInst(new AsignmentOpQ(ArgType::id, arg1,
+					 Operator::sumI,
+					 ArgType::id, arg2,
+					 lvalue.doff));
+
+	intCode.addInst(new ParamValQ(lvalue.doff));
+      }
+
+      argList++;
+      continue;
+
+    }
+
+    // A partir de aquí solo puede ser una expresión arbitraria
+    // no lvalue que se intenta pasar por referencia
+    // Evalúo la expresión y genero ParamRef con el temporal
+    // El traductor a MIPS sabrá que es un temporal y le hará spill a memoria
+    intCode.addInst(new ParamRefQ(actualp->gen()));
+    argList++;
   }
 
   // Llamada a la funcion

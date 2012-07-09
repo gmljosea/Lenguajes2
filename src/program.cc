@@ -96,7 +96,9 @@ void Program::check(){
   for (std::list<SymFunction*>::iterator funIt= this->functions.begin();
        funIt != this->functions.end(); funIt++){
     this->offsetVarDec=0;
+    this->maxoffset = 0;
     (*funIt)->check();
+    (*funIt)->setLocalSpace(maxoffset);
   }
 
 }

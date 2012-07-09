@@ -141,6 +141,14 @@ std::list<BasicBlock*> SymFunction::getReturnTargets() {
   return this->ret_targets;
 }
 
+void SymFunction::setLocalSpace(int space) {
+  this->local_space = space;
+}
+
+int SymFunction::getLocalSpace() {
+  return local_space;
+}
+
 /**********************************/
 /*** Metodos de la clase SymVar ***/
 /**********************************/

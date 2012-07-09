@@ -87,8 +87,10 @@ class SymFunction: public Symbol {
 private:
   Block *block;
   ArgList *args; // Lista de argumentos (SymVar)
-  std::list<BasicBlock*> ret_targets;
+  std::list<BasicBlock*> ret_targets; // Obsoleto
   Label* start;
+
+  int local_space;
 
   bool generated;
 
@@ -102,6 +104,9 @@ public:
   ArgList* getArguments();
   void check();
   void gen();
+
+  void setLocalSpace(int space);
+  int getLocalSpace();
 
   Label* getLabel();
 
