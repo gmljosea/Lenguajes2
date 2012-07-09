@@ -22,6 +22,13 @@ void FlowGraph::analyzeTemps() {
     for (std::list<BasicBlock*>::iterator it = blocks.begin();
 	 it != blocks.end(); it++) {
       change = change || (*it)->recalcIN();
+      std::cout << "{";
+      std::set<SymVar*> g = (*it)->getIN();
+      for (std::set<SymVar*>::iterator it2 = g.begin();
+	   it2 != g.end(); it2++) {
+	std::cout << (*it2)->getId();
+      }
+      std::cout << "}" << std::endl;
     }
 
   }
@@ -96,21 +103,8 @@ FlowGraph::FlowGraph(std::list<Instruction*> insts, std::string base) {
     previous_block->setNext(exit);
   }
 
-  std::ofstream output;
-  output.open(base+std::string(".dot"), std::ios::trunc);
-  output << "digraph flowgraph {" << std::endl;
-  output << "  node [shape=box, nojustify=true]" << std::endl;
+  this->base = base;
 
-  for (std::list<BasicBlock*>::iterator it = blocks.begin();
-       it != blocks.end(); it++){
-    (*it)->setVisited(false);
-  }
-  entry->setVisited(false);
-  exit->setVisited(false);
-
-  entry->outputAsDot(output);
-
-  output << "}" << std::endl;
 }
 
 void FlowGraph::toMIPS() {
@@ -131,8 +125,30 @@ void FlowGraph::emitCode() {
   entry->emitCode();
 }
 
+void FlowGraph::output() {
+  std::ofstream output;
+  output.open(base+std::string(".dot"), std::ios::trunc);
+  output << "digraph flowgraph {" << std::endl;
+  output << "  node [shape=box, nojustify=true]" << std::endl;
+
+  for (std::list<BasicBlock*>::iterator it = blocks.begin();
+       it != blocks.end(); it++){
+    (*it)->setVisited(false);
+  }
+  entry->setVisited(false);
+  exit->setVisited(false);
+
+  entry->outputAsDot(output);
+
+  output << "}" << std::endl;
+}
+
 BasicBlock* FlowGraph::getExit() {
   return exit;
+}
+
+BasicBlock* FlowGraph::getEntry() {
+  return entry;
 }
 
 void BasicBlock::addInst(Instruction* i) {
@@ -245,8 +261,6 @@ bool BasicBlock::recalcIN() {
     }
   }
 
-  if (t_out == new_out) return false;
-
   t_out = new_out;
 
   for (std::list<Instruction*>::reverse_iterator it = insts.rbegin();
@@ -254,8 +268,9 @@ bool BasicBlock::recalcIN() {
     new_out = (*it)->recalcIN(new_out);
   }
 
-  t_in = new_out;
+  if (t_in == new_out) return false;
 
+  t_in = new_out;
   return true;
 }
 
@@ -267,11 +282,30 @@ std::string BasicBlock::toString() {
   std::string result(this->label->toString());
   std::string nl("\\l\\n");
 
+  result.append(nl);
+  result.append(std::string("IN { "));
+  for (std::set<SymVar*>::iterator it = this->t_in.begin();
+       it != this->t_in.end(); it++) {
+    result.append((*it)->getId());
+    result.append(std::string(" , "));
+  }
+  result.append(std::string(" } "));
+
   for (std::list<Instruction*>::iterator it = this->insts.begin();
        it != this->insts.end(); it++) {
     result.append(nl);
     result.append((*it)->toString());
   }
+
+  result.append(nl);
+  result.append(std::string(" OUT { "));
+  for (std::set<SymVar*>::iterator it = this->t_out.begin();
+       it != this->t_out.end(); it++) {
+    result.append((*it)->getId());
+    result.append(std::string(" , "));
+  }
+
+  result.append(std::string(" } "));
   result.append(std::string("\\l"));
 
   return result;

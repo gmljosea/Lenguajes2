@@ -22,11 +22,15 @@ class FlowGraph {
 
   void analyzeTemps();
 
+  std::string base;
+
 public:
   FlowGraph(std::list<Instruction*> insts, std::string base);
   void toMIPS();
   void emitCode();
   BasicBlock* getExit();
+  BasicBlock* getEntry();
+  void output();
 };
 
 class BasicBlock {

@@ -37,8 +37,8 @@ GenLvalue Index::genlvalue() {
     // temporal
     if (!indexaddr->isTemp()) {
       SymVar* nt = intCode.newTemp();
-      arg1.id = nt;
-      intCode.addInst(new AsignmentQ(ArgType::id, arg1, indexaddr));
+      arg1.id = indexaddr;
+      intCode.addInst(new AsignmentQ(ArgType::id, arg1, nt));
       indexaddr = nt;
     }
 
@@ -101,8 +101,8 @@ SymVar* Index::gen() {
     // temporal
     if (!indaddr->isTemp()) {
       SymVar* nt = intCode.newTemp();
-      arg1.id = nt;
-      intCode.addInst(new AsignmentQ(ArgType::id, arg1, indaddr));
+      arg1.id = indaddr;
+      intCode.addInst(new AsignmentQ(ArgType::id, arg1, nt));
       indaddr = nt;
     }
 
