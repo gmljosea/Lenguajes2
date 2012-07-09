@@ -32,6 +32,24 @@ public:
   virtual std::string toString();
 };
 
+// l.s Rfd, off(R
+// l.s Rfd, addr
+/*class LwS : public MIPSinstruction{
+private:
+  Mode mode;
+  Reg Rd;
+  // En caso de ser direct (Con etiqueta) 
+  Label *varLabel;
+  // En caso de ser indirect
+  int offset;
+  Reg Rx;
+
+public:
+  LwS(Reg Rd,Label* varLabel): Rd(Rd),varLabel(varLabel),mode(direct){};
+  LwS(Reg Rd,int offs,Reg Rx): Rd(Rd),offset(offs),Rx(Rx),mode(indirect),varLabel(NULL) {};
+  virtual std::string toString();
+  };*/
+
 /* Load inmediate Li Rd, #a */
 class Li : MIPSinstruction{
 private:

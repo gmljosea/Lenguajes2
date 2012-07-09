@@ -1,4 +1,8 @@
+#include <map>
+#include <set>
+
 #include "registers.hh"
+#include "symbol.hh"
 
 std::string regToString(Reg r) {
   switch (r) {
@@ -35,6 +39,24 @@ std::string regToString(Reg r) {
     return std::string("$t6");
   case Reg::t7:
     return std::string("$t7");
+
+
+  case Reg::s0:
+    return std::string("$s0");
+  case Reg::s1:
+    return std::string("$s1");
+  case Reg::s2:
+    return std::string("$s2");
+  case Reg::s3:
+    return std::string("$s3");
+  case Reg::s4:
+    return std::string("$s4");
+  case Reg::s5:
+    return std::string("$s5");
+  case Reg::s6:
+    return std::string("$s6");
+  case Reg::s7:
+    return std::string("$s7");
 
   case Reg::t8:
     return std::string("$t8");
