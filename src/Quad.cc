@@ -804,3 +804,196 @@ std::string CastItoCQ::toString() {
   result.append(argToString(argt, arg));
   return result;
 }
+
+
+// recalcIN - función de transferencia del cálculo de temporales vivas
+std::set<SymVar*> AsignmentOpQ::recalcIN(std::set<SymVar*> out) {
+  std::set<SymVar*> in = out;
+  in.erase(result); // Matar variable asignada
+
+  // Agregar temporales usados
+  if (arg1Type == ArgType::id && arg1.id->isTemp()) {
+    in.insert(arg1.id);
+  }
+  if (arg2Type == ArgType::id && arg2.id->isTemp()) {
+    in.insert(arg2.id);
+  }
+  return in;
+}
+
+std::set<SymVar*> AsignmentQ::recalcIN(std::set<SymVar*> out) {
+  std::set<SymVar*> in = out;
+  in.erase(result); // Matar variable asignada
+
+  // Agregar temporales usados
+  if (arg1Type == ArgType::id && arg1.id->isTemp()) {
+    in.insert(arg1.id);
+  }
+  return in;
+}
+
+std::set<SymVar*> AsignmentPointQ::recalcIN(std::set<SymVar*> out) {
+  std::set<SymVar*> in = out;
+  in.erase(result);
+  if (arg1->isTemp()) {
+    in.insert(arg1);
+  }
+  return in;
+}
+
+std::set<SymVar*> AsignmentToPointQ::recalcIN(std::set<SymVar*> out) {
+  std::set<SymVar*> in = out;
+  // Aqui nadie muere porque un apuntador nunca va a ser a un temporal
+  // Así que *result no puede definir algún temporal
+  if (arg1Type == ArgType::id && arg1.id->isTemp()) {
+    in.insert(arg1.id);
+  }
+  if (result->isTemp()) {
+    in.insert(result);
+  }
+  return in;
+}
+
+std::set<SymVar*> AsignmentAddQ::recalcIN(std::set<SymVar*> out) {
+  std::set<SymVar*> in = out;
+  in.erase(result);
+  // No se usa a nadie porque es imposible que se pida la dirección de un
+  // temporal
+  return in;
+}
+
+std::set<SymVar*> ConditionalJumpQ::recalcIN(std::set<SymVar*> out) {
+  std::set<SymVar*> in = out;
+  if (arg1Type == ArgType::id && arg1.id->isTemp()) {
+    in.insert(arg1.id);
+  }
+  if (arg2Type == ArgType::id && arg2.id->isTemp()) {
+    in.insert(arg2.id);
+  }
+  return in;
+}
+
+std::set<SymVar*> ConditionalNJumpQ::recalcIN(std::set<SymVar*> out) {
+  std::set<SymVar*> in = out;
+  if (arg1Type == ArgType::id && arg1.id->isTemp()) {
+    in.insert(arg1.id);
+  }
+  if (arg2Type == ArgType::id && arg2.id->isTemp()) {
+    in.insert(arg2.id);
+  }
+  return in;
+}
+
+std::set<SymVar*> ParamValQ::recalcIN(std::set<SymVar*> out) {
+  std::set<SymVar*> in = out;
+  if (paramType == ArgType::id && param.id->isTemp()) {
+    in.insert(param.id);
+  }
+  return in;
+}
+
+std::set<SymVar*> ParamRefQ::recalcIN(std::set<SymVar*> out) {
+  std::set<SymVar*> in = out;
+  if (param->isTemp()) {
+    in.insert(param);
+  }
+  return in;
+}
+
+std::set<SymVar*> RetrieveQ::recalcIN(std::set<SymVar*> out) {
+  std::set<SymVar*> in = out;
+  in.erase(var);
+  return in;
+}
+
+std::set<SymVar*> ReturnQ::recalcIN(std::set<SymVar*> out) {
+  std::set<SymVar*> in = out;
+  if (argt == ArgType::id && arg.id->isTemp()) {
+    in.insert(arg.id);
+  }
+  return in;
+}
+
+std::set<SymVar*> IndexQ::recalcIN(std::set<SymVar*> out) {
+  std::set<SymVar*> in = out;
+  in.erase(result);
+  if (indexType == ArgType::id && index.id->isTemp()) {
+    in.insert(index.id);
+  }
+  return in;
+}
+
+std::set<SymVar*> IndexAsigQ::recalcIN(std::set<SymVar*> out) {
+  std::set<SymVar*> in = out;
+  if (indexType == ArgType::id && index.id->isTemp()) {
+    in.insert(index.id);
+  }
+  if (argType == ArgType::id && arg.id->isTemp()) {
+    in.insert(arg.id);
+  }
+  return in;
+}
+
+std::set<SymVar*> WriteQ::recalcIN(std::set<SymVar*> out) {
+  std::set<SymVar*> in = out;
+  if (argt == ArgType::id && arg.id->isTemp()) {
+    in.insert(arg.id);
+  }
+  return in;
+}
+
+std::set<SymVar*> ReadQ::recalcIN(std::set<SymVar*> out) {
+  std::set<SymVar*> in = out;
+  if (deref) {
+    if (result->isTemp()) {
+      in.insert(result);
+    }
+  } else {
+    if (result->isTemp()) {
+      in.erase(result);
+    }
+  }
+  return in;
+}
+
+std::set<SymVar*> ReadIndexQ::recalcIN(std::set<SymVar*> out) {
+  std::set<SymVar*> in = out;
+  if (indext == ArgType::id && index.id->isTemp()) {
+    in.insert(index.id);
+  }
+  return in;
+}
+
+std::set<SymVar*> CastFtoIQ::recalcIN(std::set<SymVar*> out) {
+  std::set<SymVar*> in = out;
+  in.erase(result);
+  if (argt == ArgType::id && arg.id->isTemp()) {
+    in.insert(arg.id);
+  }
+  return in;
+}
+
+std::set<SymVar*> CastItoFQ::recalcIN(std::set<SymVar*> out) {
+  std::set<SymVar*> in = out;
+  in.erase(result);
+  if (argt == ArgType::id && arg.id->isTemp()) {
+    in.insert(arg.id);
+  }
+  return in;
+}
+std::set<SymVar*> CastCtoIQ::recalcIN(std::set<SymVar*> out) {
+  std::set<SymVar*> in = out;
+  in.erase(result);
+  if (argt == ArgType::id && arg.id->isTemp()) {
+    in.insert(arg.id);
+  }
+  return in;
+}
+std::set<SymVar*> CastItoCQ::recalcIN(std::set<SymVar*> out) {
+  std::set<SymVar*> in = out;
+  in.erase(result);
+  if (argt == ArgType::id && arg.id->isTemp()) {
+    in.insert(arg.id);
+  }
+  return in;
+}

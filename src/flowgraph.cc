@@ -18,10 +18,10 @@ void FlowGraph::analyzeTemps() {
   bool change = true;
   while (change) {
 
-    bool change = entry->recalcIN();
+    change = entry->recalcIN();
     for (std::list<BasicBlock*>::iterator it = blocks.begin();
 	 it != blocks.end(); it++) {
-      bool change = change || (*it)->recalcIN();
+      change = change || (*it)->recalcIN();
     }
 
   }
@@ -225,18 +225,38 @@ void BasicBlock::setVisited(bool v) {
   this->visited = v;
 }
 
-// FIXME
 bool BasicBlock::recalcIN() {
-  /*
-    Pedir los IN de los sucesores
-    Sacar la union
-    Ir de atrás hacia adelante en la lista de instrucciones
-      reclaculando IN con la función de transferencia
-    Determinar si hubo cambios y devolver.
+  // Yo estoy claro en que estoy siendo brutalmente ineficiente
+  // Con la copia intensa de sets de una lado a otro
+  // Mientras sirva para esta entrega estoy bien
+  std::set<SymVar*> new_out;
+  if (next) {
+    std::set<SymVar*> next_in = next->getIN();
+    for (std::set<SymVar*>::iterator it = next_in.begin();
+	 it != next_in.end(); it++) {
+      new_out.insert(*it);
+    }
+  }
+  if (alternate) {
+    std::set<SymVar*> alt_in = alternate->getIN();
+    for (std::set<SymVar*>::iterator it = alt_in.begin();
+	 it != alt_in.end(); it++) {
+      new_out.insert(*it);
+    }
+  }
 
-    new_in = Instruction::recalcIN(out)
-   */
-  return false;
+  if (t_out == new_out) return false;
+
+  t_out = new_out;
+
+  for (std::list<Instruction*>::reverse_iterator it = insts.rbegin();
+       it != insts.rend(); it++) {
+    new_out = (*it)->recalcIN(new_out);
+  }
+
+  t_in = new_out;
+
+  return true;
 }
 
 std::set<SymVar*> BasicBlock::getIN() {

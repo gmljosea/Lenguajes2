@@ -74,7 +74,10 @@ public:
 			     arg2Type(arg2Type),arg2(arg2),result(result){};
   virtual void printQuad();
   virtual std::string toString();
+
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
+
 
 /**
  * Clase que representa la asignacion de copia
@@ -90,6 +93,8 @@ public:
     Quad(), arg1Type(arg1Type), arg1(arg1),result(result){};
   virtual void printQuad();
   virtual std::string toString();
+
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 /**
@@ -105,6 +110,7 @@ public:
     Quad(), arg1(arg1),result(result){};
   virtual void printQuad();
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 /**
@@ -122,6 +128,7 @@ public:
     Quad(), arg1Type(arg1Type),arg1(arg1),result(result){};
   virtual void printQuad();
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 /**
@@ -137,6 +144,7 @@ public:
     Quad(), arg1(arg1),result(result){};
   virtual void printQuad();
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 /**
@@ -186,6 +194,7 @@ public:
 
   virtual Label* getTargetLabel();
   virtual void replaceTargetLabel(Label* l);
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 /**
@@ -216,6 +225,7 @@ public:
 
   virtual Label* getTargetLabel();
   virtual void replaceTargetLabel(Label* l);
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 /**
@@ -232,6 +242,7 @@ public:
   virtual void printQuad();
 
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 /**
@@ -246,6 +257,7 @@ public:
   virtual void printQuad();
 
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 /**
@@ -286,6 +298,7 @@ public:
   RetrieveQ(SymVar* var) : var(var) {};
   virtual void printQuad();
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 /**
@@ -309,6 +322,7 @@ public:
   virtual bool isReturn();
 
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 /**
@@ -327,6 +341,7 @@ public:
   virtual void printQuad();
 
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 /**
@@ -347,6 +362,7 @@ public:
   virtual void printQuad();
 
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 // write <type> <arg>
@@ -361,6 +377,7 @@ public:
   virtual void printQuad();
 
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 // <result> := read <type>, si deref = false
@@ -375,6 +392,7 @@ public:
   virtual void printQuad();
 
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 // <result>[<index>] := read <type>
@@ -389,6 +407,7 @@ public:
   virtual void printQuad();
 
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 // a := (float to int) b
@@ -403,6 +422,7 @@ public:
 						      arg(arg) {};
   virtual void printQuad();
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 // a := (int to float) b
@@ -417,6 +437,7 @@ public:
 						      arg(arg) {};
   virtual void printQuad();
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 // a := (char to int) b
@@ -431,6 +452,7 @@ public:
 						      arg(arg) {};
   virtual void printQuad();
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 // a := (int to char) b
@@ -445,6 +467,7 @@ public:
 						      arg(arg) {};
   virtual void printQuad();
   virtual std::string toString();
+  virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 
 #endif
