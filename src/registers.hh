@@ -78,4 +78,6 @@ enum Reg{
 
 std::string regToString(Reg r);
 
+bool isFloatReg(Reg r);
+
 #endif

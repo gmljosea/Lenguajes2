@@ -122,75 +122,7 @@ void Program::calcOffsets(){
 
 extern RegDesc rdesc;
 
-typedef std::set<SymVar*> Tset;
-
-void initRegDesc() {
-  // Cargar descriptores de registros enteros disponibles
-  rdesc.rints.insert(std::pair<const Reg, Tset*>(Reg::a0, new Tset()));
-  rdesc.rints.insert(std::pair<const Reg, Tset*>(Reg::a1, new Tset()));
-  rdesc.rints.insert(std::pair<const Reg, Tset*>(Reg::a2, new Tset()));
-  rdesc.rints.insert(std::pair<const Reg, Tset*>(Reg::a3, new Tset()));
-
-  rdesc.rints.insert(std::pair<const Reg, Tset*>(Reg::v1, new Tset()));
-
-  rdesc.rints.insert(std::pair<const Reg, Tset*>(Reg::t0, new Tset()));
-  rdesc.rints.insert(std::pair<const Reg, Tset*>(Reg::t1, new Tset()));
-  rdesc.rints.insert(std::pair<const Reg, Tset*>(Reg::t2, new Tset()));
-  rdesc.rints.insert(std::pair<const Reg, Tset*>(Reg::t3, new Tset()));
-  rdesc.rints.insert(std::pair<const Reg, Tset*>(Reg::t4, new Tset()));
-  rdesc.rints.insert(std::pair<const Reg, Tset*>(Reg::t5, new Tset()));
-  rdesc.rints.insert(std::pair<const Reg, Tset*>(Reg::t6, new Tset()));
-  rdesc.rints.insert(std::pair<const Reg, Tset*>(Reg::t7, new Tset()));
-
-  rdesc.rints.insert(std::pair<const Reg, Tset*>(Reg::s0, new Tset()));
-  rdesc.rints.insert(std::pair<const Reg, Tset*>(Reg::s1, new Tset()));
-  rdesc.rints.insert(std::pair<const Reg, Tset*>(Reg::s2, new Tset()));
-  rdesc.rints.insert(std::pair<const Reg, Tset*>(Reg::s3, new Tset()));
-  rdesc.rints.insert(std::pair<const Reg, Tset*>(Reg::s4, new Tset()));
-  rdesc.rints.insert(std::pair<const Reg, Tset*>(Reg::s5, new Tset()));
-  rdesc.rints.insert(std::pair<const Reg, Tset*>(Reg::s6, new Tset()));
-  rdesc.rints.insert(std::pair<const Reg, Tset*>(Reg::s7, new Tset()));
-
-  rdesc.rints.insert(std::pair<const Reg, Tset*>(Reg::t8, new Tset()));
-  rdesc.rints.insert(std::pair<const Reg, Tset*>(Reg::t9, new Tset()));
-
-  // Cargar descriptores de registros flotantes disponibles
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f0, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f1, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f2, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f3, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f4, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f5, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f6, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f7, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f8, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f9, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f10, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f11, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f12, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f13, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f14, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f15, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f16, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f17, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f18, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f19, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f20, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f21, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f22, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f23, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f24, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f25, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f26, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f27, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f28, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f29, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f30, new Tset()));
-  rdesc.rfloats.insert(std::pair<const Reg, Tset*>(Reg::f31, new Tset()));
-}
-
 void Program::gen(){
-  initRegDesc();
 
   // FIXME
   // Escupir runtime en la salida
@@ -210,8 +142,8 @@ void Program::gen(){
       SymVar* var = *it;
       Label* l = mipscode.emitVar(var->getId(), var->getType()->getSize(),
 				  var->getType()->getAlignment());
-      // FIXME
       // Pegarle al SymVar el label generado
+      var->setLabel(l);
     }
   }
 

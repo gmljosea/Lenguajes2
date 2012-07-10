@@ -8,10 +8,11 @@
 #include "mipscode.hh"
 #include "symbol.hh"
 #include "Quad.hh"
+#include "registers.hh"
+#include "regdesc.hh"
 
 extern MIPSCode mipscode;
-
-std::set<SymVar*> liveTemps;
+extern RegDesc rdesc;
 
 void FlowGraph::analyzeTemps() {
   // Todos los bloques deben tener IN = vacio
@@ -185,7 +186,6 @@ void BasicBlock::setAlternate(BasicBlock* alt) {
   this->alternate = alt;
 }
 
-// FIXME
 void BasicBlock::toMIPS() {
   std::list<std::set<SymVar*>> outs;
   std::set<SymVar*> current_out = t_out;
@@ -204,7 +204,7 @@ void BasicBlock::toMIPS() {
 
   for (std::list<Instruction*>::iterator it = insts.begin();
        it != insts.end(); it++) {
-    liveTemps = outs.front();
+    rdesc.liveTemps = outs.front();
     outs.pop_front();
     std::list<Instruction*> is = (*it)->gen();
     new_insts.splice(new_insts.end(), is);
@@ -212,6 +212,8 @@ void BasicBlock::toMIPS() {
 
   // FIXME
   // Vaciar descriptores de registros, generando stores si hace falta
+  std::list<Instruction*> stores = rdesc.emptyRegs();
+  new_insts.splice(new_insts.end(), stores);
 
   this->insts = new_insts;
 }

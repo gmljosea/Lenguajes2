@@ -12,6 +12,7 @@
 //#include "Quad.hh"
 #include "type.hh"
 #include "registers.hh"
+#include "label.hh"
 
 class BasicBlock;
 class Block;
@@ -59,6 +60,8 @@ private:
   bool mem;
   std::set<Reg> locations;
 
+  Label* glabel; // label para cuando es global
+
 public:
   SymVar (std::string id, int line,int col, bool isParam, int scope);
   SymVar (int idTemp);
@@ -81,6 +84,14 @@ public:
   void removeReg(Reg r);
   bool availableOther(Reg r); // Dice si esta variable está disponible en otro
     // lado que no sea el registro dado
+
+  bool isGlobal();
+  void setLabel(Label* l);
+  Label* getLabel();
+
+  int spill();
+  // Si es una local devuelve el offset asignado y ya
+  // Si es temporal, si nunca ha sido spilleada, se asigna offset y se devuelve
 };
 
 /*Tipo de pasaje para los argumentos de funciones (Se usa solo en el parser)*/
