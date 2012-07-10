@@ -300,7 +300,7 @@ private:
   Label* label;
 
 public:
-  Bge(Label* label): label(label){};
+  J(Label* label): label(label){};
 };
 
 // Jump and Link
