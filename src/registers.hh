@@ -1,6 +1,8 @@
 #ifndef DEVANIX_REG
 #define DEVANIX_REG
 
+#include <string>
+
 // Registros que seran usados por el generador de codigo
 enum Reg{
   zero,
@@ -73,5 +75,7 @@ enum Reg{
   f31
 
 };
+
+std::string regToString(Reg r);
 
 #endif

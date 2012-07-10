@@ -1,14 +1,17 @@
 // Metodos gen de los Quads 
+#include <list>
 
-#inlude "Quad.hh"
-#inlude "MIPSinstruction.hh"
+#include "Quad.hh"
+#include "MIPSinstruction.hh"
+
+
 
 /** 
  * Asignacion de 3 o 2 direcciones
  * x:= y op z  =>  Rd:= Rx op Ry  
  * x:= op y    =>  Rd:= op Rx
- **/
-List<MIPSinstrution*> AsignmentOpQ::gen(){
+ **//*
+std::list<MIPSinstruction*> AsignmentOpQ::gen(){
   // Ver que registros convienen "getReg" para x, y 
   // Si arg2 no en null ver que registro le conviene
 
@@ -20,7 +23,7 @@ List<MIPSinstrution*> AsignmentOpQ::gen(){
   // Lo mismo para z en caso de no ser null
   // Pero si usaremos addi y es const no hace falta colocarla en reg 
   // lista.add(new Ld(Rz,z))
-
+  /*
   // Dependiendo del operador se gen la instruccion  
   switch(this.op){
   case Operator::sumI:
@@ -42,4 +45,17 @@ List<MIPSinstrution*> AsignmentOpQ::gen(){
   case Operator::minusI:
   case Operator::minusF:
   }
+}
+*/
+
+std::list<Instruction*> JumpQ::gen() {
+  std::list<Instruction*> res;
+  res.push_back(new J(this->label));
+  return res;
+}
+
+std::list<Instruction*> CallQ::gen() {
+  std::list<Instruction*> res;
+  res.push_back(new Jal(func->getLabel()));
+  return res;
 }

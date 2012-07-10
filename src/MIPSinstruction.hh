@@ -1,23 +1,24 @@
 #ifndef DEVANIX_MIPS
 #define DEVANIX_MIPS
 
+#include "registers.hh"
 #include "instruction.hh"
 
 class MIPSinstruction : public Instruction{
 
 };
 
-enum mode{
+enum Mode{
   direct,
   indirect
-}
+};
 
 /* Load address La Rd,var  direct
  *              La Rd,offset(Rx) indirect
  */
 class La : public MIPSinstruction{
 private:
-  mode mode;
+  Mode mode;
   Reg Rd;
   // En caso de ser direct (Con etiqueta) 
   Label *varLabel;
@@ -27,8 +28,27 @@ private:
 
 public:
   La(Reg Rd,Label* varLabel): Rd(Rd),varLabel(varLabel),mode(direct){};
-  La(Reg Rd,int offs,Reg Rx): Rd(Rd),offset(offs),Rx(Rx),mode(indirect){};
+  La(Reg Rd,int offs,Reg Rx): Rd(Rd),offset(offs),Rx(Rx),mode(indirect),varLabel(NULL) {};
+  virtual std::string toString();
 };
+
+// l.s Rfd, off(R
+// l.s Rfd, addr
+/*class LwS : public MIPSinstruction{
+private:
+  Mode mode;
+  Reg Rd;
+  // En caso de ser direct (Con etiqueta) 
+  Label *varLabel;
+  // En caso de ser indirect
+  int offset;
+  Reg Rx;
+
+public:
+  LwS(Reg Rd,Label* varLabel): Rd(Rd),varLabel(varLabel),mode(direct){};
+  LwS(Reg Rd,int offs,Reg Rx): Rd(Rd),offset(offs),Rx(Rx),mode(indirect),varLabel(NULL) {};
+  virtual std::string toString();
+  };*/
 
 /* Load inmediate Li Rd, #a */
 class Li : MIPSinstruction{
@@ -38,6 +58,7 @@ private:
 
 public:
   Li(Reg Rd,int inmed): Rd(Rd),inmediate(inmed){};
+  virtual std::string toString();
 };
 
 /* Load inmediate flotante simple Li.s Rd, #a */
@@ -47,7 +68,8 @@ private:
   float inmediate;
 
 public:
-  Li(Reg Rd,float inmed): Rd(Rd),inmediate(inmed){};
+  LiS(Reg Rd,float inmed): Rd(Rd),inmediate(inmed){};
+  virtual std::string toString();
 };
 
 /* Load Word  Lw Rd,var
@@ -55,7 +77,7 @@ public:
  */
 class Lw : public MIPSinstruction{
 private:
-  mode mode;
+  Mode mode;
   Reg Rd;
   // Direct, label of var
   Label *varLabel;
@@ -65,15 +87,16 @@ private:
 
 public:
   Lw(Reg Rd,Label* varLabel): Rd(Rd),varLabel(varLabel),mode(direct){};
-  Lw(Reg Rd,int offs,Reg Rx): Rd(Rd),offset(offs),Rx(Rx),mode(indirect){};
+  Lw(Reg Rd,int offs,Reg Rx): Rd(Rd),offset(offs),Rx(Rx),mode(indirect),varLabel(NULL){};
+  virtual std::string toString();
 };
 
 /* Store Word Sw Rs,var
  *            Sw Rs,offset(Rd)
  */
-class Lw : public MIPSinstruction{
+class Sw : public MIPSinstruction{
 private:
-  mode mode;
+  Mode mode;
   Reg Rs;
   // Direct, label of var
   Label *varLabel;
@@ -82,8 +105,9 @@ private:
   Reg Rd;
 
 public:
-  Lw(Reg Rs,Label* varLabel): Rs(Rs),varLabel(varLabel),mode(direct){};
-  Lw(Reg Rs,int offs,Reg Rd): Rs(Rs),offset(offs),Rd(Rd),mode(indirect){};
+  Sw(Reg Rs,Label* varLabel): Rs(Rs),varLabel(varLabel),mode(direct){};
+  Sw(Reg Rs,int offs,Reg Rd): Rs(Rs),offset(offs),Rd(Rd),mode(indirect),varLabel(NULL){};
+  virtual std::string toString();
 };
 
 /*Add Rd, Rx, Ry*/
@@ -94,6 +118,7 @@ private:
   Reg Ry;
 public:
   Add(Reg Rd,Reg Rx,Reg Ry): Rd(Rd),Rx(Rx),Ry(Ry){};
+  virtual std::string toString();
 };
 
 /*Addi Rd, Rx, #a */
@@ -104,6 +129,7 @@ private:
   int inmediate;
 public:
   Addi(Reg Rd,Reg Rx,int inmed): Rd(Rd),Rx(Rx),inmediate(inmed){};
+  virtual std::string toString();
 };
 
 /* Add.s Rfd, Rfx, Rfy*/
@@ -114,6 +140,7 @@ private:
   Reg Rfy;
 public:
   AddS(Reg Rfd,Reg Rfx,Reg Rfy): Rfd(Rfd),Rfx(Rfx),Rfy(Rfy){};
+  virtual std::string toString();
 };
 
 /*Sub Rd, Rx,Ry*/
@@ -124,6 +151,7 @@ private:
   Reg Ry;
 public:
   Sub(Reg Rd,Reg Rx,Reg Ry): Rd(Rd),Rx(Rx),Ry(Ry){};
+  virtual std::string toString();
 };
 
 /*Subi Rd, Rx, #a*/
@@ -134,6 +162,7 @@ private:
   int inmediate;
 public:
   Subi(Reg Rd,Reg Rx,int inmed): Rd(Rd),Rx(Rx),inmediate(inmed){};
+  virtual std::string toString();
 };
 
 /* Sub.s Rfd, Rfx, Rfy*/
@@ -144,6 +173,7 @@ private:
   Reg Rfy;
 public:
   SubS(Reg Rfd,Reg Rfx,Reg Rfy): Rfd(Rfd),Rfx(Rfx),Rfy(Rfy){};
+  virtual std::string toString();
 };
 
 /*Mul Rd, Rx,Ry*/
@@ -154,6 +184,7 @@ private:
   Reg Ry;
 public:
   Mul(Reg Rd,Reg Rx,Reg Ry): Rd(Rd),Rx(Rx),Ry(Ry){};
+  virtual std::string toString();
 };
 
 /* Mul.s Rfd, Rfx, Rfy*/
@@ -164,15 +195,41 @@ private:
   Reg Rfy;
 public:
   MulS(Reg Rfd,Reg Rfx,Reg Rfy): Rfd(Rfd),Rfx(Rfx),Rfy(Rfy){};
+  virtual std::string toString();
 };
 
 // Deja el resultado en Lo y Hi
+// Resulta que hay un pseudo div Rd, Rx, Ry
 class Div : public MIPSinstruction{
 private:
+  Reg Rd;
   Reg Rx;
   Reg Ry;
 public:
-  Div(Reg Rx,Reg Ry): Rx(Rx),Ry(Ry){};
+  Div(Reg Rd, Reg Rx,Reg Ry): Rd(Rd),Rx(Rx),Ry(Ry){};
+  virtual std::string toString();
+};
+
+// div.s Rfd, Rfx, Rfy
+class DivS : public MIPSinstruction{
+private:
+  Reg Rfd;
+  Reg Rfx;
+  Reg Rfy;
+public:
+  DivS(Reg Rfd, Reg Rfx,Reg Rfy): Rfd(Rfd),Rfx(Rfx),Rfy(Rfy){};
+  virtual std::string toString();
+};
+
+// rem Rd, Rx, Ry
+class Rem : public MIPSinstruction{
+private:
+  Reg Rd;
+  Reg Rx;
+  Reg Ry;
+public:
+  Rem(Reg Rd, Reg Rx,Reg Ry): Rd(Rd),Rx(Rx),Ry(Ry){};
+  virtual std::string toString();
 };
 
 /*Move From Hi*/
@@ -181,6 +238,7 @@ private:
   Reg reg;
 public:
   Mfhi(Reg reg): reg(reg){};
+  virtual std::string toString();
 };
 
 /*Move From Lo*/
@@ -189,24 +247,66 @@ private:
   Reg reg;
 public:
   Mflo(Reg reg): reg(reg){};
+  virtual std::string toString();
 };
 
-/*Div.s Rfd, Rfx, Rfy*/
-class DivS : MIPSinstruction{
-private:
-  Reg Rfd;
-  Reg Rfx;
-  Reg Rfy;
+// move Rd, Rx
+class Move : public MIPSinstruction {
+  Reg Rd;
+  Reg Rx;
 public:
-  DivS(Reg Rfd,Reg Rfx,Reg Rfy): Rfd(Rfd),Rfx(Rfx),Rfy(Rfy){};
+  Move (Reg Rd, Reg Rx) : Rd(Rd), Rx(Rx) {};
+  virtual std::string toString();
 };
 
+// mtc1 Rfd, Rx
+class Mtc1 : public MIPSinstruction {
+  Reg Rfd;
+  Reg Rx;
+public:
+  Mtc1 (Reg Rfd, Reg Rx) : Rfd(Rfd), Rx(Rx) {};
+  virtual std::string toString();
+};
 
+// mfc1 Rd, Rfx
+class Mfc1 : public MIPSinstruction {
+  Reg Rd;
+  Reg Rfx;
+public:
+  Mfc1 (Reg Rd, Reg Rfx) : Rd(Rd), Rfx(Rfx) {};
+  virtual std::string toString();
+};
+
+// cvt.s.w Rfd, Rfx
+// Convierte el entero en Rfx a un flotante precision simple
+class CvtIF : public MIPSinstruction {
+  Reg Rfd;
+  Reg Rx;
+public:
+  CvtIF (Reg Rfd, Reg Rx) : Rfd(Rfd), Rx(Rx) {};
+  virtual std::string toString();
+};
+
+// cvt.w.s Rfd, Rfx
+// Convierte el flotante en Rfx a entero
+class CvtFI : public MIPSinstruction {
+  Reg Rfd;
+  Reg Rx;
+public:
+  CvtFI (Reg Rfd, Reg Rx) : Rfd(Rfd), Rx(Rx) {};
+  virtual std::string toString();
+};
+
+// neg Rd, Rx
 class Negu : MIPSinstruction{
-
+  Reg Rd;
+  Reg Rx;
+public:
+  Negu (Reg Rd, Reg Rx) : Rd(Rd), Rx(Rx) {};
+  virtual std::string toString();
 };
 
-class And : MIPSinstruction{
+class AndM : MIPSinstruction{
 
 };
 
@@ -214,7 +314,7 @@ class Andi : MIPSinstruction{
 
 };
 
-class Or : MIPSinstruction{
+class OrM : MIPSinstruction{
 
 };
 
@@ -222,8 +322,28 @@ class Ori : MIPSinstruction{
 
 };
 
-class Not : MIPSinstruction{
+class NotM : MIPSinstruction{
 
+};
+
+// sll Rd, Rx, shamt
+class ShiftL : MIPSinstruction {
+  Reg Rd;
+  Reg Rx;
+  int shamt;
+public:
+  ShiftL (Reg Rd, Reg Rx, int shamt) : Rd(Rd), Rx(Rx), shamt(shamt) {};
+  virtual std::string toString();
+};
+
+// srl Rd, Rx, shamt
+class ShiftR : MIPSinstruction {
+  Reg Rd;
+  Reg Rx;
+  int shamt;
+public:
+  ShiftR (Reg Rd, Reg Rx, int shamt) : Rd(Rd), Rx(Rx), shamt(shamt) {};
+  virtual std::string toString();
 };
 
 /*    Jumps and Branches    */
@@ -237,6 +357,7 @@ private:
 
 public:
   Blt(Reg Rx,Reg Ry,Label* label): Rx(Rx),Ry(Ry),label(label){};
+  virtual std::string toString();
 };
 
 // Branch less Eq <=
@@ -248,6 +369,7 @@ private:
 
 public:
   Ble(Reg Rx,Reg Ry,Label* label): Rx(Rx),Ry(Ry),label(label){};
+  virtual std::string toString();
 };
 
 // Branch Eq == 
@@ -259,6 +381,7 @@ private:
 
 public:
   Beq(Reg Rx,Reg Ry,Label* label): Rx(Rx),Ry(Ry),label(label){};
+  virtual std::string toString();
 };
 
 // Branch Not Eq !=
@@ -270,9 +393,10 @@ private:
 
 public:
   Bne(Reg Rx,Reg Ry,Label* label): Rx(Rx),Ry(Ry),label(label){};
+  virtual std::string toString();
 };
 
-// Branch Greather than >
+// Branch Greater than >
 class Bgt : public MIPSinstruction{
 private:
   Reg Rx;
@@ -281,6 +405,7 @@ private:
 
 public:
   Bgt(Reg Rx,Reg Ry,Label* label): Rx(Rx),Ry(Ry),label(label){};
+  virtual std::string toString();
 };
 
 // Branch Greater Eq >=
@@ -292,6 +417,7 @@ private:
 
 public:
   Bge(Reg Rx,Reg Ry,Label* label): Rx(Rx),Ry(Ry),label(label){};
+  virtual std::string toString();
 };
 
 // Jump
@@ -301,6 +427,7 @@ private:
 
 public:
   J(Label* label): label(label){};
+  virtual std::string toString();
 };
 
 // Jump and Link
@@ -310,6 +437,7 @@ private:
 
 public:
   Jal(Label* label): label(label){};
+  virtual std::string toString();
 };
 
 // Jump Register 
@@ -319,6 +447,7 @@ private:
 
 public:
   Jr(Reg Rx): Rx(Rx){};
+  virtual std::string toString();
 };
 
 #endif

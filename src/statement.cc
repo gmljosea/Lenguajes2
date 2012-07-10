@@ -54,7 +54,9 @@ void Block::check(){
       it != this->stmts.end(); it++){
     (*it)->check();
   }
-  program.offsetVarDec= program.stackOffsets.back();
+  program.maxoffset = program.offsetVarDec < program.maxoffset ?
+    program.maxoffset : program.offsetVarDec;
+  program.offsetVarDec = program.stackOffsets.back();
   program.stackOffsets.pop_back();
 }
 
@@ -570,6 +572,10 @@ void Write::check(){
        it != exps.end(); it++) {
     (*it)->check();
     *it = (*it)->cfold();
+    if ((*it)->getType()->alwaysByReference()) {
+      program.error("no se puede hacer write de tipos compuestos",
+		    (*it)->getFirstLine(), (*it)->getFirstCol());
+    }
   }
 }
 

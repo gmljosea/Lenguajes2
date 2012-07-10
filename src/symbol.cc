@@ -133,12 +133,24 @@ Label* SymFunction::getLabel() {
   return this->start;
 }
 
+Label* SymFunction::getEpilogueLabel() {
+  return this->epilogue;
+}
+
 void SymFunction::addReturnTarget(BasicBlock* b) {
   this->ret_targets.push_back(b);
 }
 
 std::list<BasicBlock*> SymFunction::getReturnTargets() {
   return this->ret_targets;
+}
+
+void SymFunction::setLocalSpace(int space) {
+  this->local_space = space;
+}
+
+int SymFunction::getLocalSpace() {
+  return local_space;
 }
 
 /**********************************/

@@ -8,6 +8,8 @@
 
 class BasicBlock;
 class SymFunction;
+class SymVar;
+class Label;
 
 class Instruction {
   bool isTarget;

@@ -24,6 +24,7 @@ struct Program {
   std::list<BoxType*> boxes;
 
   int offsetVarDec;
+  int maxoffset;
   std::deque<int> stackOffsets;
 
   Program();
