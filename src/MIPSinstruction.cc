@@ -5,6 +5,10 @@
 
 std::string comma(" , ");
 
+std::string Syscall::toString() {
+  return std::string("syscall");
+}
+
 std::string La::toString() {
   std::string result("la ");
   result.append(regToString(Rd));

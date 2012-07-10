@@ -140,3 +140,74 @@ std::string regToString(Reg r) {
   }
 
 }
+
+bool isFloatReg(Reg r) {
+  switch (r) {
+  case Reg::zero:
+  case Reg::a0:
+  case Reg::a1:
+  case Reg::a2:
+  case Reg::a3:
+  case Reg::v0:
+  case Reg::v1:
+  case Reg::t0:
+  case Reg::t1:
+  case Reg::t2:
+  case Reg::t3:
+  case Reg::t4:
+  case Reg::t5:
+  case Reg::t6:
+  case Reg::t7:
+  case Reg::s0:
+  case Reg::s1:
+  case Reg::s2:
+  case Reg::s3:
+  case Reg::s4:
+  case Reg::s5:
+  case Reg::s6:
+  case Reg::s7:
+  case Reg::t8:
+  case Reg::t9:
+  case Reg::gp:
+  case Reg::sp:
+  case Reg::fp:
+  case Reg::ra:
+    return false;
+
+  case Reg::f0:
+  case Reg::f1:
+  case Reg::f2:
+  case Reg::f3:
+  case Reg::f4:
+  case Reg::f5:
+  case Reg::f6:
+  case Reg::f7:
+  case Reg::f8:
+  case Reg::f9:
+  case Reg::f10:
+  case Reg::f11:
+  case Reg::f12:
+  case Reg::f13:
+  case Reg::f14:
+  case Reg::f15:
+  case Reg::f16:
+  case Reg::f17:
+  case Reg::f18:
+  case Reg::f19:
+  case Reg::f20:
+  case Reg::f21:
+  case Reg::f22:
+  case Reg::f23:
+  case Reg::f24:
+  case Reg::f25:
+  case Reg::f26:
+  case Reg::f27:
+  case Reg::f28:
+  case Reg::f29:
+  case Reg::f30:
+  case Reg::f31:
+    return true;
+
+  }
+
+}

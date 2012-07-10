@@ -13,6 +13,11 @@ enum Mode{
   indirect
 };
 
+class Syscall : public MIPSinstruction {
+public:
+  virtual std::string toString();
+};
+
 /* Load address La Rd,var  direct
  *              La Rd,offset(Rx) indirect
  */

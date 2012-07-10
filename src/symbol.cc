@@ -7,6 +7,7 @@
 
 extern Program program;
 extern IntermCode intCode;
+extern SymFunction* currentfun;
 
 /*******************************/
 /* Metodos de la clase Symbol */
@@ -164,7 +165,8 @@ SymVar::SymVar(std::string id,int line,int col,
   this->readonly = false;
   this->reference = false;
   //  std::cout << "SymVar creado";
-  this->temp = false; 
+  this->temp = false;
+  this->mem = true;
 }
 
 SymVar::SymVar(int idTemp) {
@@ -172,6 +174,8 @@ SymVar::SymVar(int idTemp) {
   this->idTemp = idTemp;
   this->temp = true;
   this->reference=false;
+  this->mem = false;
+  this->offset = -1;
 }
 
 
@@ -242,6 +246,49 @@ void SymVar::setType(Type* type) {
 
 bool SymVar::isTemp(){
   return this->temp;
+}
+
+void SymVar::inMem(bool m) {
+  this->mem = m;
+}
+
+bool SymVar::isInMem() {
+  return this->mem;
+}
+
+void SymVar::addReg(Reg r) {
+  this->locations.insert(r);
+}
+
+void SymVar::removeReg(Reg r) {
+  this->locations.erase(r);
+}
+
+bool SymVar::availableOther(Reg r) {
+  if (mem) return true;
+  std::set<Reg> l = this->locations; // Teoricamente es una copia
+  l.erase(r);
+  return !l.empty();
+}
+
+bool SymVar::isGlobal() {
+  return this->context == 1;
+}
+
+void SymVar::setLabel(Label* l) {
+  this->glabel = l;
+}
+
+Label* SymVar::getLabel() {
+  return this->glabel;
+}
+
+int SymVar::spill() {
+  if (!temp or offset > -1) return offset;
+
+  offset = currentfun->getLocalSpace();
+  currentfun->setLocalSpace(offset+4);
+  return offset;
 }
 
 /************************************/
