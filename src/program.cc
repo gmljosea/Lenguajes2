@@ -10,9 +10,6 @@
 extern IntermCode intCode;
 extern MIPSCode mipscode;
 
-extern std::map<Reg, std::set<SymVar*>> rints;
-extern std::map<Reg, std::set<SymVar*>> rfloats;
-
 Program::Program() {
   // Inicializar un Programa, inicialmente vacío y sin errores
   errorCount = 0;
