@@ -203,8 +203,7 @@ public:
   virtual std::string toString();
 };
 
-// Deja el resultado en Lo y Hi
-// Resulta que hay un pseudo div Rd, Rx, Ry
+/* Div Rd, Rx, Ry */
 class Div : public MIPSinstruction{
 private:
   Reg Rd;
@@ -215,7 +214,7 @@ public:
   virtual std::string toString();
 };
 
-// div.s Rfd, Rfx, Rfy
+/* Div.s Rfd, Rfx, Rfy */
 class DivS : public MIPSinstruction{
 private:
   Reg Rfd;
@@ -226,7 +225,7 @@ public:
   virtual std::string toString();
 };
 
-// rem Rd, Rx, Ry
+/* Rem Rd, Rx, Ry */
 class Rem : public MIPSinstruction{
 private:
   Reg Rd;
@@ -264,7 +263,7 @@ public:
   virtual std::string toString();
 };
 
-// mtc1 Rfd, Rx
+/* mtc1 Rfd, Rx */
 class Mtc1 : public MIPSinstruction {
   Reg Rfd;
   Reg Rx;
@@ -273,7 +272,7 @@ public:
   virtual std::string toString();
 };
 
-// mfc1 Rd, Rfx
+/* mfc1 Rd, Rfx */
 class Mfc1 : public MIPSinstruction {
   Reg Rd;
   Reg Rfx;
@@ -302,12 +301,21 @@ public:
   virtual std::string toString();
 };
 
-// neg Rd, Rx
+/* Negu Rd, Rx */ 
 class Negu : MIPSinstruction{
   Reg Rd;
   Reg Rx;
 public:
   Negu (Reg Rd, Reg Rx) : Rd(Rd), Rx(Rx) {};
+  virtual std::string toString();
+};
+
+/* Neg.s Rd, Rx */ 
+class NegS : MIPSinstruction{
+  Reg Rd;
+  Reg Rx;
+public:
+  NegS (Reg Rd, Reg Rx) : Rd(Rd), Rx(Rx) {};
   virtual std::string toString();
 };
 
