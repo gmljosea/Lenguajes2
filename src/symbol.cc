@@ -244,6 +244,29 @@ bool SymVar::isTemp(){
   return this->temp;
 }
 
+void SymVar::inMem(bool m) {
+  this->mem = m;
+}
+
+bool SymVar::isInMem() {
+  return this->mem;
+}
+
+void SymVar::addReg(Reg r) {
+  this->locations.insert(r);
+}
+
+void SymVar::removeReg(Reg r) {
+  this->locations.erase(r);
+}
+
+bool SymVar::availableOther(Reg r) {
+  if (mem) return true;
+  std::set<Reg> l = this->locations; // Teoricamente es una copia
+  l.erase(r);
+  return !l.empty();
+}
+
 /************************************/
 /*** Metodos de la clase SymTable ***/
 /************************************/

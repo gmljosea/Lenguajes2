@@ -6,10 +6,12 @@
 #include <string>
 #include <unordered_map>
 #include <utility>
+#include <set>
 
 #include "flowgraph.hh"
 //#include "Quad.hh"
 #include "type.hh"
+#include "registers.hh"
 
 class BasicBlock;
 class Block;
@@ -54,6 +56,9 @@ private:
   int idTemp;
   bool temp;
 
+  bool mem;
+  std::set<Reg> locations;
+
 public:
   SymVar (std::string id, int line,int col, bool isParam, int scope);
   SymVar (int idTemp);
@@ -69,6 +74,13 @@ public:
   void setType(Type* type);
   bool isTemp();
   void print();
+
+  void inMem(bool m);
+  bool isInMem();
+  void addReg(Reg r);
+  void removeReg(Reg r);
+  bool availableOther(Reg r); // Dice si esta variable está disponible en otro
+    // lado que no sea el registro dado
 };
 
 /*Tipo de pasaje para los argumentos de funciones (Se usa solo en el parser)*/
