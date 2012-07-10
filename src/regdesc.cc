@@ -157,3 +157,21 @@ std::list<Instruction*> RegDesc::genStore(Reg r, SymVar* v) {
   st.push_back(new Sw(r, -(v->getOffset()+8), Reg::fp));
   return st;
 }
+
+RegSet RegDesc::get1Reg(SymVar* op, bool f) {
+}
+
+RegSet RegDesc::getFreshReg(bool f) {
+}
+
+RegSet RegDesc::get2Reg(SymVar* op1, SymVar* op2, bool f) {
+}
+
+RegSet RegDesc::get2RegAs(SymVar* res, SymVar* op, bool f) {
+}
+
+RegSet RegDesc::get3Reg(SymVar* op1, SymVar* op2, SymVar* op3, bool f) {
+}
+
+RegSet RegDesc::get3RegAs(SymVar* res, SymVar* op1, SymVar* op2, bool f) {
+}
