@@ -116,6 +116,7 @@ std::list<Instruction*> RegDesc::emptyRegs() {
       v->removeReg(r);
       if (v->isInMem()) continue;
       list.splice(list.end(), this->genStore(r, v));
+      v->inMem(true);
     }
   }
 
@@ -129,6 +130,7 @@ std::list<Instruction*> RegDesc::emptyRegs() {
       v->removeReg(r);
       if (v->isInMem()) continue;
       list.splice(list.end(), this->genStore(r, v));
+      v->inMem(true);
     }
   }
 
