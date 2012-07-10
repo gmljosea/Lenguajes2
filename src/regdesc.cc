@@ -118,6 +118,21 @@ std::list<Instruction*> RegDesc::emptyRegs() {
       list.splice(list.end(), this->genStore(r, v));
     }
   }
+
+  for (std::map<Reg, Tset*>::iterator it = rfloats.begin();
+       it != rfloats.end(); it++) {
+    Reg r = it->first;
+    Tset* set = it->second;
+    for (Tset::iterator it = set->begin();
+	 it != set->end(); it++) {
+      SymVar* v = *it;
+      v->removeReg(r);
+      if (v->isInMem()) continue;
+      list.splice(list.end(), this->genStore(r, v));
+    }
+  }
+
+  return list;
 }
 
 std::list<Instruction*> RegDesc::genStore(Reg r, SymVar* v) {
