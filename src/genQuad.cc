@@ -100,7 +100,7 @@ std::list<Instruction*> AsignmentQ::gen() {
     r = rdesc.getFreshReg(false);
     l.splice(l.end(), r.stores);
     rdesc.clearReg(r.rx);
-    l.push_back(new La(r.rx, mipscode.emitString(*arg1.conststring))); 
+    l.push_back(new La(r.rx, mipscode.emitString(*arg1.conststring)));
     rdesc.addExclusiveLocation(r.rx, result);
     break;
 
@@ -111,6 +111,42 @@ std::list<Instruction*> AsignmentQ::gen() {
     l.push_back(new Li(r.rx, (int) arg1.constchar));
     rdesc.addExclusiveLocation(r.rx, result);
     break;
+  }
+
+  return l;
+}
+
+std::list<Instruction*> AsignmentPointQ::gen() {
+  std::list<Instruction*> l;
+
+  // WARN: no sé si puedo asegurar que arg1 no sea temporal
+  // Si lo fuera, isFloat() dará falso y podrían ocurrir cosas inesperadas
+
+  if ( isFloat(arg1) ) {
+
+    RegSet rop = rdesc.get1Reg(arg1, false);
+    l.splice(l.end(), rop.stores);
+    if (! arg1->isInReg(rop.rx) ) {
+      l.push_back( rdesc.loadVar(rop.rx, arg1) );
+      rdesc.clearReg(rop.rx);
+      rdesc.addLocation(rop.rx, arg1);
+    }
+
+    RegSet rr = rdesc.getFreshReg( true );
+    l.splice(l.end(), rr.stores);
+    rdesc.clearReg(rr.rx);
+    l.push_back(new LwS(rr.rx, 0, rop.rx));
+    rdesc.addExclusiveLocation(rr.rx, result);
+
+  } else {
+
+    RegSet r = rdesc.getFreshReg(false);
+    l.splice(l.end(), r.stores);
+    rdesc.clearReg(r.rx);
+    l.push_back( rdesc.loadVar(r.rx, arg1) );
+    l.push_back( new Lw(r.rx, 0, r.rx) );
+    rdesc.addExclusiveLocation(r.rx, result);
+
   }
 
   return l;

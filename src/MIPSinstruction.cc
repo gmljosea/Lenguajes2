@@ -24,6 +24,21 @@ std::string La::toString() {
   return result;
 }
 
+std::string LwS::toString() {
+  std::string result("l.s ");
+  result.append(regToString(Rd));
+  result.append(std::string(" , "));
+  if (varLabel) {
+    result.append(varLabel->toString());
+  } else {
+    result.append(std::to_string((long long int) offset));
+    result.append("(");
+    result.append(regToString(Rx));
+    result.append(")");
+  }
+  return result;
+}
+
 std::string Li::toString() {
   std::string result("li ");
   result.append(regToString(Rd));
