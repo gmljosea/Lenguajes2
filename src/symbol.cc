@@ -226,7 +226,7 @@ int SymVar::getAlignment() {
 }
 
 int SymVar::getOffset(){
-  return this->offset;
+  return this->spill();
 }
 
 void SymVar::setType(Type* type) {
@@ -293,6 +293,12 @@ int SymVar::spill() {
 
 bool SymVar::isInReg(Reg r) {
   return locations.count(r) > 0;
+}
+
+// FIXME
+Reg SymVar::getLocation() {
+  // Devuelve un registro donde se encuentre esta variable
+  return Reg::zero;
 }
 
 /************************************/

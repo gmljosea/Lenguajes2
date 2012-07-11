@@ -217,3 +217,8 @@ RegSet RegDesc::get3RegAs(SymVar* res, SymVar* op1, SymVar* op2, bool f) {
 Instruction* RegDesc::loadVar(Reg r, SymVar* s) {
   return new J(new Label("HOLA"));
 }
+
+// FIXME
+Instruction* RegDesc::storeVar(Reg r, SymVar* s) {
+  return new J(new Label("CHAO"));
+}

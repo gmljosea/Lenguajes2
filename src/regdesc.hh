@@ -95,6 +95,7 @@ struct RegDesc {
   RegSet get3RegAs(SymVar* res, SymVar* op1, SymVar* op2, bool f);
 
   Instruction* loadVar(Reg r, SymVar* s);
+  Instruction* storeVar(Reg r, SymVar* s);
 
 };
 

@@ -763,6 +763,109 @@ std::list<Instruction*> ConditionalNJumpQ::gen() {
   return j.gen();
 }
 
+std::list<Instruction*> ParamValQ::gen() {
+  std::list<Instruction*> l;
+  RegSet r;
+
+  switch (paramType) {
+  case ArgType::id:
+    r = rdesc.get1Reg(param.id, isFloat(param.id));
+    l.splice(l.end(), r.stores);
+    if (! param.id->isInReg(r.rx) ) {
+      l.push_back( rdesc.loadVar(r.rx, param.id) );
+      rdesc.clearReg(r.rx);
+      rdesc.addLocation(r.rx, param.id);
+    }
+    l.push_back( new Sw(r.rx, -4, Reg::sp) );
+    l.push_back( new La(Reg::sp, -4, Reg::sp) );
+    break;
+
+  case ArgType::constint:
+  case ArgType::constchar:
+  case ArgType::constbool:
+    l.push_back( new Li(Reg::a0, param.constint) );
+    l.push_back( new Sw(Reg::a0, -4, Reg::sp) );
+    l.push_back( new La(Reg::sp, -4, Reg::sp) );
+    break;
+
+  case ArgType::constfloat:
+    l.push_back( new LiS(Reg::f0, param.constfloat) );
+    l.push_back( new SwS(Reg::f0, -4, Reg::sp) );
+    l.push_back( new La(Reg::sp, -4, Reg::sp) );
+    break;
+  }
+
+  return l;
+}
+
+std::list<Instruction*> ParamRefQ::gen() {
+  std::list<Instruction*> l;
+  RegSet r;
+
+  ArrayType* at = dynamic_cast<ArrayType*>(param->getType());
+  if (at) {
+    if (param->isReference()) {
+      // Si el parámetro ya era una referencia a arreglo
+      // Copiamos en la pila su valor, pues ya es la dirección
+      // Si abajo copiamos el tamaño que se pasó en nuestro 'dope vector'
+      r = rdesc.get1Reg(param, false);
+      l.splice(l.end(), r.stores);
+      if (! param->isInReg(r.rx) ) {
+	l.push_back( rdesc.loadVar(r.rx, param) );
+	rdesc.clearReg(r.rx);
+	rdesc.addLocation(r.rx, param);
+      }
+      l.push_back( new Sw(r.rx, -4, Reg::sp) );
+      l.push_back( new Lw(Reg::a0, param->getOffset()-4, Reg::fp) );
+      l.push_back( new Sw(Reg::a0, -8, Reg::sp) );
+      l.push_back( new La(Reg::sp, -8, Reg::sp) );
+    } else {
+      // Si el parámetro no es referencia
+      // Se le calcula su dirección y se empila
+      // Su tamaño se puede sacar ya mismo a tiempo de compilación
+      if (param->isGlobal()) {
+	l.push_back( new La(Reg::a0, param->getLabel()) );
+      } else {
+	l.push_back( new La(Reg::a0, param->getOffset(), Reg::fp) );
+      }
+      l.push_back( new Sw(Reg::a0, -4, Reg::sp) );
+      l.push_back( new Li(Reg::a0, at->getLength()) );
+      l.push_back( new Sw(Reg::a0, -8, Reg::sp) );
+      l.push_back( new La(Reg::sp, -8, Reg::sp) );
+    }
+
+  } else {
+    if (param->isReference()) {
+      r = rdesc.get1Reg(param, false);
+      l.splice(l.end(), r.stores);
+      if (! param->isInReg(r.rx) ) {
+	l.push_back( rdesc.loadVar(r.rx, param) );
+	rdesc.clearReg(r.rx);
+	rdesc.addLocation(r.rx, param);
+      }
+      l.push_back( new Sw(r.rx, -4, Reg::sp) );
+      l.push_back( new La(Reg::sp, -4, Reg::sp) );
+    } else {
+      if (param->isTemp() and !param->isInMem()) {
+	l.push_back( rdesc.storeVar(param->getLocation(), param) );
+	param->inMem(true);
+      }
+      if (param->isGlobal()) {
+	l.push_back( new La(Reg::a0, param->getLabel()) );
+      } else {
+	l.push_back( new La(Reg::a0, param->getOffset(), Reg::fp) );
+      }
+
+      l.push_back( new Sw(Reg::a0, -4, Reg::sp) );
+      l.push_back( new La(Reg::sp, -4, Reg::sp) );
+
+    }
+
+  }
+
+  return l;
+}
+
 std::list<Instruction*> JumpQ::gen() {
   std::list<Instruction*> res;
   res.push_back(new J(this->label));
