@@ -215,5 +215,20 @@ RegSet RegDesc::get3RegAs(SymVar* res, SymVar* op1, SymVar* op2, bool f) {
 
 // FIXME
 Instruction* RegDesc::loadVar(Reg r, SymVar* s) {
+  /* Tomar en cuenta si la variable es local, global o parametro*/
   return new J(new Label("HOLA"));
+}
+
+Instruction* RegDesc::loadVar(Args arg,ArgType type,Reg r){
+
+  switch(type){
+  case ArgType::id:
+    return loadVar(r,arg.id);
+  case ArgType::constint:
+    return new Li(r,arg.constint);
+  case ArgType::constfloat:
+    return new LiS(r,arg.constfloat);
+  default:
+    return NULL;
+  }
 }

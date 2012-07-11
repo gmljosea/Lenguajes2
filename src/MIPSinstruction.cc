@@ -290,6 +290,14 @@ std::string Negu::toString() {
   return result;
 }
 
+std::string NegS::toString() {
+  std::string result("neg.s ");
+  result.append(regToString(Rd));
+  result.append(std::string(" , "));
+  result.append(regToString(Rx));
+  return result;
+}
+
 std::string ShiftL::toString() {
   std::string result("sll ");
   result.append(regToString(Rd));

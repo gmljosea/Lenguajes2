@@ -5,6 +5,7 @@
 #include <set>
 #include <list>
 
+#include "Quad.hh"
 #include "registers.hh"
 #include "symbol.hh"
 #include "instruction.hh"
@@ -94,7 +95,10 @@ struct RegDesc {
   // Sirve para implantar res := op1 . op2
   RegSet get3RegAs(SymVar* res, SymVar* op1, SymVar* op2, bool f);
 
+  Instruction* loadVar(Args arg, ArgType type, Reg r);
+
   Instruction* loadVar(Reg r, SymVar* s);
+
 
 };
 

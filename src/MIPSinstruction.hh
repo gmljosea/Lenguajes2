@@ -312,7 +312,7 @@ public:
 };
 
 /* Negu Rd, Rx */ 
-class Negu : MIPSinstruction{
+class Negu : public MIPSinstruction{
   Reg Rd;
   Reg Rx;
 public:
@@ -321,7 +321,7 @@ public:
 };
 
 /* Neg.s Rd, Rx */ 
-class NegS : MIPSinstruction{
+class NegS : public MIPSinstruction{
   Reg Rd;
   Reg Rx;
 public:
