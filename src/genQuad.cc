@@ -351,6 +351,193 @@ std::list<Instruction*> IndexQ::gen() {
   return l;
 }
 
+std::list<Instruction*> IndexAsigQ::gen() {
+  std::list<Instruction*> l;
+  RegSet r;
+
+  ArrayType* at = dynamic_cast<ArrayType*>(array->getType());
+  bool isf = at->getBaseType() == &(FloatType::getInstance());
+
+  if (indexType == ArgType::id) {
+    // Indice en variable, hay que cargarlo y sumarlo a la base
+    switch (argType) {
+    case ArgType::id:
+      if (isf) {
+	// Indice variable, valor en variable y flotante
+	r = rdesc.get2Reg(array, index.id, false);
+	l.splice(l.end(), r.stores);
+	if (! array->isInReg(r.rx) ) {
+	  l.push_back( rdesc.loadVar(r.rx, array) );
+	  rdesc.clearReg(r.rx);
+	  rdesc.addLocation(r.rx, array);
+	}
+	if (! index.id->isInReg(r.ry) ) {
+	  l.push_back( rdesc.loadVar(r.ry, index.id) );
+	  rdesc.clearReg(r.ry);
+	  rdesc.addLocation(r.ry, index.id);
+	}
+
+	RegSet rf = rdesc.get1Reg(arg.id, true);
+	l.splice(l.end(), rf.stores);
+	if (! arg.id->isInReg(rf.rx) ) {
+	  l.push_back( rdesc.loadVar(rf.rx, arg.id) );
+	  rdesc.clearReg(rf.rx);
+	  rdesc.addLocation(rf.rx, arg.id);
+	}
+	l.push_back( new Add(Reg::a0, r.rx, r.ry) );
+	l.push_back( new SwS(rf.rx, 0, Reg::a0) );
+
+      } else {
+
+	r = rdesc.get3Reg(array, index.id, arg.id, false);
+	l.splice(l.end(), r.stores);
+	if (! array->isInReg(r.rx) ) {
+	  l.push_back( rdesc.loadVar(r.rx, array) );
+	  rdesc.clearReg(r.rx);
+	  rdesc.addLocation(r.rx, array);
+	}
+	if (! index.id->isInReg(r.ry) ) {
+	  l.push_back( rdesc.loadVar(r.ry, index.id) );
+	  rdesc.clearReg(r.ry);
+	  rdesc.addLocation(r.ry, index.id);
+	}
+	if (! arg.id->isInReg(r.rz) ) {
+	  l.push_back( rdesc.loadVar(r.rz, arg.id) );
+	  rdesc.clearReg(r.rz);
+	  rdesc.addLocation(r.rz, arg.id);
+	}
+
+	l.push_back( new Add(Reg::a0, r.rx, r.ry) );
+	l.push_back( new Sw(r.rz, 0, Reg::a0) );
+
+      }
+
+      break;
+
+    case ArgType::constint:
+    case ArgType::constchar:
+    case ArgType::constbool:
+
+      r = rdesc.get2Reg(array, index.id, false);
+      l.splice(l.end(), r.stores);
+      if (! array->isInReg(r.rx) ) {
+	l.push_back( rdesc.loadVar(r.rx, array) );
+	rdesc.clearReg(r.rx);
+	rdesc.addLocation(r.rx, array);
+      }
+      if (! index.id->isInReg(r.ry) ) {
+	l.push_back( rdesc.loadVar(r.ry, index.id) );
+	rdesc.clearReg(r.ry);
+	rdesc.addLocation(r.ry, index.id);
+      }
+
+      // creo que puedo hacer esto boletamente igual para bool y char
+      l.push_back( new Add(Reg::a0, r.rx, r.ry) );
+      l.push_back( new Li(Reg::a1, arg.constint) );
+      l.push_back( new Sw(Reg::a1, 0, Reg::a0) );
+
+      break;
+
+    case ArgType::constfloat:
+
+      r = rdesc.get2Reg(array, index.id, false);
+      l.splice(l.end(), r.stores);
+      if (! array->isInReg(r.rx) ) {
+	l.push_back( rdesc.loadVar(r.rx, array) );
+	rdesc.clearReg(r.rx);
+	rdesc.addLocation(r.rx, array);
+      }
+      if (! index.id->isInReg(r.ry) ) {
+	l.push_back( rdesc.loadVar(r.ry, index.id) );
+	rdesc.clearReg(r.ry);
+	rdesc.addLocation(r.ry, index.id);
+      }
+
+      l.push_back( new Add(Reg::a0, r.rx, r.ry) );
+      l.push_back( new LiS(Reg::f0, arg.constfloat) );
+      l.push_back( new SwS(Reg::f0, 0, Reg::a0) );
+
+      break;
+
+    }
+
+  } else {
+    // Indice constante, se puede usar directo en el load
+    switch (argType) {
+    case ArgType::id:
+      if (isf) {
+	r = rdesc.get1Reg(array, false);
+	l.splice(l.end(), r.stores);
+	if (! array->isInReg(r.rx) ) {
+	  l.push_back( rdesc.loadVar(r.rx, array) );
+	  rdesc.clearReg(r.rx);
+	  rdesc.addLocation(r.rx, array);
+	}
+	RegSet rf = rdesc.get1Reg(arg.id, true);
+	l.splice(l.end(), r.stores);
+	if (! arg.id->isInReg(rf.rx) ) {
+	  l.push_back( rdesc.loadVar(rf.rx, arg.id) );
+	  rdesc.clearReg(rf.rx);
+	  rdesc.addLocation(rf.rx, arg.id);
+	}
+
+	l.push_back( new SwS(rf.rx, index.constint, r.rx) );
+
+      } else {
+	r = rdesc.get2Reg(array, arg.id, false);
+	l.splice(l.end(), r.stores);
+	if (! array->isInReg(r.rx) ) {
+	  l.push_back( rdesc.loadVar(r.rx, array) );
+	  rdesc.clearReg(r.rx);
+	  rdesc.addLocation(r.rx, array);
+	}
+	if (! arg.id->isInReg(r.ry) ) {
+	  l.push_back( rdesc.loadVar(r.ry, arg.id) );
+	  rdesc.clearReg(r.ry);
+	  rdesc.addLocation(r.ry, arg.id);
+	}
+
+	l.push_back( new Sw(r.ry, index.constint, r.rx) );
+      }
+
+      break;
+
+    case ArgType::constint:
+    case ArgType::constchar:
+    case ArgType::constbool:
+
+      r = rdesc.get1Reg(array, false);
+      if (! array->isInReg(r.rx) ) {
+	l.push_back( rdesc.loadVar(r.rx, array) );
+	rdesc.clearReg(r.rx);
+	rdesc.addLocation(r.rx, array);
+      }
+
+      l.push_back( new Li(Reg::a0, arg.constint) );
+      l.push_back( new Sw(Reg::a0, index.constint, r.rx) );
+
+      break;
+
+    case ArgType::constfloat:
+
+      r = rdesc.get1Reg(array, false);
+      if (! array->isInReg(r.rx) ) {
+	l.push_back( rdesc.loadVar(r.rx, array) );
+	rdesc.clearReg(r.rx);
+	rdesc.addLocation(r.rx, array);
+      }
+
+      l.push_back( new LiS(Reg::f0, arg.constfloat) );
+      l.push_back( new SwS(Reg::f0, index.constint, r.rx) );
+
+      break;
+
+    }
+  }
+
+  return l;
+}
+
 std::list<Instruction*> AsignmentAddQ::gen() {
   std::list<Instruction*> l;
 
