@@ -89,12 +89,15 @@ public:
   void setLabel(Label* l);
   Label* getLabel();
 
+  std::set<Reg> getAllLocations();
+
   int spill();
   // Si es una local devuelve el offset asignado y ya
   // Si es temporal, si nunca ha sido spilleada, se asigna offset y se devuelve
 
   bool isInReg(Reg r);
   Reg getLocation();
+  bool availableReg();
 };
 
 /*Tipo de pasaje para los argumentos de funciones (Se usa solo en el parser)*/

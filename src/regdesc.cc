@@ -9,8 +9,6 @@ typedef std::set<SymVar*> Tset;
 
 RegDesc::RegDesc() {
   // Cargar descriptores de registros enteros disponibles
-  rints.insert(std::pair<const Reg, Tset*>(Reg::a0, new Tset()));
-  rints.insert(std::pair<const Reg, Tset*>(Reg::a1, new Tset()));
   rints.insert(std::pair<const Reg, Tset*>(Reg::a2, new Tset()));
   rints.insert(std::pair<const Reg, Tset*>(Reg::a3, new Tset()));
 
@@ -38,8 +36,6 @@ RegDesc::RegDesc() {
   rints.insert(std::pair<const Reg, Tset*>(Reg::t9, new Tset()));
 
   // Cargar descriptores de registros flotantes disponibles
-  rfloats.insert(std::pair<const Reg, Tset*>(Reg::f0, new Tset()));
-  rfloats.insert(std::pair<const Reg, Tset*>(Reg::f1, new Tset()));
   rfloats.insert(std::pair<const Reg, Tset*>(Reg::f2, new Tset()));
   rfloats.insert(std::pair<const Reg, Tset*>(Reg::f3, new Tset()));
   rfloats.insert(std::pair<const Reg, Tset*>(Reg::f4, new Tset()));
@@ -50,7 +46,6 @@ RegDesc::RegDesc() {
   rfloats.insert(std::pair<const Reg, Tset*>(Reg::f9, new Tset()));
   rfloats.insert(std::pair<const Reg, Tset*>(Reg::f10, new Tset()));
   rfloats.insert(std::pair<const Reg, Tset*>(Reg::f11, new Tset()));
-  rfloats.insert(std::pair<const Reg, Tset*>(Reg::f12, new Tset()));
   rfloats.insert(std::pair<const Reg, Tset*>(Reg::f13, new Tset()));
   rfloats.insert(std::pair<const Reg, Tset*>(Reg::f14, new Tset()));
   rfloats.insert(std::pair<const Reg, Tset*>(Reg::f15, new Tset()));
@@ -103,6 +98,13 @@ void RegDesc::addLocation(Reg r, SymVar* s) {
 
 // FIXME: hacer addExclusiveLocation
 void RegDesc::addExclusiveLocation(Reg r, SymVar* s) {
+  s->inMem(false);
+  std::set<Reg> locs;
+  for (std::set<Reg>::iterator it = locs.begin();
+       it != locs.end(); it++) {
+    removeLocation(*it, s);
+  }
+  addLocation(r,s);
 }
 
 void RegDesc::removeLocation(Reg r, SymVar* s) {
@@ -175,6 +177,7 @@ int RegDesc::spillCost(Reg r) {
     if ((*it)->isTemp() and liveTemps.count(*it) == 0) continue;
     count++;
   }
+  return count;
 }
 
 std::list<Instruction*> RegDesc::dumpReg(Reg r) {
@@ -203,7 +206,7 @@ RegSet RegDesc::get1Reg(SymVar* op, bool f) {
     for (std::map<Reg, Tset*>::iterator it = rints.begin();
 	 it != rints.end(); it++) {
       int s = spillCost(it->first);
-      if (s > acc) continue;
+      if (s >= acc) continue;
       r.rx = it->first;
       acc = s;
     }
@@ -214,7 +217,7 @@ RegSet RegDesc::get1Reg(SymVar* op, bool f) {
     for (std::map<Reg, Tset*>::iterator it = rfloats.begin();
 	 it != rfloats.end(); it++) {
       int s = spillCost(it->first);
-      if (s > acc) continue;
+      if (s >= acc) continue;
       r.rx = it->first;
       acc = s;
     }
@@ -227,9 +230,33 @@ RegSet RegDesc::get1Reg(SymVar* op, bool f) {
 
 RegSet RegDesc::getFreshReg(bool f) {
   RegSet r;
-  r.rx = Reg::t0;
-  r.ry = Reg::t1;
-  r.rz = Reg::t2;
+
+  if (!f) {
+    r.rx = Reg::t0;
+    int acc = spillCost(Reg::t0);
+
+    for (std::map<Reg, Tset*>::iterator it = rints.begin();
+	 it != rints.end(); it++) {
+      int s = spillCost(it->first);
+      if (s >= acc) continue;
+      r.rx = it->first;
+      acc = s;
+    }
+  } else {
+    r.rx = Reg::f0;
+    int acc = spillCost(Reg::f0);
+
+    for (std::map<Reg, Tset*>::iterator it = rfloats.begin();
+	 it != rfloats.end(); it++) {
+      int s = spillCost(it->first);
+      if (s >= acc) continue;
+      r.rx = it->first;
+      acc = s;
+    }
+  }
+
+  r.stores = dumpReg(r.rx);
+
   return r;
 }
 
@@ -265,10 +292,9 @@ RegSet RegDesc::get3RegAs(SymVar* res, SymVar* op1, SymVar* op2, bool f) {
   return r;
 }
 
-// FIXME
 Instruction* RegDesc::loadVar(Reg r, SymVar* s) {
   if (isFloatReg(r)) {
-    if (s->availableOther(r)) {
+    if (s->availableReg()) {
       Reg o = s->getLocation();
       if (isFloatReg(o)) {
 	// Generar move dentro del coprocesador
@@ -288,7 +314,7 @@ Instruction* RegDesc::loadVar(Reg r, SymVar* s) {
     }
 
   } else {
-    if (s->availableOther(r)) {
+    if (s->availableReg()) {
       Reg o = s->getLocation();
       if (isFloatReg(o)) {
 	// Generar move entre coprocesadores
@@ -309,7 +335,18 @@ Instruction* RegDesc::loadVar(Reg r, SymVar* s) {
   }
 }
 
-// FIXME
 Instruction* RegDesc::storeVar(Reg r, SymVar* s) {
-  return new J(new Label("CHAO"));
+  if (isFloatReg(r)) {
+    if (s->isGlobal()) {
+      return new SwS(r, s->getLabel());
+    } else {
+      return new SwS(r, s->getOffset(), Reg::fp);
+    }
+  } else {
+    if (s->isGlobal()) {
+      return new Sw(r, s->getLabel());
+    } else {
+      return new Sw(r, s->getOffset(), Reg::fp);
+    }
+  }
 }
