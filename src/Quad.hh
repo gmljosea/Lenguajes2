@@ -81,7 +81,7 @@ public:
 			     arg2Type(arg2Type),arg2(arg2),result(result){};
   virtual void printQuad();
   virtual std::string toString();
-
+  virtual std::list<Instruction*> gen();
   virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
 };
 

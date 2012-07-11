@@ -4,6 +4,7 @@
 #include "MIPSinstruction.hh"
 #include "mipscode.hh"
 #include "regdesc.hh"
+#include "registers.hh"
 
 extern MIPSCode mipscode;
 extern RegDesc rdesc;
@@ -16,10 +17,10 @@ extern RegDesc rdesc;
  **/
 std::list<Instruction*> AsignmentOpQ::gen(){
   
-  bool anyConstint= (this.arg1Type== constint) ||  this.arg2Type== constint;
-  bool anyConstFloat= (this.arg1Type== constfloat) || this.arg2.Type==constFloat;
-  bool anyConst= anyConstint || anyContfloat;
-  bool arg2Null= this.arg2Type==null;
+  bool anyConstint= (this->arg1Type== constint) || this->arg2Type== constint;
+  bool anyConstFloat= (this->arg1Type== constfloat) || this->arg2Type==constfloat;
+  bool anyConst= anyConstint || anyConstFloat;
+  bool arg2Null= this->arg2Type==null;
   bool isFloat= this->result->getType()== &(FloatType::getInstance());
   RegSet regs;
   Reg Rd,Rx,Ry;
@@ -29,49 +30,49 @@ std::list<Instruction*> AsignmentOpQ::gen(){
    * de eso usamos registros reservados para el uso del compilador Devanix*/
   if (anyConst && !arg2Null){
     Args argId= (arg1Type==id) ? this->arg1 : this->arg2;
-    regs= get2RegAs(result,argId.id,anyConstFloat);
+    regs= rdesc.get2RegAs(result,argId.id,anyConstFloat);
  
     // Cargar segundo operando solo cuando el operador 
     // no sea suma o resta de enteros (para aprovechar addi subi)
-    if( this.op!= sumI && this.op!=substractionI){
-      Ry = (this->arg2Type==id)?regs.Ry: $a1;
-      loadVar(this->arg2,this->arg2Type,Ry);
+    if( this->op!= sumI && this->op!=substractionI){
+      Ry = (this->arg2Type==id)?regs.ry: Reg::a1;
+      rdesc.loadVar(this->arg2,this->arg2Type,Ry);
       // Actualizar descriptores si no fue $a1
-      if(Rx!=$a1){
-	clearReg(Ry);
-	addLocation(Ry,this.arg1.id);
+      if(Rx!=Reg::a1){
+	rdesc.clearReg(Ry);
+	rdesc.addLocation(Ry,this.arg1.id);
       }
     } else if((this.op== sumI || this.op==substractionI)&& arg2Type==id){
-      Ry = regs.Ry;
-      loadVar(this->arg2.id,Ry);
+      Ry = regs.ry;
+      rdesc.loadVar(this->arg2.id,Ry);
       // Actualizar descriptores
-      clearReg(Ry);
-      addLocation(Ry,this.arg1.id);
+      rdesc.clearReg(Ry);
+      rdesc.addLocation(Ry,this.arg1.id);
     }
 
   }else if( anyConst && arg2Null){
-    regs= get1Reg(result,anyConstFloat);
+    regs= rdesc.get1Reg(result,anyConstFloat);
   }else if( !anyConst && !arg2Null){
-    regs= get3RegAs(this->result,this->arg1.id,this->arg2.id,isFloat);
-    Ry = regs.Rz;
-    loadVar(this->arg2.id,Ry);
+    regs= rdesc.get3RegAs(this->result,this->arg1.id,this->arg2.id,isFloat);
+    Ry = regs.rz;
+    rdesc.loadVar(this->arg2.id,Ry);
     // Actualizar descriptores
-    clearReg(Ry);
-    addLocation(Ry,this.arg2.id);
+    rdesc.clearReg(Ry);
+    rdesc.addLocation(Ry,this.arg2.id);
   }else if(!anyConst && arg2Null){
-    regs= get2RegAs(this->result,this->arg1.id,isFloat);
+    regs= rdesc.get2RegAs(this->result,this->arg1.id,isFloat);
   }
 
   // Cargar primer argumento en Rx
-  Rx = (this.arg1Type==id)?regs.Ry: $a0;
-  loadVar(this.arg1,this->arg1Type,Rx);
+  Rx = (this.arg1Type==id)?regs.ry: Reg::a0;
+  rdesc.loadVar(this.arg1,this->arg1Type,Rx);
   // Actualizar descriptores si no fue $a0
-  if(Rx!=$a0){
-    clearReg(Rx);
-    addLocation(Rx,this.arg1.id);
+  if(Rx!=Reg::a0){
+    rdesc.clearReg(Rx);
+    rdesc.addLocation(Rx,this.arg1.id);
   }
 
-  Rd= regs.Rx;
+  Rd= regs.rx;
   // En cualquier caso result solo estara en Rd
   addExclusiveLocation(Rd,result);
  
