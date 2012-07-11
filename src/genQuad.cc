@@ -264,6 +264,93 @@ std::list<Instruction*> AsignmentToPointQ::gen() {
   return l;
 }
 
+std::list<Instruction*> IndexQ::gen() {
+  std::list<Instruction*> l;
+  RegSet r;
+
+  ArrayType* at = dynamic_cast<ArrayType*>(array->getType());
+
+  if (at->getBaseType() == &(FloatType::getInstance())) {
+    if (indexType == ArgType::id) {
+      r = rdesc.get2Reg(array, index.id, false);
+      l.splice(l.end(), r.stores);
+      if (! array->isInReg(r.rx) ) {
+	l.push_back( rdesc.loadVar(r.rx, array) );
+	rdesc.clearReg(r.rx);
+	rdesc.addLocation(r.rx, array);
+      }
+      if (! index.id->isInReg(r.ry) ) {
+	l.push_back( rdesc.loadVar(r.ry, index.id) );
+	rdesc.clearReg(r.ry);
+	rdesc.addLocation(r.ry, index.id);
+      }
+      RegSet rf = rdesc.getFreshReg(true);
+      l.splice(l.end(), rf.stores);
+      rdesc.clearReg(rf.rx);
+
+      l.push_back( new Add(Reg::a0, r.rx, r.ry) );
+      l.push_back( new LwS(rf.rx, 0, Reg::a0) );
+
+      rdesc.addExclusiveLocation(rf.rx, result);
+
+    } else {
+
+      r = rdesc.get1Reg(array, false);
+      l.splice(l.end(), r.stores);
+      if (! array->isInReg(r.rx) ) {
+	l.push_back( rdesc.loadVar(r.rx, array) );
+	rdesc.clearReg(r.rx);
+	rdesc.addLocation(r.rx, array);
+      }
+
+      RegSet rf = rdesc.getFreshReg(true);
+      l.splice(l.end(), rf.stores);
+      rdesc.clearReg(rf.rx);
+
+      l.push_back( new LwS(rf.rx, index.constint, r.rx) );
+
+      rdesc.addExclusiveLocation(rf.rx, result);
+
+    }
+  } else {
+    if (indexType == ArgType::id) {
+      r = rdesc.get3RegAs(result, array, index.id, false);
+      l.splice(l.end(), r.stores);
+      if (! array->isInReg(r.ry) ) {
+	l.push_back( rdesc.loadVar(r.ry, array) );
+	rdesc.clearReg(r.ry);
+	rdesc.addLocation(r.ry, array);
+      }
+      if (! index.id->isInReg(r.rz) ) {
+	l.push_back( rdesc.loadVar(r.rz, index.id) );
+	rdesc.clearReg(r.rz);
+	rdesc.addLocation(r.rz, index.id);
+      }
+
+      l.push_back( new Add(Reg::a0, r.ry, r.rz) );
+      l.push_back( new Lw(r.rx, 0, Reg::a0) );
+
+      rdesc.addExclusiveLocation(r.rx, result);
+
+    } else {
+      r = rdesc.get2RegAs(result, array, false);
+      l.splice(l.end(), r.stores);
+      if (! array->isInReg(r.ry) ) {
+	l.push_back( rdesc.loadVar(r.ry, array) );
+	rdesc.clearReg(r.ry);
+	rdesc.addLocation(r.ry, array);
+      }
+
+      l.push_back( new Lw(r.rx, index.constint, r.ry) );
+
+      rdesc.addExclusiveLocation(r.rx, result);
+
+    }
+  }
+
+  return l;
+}
+
 std::list<Instruction*> AsignmentAddQ::gen() {
   std::list<Instruction*> l;
 
