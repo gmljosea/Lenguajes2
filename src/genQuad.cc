@@ -866,6 +866,50 @@ std::list<Instruction*> ParamRefQ::gen() {
   return l;
 }
 
+std::list<Instruction*> RetrieveQ::gen() {
+  std::list<Instruction*> l;
+  RegSet r = rdesc.getFreshReg(isFloat(var));
+  l.splice(l.end(), r.stores);
+  rdesc.clearReg(r.rx);
+
+  if (isFloat(var)) {
+    l.push_back( new MoveS(r.rx, Reg::f1) );
+  } else {
+    l.push_back( new Move(r.rx, Reg::v0) );
+  }
+
+  rdesc.addExclusiveLocation(r.rx, var);
+
+  return l;
+}
+
+std::list<Instruction*> ReturnQ::gen() {
+  std::list<Instruction*> l;
+
+  switch (argt) {
+  case ArgType::id:
+    if (isFloat(arg.id)) {
+      l.push_back( rdesc.loadVar(Reg::f1, arg.id) );
+    } else {
+      l.push_back( rdesc.loadVar(Reg::v0, arg.id) );
+    }
+    break;
+  case ArgType::constint:
+  case ArgType::constbool:
+  case ArgType::constchar:
+    l.push_back( new Li(Reg::v0, arg.constint) );
+    break;
+  case ArgType::constfloat:
+    l.push_back( new LiS(Reg::f0, arg.constfloat) );
+    break;
+  case ArgType::null:
+    break;
+  }
+
+  l.push_back( new J(symf->getEpilogueLabel()) );
+  return l;
+}
+
 std::list<Instruction*> JumpQ::gen() {
   std::list<Instruction*> res;
   res.push_back(new J(this->label));

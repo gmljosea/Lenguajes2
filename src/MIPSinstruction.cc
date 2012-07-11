@@ -230,6 +230,14 @@ std::string Move::toString() {
   return result;
 }
 
+std::string MoveS::toString() {
+  std::string result("mov.s ");
+  result.append(regToString(Rd));
+  result.append(std::string(" , "));
+  result.append(regToString(Rx));
+  return result;
+}
+
 
 std::string CompES::toString() {
   std::string result("c.eq.s ");
