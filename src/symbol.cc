@@ -226,7 +226,7 @@ int SymVar::getAlignment() {
 }
 
 int SymVar::getOffset(){
-  return this->offset;
+  return this->spill();
 }
 
 void SymVar::setType(Type* type) {
@@ -257,10 +257,12 @@ bool SymVar::isInMem() {
 }
 
 void SymVar::addReg(Reg r) {
+  std::cout << "# Colocando " << id << " en " << regToString(r) << std::endl;
   this->locations.insert(r);
 }
 
 void SymVar::removeReg(Reg r) {
+  std::cout << "# Borrando " << id << " en " << regToString(r) << std::endl;
   this->locations.erase(r);
 }
 
@@ -269,6 +271,10 @@ bool SymVar::availableOther(Reg r) {
   std::set<Reg> l = this->locations; // Teoricamente es una copia
   l.erase(r);
   return !l.empty();
+}
+
+bool SymVar::availableReg() {
+  return this->locations.size() > 0;
 }
 
 bool SymVar::isGlobal() {
@@ -284,15 +290,34 @@ Label* SymVar::getLabel() {
 }
 
 int SymVar::spill() {
-  if (!temp or offset > -1) return offset;
-
+  if (!temp or offset > -1) {
+    if (isParameter) {
+      return offset;
+    } else {
+      return -(offset+12);
+    }
+  }
+  std::cout << "# Spill de " << id << std::endl;
   offset = currentfun->getLocalSpace();
   currentfun->setLocalSpace(offset+4);
-  return offset;
+  return -(offset+12);
+}
+
+std::set<Reg> SymVar::getAllLocations() {
+  return this->locations;
 }
 
 bool SymVar::isInReg(Reg r) {
   return locations.count(r) > 0;
+}
+
+// WARN
+Reg SymVar::getLocation() {
+  // Devuelve un registro donde se encuentre esta variable
+  if (locations.begin() != locations.end()) {
+    return *(locations.begin());
+  }
+  return Reg::zero;
 }
 
 /************************************/

@@ -98,7 +98,10 @@ struct RegDesc {
   Instruction* loadVar(Args arg, ArgType type, Reg r);
 
   Instruction* loadVar(Reg r, SymVar* s);
+  Instruction* storeVar(Reg r, SymVar* s);
 
+  int spillCost(Reg r);
+  std::list<Instruction*> dumpReg(Reg r);
 
 };
 

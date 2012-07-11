@@ -85,6 +85,21 @@ std::string Sw::toString() {
   return result;
 }
 
+std::string SwS::toString() {
+  std::string result("s.s ");
+  result.append(regToString(Rs));
+  result.append(std::string(" , "));
+  if (varLabel) {
+    result.append(varLabel->toString());
+  } else {
+    result.append(std::to_string((long long int) offset));
+    result.append("(");
+    result.append(regToString(Rd));
+    result.append(")");
+  }
+  return result;
+}
+
 std::string Add::toString() {
   std::string result("add ");
   result.append(regToString(Rd));
@@ -209,6 +224,14 @@ std::string Mflo::toString() {
 
 std::string Move::toString() {
   std::string result("move ");
+  result.append(regToString(Rd));
+  result.append(std::string(" , "));
+  result.append(regToString(Rx));
+  return result;
+}
+
+std::string MoveS::toString() {
+  std::string result("mov.s ");
   result.append(regToString(Rd));
   result.append(std::string(" , "));
   result.append(regToString(Rx));

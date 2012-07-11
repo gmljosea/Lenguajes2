@@ -91,7 +91,7 @@ public:
 
 class StringType : public Type {
 public:
-  StringType(int length) : Type(length, 1) {};
+  StringType(int length) : Type(4, 4) {};
   virtual bool operator==(Type& t);
   void setLength(int length);
   virtual std::string toString();

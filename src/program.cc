@@ -173,6 +173,9 @@ void Program::gen(){
   // Emitir código MIPS para terminar el programa
   // Esencialmente hacer syscall 10
 
+  std::cout << "  li $v0, 10" << std::endl
+	    << "  syscall" << std::endl;
+
   // Generar primero el main, y luego el resto de las funciones
   this->main->gen();
   for (std::list<SymFunction*>::iterator funIt= this->functions.begin();

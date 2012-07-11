@@ -115,6 +115,25 @@ public:
   virtual std::string toString();
 };
 
+/* Store float  s.s Rs,var
+ *              s.s Rs,offset(Rd)
+ */
+class SwS : public MIPSinstruction{
+private:
+  Mode mode;
+  Reg Rs;
+  // Direct, label of var
+  Label *varLabel;
+  // Indirect
+  int offset;
+  Reg Rd;
+
+public:
+  SwS(Reg Rs,Label* varLabel): Rs(Rs),varLabel(varLabel),mode(direct){};
+  SwS(Reg Rs,int offs,Reg Rd): Rs(Rs),offset(offs),Rd(Rd),mode(indirect),varLabel(NULL){};
+  virtual std::string toString();
+};
+
 /*Add Rd, Rx, Ry*/
 class Add : public MIPSinstruction{
 private:
@@ -260,6 +279,15 @@ class Move : public MIPSinstruction {
   Reg Rx;
 public:
   Move (Reg Rd, Reg Rx) : Rd(Rd), Rx(Rx) {};
+  virtual std::string toString();
+};
+
+// mov.s Rfd, Rfx
+class MoveS : public MIPSinstruction {
+  Reg Rd;
+  Reg Rx;
+public:
+  MoveS (Reg Rd, Reg Rx) : Rd(Rd), Rx(Rx) {};
   virtual std::string toString();
 };
 
