@@ -263,6 +263,16 @@ public:
   virtual std::string toString();
 };
 
+// movz Rd, Rx, Ry
+class Movz : public MIPSinstruction {
+  Reg Rd;
+  Reg Rx;
+  Reg Ry;
+public:
+  Movz (Reg Rd, Reg Rx, Reg Ry) : Rd(Rd), Rx(Rx), Ry(Ry) {};
+  virtual std::string toString();
+};
+
 /* mtc1 Rfd, Rx */
 class Mtc1 : public MIPSinstruction {
   Reg Rfd;
@@ -462,5 +472,11 @@ public:
   Jr(Reg Rx): Rx(Rx){};
   virtual std::string toString();
 };
+
+/*
+class NopM : public MIPSinstruction {
+public:
+  virtual std::string toString();
+  }*/
 
 #endif

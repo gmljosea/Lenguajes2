@@ -215,6 +215,16 @@ std::string Move::toString() {
   return result;
 }
 
+std::string Movz::toString() {
+  std::string result("movz ");
+  result.append(regToString(Rd));
+  result.append(std::string(" , "));
+  result.append(regToString(Rx));
+  result.append(std::string(" , "));
+  result.append(regToString(Ry));
+  return result;
+}
+
 std::string Mtc1::toString() {
   std::string result("mtc1 ");
   result.append(regToString(Rfd));
@@ -346,3 +356,7 @@ std::string Jal::toString() {
 std::string Jr::toString() {
   return (std::string("jr ")+regToString(Rx));
 }
+/*
+std::string NopM::toString() {
+  return (std::string("nop"));
+  }*/

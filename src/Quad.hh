@@ -385,6 +385,7 @@ public:
 
   virtual std::string toString();
   virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
+  virtual std::list<Instruction*> gen();
 };
 
 // <result> := read <type>, si deref = false

@@ -131,6 +131,10 @@ void Program::gen(){
   // Generar codigo para las variables gobales
   mipscode.emitData();
 
+  std::cout << "true: .asciiz \"true\"" << std::endl
+	    << "false: .asciiz \"false\"" << std::endl
+	    << "newline: .asciiz \"\\n\"" << std::endl;
+
   for(std::list<VariableDec*>::iterator varIt = this->globalinits.begin();
       varIt != this->globalinits.end(); varIt++){
     (*varIt)->gen(NULL);

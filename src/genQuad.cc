@@ -166,3 +166,75 @@ std::list<Instruction*> CallQ::gen() {
   // de la función
   return res;
 }
+
+std::list<Instruction*> WriteQ::gen() {
+  std::list<Instruction*> l;
+
+  switch (argt) {
+  case ArgType::id:
+    if ( type == &(FloatType::getInstance()) ) {
+      // Print float
+      l.push_back( rdesc.loadVar(Reg::f12, arg.id) );
+      l.push_back( new Li(Reg::v0, 2) );
+
+    } else if (type == &(IntType::getInstance())) {
+      // Print int
+      l.push_back( rdesc.loadVar(Reg::a0, arg.id) );
+      l.push_back( new Li(Reg::v0, 1) );
+
+    } else if (type == &(BoolType::getInstance())) {
+      // Print bool
+      l.push_back( rdesc.loadVar(Reg::v0, arg.id) );
+      l.push_back( new La(Reg::a0, new Label("true")) );
+      l.push_back( new La(Reg::a1, new Label("false")) );
+      l.push_back( new Movz(Reg::v0, Reg::a1, Reg::a0) );
+      l.push_back( new Li(Reg::v0, 4) );
+
+    } else {
+      // Print string
+      l.push_back( rdesc.loadVar(Reg::a0, arg.id) );
+      l.push_back( new Li(Reg::v0, 4) );
+
+    }
+
+    l.push_back( new Syscall() );
+
+    break;
+
+  case ArgType::constint:
+    l.push_back( new Li(Reg::a0, arg.constint) );
+    l.push_back( new Li(Reg::v0, 1) );
+    l.push_back( new Syscall() );
+    break;
+
+  case ArgType::constfloat:
+    l.push_back( new LiS(Reg::f12, arg.constfloat) );
+    l.push_back( new Li(Reg::v0, 2) );
+    l.push_back( new Syscall() );
+    break;
+
+  case ArgType::constbool:
+    l.push_back( new Li(Reg::v0, (int) arg.constbool) );
+    l.push_back( new La(Reg::a0, new Label("true")) );
+    l.push_back( new La(Reg::a1, new Label("false")) );
+    l.push_back( new Movz(Reg::v0, Reg::a1, Reg::a0) );
+    l.push_back( new Li(Reg::v0, 4) );
+    l.push_back( new Syscall() );
+    break;
+
+  case ArgType::conststring:
+    l.push_back( new La(Reg::a0, mipscode.emitString(*arg.conststring)) );
+    l.push_back( new Li(Reg::v0, 4) );
+    l.push_back( new Syscall() );
+    break;
+
+  }
+
+  if (isLn) {
+    l.push_back( new La(Reg::a0, new Label("newline")) );
+    l.push_back( new Li(Reg::v0, 4) );
+    l.push_back( new Syscall() );
+  }
+
+  return l;
+}
