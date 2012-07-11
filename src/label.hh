@@ -17,7 +17,7 @@ private:
   std::string new_id;
   bool active;
 public:
-  Label(int id): id(id), active(false){};
+  Label(int id);
   Label(std::string str) : new_id(str), id(-1), active(false) {};
   void setInstruction(Instruction* quad);
   void setActive(bool act);

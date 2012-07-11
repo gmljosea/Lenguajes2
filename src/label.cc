@@ -1,6 +1,13 @@
 #include "label.hh"
 #include "Quad.hh"
 
+Label::Label(int id) {
+  this->id = id;
+  this->new_id = std::string(".t");
+  this->new_id.append(std::to_string((long long int) id));
+  active = false;
+}
+
 void Label::setInstruction(Instruction* instruction){
   this->instruction= instruction;
 }
