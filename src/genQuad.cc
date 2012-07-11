@@ -116,6 +116,17 @@ std::list<Instruction*> AsignmentQ::gen() {
   return l;
 }
 
+std::list<Instruction*> ConditionalJumpQ::gen() {
+  std::list<Instruction*> l;
+  RegSet r;
+
+  bool dofloat = false;
+
+  // Fuck my life
+
+  return l;
+}
+
 std::list<Instruction*> AsignmentPointQ::gen() {
   std::list<Instruction*> l;
 

@@ -303,7 +303,7 @@ SymVar* StringExp::gen(){
   intCode.addInst(new AsignmentQ(conststring,cString,result));
   result->setType(new StringType(this->str.length()));
   return result;
-  std::cout << "temp = string";
+  //  std::cout << "temp = string";
 }
 
 // CharExp
@@ -316,7 +316,7 @@ SymVar* CharExp::gen(){
   intCode.addInst(new AsignmentQ(constchar,cChar,result));
   result->setType(&(CharType::getInstance()));
   return result;
-  std::cout << "temp = char";
+  //  std::cout << "temp = char";
 }
 
 // Arithmetic: Sum, Substraction, Multiplication, Division  
@@ -464,8 +464,16 @@ SymVar* Relational::gen(){
   Args cFalse;
   cTrue.constbool= (bool) true;
   cFalse.constbool=(bool) false;
+
+  r1->setType(exp1->getType());
+  r2->setType(exp2->getType());
  
-  intCode.addInst(new ConditionalJumpQ(r1,op,r2,lbltrue));
+  if(*(exp1->getType())==IntType::getInstance()){
+    intCode.addInst(new ConditionalJumpQ(r1,this->opI,r2,lbltrue));
+  }else{
+    intCode.addInst(new ConditionalJumpQ(r1,this->opF,r2,lbltrue));
+  }
+
   intCode.addInst(new AsignmentQ(constbool,cFalse,result));
   intCode.addInst(new JumpQ(lblFin));
   intCode.emitLabel(lbltrue);
@@ -481,7 +489,17 @@ void Relational::jumping(Label* lbltrue,Label* lblfalse){
   SymVar *r1,*r2;
   r1= this->exp1->gen();
   r2= this->exp2->gen();
+
+  r1->setType(exp1->getType());
+  r2->setType(exp2->getType());
   
+  if(*(exp1->getType())==IntType::getInstance()){
+    op = this->opI;
+  }else{
+    op = this->opF;
+  }
+
+
   if(lblfalse!=NULL & lbltrue!=NULL){
     intCode.addInst(new ConditionalJumpQ(r1,op,r2,lbltrue));
     intCode.addInst(new JumpQ(lblfalse));
