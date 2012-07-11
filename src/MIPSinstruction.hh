@@ -56,7 +56,7 @@ public:
   };*/
 
 /* Load inmediate Li Rd, #a */
-class Li : MIPSinstruction{
+class Li : public MIPSinstruction{
 private:
   Reg Rd;
   int inmediate;
@@ -67,7 +67,7 @@ public:
 };
 
 /* Load inmediate flotante simple Li.s Rd, #a */
-class LiS : MIPSinstruction{
+class LiS : public MIPSinstruction{
 private:
   Reg Rd;
   float inmediate;

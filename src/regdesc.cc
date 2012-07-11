@@ -73,6 +73,8 @@ RegDesc::RegDesc() {
 }
 
 void RegDesc::clearReg(Reg r) {
+  // FIXME marcar variables borradas como en memoria
+  // Si son temporales no vivos o variables que solo estén en este registro
   Tset* set = getSet(r);
   for (Tset::iterator it = set->begin();
        it != set->end(); it++) {
@@ -96,6 +98,10 @@ void RegDesc::addLocation(Reg r, SymVar* s) {
   Tset* set = getSet(r);
   set->insert(s);
   s->addReg(r);
+}
+
+// FIXME: hacer addExclusiveLocation
+void RegDesc::addExclusiveLocation(Reg r, SymVar* s) {
 }
 
 void RegDesc::removeLocation(Reg r, SymVar* s) {
@@ -174,4 +180,9 @@ RegSet RegDesc::get3Reg(SymVar* op1, SymVar* op2, SymVar* op3, bool f) {
 }
 
 RegSet RegDesc::get3RegAs(SymVar* res, SymVar* op1, SymVar* op2, bool f) {
+}
+
+// FIXME
+Instruction* RegDesc::loadVar(Reg r, SymVar* s) {
+  return NULL;
 }

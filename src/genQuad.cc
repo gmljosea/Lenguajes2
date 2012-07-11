@@ -3,8 +3,11 @@
 
 #include "Quad.hh"
 #include "MIPSinstruction.hh"
+#include "mipscode.hh"
+#include "regdesc.hh"
 
-
+extern MIPSCode mipscode;
+extern RegDesc rdesc;
 
 /** 
  * Asignacion de 3 o 2 direcciones
@@ -47,6 +50,71 @@ std::list<MIPSinstruction*> AsignmentOpQ::gen(){
   }
 }
 */
+
+bool isFloat(SymVar* s) {
+  return s->getType() == &(FloatType::getInstance());
+}
+
+std::list<Instruction*> AsignmentQ::gen() {
+  std::list<Instruction*> l;
+  RegSet r;
+
+  switch (arg1Type) {
+
+  case ArgType::id:
+    r = rdesc.get1Reg(arg1.id, isFloat(arg1.id));
+    l.splice(l.end(), r.stores);
+    if (! arg1.id->isInReg(r.rx) ) {
+      l.push_back( rdesc.loadVar(r.rx, arg1.id) );
+      rdesc.clearReg(r.rx);
+      rdesc.addLocation(r.rx, arg1.id);
+    }
+    rdesc.addExclusiveLocation(r.rx, result);
+    break;
+
+  case ArgType::constint:
+    r = rdesc.getFreshReg(false);
+    l.splice(l.end(), r.stores);
+    rdesc.clearReg(r.rx);
+    l.push_back(new Li(r.rx, arg1.constint));
+    rdesc.addExclusiveLocation(r.rx, result);
+    break;
+
+  case ArgType::constfloat:
+    r = rdesc.getFreshReg(true);
+    l.splice(l.end(), r.stores);
+    rdesc.clearReg(r.rx);
+    l.push_back(new LiS(r.rx, arg1.constfloat));
+    rdesc.addExclusiveLocation(r.rx, result);
+    break;
+
+  case ArgType::constbool:
+    r = rdesc.getFreshReg(false);
+    l.splice(l.end(), r.stores);
+    rdesc.clearReg(r.rx);
+    l.push_back(new Li(r.rx, (int) arg1.constbool));
+    rdesc.addExclusiveLocation(r.rx, result);
+    break;
+
+  case ArgType::conststring:
+    r = rdesc.getFreshReg(false);
+    l.splice(l.end(), r.stores);
+    rdesc.clearReg(r.rx);
+    l.push_back(new La(r.rx, mipscode.emitString(*arg1.conststring))); 
+    rdesc.addExclusiveLocation(r.rx, result);
+    break;
+
+  case ArgType::constchar:
+    r = rdesc.getFreshReg(false);
+    l.splice(l.end(), r.stores);
+    rdesc.clearReg(r.rx);
+    l.push_back(new Li(r.rx, (int) arg1.constchar));
+    rdesc.addExclusiveLocation(r.rx, result);
+    break;
+  }
+
+  return l;
+}
 
 std::list<Instruction*> JumpQ::gen() {
   std::list<Instruction*> res;
