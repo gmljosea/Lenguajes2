@@ -285,7 +285,6 @@ Label* SymVar::getLabel() {
 
 int SymVar::spill() {
   if (!temp or offset > -1) return offset;
-
   offset = currentfun->getLocalSpace();
   currentfun->setLocalSpace(offset+4);
   return offset;
@@ -295,9 +294,12 @@ bool SymVar::isInReg(Reg r) {
   return locations.count(r) > 0;
 }
 
-// FIXME
+// WARN
 Reg SymVar::getLocation() {
   // Devuelve un registro donde se encuentre esta variable
+  if (locations.begin() != locations.end()) {
+    return *(locations.begin());
+  }
   return Reg::zero;
 }
 
