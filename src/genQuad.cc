@@ -116,6 +116,155 @@ std::list<Instruction*> AsignmentQ::gen() {
   return l;
 }
 
+std::list<Instruction*> AsignmentPointQ::gen() {
+  std::list<Instruction*> l;
+  RegSet r;
+
+  // Chequear si el type del resultado no es null. Pudiera serlo si
+  // es un temporal, en cuyo caso asumiré que es entero.
+  if ( result->getType() and isFloat(result) ) {
+    // Dereferenciar apuntador a flotante
+    r = rdesc.get1Reg(arg1, false);
+    l.splice(l.end(), r.stores);
+    if (! arg1->isInReg(r.rx) ) {
+      l.push_back( rdesc.loadVar(r.rx, arg1) );
+      rdesc.clearReg(r.rx);
+      rdesc.addLocation(r.rx, arg1);
+    }
+
+    RegSet rf = rdesc.getFreshReg(true);
+    l.splice(l.end(), rf.stores);
+    rdesc.clearReg(rf.rx);
+    l.push_back( new LwS(rf.rx, 0, r.rx) );
+    rdesc.addExclusiveLocation(rf.rx, result);
+
+  } else {
+    // Dereferenciar apuntador a entero
+    r = rdesc.get2RegAs(result, arg1, false);
+    l.splice(l.end(), r.stores);
+    if (! arg1->isInReg(r.ry) ) {
+      l.push_back( rdesc.loadVar(r.ry, arg1) );
+      rdesc.clearReg(r.ry);
+      rdesc.addLocation(r.ry, arg1);
+    }
+    rdesc.clearReg(r.rx);
+    l.push_back( new Lw(r.rx, 0, r.ry) );
+    rdesc.addExclusiveLocation(r.rx, result);
+
+  }
+
+  return l;
+}
+
+std::list<Instruction*> AsignmentToPointQ::gen() {
+  std::list<Instruction*> l;
+  RegSet r;
+
+  switch (arg1Type) {
+  case ArgType::id:
+
+    if ( result->getType() and isFloat(result) ) {
+      r = rdesc.get1Reg(result, false);
+      l.splice(l.end(), r.stores);
+      if (! result->isInReg(r.rx) ) {
+	l.push_back( rdesc.loadVar(r.rx, result) );
+	rdesc.clearReg(r.rx);
+	rdesc.addLocation(r.rx, result);
+      }
+
+      RegSet rf = rdesc.getFreshReg(true);
+      l.splice(l.end(), rf.stores);
+      if (! arg1.id->isInReg(rf.rx) ) {
+	l.push_back( rdesc.loadVar(rf.rx, arg1.id) );
+	rdesc.clearReg(rf.rx);
+	rdesc.addLocation(rf.rx, arg1.id);
+      }
+
+      l.push_back( new SwS(rf.rx, 0, r.rx) );
+
+    } else {
+      r = rdesc.get2Reg(result, arg1.id, false);
+      l.splice(l.end(), r.stores);
+      if (! result->isInReg(r.rx) ) {
+	l.push_back( rdesc.loadVar(r.rx, result) );
+	rdesc.clearReg(r.rx);
+	rdesc.addLocation(r.rx, result);
+      }
+      if (! arg1.id->isInReg(r.ry) ) {
+	l.push_back( rdesc.loadVar(r.ry, arg1.id) );
+	rdesc.clearReg(r.ry);
+	rdesc.addLocation(r.ry, arg1.id);
+      }
+
+      l.push_back( new Sw(r.rx, 0, r.ry) );
+
+    }
+
+    break;
+
+  case ArgType::constint:
+
+    r = rdesc.get1Reg(result, false);
+    l.splice(l.end(), r.stores);
+    if (! result->isInReg(r.rx) ) {
+      l.push_back( rdesc.loadVar(r.rx, result) );
+      rdesc.clearReg(r.rx);
+      rdesc.addLocation(r.rx, result);
+    }
+    l.push_back( new Li(Reg::a0, arg1.constint) );
+    l.push_back( new Sw(Reg::a0, 0, r.rx) );
+
+    break;
+
+  case ArgType::constfloat:
+
+    r = rdesc.get1Reg(result, false);
+    l.splice(l.end(), r.stores);
+    if (! result->isInReg(r.rx) ) {
+      l.push_back( rdesc.loadVar(r.rx, result) );
+      rdesc.clearReg(r.rx);
+      rdesc.addLocation(r.rx, result);
+    }
+    l.push_back( new LiS(Reg::f0, arg1.constfloat) );
+    l.push_back( new SwS(Reg::f0, 0, r.rx) );
+
+    break;
+
+  case ArgType::constchar:
+
+    r = rdesc.get1Reg(result, false);
+    l.splice(l.end(), r.stores);
+    if (! result->isInReg(r.rx) ) {
+      l.push_back( rdesc.loadVar(r.rx, result) );
+      rdesc.clearReg(r.rx);
+      rdesc.addLocation(r.rx, result);
+    }
+    l.push_back( new Li(Reg::a0, (int) arg1.constchar) );
+    l.push_back( new Sw(Reg::a0, 0, r.rx) );
+
+    break;
+
+  case ArgType::constbool:
+
+    r = rdesc.get1Reg(result, false);
+    l.splice(l.end(), r.stores);
+    if (! result->isInReg(r.rx) ) {
+      l.push_back( rdesc.loadVar(r.rx, result) );
+      rdesc.clearReg(r.rx);
+      rdesc.addLocation(r.rx, result);
+    }
+    l.push_back( new Li(Reg::a0, (int) arg1.constbool) );
+    l.push_back( new Sw(Reg::a0, 0, r.rx) );
+
+    break;
+
+
+  }
+
+
+  return l;
+}
+
 std::list<Instruction*> ConditionalJumpQ::gen() {
   std::list<Instruction*> l;
   RegSet r;
@@ -319,42 +468,6 @@ Operator negateOp(Operator op) {
 std::list<Instruction*> ConditionalNJumpQ::gen() {
   ConditionalJumpQ j(arg1Type, arg1, negateOp(op), arg2Type, arg2, label);
   return j.gen();
-}
-
-std::list<Instruction*> AsignmentPointQ::gen() {
-  std::list<Instruction*> l;
-
-  // WARN: no sé si puedo asegurar que arg1 no sea temporal
-  // Si lo fuera, isFloat() dará falso y podrían ocurrir cosas inesperadas
-
-  if ( isFloat(arg1) ) {
-
-    RegSet rop = rdesc.get1Reg(arg1, false);
-    l.splice(l.end(), rop.stores);
-    if (! arg1->isInReg(rop.rx) ) {
-      l.push_back( rdesc.loadVar(rop.rx, arg1) );
-      rdesc.clearReg(rop.rx);
-      rdesc.addLocation(rop.rx, arg1);
-    }
-
-    RegSet rr = rdesc.getFreshReg( true );
-    l.splice(l.end(), rr.stores);
-    rdesc.clearReg(rr.rx);
-    l.push_back(new LwS(rr.rx, 0, rop.rx));
-    rdesc.addExclusiveLocation(rr.rx, result);
-
-  } else {
-
-    RegSet r = rdesc.getFreshReg(false);
-    l.splice(l.end(), r.stores);
-    rdesc.clearReg(r.rx);
-    l.push_back( rdesc.loadVar(r.rx, arg1) );
-    l.push_back( new Lw(r.rx, 0, r.rx) );
-    rdesc.addExclusiveLocation(r.rx, result);
-
-  }
-
-  return l;
 }
 
 std::list<Instruction*> JumpQ::gen() {
