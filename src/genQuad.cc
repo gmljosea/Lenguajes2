@@ -261,6 +261,25 @@ std::list<Instruction*> AsignmentToPointQ::gen() {
 
   }
 
+  return l;
+}
+
+std::list<Instruction*> AsignmentAddQ::gen() {
+  std::list<Instruction*> l;
+
+  // Las referencias y direcciones de memoria siempre están en los
+  // registros normales para enteros
+  RegSet r = rdesc.getFreshReg(false);
+  l.splice(l.end(), r.stores);
+  rdesc.clearReg(r.rx);
+
+  if ( arg1->isGlobal() ) {
+    l.push_back( new La(r.rx, arg1->getLabel()) );
+  } else {
+    l.push_back( new La(r.rx, arg1->getOffset(), Reg::fp) );
+  }
+
+  rdesc.addExclusiveLocation(r.rx, result);
 
   return l;
 }
