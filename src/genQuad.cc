@@ -120,11 +120,205 @@ std::list<Instruction*> ConditionalJumpQ::gen() {
   std::list<Instruction*> l;
   RegSet r;
 
-  bool dofloat = false;
+  switch (op) {
+  case Operator::greater:
+  case Operator::greaterEq:
+  case Operator::equal:
+  case Operator::notEqual:
+  case Operator::less:
+  case Operator::lessEq:
 
-  // Fuck my life
+    if (arg1Type == ArgType::id and arg2Type == ArgType::id) {
+
+      r = rdesc.get2Reg(arg1.id, arg2.id, false);
+      l.splice(l.end(), r.stores);
+      if (! arg1.id->isInReg(r.rx) ) {
+	l.push_back( rdesc.loadVar(r.rx, arg1.id) );
+	rdesc.clearReg(r.rx);
+	rdesc.addLocation(r.rx, arg1.id);
+      }
+      if (! arg2.id->isInReg(r.ry) ){
+	l.push_back( rdesc.loadVar(r.ry, arg2.id) );
+	rdesc.clearReg(r.ry);
+	rdesc.addLocation(r.ry, arg2.id);
+      }
+
+    } else if (arg1Type == ArgType::constint) {
+      r = rdesc.get1Reg(arg2.id, false);
+      r.ry = r.rx;
+      r.rx = Reg::a0;
+      l.push_back( new Li(Reg::a0, arg1.constint) );
+      l.splice(l.end(), r.stores);
+      if (! arg2.id->isInReg(r.ry) ) {
+	l.push_back( rdesc.loadVar(r.ry, arg2.id) );
+	rdesc.clearReg(r.ry);
+	rdesc.addLocation(r.ry, arg2.id);
+      }
+
+    } else if (arg2Type == ArgType::constint) {
+
+      r = rdesc.get1Reg(arg1.id, false);
+      l.splice(l.end(), r.stores);
+      if (! arg1.id->isInReg(r.rx) ) {
+	l.push_back( rdesc.loadVar(r.rx, arg1.id) );
+	rdesc.clearReg(r.rx);
+	rdesc.addLocation(r.rx, arg1.id);
+      }
+      r.ry = Reg::a0;
+      l.push_back( new Li(Reg::a0, arg2.constint) );
+
+    } else {
+      r.rx = Reg::a0;
+      r.ry = Reg::a1;
+      l.push_back( new Li(Reg::a0, arg1.constint) );
+      l.push_back( new Li(Reg::a1, arg2.constint) );
+    }
+
+    break;
+
+  case Operator::greaterF:
+  case Operator::greaterEqF:
+  case Operator::equalF:
+  case Operator::notEqualF:
+  case Operator::lessF:
+  case Operator::lessEqF:
+    
+    if (arg1Type == ArgType::id and arg2Type == ArgType::id) {
+
+      r = rdesc.get2Reg(arg1.id, arg2.id, true);
+      l.splice(l.end(), r.stores);
+      if (! arg1.id->isInReg(r.rx) ) {
+	l.push_back( rdesc.loadVar(r.rx, arg1.id) );
+	rdesc.clearReg(r.rx);
+	rdesc.addLocation(r.rx, arg1.id);
+      }
+      if (! arg2.id->isInReg(r.ry) ){
+	l.push_back( rdesc.loadVar(r.ry, arg2.id) );
+	rdesc.clearReg(r.ry);
+	rdesc.addLocation(r.ry, arg2.id);
+      }
+
+    } else if (arg1Type == ArgType::constfloat) {
+      r = rdesc.get1Reg(arg2.id, true);
+      r.ry = r.rx;
+      r.rx = Reg::f0;
+      l.push_back( new LiS(Reg::f0, arg1.constfloat) );
+      l.splice(l.end(), r.stores);
+      if (! arg2.id->isInReg(r.ry) ) {
+	l.push_back( rdesc.loadVar(r.ry, arg2.id) );
+	rdesc.clearReg(r.ry);
+	rdesc.addLocation(r.ry, arg2.id);
+      }
+
+    } else if (arg2Type == ArgType::constfloat) {
+
+      r = rdesc.get1Reg(arg1.id, true);
+      l.splice(l.end(), r.stores);
+      if (! arg1.id->isInReg(r.rx) ) {
+	l.push_back( rdesc.loadVar(r.rx, arg1.id) );
+	rdesc.clearReg(r.rx);
+	rdesc.addLocation(r.rx, arg1.id);
+      }
+      r.ry = Reg::f0;
+      l.push_back( new LiS(Reg::f0, arg2.constfloat) );
+
+    } else {
+      r.rx = Reg::f0;
+      r.ry = Reg::f12;
+      l.push_back( new LiS(Reg::f0, arg1.constfloat) );
+      l.push_back( new LiS(Reg::f12, arg2.constfloat) );
+    }
+
+    break;
+
+  }
+
+  switch (op) {
+
+  case less:
+    l.push_back( new Blt(r.rx, r.ry, label) );
+    break;
+  case lessEq:
+    l.push_back( new Ble(r.rx, r.ry, label) );
+    break;
+  case equal:
+    l.push_back( new Beq(r.rx, r.ry, label) );
+    break;
+  case notEqual:
+    l.push_back( new Bne(r.rx, r.ry, label) );
+    break;
+  case greater:
+    l.push_back( new Bgt(r.rx, r.ry, label) );
+    break;
+  case greaterEq:
+    l.push_back( new Bge(r.rx, r.ry, label) );
+    break;
+
+  case lessF:
+    l.push_back( new CompLS(r.rx, r.ry) );
+    l.push_back( new Bclt(label) );
+    break;
+  case lessEqF:
+    l.push_back( new CompLTES(r.rx, r.ry) );
+    l.push_back( new Bclt(label) );
+    break;
+  case equalF:
+    l.push_back( new CompES(r.rx, r.ry) );
+    l.push_back( new Bclt(label) );
+    break;
+  case notEqualF:
+    l.push_back( new CompES(r.rx, r.ry) );
+    l.push_back( new Bclf(label) );
+    break;
+  case greaterF:
+    l.push_back( new CompLTES(r.rx, r.ry) );
+    l.push_back( new Bclf(label) );
+    break;
+  case greaterEqF:
+    l.push_back( new CompLS(r.rx, r.ry) );
+    l.push_back( new Bclf(label) );
+    break;
+
+  }
+
 
   return l;
+}
+
+Operator negateOp(Operator op) {
+  switch (op) {
+  case greater:
+    return lessEq;
+  case greaterEq:
+    return less;
+  case equal:
+    return notEqual;
+  case notEqual:
+    return equal;
+  case less:
+    return greaterEq;
+  case lessEq:
+    return greater;
+
+  case greaterF:
+    return lessEqF;
+  case greaterEqF:
+    return lessF;
+  case equalF:
+    return notEqualF;
+  case notEqualF:
+    return equalF;
+  case lessF:
+    return greaterEqF;
+  case lessEqF:
+    return greaterF;
+
+  }
+}
+
+std::list<Instruction*> ConditionalNJumpQ::gen() {
+  ConditionalJumpQ j(arg1Type, arg1, negateOp(op), arg2Type, arg2, label);
+  return j.gen();
 }
 
 std::list<Instruction*> AsignmentPointQ::gen() {

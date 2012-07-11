@@ -215,6 +215,31 @@ std::string Move::toString() {
   return result;
 }
 
+
+std::string CompES::toString() {
+  std::string result("c.eq.s ");
+  result.append(regToString(Rfd));
+  result.append(std::string(" , "));
+  result.append(regToString(Rfx));
+  return result;
+}
+
+std::string CompLTES::toString() {
+  std::string result("c.le.s ");
+  result.append(regToString(Rfd));
+  result.append(std::string(" , "));
+  result.append(regToString(Rfx));
+  return result;
+}
+
+std::string CompLS::toString() {
+  std::string result("c.lt.s ");
+  result.append(regToString(Rfd));
+  result.append(std::string(" , "));
+  result.append(regToString(Rfx));
+  return result;
+}
+
 std::string Movz::toString() {
   std::string result("movz ");
   result.append(regToString(Rd));
@@ -356,6 +381,15 @@ std::string Jal::toString() {
 std::string Jr::toString() {
   return (std::string("jr ")+regToString(Rx));
 }
+
+std::string Bclf::toString() {
+  return (std::string("bclf ")+label->toString());
+}
+
+std::string Bclt::toString() {
+  return (std::string("bclt ")+label->toString());
+}
+
 /*
 std::string NopM::toString() {
   return (std::string("nop"));

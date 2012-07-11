@@ -369,8 +369,53 @@ public:
   virtual std::string toString();
 };
 
+// c.eq.s Rfd, Rfx
+class CompES : public MIPSinstruction {
+  Reg Rfd;
+  Reg Rfx;
+public:
+  CompES (Reg Rfd, Reg Rfx) : Rfd(Rfd), Rfx(Rfx) {};
+  virtual std::string toString();
+};
+
+// c.le.s Rfd, Rfx
+class CompLTES : public MIPSinstruction {
+  Reg Rfd;
+  Reg Rfx;
+public:
+  CompLTES (Reg Rfd, Reg Rfx) : Rfd(Rfd), Rfx(Rfx) {};
+  virtual std::string toString();
+};
+
+// c.lt.s Rfd, Rfx
+class CompLS : public MIPSinstruction {
+  Reg Rfd;
+  Reg Rfx;
+public:
+  CompLS (Reg Rfd, Reg Rfx) : Rfd(Rfd), Rfx(Rfx) {};
+  virtual std::string toString();
+};
+
+
 /*    Jumps and Branches    */
-  
+
+// bclt label (branch coprocessor true)
+class Bclt : public MIPSinstruction {
+  Label* label;
+public:
+  Bclt (Label* label) : label(label) {};
+  virtual std::string toString();
+};
+
+// bclf label (branch coprocessor false)
+class Bclf : public MIPSinstruction {
+  Label* label;
+public:
+  Bclf (Label* label) : label(label) {};
+  virtual std::string toString();
+};
+
+
 // Branch less than  <
 class Blt : public MIPSinstruction{
 private:

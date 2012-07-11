@@ -238,6 +238,8 @@ public:
   virtual Label* getTargetLabel();
   virtual void replaceTargetLabel(Label* l);
   virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
+
+  virtual std::list<Instruction*> gen();
 };
 
 /**
