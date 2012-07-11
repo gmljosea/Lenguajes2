@@ -572,7 +572,8 @@ void Write::check(){
        it != exps.end(); it++) {
     (*it)->check();
     *it = (*it)->cfold();
-    if ((*it)->getType()->alwaysByReference()) {
+    if ((*it)->getType()->alwaysByReference()
+	&& !dynamic_cast<StringType*>((*it)->getType())) {
       program.error("no se puede hacer write de tipos compuestos",
 		    (*it)->getFirstLine(), (*it)->getFirstCol());
     }

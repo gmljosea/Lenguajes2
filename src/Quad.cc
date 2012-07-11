@@ -670,6 +670,18 @@ std::string opToString(Operator op){
     oper="<";
   }else if(op==lessEq){
     oper="<=";
+  }else if(op==greaterF){
+    oper= ">f";
+  }else if(op==greaterEqF){
+    oper= ">=f";
+  }else if(op==equalF){
+    oper= "==f";
+  }else if(op==notEqualF){
+    oper= "!=f";
+  }else if(op==lessF){
+    oper="<f";
+  }else if(op==lessEqF){
+    oper="<=f";
   }
   return oper;
 }

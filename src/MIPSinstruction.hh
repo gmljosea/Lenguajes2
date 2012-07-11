@@ -39,11 +39,11 @@ public:
 
 // l.s Rfd, off(R
 // l.s Rfd, addr
-/*class LwS : public MIPSinstruction{
+class LwS : public MIPSinstruction{
 private:
   Mode mode;
   Reg Rd;
-  // En caso de ser direct (Con etiqueta) 
+  // En caso de ser direct (Con etiqueta)
   Label *varLabel;
   // En caso de ser indirect
   int offset;
@@ -53,10 +53,10 @@ public:
   LwS(Reg Rd,Label* varLabel): Rd(Rd),varLabel(varLabel),mode(direct){};
   LwS(Reg Rd,int offs,Reg Rx): Rd(Rd),offset(offs),Rx(Rx),mode(indirect),varLabel(NULL) {};
   virtual std::string toString();
-  };*/
+};
 
 /* Load inmediate Li Rd, #a */
-class Li : MIPSinstruction{
+class Li : public MIPSinstruction{
 private:
   Reg Rd;
   int inmediate;
@@ -67,7 +67,7 @@ public:
 };
 
 /* Load inmediate flotante simple Li.s Rd, #a */
-class LiS : MIPSinstruction{
+class LiS : public MIPSinstruction{
 private:
   Reg Rd;
   float inmediate;
@@ -260,6 +260,16 @@ class Move : public MIPSinstruction {
   Reg Rx;
 public:
   Move (Reg Rd, Reg Rx) : Rd(Rd), Rx(Rx) {};
+  virtual std::string toString();
+};
+
+// movz Rd, Rx, Ry
+class Movz : public MIPSinstruction {
+  Reg Rd;
+  Reg Rx;
+  Reg Ry;
+public:
+  Movz (Reg Rd, Reg Rx, Reg Ry) : Rd(Rd), Rx(Rx), Ry(Ry) {};
   virtual std::string toString();
 };
 
@@ -462,5 +472,11 @@ public:
   Jr(Reg Rx): Rx(Rx){};
   virtual std::string toString();
 };
+
+/*
+class NopM : public MIPSinstruction {
+public:
+  virtual std::string toString();
+  }*/
 
 #endif

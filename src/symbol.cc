@@ -291,6 +291,10 @@ int SymVar::spill() {
   return offset;
 }
 
+bool SymVar::isInReg(Reg r) {
+  return locations.count(r) > 0;
+}
+
 /************************************/
 /*** Metodos de la clase SymTable ***/
 /************************************/

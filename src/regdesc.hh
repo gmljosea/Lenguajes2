@@ -94,6 +94,8 @@ struct RegDesc {
   // Sirve para implantar res := op1 . op2
   RegSet get3RegAs(SymVar* res, SymVar* op1, SymVar* op2, bool f);
 
+  Instruction* loadVar(Reg r, SymVar* s);
+
 };
 
 #endif

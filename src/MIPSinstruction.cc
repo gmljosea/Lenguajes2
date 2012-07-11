@@ -24,6 +24,21 @@ std::string La::toString() {
   return result;
 }
 
+std::string LwS::toString() {
+  std::string result("l.s ");
+  result.append(regToString(Rd));
+  result.append(std::string(" , "));
+  if (varLabel) {
+    result.append(varLabel->toString());
+  } else {
+    result.append(std::to_string((long long int) offset));
+    result.append("(");
+    result.append(regToString(Rx));
+    result.append(")");
+  }
+  return result;
+}
+
 std::string Li::toString() {
   std::string result("li ");
   result.append(regToString(Rd));
@@ -200,6 +215,16 @@ std::string Move::toString() {
   return result;
 }
 
+std::string Movz::toString() {
+  std::string result("movz ");
+  result.append(regToString(Rd));
+  result.append(std::string(" , "));
+  result.append(regToString(Rx));
+  result.append(std::string(" , "));
+  result.append(regToString(Ry));
+  return result;
+}
+
 std::string Mtc1::toString() {
   std::string result("mtc1 ");
   result.append(regToString(Rfd));
@@ -331,3 +356,7 @@ std::string Jal::toString() {
 std::string Jr::toString() {
   return (std::string("jr ")+regToString(Rx));
 }
+/*
+std::string NopM::toString() {
+  return (std::string("nop"));
+  }*/

@@ -31,7 +31,14 @@ enum Operator{
   equal,   // ==
   notEqual,// !=
   less,    // <
-  lessEq  // <=
+  lessEq,  // <=
+
+  greaterF,
+  greaterEqF,
+  equalF,
+  notEqualF,
+  lessF,
+  lessEqF
 };
 
 
@@ -95,6 +102,7 @@ public:
   virtual std::string toString();
 
   virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
+  virtual std::list<Instruction*> gen();
 };
 
 /**
@@ -111,6 +119,7 @@ public:
   virtual void printQuad();
   virtual std::string toString();
   virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
+  virtual std::list<Instruction*> gen();
 };
 
 /**
@@ -197,6 +206,7 @@ public:
   virtual Label* getTargetLabel();
   virtual void replaceTargetLabel(Label* l);
   virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
+  virtual std::list<Instruction*> gen();
 };
 
 /**
@@ -383,6 +393,7 @@ public:
 
   virtual std::string toString();
   virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
+  virtual std::list<Instruction*> gen();
 };
 
 // <result> := read <type>, si deref = false

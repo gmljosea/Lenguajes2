@@ -270,9 +270,11 @@ public:
 
 // Operadores relacionales
 class Relational : public Logical {
+  Operator opI;
+  Operator opF;
 protected:
-  Relational(Expression* e1, Expression* e2, std::string op)
-    : Logical(e1,e2,op) {};
+  Relational(Expression* e1, Expression* e2, std::string op, Operator opI, Operator opF)
+    : Logical(e1,e2,op), opI(opI), opF(opF) {};
   virtual void check();
   virtual SymVar* gen();
   virtual Operator operatortype()=0;
@@ -282,7 +284,7 @@ protected:
 // >
 class Greater : public Relational {
 public:
-  Greater(Expression* e1, Expression* e2) : Relational(e1,e2,">") {};
+  Greater(Expression* e1, Expression* e2) : Relational(e1,e2,">", greater, greaterF) {};
   virtual Expression* cfold();
   virtual Operator operatortype();
 };
@@ -290,7 +292,7 @@ public:
 // >=
 class GreaterEq : public Relational {
 public:
-  GreaterEq(Expression* e1, Expression* e2) : Relational(e1,e2,">=") {};
+  GreaterEq(Expression* e1, Expression* e2) : Relational(e1,e2,">=", greaterEq, greaterEqF) {};
   virtual Expression* cfold();
   virtual Operator operatortype();
 };
@@ -298,7 +300,7 @@ public:
 // ==
 class Equal : public Relational {
 public:
-  Equal(Expression* e1, Expression* e2) : Relational(e1,e2,"==") {};
+  Equal(Expression* e1, Expression* e2) : Relational(e1,e2,"==", equal, equalF) {};
   virtual void check();
   virtual Expression* cfold();
   virtual Operator operatortype();
@@ -307,7 +309,7 @@ public:
 // !=
 class NotEqual : public Relational {
 public:
-  NotEqual(Expression* e1, Expression* e2) : Relational(e1,e2,"!=") {};
+  NotEqual(Expression* e1, Expression* e2) : Relational(e1,e2,"!=", notEqual, notEqualF) {};
   virtual void check();
   virtual Expression* cfold();
   virtual Operator operatortype();
@@ -316,7 +318,7 @@ public:
 // <
 class Less : public Relational {
 public:
-  Less (Expression* e1, Expression* e2) : Relational(e1,e2,"<") {};
+  Less (Expression* e1, Expression* e2) : Relational(e1,e2,"<", less, lessF) {};
   virtual Expression* cfold();
   virtual Operator operatortype();
 };
@@ -324,7 +326,7 @@ public:
 // <=
 class LessEq : public Relational {
 public:
-  LessEq(Expression* e1, Expression* e2) : Relational(e1,e2,"<=") {};
+  LessEq(Expression* e1, Expression* e2) : Relational(e1,e2,"<=", lessEq, lessEqF) {};
   virtual Expression* cfold();
   virtual Operator operatortype();
 };

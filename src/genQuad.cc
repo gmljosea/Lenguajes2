@@ -2,6 +2,11 @@
 #include <list>
 #include "Quad.hh"
 #include "MIPSinstruction.hh"
+#include "mipscode.hh"
+#include "regdesc.hh"
+
+extern MIPSCode mipscode;
+extern RegDesc rdesc;
 
 
 /** 
@@ -110,6 +115,118 @@ std::list<Instruction*> AsignmentOpQ::gen(){
 }
 
 
+bool isFloat(SymVar* s) {
+  return s->getType() == &(FloatType::getInstance());
+}
+
+std::list<Instruction*> AsignmentQ::gen() {
+  std::list<Instruction*> l;
+  RegSet r;
+
+  switch (arg1Type) {
+
+  case ArgType::id:
+    r = rdesc.get1Reg(arg1.id, isFloat(arg1.id));
+    l.splice(l.end(), r.stores);
+    if (! arg1.id->isInReg(r.rx) ) {
+      l.push_back( rdesc.loadVar(r.rx, arg1.id) );
+      rdesc.clearReg(r.rx);
+      rdesc.addLocation(r.rx, arg1.id);
+    }
+    rdesc.addExclusiveLocation(r.rx, result);
+    break;
+
+  case ArgType::constint:
+    r = rdesc.getFreshReg(false);
+    l.splice(l.end(), r.stores);
+    rdesc.clearReg(r.rx);
+    l.push_back(new Li(r.rx, arg1.constint));
+    rdesc.addExclusiveLocation(r.rx, result);
+    break;
+
+  case ArgType::constfloat:
+    r = rdesc.getFreshReg(true);
+    l.splice(l.end(), r.stores);
+    rdesc.clearReg(r.rx);
+    l.push_back(new LiS(r.rx, arg1.constfloat));
+    rdesc.addExclusiveLocation(r.rx, result);
+    break;
+
+  case ArgType::constbool:
+    r = rdesc.getFreshReg(false);
+    l.splice(l.end(), r.stores);
+    rdesc.clearReg(r.rx);
+    l.push_back(new Li(r.rx, (int) arg1.constbool));
+    rdesc.addExclusiveLocation(r.rx, result);
+    break;
+
+  case ArgType::conststring:
+    r = rdesc.getFreshReg(false);
+    l.splice(l.end(), r.stores);
+    rdesc.clearReg(r.rx);
+    l.push_back(new La(r.rx, mipscode.emitString(*arg1.conststring)));
+    rdesc.addExclusiveLocation(r.rx, result);
+    break;
+
+  case ArgType::constchar:
+    r = rdesc.getFreshReg(false);
+    l.splice(l.end(), r.stores);
+    rdesc.clearReg(r.rx);
+    l.push_back(new Li(r.rx, (int) arg1.constchar));
+    rdesc.addExclusiveLocation(r.rx, result);
+    break;
+  }
+
+  return l;
+}
+
+std::list<Instruction*> ConditionalJumpQ::gen() {
+  std::list<Instruction*> l;
+  RegSet r;
+
+  bool dofloat = false;
+
+  // Fuck my life
+
+  return l;
+}
+
+std::list<Instruction*> AsignmentPointQ::gen() {
+  std::list<Instruction*> l;
+
+  // WARN: no sé si puedo asegurar que arg1 no sea temporal
+  // Si lo fuera, isFloat() dará falso y podrían ocurrir cosas inesperadas
+
+  if ( isFloat(arg1) ) {
+
+    RegSet rop = rdesc.get1Reg(arg1, false);
+    l.splice(l.end(), rop.stores);
+    if (! arg1->isInReg(rop.rx) ) {
+      l.push_back( rdesc.loadVar(rop.rx, arg1) );
+      rdesc.clearReg(rop.rx);
+      rdesc.addLocation(rop.rx, arg1);
+    }
+
+    RegSet rr = rdesc.getFreshReg( true );
+    l.splice(l.end(), rr.stores);
+    rdesc.clearReg(rr.rx);
+    l.push_back(new LwS(rr.rx, 0, rop.rx));
+    rdesc.addExclusiveLocation(rr.rx, result);
+
+  } else {
+
+    RegSet r = rdesc.getFreshReg(false);
+    l.splice(l.end(), r.stores);
+    rdesc.clearReg(r.rx);
+    l.push_back( rdesc.loadVar(r.rx, arg1) );
+    l.push_back( new Lw(r.rx, 0, r.rx) );
+    rdesc.addExclusiveLocation(r.rx, result);
+
+  }
+
+  return l;
+}
+
 std::list<Instruction*> JumpQ::gen() {
   std::list<Instruction*> res;
   res.push_back(new J(this->label));
@@ -123,4 +240,76 @@ std::list<Instruction*> CallQ::gen() {
   // Hacer que se devuelva el $sp tantos bytes como argumentos
   // de la función
   return res;
+}
+
+std::list<Instruction*> WriteQ::gen() {
+  std::list<Instruction*> l;
+
+  switch (argt) {
+  case ArgType::id:
+    if ( type == &(FloatType::getInstance()) ) {
+      // Print float
+      l.push_back( rdesc.loadVar(Reg::f12, arg.id) );
+      l.push_back( new Li(Reg::v0, 2) );
+
+    } else if (type == &(IntType::getInstance())) {
+      // Print int
+      l.push_back( rdesc.loadVar(Reg::a0, arg.id) );
+      l.push_back( new Li(Reg::v0, 1) );
+
+    } else if (type == &(BoolType::getInstance())) {
+      // Print bool
+      l.push_back( rdesc.loadVar(Reg::v0, arg.id) );
+      l.push_back( new La(Reg::a0, new Label("true")) );
+      l.push_back( new La(Reg::a1, new Label("false")) );
+      l.push_back( new Movz(Reg::v0, Reg::a1, Reg::a0) );
+      l.push_back( new Li(Reg::v0, 4) );
+
+    } else {
+      // Print string
+      l.push_back( rdesc.loadVar(Reg::a0, arg.id) );
+      l.push_back( new Li(Reg::v0, 4) );
+
+    }
+
+    l.push_back( new Syscall() );
+
+    break;
+
+  case ArgType::constint:
+    l.push_back( new Li(Reg::a0, arg.constint) );
+    l.push_back( new Li(Reg::v0, 1) );
+    l.push_back( new Syscall() );
+    break;
+
+  case ArgType::constfloat:
+    l.push_back( new LiS(Reg::f12, arg.constfloat) );
+    l.push_back( new Li(Reg::v0, 2) );
+    l.push_back( new Syscall() );
+    break;
+
+  case ArgType::constbool:
+    l.push_back( new Li(Reg::v0, (int) arg.constbool) );
+    l.push_back( new La(Reg::a0, new Label("true")) );
+    l.push_back( new La(Reg::a1, new Label("false")) );
+    l.push_back( new Movz(Reg::v0, Reg::a1, Reg::a0) );
+    l.push_back( new Li(Reg::v0, 4) );
+    l.push_back( new Syscall() );
+    break;
+
+  case ArgType::conststring:
+    l.push_back( new La(Reg::a0, mipscode.emitString(*arg.conststring)) );
+    l.push_back( new Li(Reg::v0, 4) );
+    l.push_back( new Syscall() );
+    break;
+
+  }
+
+  if (isLn) {
+    l.push_back( new La(Reg::a0, new Label("newline")) );
+    l.push_back( new Li(Reg::v0, 4) );
+    l.push_back( new Syscall() );
+  }
+
+  return l;
 }
