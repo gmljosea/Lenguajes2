@@ -75,12 +75,12 @@ RegDesc::RegDesc() {
 void RegDesc::clearReg(Reg r) {
   // FIXME marcar variables borradas como en memoria
   // Si son temporales no vivos o variables que solo estén en este registro
-  Tset* set = getSet(r);
+  /*Tset* set = getSet(r);
   for (Tset::iterator it = set->begin();
        it != set->end(); it++) {
     (*it)->removeReg(r);
   }
-  set->clear();
+  set->clear();*/
 }
 
 Tset* RegDesc::getSet(Reg r) {
@@ -95,9 +95,9 @@ Tset* RegDesc::getSet(Reg r) {
 }
 
 void RegDesc::addLocation(Reg r, SymVar* s) {
-  Tset* set = getSet(r);
+  /*Tset* set = getSet(r);
   set->insert(s);
-  s->addReg(r);
+  s->addReg(r);*/
 }
 
 // FIXME: hacer addExclusiveLocation
@@ -105,13 +105,14 @@ void RegDesc::addExclusiveLocation(Reg r, SymVar* s) {
 }
 
 void RegDesc::removeLocation(Reg r, SymVar* s) {
-  Tset* set = getSet(r);
+  /*  Tset* set = getSet(r);
   set->erase(s);
-  s->removeReg(r);
+  s->removeReg(r);*/
 }
 
 std::list<Instruction*> RegDesc::emptyRegs() {
   std::list<Instruction*> list;
+      /*
   for (std::map<Reg, Tset*>::iterator it = rints.begin();
        it != rints.end(); it++) {
     Reg r = it->first;
@@ -139,13 +140,13 @@ std::list<Instruction*> RegDesc::emptyRegs() {
       v->inMem(true);
     }
   }
-
+      */
   return list;
 }
 
 std::list<Instruction*> RegDesc::genStore(Reg r, SymVar* v) {
   std::list<Instruction*> st;
-
+  /*
   // Es un arreglo o box, o sea, la dirección de uno.
   // Nada que hacer, move on
   if (v->getType()->alwaysByReference()
@@ -160,29 +161,59 @@ std::list<Instruction*> RegDesc::genStore(Reg r, SymVar* v) {
   }
 
   int offset = v->spill();
-  st.push_back(new Sw(r, -(v->getOffset()+8), Reg::fp));
+  st.push_back(new Sw(r, -(v->getOffset()+8), Reg::fp));*/
   return st;
 }
 
 RegSet RegDesc::get1Reg(SymVar* op, bool f) {
+  RegSet r;
+  r.rx = Reg::t0;
+  r.ry = Reg::t1;
+  r.rz = Reg::t2;
+  return r;
 }
 
 RegSet RegDesc::getFreshReg(bool f) {
+  RegSet r;
+  r.rx = Reg::t0;
+  r.ry = Reg::t1;
+  r.rz = Reg::t2;
+  return r;
 }
 
 RegSet RegDesc::get2Reg(SymVar* op1, SymVar* op2, bool f) {
+  RegSet r;
+  r.rx = Reg::t0;
+  r.ry = Reg::t1;
+  r.rz = Reg::t2;
+  return r;
 }
 
 RegSet RegDesc::get2RegAs(SymVar* res, SymVar* op, bool f) {
+  RegSet r;
+  r.rx = Reg::t0;
+  r.ry = Reg::t1;
+  r.rz = Reg::t2;
+  return r;
 }
 
 RegSet RegDesc::get3Reg(SymVar* op1, SymVar* op2, SymVar* op3, bool f) {
+  RegSet r;
+  r.rx = Reg::t0;
+  r.ry = Reg::t1;
+  r.rz = Reg::t2;
+  return r;
 }
 
 RegSet RegDesc::get3RegAs(SymVar* res, SymVar* op1, SymVar* op2, bool f) {
+  RegSet r;
+  r.rx = Reg::t0;
+  r.ry = Reg::t1;
+  r.rz = Reg::t2;
+  return r;
 }
 
 // FIXME
 Instruction* RegDesc::loadVar(Reg r, SymVar* s) {
-  return NULL;
+  return new J(new Label("HOLA"));
 }
