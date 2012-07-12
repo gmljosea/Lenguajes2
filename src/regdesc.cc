@@ -115,35 +115,21 @@ void RegDesc::removeLocation(Reg r, SymVar* s) {
 
 std::list<Instruction*> RegDesc::emptyRegs() {
   std::list<Instruction*> list;
-      /*
+
   for (std::map<Reg, Tset*>::iterator it = rints.begin();
        it != rints.end(); it++) {
     Reg r = it->first;
-    Tset* set = it->second;
-    for (Tset::iterator it = set->begin();
-	 it != set->end(); it++) {
-      SymVar* v = *it;
-      v->removeReg(r);
-      if (v->isInMem()) continue;
-      list.splice(list.end(), this->genStore(r, v));
-      v->inMem(true);
-    }
+    list.splice(list.end(), dumpReg(r));
+    clearReg(r);
   }
 
   for (std::map<Reg, Tset*>::iterator it = rfloats.begin();
        it != rfloats.end(); it++) {
     Reg r = it->first;
-    Tset* set = it->second;
-    for (Tset::iterator it = set->begin();
-	 it != set->end(); it++) {
-      SymVar* v = *it;
-      v->removeReg(r);
-      if (v->isInMem()) continue;
-      list.splice(list.end(), this->genStore(r, v));
-      v->inMem(true);
-    }
+    list.splice(list.end(), dumpReg(r));
+    clearReg(r);
   }
-      */
+
   return list;
 }
 
@@ -185,6 +171,8 @@ std::list<Instruction*> RegDesc::dumpReg(Reg r) {
   Tset* set = getSet(r);
   for (std::set<SymVar*>::iterator it = set->begin();
        it != set->end(); it++) {
+    if ((*it)->availableOther(r)) continue;
+    if ((*it)->isTemp() and liveTemps.count(*it) == 0) continue;
     l.push_back(storeVar(r, *it));
   }
   return l;
@@ -199,33 +187,7 @@ RegSet RegDesc::get1Reg(SymVar* op, bool f) {
     return r;
   }
 
-  if (!f) {
-    r.rx = Reg::t0;
-    int acc = spillCost(Reg::t0);
-
-    for (std::map<Reg, Tset*>::iterator it = rints.begin();
-	 it != rints.end(); it++) {
-      int s = spillCost(it->first);
-      if (s >= acc) continue;
-      r.rx = it->first;
-      acc = s;
-    }
-  } else {
-    r.rx = Reg::f0;
-    int acc = spillCost(Reg::f0);
-
-    for (std::map<Reg, Tset*>::iterator it = rfloats.begin();
-	 it != rfloats.end(); it++) {
-      int s = spillCost(it->first);
-      if (s >= acc) continue;
-      r.rx = it->first;
-      acc = s;
-    }
-  }
-
-  r.stores = dumpReg(r.rx);
-
-  return r;
+  return getFreshReg(f);
 }
 
 RegSet RegDesc::getFreshReg(bool f) {
@@ -243,8 +205,8 @@ RegSet RegDesc::getFreshReg(bool f) {
       acc = s;
     }
   } else {
-    r.rx = Reg::f0;
-    int acc = spillCost(Reg::f0);
+    r.rx = Reg::f2;
+    int acc = spillCost(Reg::f2);
 
     for (std::map<Reg, Tset*>::iterator it = rfloats.begin();
 	 it != rfloats.end(); it++) {
@@ -262,33 +224,211 @@ RegSet RegDesc::getFreshReg(bool f) {
 
 RegSet RegDesc::get2Reg(SymVar* op1, SymVar* op2, bool f) {
   RegSet r;
-  r.rx = Reg::t0;
-  r.ry = Reg::t1;
-  r.rz = Reg::t2;
+  r.rx = Reg::zero;
+  r.ry = Reg::zero;
+  r.rz = Reg::zero;
+
+  Reg candidate = op1->getLocation();
+  if (candidate != Reg::zero and f == isFloatReg(candidate)) {
+    r.rx = candidate;
+  }
+
+  candidate = op2->getLocation();
+  if (candidate != Reg::zero and f == isFloatReg(candidate)) {
+    r.ry = candidate;
+  }
+
+  if (r.rx == Reg::zero) {
+    if (!f) {
+      r.rx = Reg::t0;
+      int acc = spillCost(Reg::t0);
+
+      for (std::map<Reg, Tset*>::iterator it = rints.begin();
+	   it != rints.end(); it++) {
+	if (it->first == r.ry) continue;
+	int s = spillCost(it->first);
+	if (s >= acc) continue;
+	r.rx = it->first;
+	acc = s;
+      }
+    } else {
+      r.rx = Reg::f2;
+      int acc = spillCost(Reg::f2);
+
+      for (std::map<Reg, Tset*>::iterator it = rfloats.begin();
+	   it != rfloats.end(); it++) {
+	if (it->first == r.ry) continue;
+	int s = spillCost(it->first);
+	if (s >= acc) continue;
+	r.rx = it->first;
+	acc = s;
+      }
+    }
+  }
+
+  if (r.ry == Reg::zero) {
+    if (!f) {
+      r.ry = Reg::t1;
+      int acc = spillCost(Reg::t1);
+
+      for (std::map<Reg, Tset*>::iterator it = rints.begin();
+	   it != rints.end(); it++) {
+	if (it->first == r.rx) continue;
+	int s = spillCost(it->first);
+	if (s >= acc) continue;
+	r.ry = it->first;
+	acc = s;
+      }
+    } else {
+      r.ry = Reg::f3;
+      int acc = spillCost(Reg::f3);
+
+      for (std::map<Reg, Tset*>::iterator it = rfloats.begin();
+	   it != rfloats.end(); it++) {
+	if (it->first == r.rx) continue;
+	int s = spillCost(it->first);
+	if (s >= acc) continue;
+	r.ry = it->first;
+	acc = s;
+      }
+    }
+  }
+
+  if (! op1->isInReg(r.rx)) r.stores.splice(r.stores.end(), dumpReg(r.rx));
+  if (! op2->isInReg(r.ry)) r.stores.splice(r.stores.end(), dumpReg(r.ry));
+
   return r;
 }
 
 RegSet RegDesc::get2RegAs(SymVar* res, SymVar* op, bool f) {
-  RegSet r;
-  r.rx = Reg::t0;
-  r.ry = Reg::t1;
-  r.rz = Reg::t2;
+  RegSet r = get2Reg(res, op, f);
+  if (res->isInReg(r.rx)) r.stores.splice(r.stores.end(), dumpReg(r.rx));
   return r;
 }
 
 RegSet RegDesc::get3Reg(SymVar* op1, SymVar* op2, SymVar* op3, bool f) {
   RegSet r;
-  r.rx = Reg::t0;
-  r.ry = Reg::t1;
-  r.rz = Reg::t2;
+  r.rx = Reg::zero;
+  r.ry = Reg::zero;
+  r.rz = Reg::zero;
+
+  Reg candidate = op1->getLocation();
+  if (candidate != Reg::zero and f == isFloatReg(candidate)) {
+    r.rx = candidate;
+  }
+
+  candidate = op2->getLocation();
+  if (candidate != Reg::zero and f == isFloatReg(candidate)) {
+    r.ry = candidate;
+  }
+
+  candidate = op3->getLocation();
+  if (candidate != Reg::zero and f == isFloatReg(candidate)) {
+    r.rz = candidate;
+  }
+
+  if (r.rx == Reg::zero) {
+    if (!f) {
+      r.rx = Reg::t0;
+      int acc = spillCost(Reg::t0);
+
+      for (std::map<Reg, Tset*>::iterator it = rints.begin();
+	   it != rints.end(); it++) {
+	if (it->first == r.ry or it->first == r.rz) continue;
+	int s = spillCost(it->first);
+	if (s >= acc) continue;
+	r.rx = it->first;
+	acc = s;
+      }
+    } else {
+      r.rx = Reg::f2;
+      int acc = spillCost(Reg::f2);
+
+      for (std::map<Reg, Tset*>::iterator it = rfloats.begin();
+	   it != rfloats.end(); it++) {
+	if (it->first == r.ry or it->first == r.rz) continue;
+	int s = spillCost(it->first);
+	if (s >= acc) continue;
+	r.rx = it->first;
+	acc = s;
+      }
+    }
+  }
+
+  if (r.ry == Reg::zero) {
+    if (!f) {
+      r.ry = Reg::t1;
+      int acc = spillCost(Reg::t1);
+
+      for (std::map<Reg, Tset*>::iterator it = rints.begin();
+	   it != rints.end(); it++) {
+	if (it->first == r.rx or it->first == r.rz) continue;
+	int s = spillCost(it->first);
+	if (s >= acc) continue;
+	r.ry = it->first;
+	acc = s;
+      }
+    } else {
+      r.ry = Reg::f3;
+      int acc = spillCost(Reg::f3);
+
+      for (std::map<Reg, Tset*>::iterator it = rfloats.begin();
+	   it != rfloats.end(); it++) {
+	if (it->first == r.rx or it->first == r.rz) continue;
+	int s = spillCost(it->first);
+	if (s >= acc) continue;
+	r.ry = it->first;
+	acc = s;
+      }
+    }
+  }
+
+  if (r.rz == Reg::zero) {
+    if (!f) {
+      r.rz = Reg::t2;
+      int acc = spillCost(Reg::t2);
+
+      for (std::map<Reg, Tset*>::iterator it = rints.begin();
+	   it != rints.end(); it++) {
+	if (it->first == r.rx or it->first == r.ry) continue;
+	int s = spillCost(it->first);
+	if (s >= acc) continue;
+	r.rz = it->first;
+	acc = s;
+      }
+    } else {
+      r.rz = Reg::f4;
+      int acc = spillCost(Reg::f4);
+
+      for (std::map<Reg, Tset*>::iterator it = rfloats.begin();
+	   it != rfloats.end(); it++) {
+	if (it->first == r.rx or it->first == r.ry) continue;
+	int s = spillCost(it->first);
+	if (s >= acc) continue;
+	r.rz = it->first;
+	acc = s;
+      }
+    }
+  }
+
+  if (! op1->isInReg(r.rx)) r.stores.splice(r.stores.end(), dumpReg(r.rx));
+  if (! op2->isInReg(r.ry)) r.stores.splice(r.stores.end(), dumpReg(r.ry));
+  if (! op3->isInReg(r.rz)) r.stores.splice(r.stores.end(), dumpReg(r.rz));
+
   return r;
+
 }
 
 RegSet RegDesc::get3RegAs(SymVar* res, SymVar* op1, SymVar* op2, bool f) {
-  RegSet r;
-  r.rx = Reg::t0;
-  r.ry = Reg::t1;
-  r.rz = Reg::t2;
+  // Para hacer esto rápido voy a boletear un poco el asunto
+  // Pido 3 registros independientes usando get3Reg, y si el registro que
+  // me dieron para res contiene a res, entonces agrego el código para
+  // vaciar ese registro
+  // Esto porque get3Reg intentará darme un registro que ya tenga a res
+  // y no generará los dump correspondientes
+
+  RegSet r = get3Reg(res, op1, op2, f);
+  if (res->isInReg(r.rx)) r.stores.splice(r.stores.end(), dumpReg(r.rx));
   return r;
 }
 

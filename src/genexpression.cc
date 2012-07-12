@@ -37,12 +37,14 @@ GenLvalue Index::genlvalue() {
     // temporal
     if (!indexaddr->isTemp()) {
       SymVar* nt = intCode.newTemp();
+      nt->setType(&(IntType::getInstance()));
       arg1.id = indexaddr;
       intCode.addInst(new AsignmentQ(ArgType::id, arg1, nt));
       indexaddr = nt;
     }
 
     SymVar* newindex = intCode.newTemp();
+    newindex->setType(&(IntType::getInstance()));
     // DONE QUAD: newindex := indexaddr * elemsize
     arg1.id = indexaddr;
     arg2.constint = elemsize;
@@ -77,12 +79,14 @@ SymVar* Index::gen() {
 
   if (arrayloc.doff == NULL) {
     arrayloc.doff = intCode.newTemp();
+    arrayloc.doff->setType(&(IntType::getInstance()));
     // DONE QUAD: doff := 0
     arg1.constint = 0;
     intCode.addInst(new AsignmentQ(ArgType::constint, arg1, arrayloc.doff));
   }
 
   SymVar* addr = intCode.newTemp();
+  addr->setType(&(IntType::getInstance()));
   IntExp* cind;
   if (cind = dynamic_cast<IntExp*>(this->index)) {
     // DONE QUAD: doff := doff + (coff + <index * elemsize>)
@@ -101,6 +105,7 @@ SymVar* Index::gen() {
     // temporal
     if (!indaddr->isTemp()) {
       SymVar* nt = intCode.newTemp();
+      nt->setType(&(IntType::getInstance()));
       arg1.id = indaddr;
       intCode.addInst(new AsignmentQ(ArgType::id, arg1, nt));
       indaddr = nt;
@@ -173,12 +178,14 @@ SymVar* Dot::gen() {
 
  if (boxloc.doff == NULL) {
     boxloc.doff = intCode.newTemp();
+    boxloc.doff->setType(&(IntType::getInstance()));
     // DONE QUAD: doff := 0
     arg1.constint = 0;
     intCode.addInst(new AsignmentQ(ArgType::constint, arg1, boxloc.doff));
   }
 
   SymVar* addr = intCode.newTemp();
+  addr->setType(&(IntType::getInstance()));
   // DONE QUAD: doff := doff + <(coff+offset)>
   arg1.id = boxloc.doff;
   arg2.constint = boxloc.coff + offset;
@@ -224,6 +231,7 @@ SymVar* VarExp::gen(){
   if(this->symv->isReference()){
     SymVar *result;
     result= intCode.newTemp();
+    result->setType(this->symv->getType());
     intCode.addInst(new AsignmentPointQ(this->symv,result));
     return result;
   }else{
@@ -253,6 +261,7 @@ void VarExp::jumping(Label* lbltrue,Label* lblfalse){
 SymVar* IntExp::gen(){
   SymVar *result;
   result= intCode.newTemp();
+  result->setType(&(IntType::getInstance()));
   Args cInt;
   cInt.constint= this->value;
   intCode.addInst(new AsignmentQ(constint,cInt,result));
@@ -265,6 +274,7 @@ SymVar* IntExp::gen(){
 SymVar* FloatExp::gen(){
  SymVar *result;
   result= intCode.newTemp();
+  result->setType(&(FloatType::getInstance()));
   Args cFloat;
   cFloat.constfloat= this->value;
   intCode.addInst(new AsignmentQ(constfloat,cFloat,result));
@@ -278,6 +288,7 @@ std::cout << "temp = float";
 SymVar* BoolExp::gen(){
   SymVar *result;
   result= intCode.newTemp();
+  result->setType(&(BoolType::getInstance()));
   Args cBool;
   cBool.constbool= this->value;
   intCode.addInst(new AsignmentQ(constbool,cBool,result));
@@ -298,6 +309,7 @@ void BoolExp::jumping(Label* lbltrue,Label* lblfalse){
 SymVar* StringExp::gen(){
   SymVar *result;
   result= intCode.newTemp();
+  result->setType(this->type);
   Args cString;
   cString.conststring= &(this->str);
   intCode.addInst(new AsignmentQ(conststring,cString,result));
@@ -311,6 +323,7 @@ SymVar* StringExp::gen(){
 SymVar* CharExp::gen(){
   SymVar *result;
   result= intCode.newTemp();
+  result->setType(this->type);
   Args cChar;
   cChar.constchar= this-> ch;
   intCode.addInst(new AsignmentQ(constchar,cChar,result));
@@ -514,6 +527,7 @@ void Relational::jumping(Label* lbltrue,Label* lblfalse){
 
 SymVar* FunCallExp::gen(){
   SymVar *result= intCode.newTemp();
+  result->setType(symf->getType());
 
   // Ugly hack para los casts
   Args arg1;
@@ -583,6 +597,7 @@ SymVar* FunCallExp::gen(){
 
       if (lvalue.doff == NULL) {
 	lvalue.doff = intCode.newTemp();
+	lvalue.doff->setType(&(IntType::getInstance()));
 	// DONE QUAD: doff := 0
 	arg1.constint = 0;
 	intCode.addInst(new AsignmentQ(ArgType::constint, arg1, lvalue.doff));
@@ -607,6 +622,7 @@ SymVar* FunCallExp::gen(){
 	intCode.addInst(new ParamRefQ(lvalue.doff));
       } else {
 	SymVar* t = intCode.newTemp();
+	t->setType(&(IntType::getInstance()));
 	// QUAD: t := &base
 	intCode.addInst(new AsignmentAddQ(lvalue.base, t));
 
