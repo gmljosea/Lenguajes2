@@ -159,9 +159,9 @@ int RegDesc::spillCost(Reg r) {
   int count = 0;
   for (std::set<SymVar*>::iterator it = set->begin();
        it != set->end(); it++) {
-    if ((*it)->availableOther(r)) continue;
+    if ((*it)->availableOther(r)) count++;
     if ((*it)->isTemp() and liveTemps.count(*it) == 0) continue;
-    count++;
+    count+=2;
   }
   return count;
 }

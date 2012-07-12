@@ -283,7 +283,7 @@ std::list<Instruction*> AsignmentToPointQ::gen() {
 	rdesc.addLocation(r.ry, arg1.id);
       }
 
-      l.push_back( new Sw(r.rx, 0, r.ry) );
+      l.push_back( new Sw(r.ry, 0, r.rx) );
 
     }
 
