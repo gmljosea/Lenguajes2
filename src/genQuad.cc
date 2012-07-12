@@ -17,7 +17,7 @@ extern RegDesc rdesc;
  **/
 std::list<Instruction*> AsignmentOpQ::gen(){
   std::list<Instruction*> l;
- 
+  std::cout << "ACAACACACA" << this->arg2Type; 
   bool anyConstint= (this->arg1Type== constint) || this->arg2Type== constint;
   bool anyConstFloat= (this->arg1Type== constfloat) || this->arg2Type==constfloat;
   bool anyConst= anyConstint || anyConstFloat;
@@ -34,11 +34,14 @@ std::list<Instruction*> AsignmentOpQ::gen(){
     regs= rdesc.get2RegAs(result,argId.id,anyConstFloat);
     // Agregar los stores devueltos por getReg()
     l.splice(l.end(),regs.stores);
+
     // Cargar segundo operando solo cuando el operador 
     // no sea suma o resta de enteros (para aprovechar addi subi)
     if( this->op!= sumI && this->op!=substractionI){
       Ry = (this->arg2Type==id)?regs.ry: Reg::a1;
-      l.push_back(rdesc.loadVar(this->arg2,this->arg2Type,Ry));
+      if( (this->arg2Type==id && !arg2.id->isInReg(Ry)) || this->arg2Type!=id){
+	l.push_back(rdesc.loadVar(this->arg2,this->arg2Type,Ry));
+      }
       // Actualizar descriptores si no fue $a1
       if(Rx!=Reg::a1){
 	rdesc.clearReg(Ry);
@@ -46,7 +49,9 @@ std::list<Instruction*> AsignmentOpQ::gen(){
       }
     } else if((this->op== sumI || this->op==substractionI)&& arg2Type==id){
       Ry = regs.ry;
-      l.push_back(rdesc.loadVar(Ry,this->arg2.id));
+      if (! arg2.id->isInReg(Ry) ){ 
+	l.push_back(rdesc.loadVar(Ry,this->arg2.id));
+      }
       // Actualizar descriptores
       rdesc.clearReg(Ry);
       rdesc.addLocation(Ry,this->arg1.id);
@@ -59,7 +64,9 @@ std::list<Instruction*> AsignmentOpQ::gen(){
     regs= rdesc.get3RegAs(this->result,this->arg1.id,this->arg2.id,isFloat);
     l.splice(l.end(),regs.stores);
     Ry = regs.rz;
-    l.push_back(rdesc.loadVar(Ry,this->arg2.id));
+    if (! arg2.id->isInReg(Ry)){
+      l.push_back(rdesc.loadVar(Ry,this->arg2.id));
+    }
     // Actualizar descriptores
     rdesc.clearReg(Ry);
     rdesc.addLocation(Ry,this->arg2.id);
@@ -70,7 +77,9 @@ std::list<Instruction*> AsignmentOpQ::gen(){
 
   // Cargar primer argumento en Rx
   Rx = (this->arg1Type==id)?regs.ry: Reg::a0;
-  l.push_back(rdesc.loadVar(this->arg1,this->arg1Type,Rx));
+  if( (this->arg1Type==id && !arg1.id->isInReg(Ry)) || this->arg1Type!=id){
+    l.push_back(rdesc.loadVar(this->arg1,this->arg1Type,Rx));
+  }
   // Actualizar descriptores si no fue $a0
   if(Rx!=Reg::a0){
     rdesc.clearReg(Rx);
@@ -86,36 +95,47 @@ std::list<Instruction*> AsignmentOpQ::gen(){
   switch(this->op){
   case Operator::sumI:
     // Si el segundo es una constante usar Addi
-    if(this->arg2Type==constint){
+    if(this->arg2Type==ArgType::constint){
       instructionOp= new Addi(Rd,Rx,this->arg2.constint);
     }else{
       instructionOp= new Add(Rd,Rx,Ry);
     }
+    break;
   case Operator::sumF:
     instructionOp= new AddS(Rd,Rx,Ry);
+    break;
   case Operator::substractionI:
     if(this->arg2Type==constint){
       instructionOp= new Subi(Rd,Rx,this->arg2.constint);
     }else{
       instructionOp= new Sub(Rd,Rx,Ry);
-    }    
+    }
+    break;
   case Operator::substractionF:
      instructionOp= new SubS(Rd,Rx,Ry);
+     break;
   case Operator::multiplicationI:
      instructionOp= new Mul(Rd,Rx,Ry);
+     break;
   case Operator::multiplicationF:
      instructionOp= new MulS(Rd,Rx,Ry);
+     break;
   case Operator::divisionI:
      instructionOp= new Div(Rd,Rx,Ry);
+     break;
   case Operator::divisionF:
      instructionOp= new DivS(Rd,Rx,Ry);
+     break;
   case Operator::remainder:
      instructionOp= new Rem(Rd,Rx,Ry);
+     break;
   case Operator::minusI:
      instructionOp= new Negu(Rd,Rx);
+     break;
   case Operator::minusF:
      instructionOp= new NegS(Rd,Rx);
   }
+
   l.push_back(instructionOp);
   return l;
 }
