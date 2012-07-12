@@ -17,7 +17,7 @@ extern RegDesc rdesc;
  **/
 std::list<Instruction*> AsignmentOpQ::gen(){
   std::list<Instruction*> l;
-  std::cout << "ACAACACACA" << this->arg2Type; 
+  
   bool anyConstint= (this->arg1Type== constint) || this->arg2Type== constint;
   bool anyConstFloat= (this->arg1Type== constfloat) || this->arg2Type==constfloat;
   bool anyConst= anyConstint || anyConstFloat;
@@ -36,25 +36,26 @@ std::list<Instruction*> AsignmentOpQ::gen(){
     l.splice(l.end(),regs.stores);
 
     // Cargar segundo operando solo cuando el operador 
-    // no sea suma o resta de enteros (para aprovechar addi subi)
-    if( this->op!= sumI && this->op!=substractionI){
+    // no sea suma de enteros (para aprovechar addi)
+    if( this->op!= sumI ){
       Ry = (this->arg2Type==id)?regs.ry: Reg::a1;
       if( (this->arg2Type==id && !arg2.id->isInReg(Ry)) || this->arg2Type!=id){
 	l.push_back(rdesc.loadVar(this->arg2,this->arg2Type,Ry));
+	// Actualizar descriptores si no fue $a1
+	if(Rx!=Reg::a1){
+	  rdesc.clearReg(Ry);
+	  rdesc.addLocation(Ry,this->arg1.id);
+	}
       }
-      // Actualizar descriptores si no fue $a1
-      if(Rx!=Reg::a1){
-	rdesc.clearReg(Ry);
-	rdesc.addLocation(Ry,this->arg1.id);
-      }
-    } else if((this->op== sumI || this->op==substractionI)&& arg2Type==id){
+      
+    } else if(this->op== sumI && arg2Type==id){
       Ry = regs.ry;
       if (! arg2.id->isInReg(Ry) ){ 
 	l.push_back(rdesc.loadVar(Ry,this->arg2.id));
+	// Actualizar descriptores
+	rdesc.clearReg(Ry);
+	rdesc.addLocation(Ry,this->arg1.id);
       }
-      // Actualizar descriptores
-      rdesc.clearReg(Ry);
-      rdesc.addLocation(Ry,this->arg1.id);
     }
 
   }else if( anyConst && arg2Null){
@@ -66,10 +67,10 @@ std::list<Instruction*> AsignmentOpQ::gen(){
     Ry = regs.rz;
     if (! arg2.id->isInReg(Ry)){
       l.push_back(rdesc.loadVar(Ry,this->arg2.id));
+      // Actualizar descriptores
+      rdesc.clearReg(Ry);
+      rdesc.addLocation(Ry,this->arg2.id);
     }
-    // Actualizar descriptores
-    rdesc.clearReg(Ry);
-    rdesc.addLocation(Ry,this->arg2.id);
   }else if(!anyConst && arg2Null){
     regs= rdesc.get2RegAs(this->result,this->arg1.id,isFloat);
     l.splice(l.end(),regs.stores);
@@ -79,13 +80,13 @@ std::list<Instruction*> AsignmentOpQ::gen(){
   Rx = (this->arg1Type==id)?regs.ry: Reg::a0;
   if( (this->arg1Type==id && !arg1.id->isInReg(Ry)) || this->arg1Type!=id){
     l.push_back(rdesc.loadVar(this->arg1,this->arg1Type,Rx));
+    // Actualizar descriptores si no fue $a0
+    if(Rx!=Reg::a0){
+      rdesc.clearReg(Rx);
+      rdesc.addLocation(Rx,this->arg1.id);
+    } 
   }
-  // Actualizar descriptores si no fue $a0
-  if(Rx!=Reg::a0){
-    rdesc.clearReg(Rx);
-    rdesc.addLocation(Rx,this->arg1.id);
-  }
-
+  
   Rd= regs.rx;
   // En cualquier caso result solo estara en Rd
   rdesc.addExclusiveLocation(Rd,result);
@@ -105,11 +106,7 @@ std::list<Instruction*> AsignmentOpQ::gen(){
     instructionOp= new AddS(Rd,Rx,Ry);
     break;
   case Operator::substractionI:
-    if(this->arg2Type==constint){
-      instructionOp= new Subi(Rd,Rx,this->arg2.constint);
-    }else{
       instructionOp= new Sub(Rd,Rx,Ry);
-    }
     break;
   case Operator::substractionF:
      instructionOp= new SubS(Rd,Rx,Ry);
