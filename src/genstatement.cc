@@ -126,12 +126,14 @@ void ForEach::gen(Label* next) {
 
   if (arrayloc.doff == NULL) {
     arrayloc.doff = intCode.newTemp();
+    arrayloc.doff->setType(&(IntType::getInstance()));
     // DONE QUAD: doff := 0
     arg1.constint = 0;
     intCode.addInst(new AsignmentQ(ArgType::constint, arg1, arrayloc.doff));
   }
 
   SymVar* counter = intCode.newTemp();
+  counter->setType(&(IntType::getInstance()));
 
   ArrayType* arrayt = dynamic_cast<ArrayType*>(this->array->getType());
   int length = arrayt->getLength();
@@ -242,6 +244,7 @@ void Asignment::gen(Label* next) {
 
       if (lvalue.doff == NULL) {
 	lvalue.doff = intCode.newTemp();
+	lvalue.doff->setType(&(IntType::getInstance()));
 	// DONE QUAD: doff := 0
 	arg1.constint = 0;
 	intCode.addInst(new AsignmentQ(ArgType::constint, arg1, lvalue.doff));
@@ -349,6 +352,7 @@ void Read::gen(Label* next) {
 
   if (lvalue.doff == NULL) {
     lvalue.doff = intCode.newTemp();
+    lvalue.doff->setType(&(IntType::getInstance()));
     // DONE QUAD: doff := 0
     arg1.constint = 0;
     intCode.addInst(new AsignmentQ(ArgType::constint, arg1, lvalue.doff));
