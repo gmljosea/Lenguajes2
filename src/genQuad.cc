@@ -17,7 +17,7 @@ extern RegDesc rdesc;
  **/
 std::list<Instruction*> AsignmentOpQ::gen(){
   std::list<Instruction*> l;
-  
+
   bool anyConstint= (this->arg1Type== constint) || this->arg2Type== constint;
   bool anyConstFloat= (this->arg1Type== constfloat) || this->arg2Type==constfloat;
   bool anyConst= anyConstint || anyConstFloat;
@@ -1007,8 +1007,7 @@ std::list<Instruction*> JumpQ::gen() {
 std::list<Instruction*> CallQ::gen() {
   std::list<Instruction*> res;
   res.push_back(new Jal(func->getLabel()));
-  // Hacer que se devuelva el $sp tantos bytes como argumentos
-  // de la función
+  res.push_back(new La(Reg::sp, func->getArgsSpace(), Reg::sp));
   return res;
 }
 
@@ -1082,4 +1081,97 @@ std::list<Instruction*> WriteQ::gen() {
   }
 
   return l;
+}
+
+
+std::list<Instruction*> CastFtoIQ::gen() {
+  std::list<Instruction*> l;
+  RegSet r, ri;
+
+  switch (argt) {
+  case ArgType::id:
+    r = rdesc.get2RegAs(result, arg.id, true);
+    l.splice(l.end(), r.stores);
+    rdesc.clearReg(r.rx);
+    if (! arg.id->isInReg(r.ry) ) {
+      l.push_back( rdesc.loadVar(r.ry, arg.id) );
+      rdesc.clearReg(r.ry);
+      rdesc.addLocation(r.ry, arg.id);
+    }
+    l.push_back( new CvtFI(r.rx, r.ry) );
+
+    ri = rdesc.getFreshReg(false);
+    l.splice(l.end(), ri.stores);
+    l.push_back( new Mfc1(ri.rx, r.rx) );
+
+    rdesc.addExclusiveLocation(ri.rx, result);
+
+    break;
+
+  case ArgType::constfloat:
+    r = rdesc.getFreshReg(true);
+    rdesc.clearReg(r.rx);
+    l.splice(l.end(), r.stores);
+
+    l.push_back( new LiS(Reg::f0, arg.constfloat) );
+    l.push_back( new CvtFI(r.rx, Reg::f0) );
+
+    ri = rdesc.getFreshReg(false);
+    l.splice(l.end(), ri.stores);
+    l.push_back( new Mfc1(ri.rx, r.rx) );
+
+    rdesc.addExclusiveLocation(ri.rx, result);
+    break;
+  }
+
+  return l;
+}
+
+std::list<Instruction*> CastItoFQ::gen() {
+  std::list<Instruction*> l;
+  RegSet r, rf;
+
+  switch (argt) {
+  case ArgType::id:
+    rf = rdesc.getFreshReg(true);
+    l.splice(l.end(), rf.stores);
+    r = rdesc.get1Reg(arg.id, false);
+    l.splice(l.end(), r.stores);
+    if (! arg.id->isInReg(r.rx) ) {
+      l.push_back( rdesc.loadVar(r.rx, arg.id) );
+      rdesc.clearReg(r.rx);
+      rdesc.addLocation(r.rx, arg.id);
+    }
+
+    l.push_back( new Mtc1(Reg::f0, r.rx) );
+    l.push_back( new CvtIF(rf.rx, Reg::f0) );
+
+    rdesc.addExclusiveLocation(rf.rx, result);
+
+    break;
+
+  case ArgType::constint:
+    r = rdesc.getFreshReg(true);
+    l.splice(l.end(), r.stores);
+
+    l.push_back( new Li(Reg::a0, arg.constint) );
+    l.push_back( new Mtc1(Reg::f0, Reg::a0) );
+    l.push_back( new CvtIF(r.rx, Reg::f0) );
+
+    rdesc.addExclusiveLocation(r.rx, result);
+    break;
+
+  }
+
+  return l;
+}
+
+std::list<Instruction*> CastCtoIQ::gen() {
+  AsignmentQ a(argt, arg, result);
+  return a.gen();
+}
+
+std::list<Instruction*> CastItoCQ::gen() {
+  AsignmentQ a(argt, arg, result);
+  return a.gen();
 }

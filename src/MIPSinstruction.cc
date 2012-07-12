@@ -421,7 +421,7 @@ std::string Bclt::toString() {
   return (std::string("bclt ")+label->toString());
 }
 
-/*
-std::string NopM::toString() {
+
+std::string Nothing::toString() {
   return (std::string("nop"));
-  }*/
+}

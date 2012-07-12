@@ -96,7 +96,6 @@ void RegDesc::addLocation(Reg r, SymVar* s) {
   s->addReg(r);
 }
 
-// FIXME: hacer addExclusiveLocation
 void RegDesc::addExclusiveLocation(Reg r, SymVar* s) {
   s->inMem(false);
   std::set<Reg> locs;
@@ -302,7 +301,18 @@ RegSet RegDesc::get2Reg(SymVar* op1, SymVar* op2, bool f) {
 
 RegSet RegDesc::get2RegAs(SymVar* res, SymVar* op, bool f) {
   RegSet r = get2Reg(res, op, f);
-  if (res->isInReg(r.rx)) r.stores.splice(r.stores.end(), dumpReg(r.rx));
+  if (res->isInReg(r.rx)) {
+    std::list<Instruction*> l;
+    Tset* set = getSet(r.rx);
+    for (std::set<SymVar*>::iterator it = set->begin();
+	 it != set->end(); it++) {
+      if ((*it) == res) continue;
+      if ((*it)->availableOther(r.rx)) continue;
+      if ((*it)->isTemp() and liveTemps.count(*it) == 0) continue;
+      l.push_back(storeVar(r.rx, *it));
+    }
+    r.stores.splice(r.stores.end(), l);
+  }
   return r;
 }
 
@@ -428,7 +438,18 @@ RegSet RegDesc::get3RegAs(SymVar* res, SymVar* op1, SymVar* op2, bool f) {
   // y no generará los dump correspondientes
 
   RegSet r = get3Reg(res, op1, op2, f);
-  if (res->isInReg(r.rx)) r.stores.splice(r.stores.end(), dumpReg(r.rx));
+  if (res->isInReg(r.rx)) {
+    std::list<Instruction*> l;
+    Tset* set = getSet(r.rx);
+    for (std::set<SymVar*>::iterator it = set->begin();
+	 it != set->end(); it++) {
+      if ((*it) == res) continue;
+      if ((*it)->availableOther(r.rx)) continue;
+      if ((*it)->isTemp() and liveTemps.count(*it) == 0) continue;
+      l.push_back(storeVar(r.rx, *it));
+    }
+    r.stores.splice(r.stores.end(), l);
+  }
   return r;
 }
 
@@ -438,7 +459,7 @@ Instruction* RegDesc::loadVar(Reg r, SymVar* s) {
       Reg o = s->getLocation();
       if (isFloatReg(o)) {
 	// Generar move dentro del coprocesador
-	return new MoveS(r, o);
+	if (r!=0) return new MoveS(r, o); else return new Nothing();
       } else {
 	// Generar move del procesador al coprocesador
 	return new Mtc1(r, o);
@@ -461,7 +482,7 @@ Instruction* RegDesc::loadVar(Reg r, SymVar* s) {
 	return new Mfc1(r, o);
       } else {
 	// Generar move dentro del procesdor normal
-	return new Move(r, o);
+	if (r!=o) return new Move(r, o); else return new Nothing();
       }
     } else {
       if (s->isGlobal()) {
