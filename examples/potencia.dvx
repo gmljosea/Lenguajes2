@@ -1,0 +1,19 @@
+int potencia(int b, int e) {
+  if (e == 1) {
+     return b;
+  } else {
+     return b*potencia(b,e-1);
+  }
+}
+
+int main() {
+  int b,e;
+  write "Introduzca la base: ";
+  read b;
+  writeln "";
+  write "Introduzca el exponente: ";
+  read e;
+  writeln "";
+  writeln "El resultado es: ", potencia(b,e);
+  return 0;
+}
