@@ -63,7 +63,7 @@ public:
 
 class BoolType : public Type {
 private:
-  BoolType() : Type(1, 1) {};
+  BoolType() : Type(4, 4) {};
   void operator=(BoolType const&);
 public:
   static BoolType& getInstance();
@@ -72,7 +72,7 @@ public:
 
 class CharType : public Type {
 private:
-  CharType() : Type(1, 1) {};
+  CharType() : Type(4, 4) {};
   void operator=(CharType const&);
 public:
   static CharType& getInstance();
@@ -82,7 +82,7 @@ public:
 // Tipos especiales
 class VoidType : public Type {
 private:
-  VoidType() : Type(1, 1) {};
+  VoidType() : Type(4, 4) {};
   void operator=(VoidType const&);
 public:
   static VoidType& getInstance();
@@ -101,7 +101,7 @@ public:
 /// Tipo error, indica el tipo de una expresión que no tenga sentido
 class ErrorType : public Type {
 private:
-  ErrorType() : Type(1, 1) {};
+  ErrorType() : Type(4, 4) {};
   void operator=(ErrorType const&);
 public:
   static ErrorType& getInstance();

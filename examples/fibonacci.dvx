@@ -1,9 +1,17 @@
 int main() {
-  int a = 0, b = 1, c = 10;
+  int a = 1, b = 1;
 
-  for i in 1..10 {
-    a,b = b, a+b;
-  }
-  write "El resultado es: ", b;
-  return b;
+  while (true) {
+    a,b = 1,1;
+    write "Escriba el numero : ";
+    int d;
+    read d;
+
+    for i in 1..d {
+      a,b = b, a+b;
+    }
+    write "El resultado es: ", a;
+    writeln "";
+ }
+  return 0;
 }

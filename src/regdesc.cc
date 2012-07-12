@@ -477,11 +477,20 @@ Instruction* RegDesc::loadVar(Reg r, SymVar* s) {
       }
     } else {
       if (s->isGlobal()) {
-	// Load normal desde un label
-	return new Lw(r, s->getLabel());
+	if (dynamic_cast<ArrayType*>(s->getType()) or dynamic_cast<BoxType*>(s->getType())) {
+	  // Load normal desde un label
+	  return new La(r, s->getLabel());
+	} else {
+	  return new Lw(r, s->getLabel());
+	}
       } else {
-	// Load normal con offset del fp
-	return new Lw(r, s->getOffset(), Reg::fp);
+	if (dynamic_cast<ArrayType*>(s->getType()) or dynamic_cast<BoxType*>(s->getType())) {
+	  // Load normal con offset del fp
+	  return new La(r, s->getOffset(), Reg::fp);
+	} else {
+	  return new Lw(r, s->getOffset(), Reg::fp);
+	}
+
       }
     }
   }

@@ -76,10 +76,13 @@ FlowGraph::FlowGraph(std::list<Instruction*> insts, std::string base) {
     Instruction* li = b->getLastInst();
 
     if (li->isJump() && !li->isReturn()) {
-      BasicBlock* target_block = li->getTargetLabel()->getInstruction()->getBlock();
-      if (target_block) {
-	li->replaceTargetLabel(target_block->getLabel());
-	b->setAlternate(target_block);
+      Instruction* inst = li->getTargetLabel()->getInstruction();
+      if (inst) {
+	BasicBlock* target_block = li->getTargetLabel()->getInstruction()->getBlock();
+	if (target_block) {
+	  li->replaceTargetLabel(target_block->getLabel());
+	  b->setAlternate(target_block);
+	}
       }
     }
 
