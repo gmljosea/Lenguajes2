@@ -301,13 +301,8 @@ RegSet RegDesc::get2Reg(SymVar* op1, SymVar* op2, bool f) {
 }
 
 RegSet RegDesc::get2RegAs(SymVar* res, SymVar* op, bool f) {
-  RegSet r;
-  r.rx = Reg::t0;
-  r.ry = Reg::t1;
-  r.rz = Reg::t2;
-
-  
-
+  RegSet r = get2Reg(res, op, f);
+  if (res->isInReg(r.rx)) r.stores.splice(r.stores.end(), dumpReg(r.rx));
   return r;
 }
 
@@ -425,10 +420,15 @@ RegSet RegDesc::get3Reg(SymVar* op1, SymVar* op2, SymVar* op3, bool f) {
 }
 
 RegSet RegDesc::get3RegAs(SymVar* res, SymVar* op1, SymVar* op2, bool f) {
-  RegSet r;
-  r.rx = Reg::t0;
-  r.ry = Reg::t1;
-  r.rz = Reg::t2;
+  // Para hacer esto rápido voy a boletear un poco el asunto
+  // Pido 3 registros independientes usando get3Reg, y si el registro que
+  // me dieron para res contiene a res, entonces agrego el código para
+  // vaciar ese registro
+  // Esto porque get3Reg intentará darme un registro que ya tenga a res
+  // y no generará los dump correspondientes
+
+  RegSet r = get3Reg(res, op1, op2, f);
+  if (res->isInReg(r.rx)) r.stores.splice(r.stores.end(), dumpReg(r.rx));
   return r;
 }
 
