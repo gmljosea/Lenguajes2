@@ -1,0 +1,28 @@
+bool par(int x) {
+  write "PAR? ", x;
+  writeln "";
+  if (x==1) { return false; }
+  if (x==0) { return true; } else { return impar(x-1); }
+}
+
+bool impar(int x) {
+  write "IMPAR? ", x;
+  writeln "";
+  if (x==0) { return false;}
+  if (x==1) { return true; } else { return par(x-1); }
+}
+
+int main() {
+  bool w;
+  int c;
+  write false;
+  while (true) {
+    write "Introduzca un numero: ";
+    read c;
+    bool d = impar(c);
+    if (d) { writeln "true"; } else { writeln "false"; }
+  }
+
+  writeln w;
+  return 0;
+}
