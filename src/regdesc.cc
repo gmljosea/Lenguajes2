@@ -171,6 +171,7 @@ std::list<Instruction*> RegDesc::dumpReg(Reg r) {
   Tset* set = getSet(r);
   for (std::set<SymVar*>::iterator it = set->begin();
        it != set->end(); it++) {
+    if ((*it)->availableOther(r)) continue;
     if ((*it)->isTemp() and liveTemps.count(*it) == 0) continue;
     l.push_back(storeVar(r, *it));
   }
@@ -186,33 +187,7 @@ RegSet RegDesc::get1Reg(SymVar* op, bool f) {
     return r;
   }
 
-  if (!f) {
-    r.rx = Reg::t0;
-    int acc = spillCost(Reg::t0);
-
-    for (std::map<Reg, Tset*>::iterator it = rints.begin();
-	 it != rints.end(); it++) {
-      int s = spillCost(it->first);
-      if (s >= acc) continue;
-      r.rx = it->first;
-      acc = s;
-    }
-  } else {
-    r.rx = Reg::f0;
-    int acc = spillCost(Reg::f0);
-
-    for (std::map<Reg, Tset*>::iterator it = rfloats.begin();
-	 it != rfloats.end(); it++) {
-      int s = spillCost(it->first);
-      if (s >= acc) continue;
-      r.rx = it->first;
-      acc = s;
-    }
-  }
-
-  r.stores = dumpReg(r.rx);
-
-  return r;
+  return getFreshReg(f);
 }
 
 RegSet RegDesc::getFreshReg(bool f) {
@@ -249,9 +224,76 @@ RegSet RegDesc::getFreshReg(bool f) {
 
 RegSet RegDesc::get2Reg(SymVar* op1, SymVar* op2, bool f) {
   RegSet r;
-  r.rx = Reg::t0;
-  r.ry = Reg::t1;
-  r.rz = Reg::t2;
+  r.rx = Reg::zero;
+  r.ry = Reg::zero;
+  r.rz = Reg::zero;
+
+  Reg candidate = op1->getLocation();
+  if (candidate != Reg::zero and f == isFloatReg(candidate)) {
+    r.rx = candidate;
+  }
+
+  candidate = op2->getLocation();
+  if (candidate != Reg::zero and f == isFloatReg(candidate)) {
+    r.ry = candidate;
+  }
+
+  if (r.rx == Reg::zero) {
+    if (!f) {
+      r.rx = Reg::t0;
+      int acc = spillCost(Reg::t0);
+
+      for (std::map<Reg, Tset*>::iterator it = rints.begin();
+	   it != rints.end(); it++) {
+	if (it->first == r.ry) continue;
+	int s = spillCost(it->first);
+	if (s >= acc) continue;
+	r.rx = it->first;
+	acc = s;
+      }
+    } else {
+      r.rx = Reg::f0;
+      int acc = spillCost(Reg::f0);
+
+      for (std::map<Reg, Tset*>::iterator it = rfloats.begin();
+	   it != rfloats.end(); it++) {
+	if (it->first == r.ry) continue;
+	int s = spillCost(it->first);
+	if (s >= acc) continue;
+	r.rx = it->first;
+	acc = s;
+      }
+    }
+  }
+
+  if (r.ry == Reg::zero) {
+    if (!f) {
+      r.ry = Reg::t0;
+      int acc = spillCost(Reg::t0);
+
+      for (std::map<Reg, Tset*>::iterator it = rints.begin();
+	   it != rints.end(); it++) {
+	if (it->first == r.rx) continue;
+	int s = spillCost(it->first);
+	if (s >= acc) continue;
+	r.ry = it->first;
+	acc = s;
+      }
+    } else {
+      r.ry = Reg::f0;
+      int acc = spillCost(Reg::f0);
+
+      for (std::map<Reg, Tset*>::iterator it = rfloats.begin();
+	   it != rfloats.end(); it++) {
+	if (it->first == r.rx) continue;
+	int s = spillCost(it->first);
+	if (s >= acc) continue;
+	r.ry = it->first;
+	acc = s;
+      }
+    }
+  }
+
   return r;
 }
 
