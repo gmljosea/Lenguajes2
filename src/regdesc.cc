@@ -115,35 +115,21 @@ void RegDesc::removeLocation(Reg r, SymVar* s) {
 
 std::list<Instruction*> RegDesc::emptyRegs() {
   std::list<Instruction*> list;
-      /*
+
   for (std::map<Reg, Tset*>::iterator it = rints.begin();
        it != rints.end(); it++) {
     Reg r = it->first;
-    Tset* set = it->second;
-    for (Tset::iterator it = set->begin();
-	 it != set->end(); it++) {
-      SymVar* v = *it;
-      v->removeReg(r);
-      if (v->isInMem()) continue;
-      list.splice(list.end(), this->genStore(r, v));
-      v->inMem(true);
-    }
+    list.splice(list.end(), dumpReg(r));
+    clearReg(r);
   }
 
   for (std::map<Reg, Tset*>::iterator it = rfloats.begin();
        it != rfloats.end(); it++) {
     Reg r = it->first;
-    Tset* set = it->second;
-    for (Tset::iterator it = set->begin();
-	 it != set->end(); it++) {
-      SymVar* v = *it;
-      v->removeReg(r);
-      if (v->isInMem()) continue;
-      list.splice(list.end(), this->genStore(r, v));
-      v->inMem(true);
-    }
+    list.splice(list.end(), dumpReg(r));
+    clearReg(r);
   }
-      */
+
   return list;
 }
 
@@ -185,6 +171,7 @@ std::list<Instruction*> RegDesc::dumpReg(Reg r) {
   Tset* set = getSet(r);
   for (std::set<SymVar*>::iterator it = set->begin();
        it != set->end(); it++) {
+    if ((*it)->isTemp() and liveTemps.count(*it) == 0) continue;
     l.push_back(storeVar(r, *it));
   }
   return l;

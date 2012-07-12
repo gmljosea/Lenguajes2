@@ -198,6 +198,7 @@ void BasicBlock::toMIPS() {
     outs.push_front(t);
     current_out = t;
   }
+  outs.pop_front();
   // Ahora en outs tengo una lista de igual longitud a las instrucciones
   // Para cada instruccion, su correspondiente en la lista outs es el conjunto
   // de temporales vivas después.
@@ -214,6 +215,7 @@ void BasicBlock::toMIPS() {
 
   // FIXME
   // Vaciar descriptores de registros, generando stores si hace falta
+  rdesc.liveTemps = this->t_out;
   std::list<Instruction*> stores = rdesc.emptyRegs();
   new_insts.splice(new_insts.end(), stores);
 
