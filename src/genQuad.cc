@@ -17,7 +17,7 @@ extern RegDesc rdesc;
  **/
 std::list<Instruction*> AsignmentOpQ::gen(){
   std::list<Instruction*> l;
-  std::cout << "ACAACACACA" << this->arg2Type; 
+  //  std::cout << "ACAACACACA" << this->arg2Type; 
   bool anyConstint= (this->arg1Type== constint) || this->arg2Type== constint;
   bool anyConstFloat= (this->arg1Type== constfloat) || this->arg2Type==constfloat;
   bool anyConst= anyConstint || anyConstFloat;

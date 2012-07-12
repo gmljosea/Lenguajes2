@@ -546,10 +546,9 @@ public:
   virtual std::string toString();
 };
 
-/*
-class NopM : public MIPSinstruction {
+class Nothing : public MIPSinstruction {
 public:
   virtual std::string toString();
-  }*/
+};
 
 #endif
