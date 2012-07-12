@@ -1175,3 +1175,28 @@ std::list<Instruction*> CastItoCQ::gen() {
   AsignmentQ a(argt, arg, result);
   return a.gen();
 }
+
+std::list<Instruction*> ReadQ::gen() {
+  std::list<Instruction*> l;
+  RegSet r;
+
+  if (type == &(FloatType::getInstance())) {
+    r = rdesc.getFreshReg(true);
+    rdesc.clearReg(r.rx);
+    rdesc.addExclusiveLocation(r.rx, result);
+
+    l.push_back( new Li(Reg::v0, 6) );
+    l.push_back( new Syscall() );
+    l.push_back( new MoveS(r.rx, Reg::f0) );
+  } else {
+    r = rdesc.getFreshReg(false);
+    rdesc.clearReg(r.rx);
+    rdesc.addExclusiveLocation(r.rx, result);
+
+    l.push_back( new Li(Reg::v0, 5) );
+    l.push_back( new Syscall() );
+    l.push_back( new Move(r.rx, Reg::v0) );
+  }
+
+  return l;
+}

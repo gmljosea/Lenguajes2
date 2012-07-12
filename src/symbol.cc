@@ -263,12 +263,12 @@ bool SymVar::isInMem() {
 }
 
 void SymVar::addReg(Reg r) {
-  std::cout << "# Colocando " << id << " en " << regToString(r) << std::endl;
+  //  std::cout << "# Colocando " << id << " en " << regToString(r) << std::endl;
   this->locations.insert(r);
 }
 
 void SymVar::removeReg(Reg r) {
-  std::cout << "# Borrando " << id << " en " << regToString(r) << std::endl;
+  //  std::cout << "# Borrando " << id << " en " << regToString(r) << std::endl;
   this->locations.erase(r);
 }
 
