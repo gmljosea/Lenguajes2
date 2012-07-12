@@ -42,7 +42,7 @@ std::list<Instruction*> AsignmentOpQ::gen(){
       if( (this->arg2Type==id && !arg2.id->isInReg(Ry)) || this->arg2Type!=id){
 	l.push_back(rdesc.loadVar(this->arg2,this->arg2Type,Ry));
 	// Actualizar descriptores si no fue $a1
-	if(Rx!=Reg::a1){
+	if(Ry!=Reg::a1){
 	  rdesc.clearReg(Ry);
 	  rdesc.addLocation(Ry,this->arg1.id);
 	}
@@ -78,7 +78,7 @@ std::list<Instruction*> AsignmentOpQ::gen(){
 
   // Cargar primer argumento en Rx
   Rx = (this->arg1Type==id)?regs.ry: Reg::a0;
-  if( (this->arg1Type==id && !arg1.id->isInReg(Ry)) || this->arg1Type!=id){
+  if( (this->arg1Type==id && !arg1.id->isInReg(Rx)) || this->arg1Type!=id){
     l.push_back(rdesc.loadVar(this->arg1,this->arg1Type,Rx));
     // Actualizar descriptores si no fue $a0
     if(Rx!=Reg::a0){

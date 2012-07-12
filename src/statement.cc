@@ -175,6 +175,14 @@ void BoundedFor::check(){
     }
   }
 
+  int tam = 4;
+  int align = 4;
+  // Alinear offset de ser necesario, esperemos que nunca llegue aquí algo
+  // que se tenga alignment 0 o super divisiones por 0 ocurrirán
+  program.offsetVarDec += (align - (program.offsetVarDec % align)) % align;
+  varsym->setOffset(program.offsetVarDec);
+  program.offsetVarDec += tam;
+
   this->block->check();
 }
 
@@ -251,6 +259,14 @@ void ForEach::check() {
   } else {
     loopvar->setType(t->getBaseType());
   }
+  int tam = loopvar->getSize();
+  int align = loopvar->getAlignment();
+  // Alinear offset de ser necesario, esperemos que nunca llegue aquí algo
+  // que se tenga alignment 0 o super divisiones por 0 ocurrirán
+  program.offsetVarDec += (align - (program.offsetVarDec % align)) % align;
+  loopvar->setOffset(program.offsetVarDec);
+  program.offsetVarDec += tam;
+
   block->check();
 }
 

@@ -302,9 +302,10 @@ int SymVar::spill() {
       return -(offset+12);
     }
   }
-  std::cout << "# Spill de " << id << std::endl;
-  offset = currentfun->getLocalSpace();
-  currentfun->setLocalSpace(offset+4);
+  
+  this->offset = currentfun->getLocalSpace();
+  currentfun->setLocalSpace(this->offset+4);
+  std::cout << "# Spill de " << id << ", offset " << offset << std::endl;
   return -(offset+12);
 }
 

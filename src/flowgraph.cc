@@ -209,11 +209,14 @@ void BasicBlock::toMIPS() {
        it != insts.end(); it++) {
     rdesc.liveTemps = outs.front();
     outs.pop_front();
+    if ((*it)->isJump()) {
+      std::list<Instruction*> stores = rdesc.emptyRegs();
+      new_insts.splice(new_insts.end(), stores);
+    }
     std::list<Instruction*> is = (*it)->gen();
     new_insts.splice(new_insts.end(), is);
   }
 
-  // FIXME
   // Vaciar descriptores de registros, generando stores si hace falta
   rdesc.liveTemps = this->t_out;
   std::list<Instruction*> stores = rdesc.emptyRegs();
