@@ -124,6 +124,8 @@ private:
 
   bool generated;
 
+  int args_space;
+
 public:
   SymFunction (std::string id, ArgList* arguments, Type* rtype,
                int line, int col);
@@ -140,6 +142,8 @@ public:
 
   Label* getLabel();
   Label* getEpilogueLabel();
+
+  int getArgsSpace();
 
   void addReturnTarget(BasicBlock* b);
   std::list<BasicBlock*> getReturnTargets();

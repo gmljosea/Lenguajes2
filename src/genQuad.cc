@@ -990,8 +990,7 @@ std::list<Instruction*> JumpQ::gen() {
 std::list<Instruction*> CallQ::gen() {
   std::list<Instruction*> res;
   res.push_back(new Jal(func->getLabel()));
-  // Hacer que se devuelva el $sp tantos bytes como argumentos
-  // de la función
+  res.push_back(new La(Reg::sp, func->getArgsSpace(), Reg::sp));
   return res;
 }
 

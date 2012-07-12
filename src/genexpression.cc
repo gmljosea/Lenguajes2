@@ -557,9 +557,9 @@ SymVar* FunCallExp::gen(){
   }
 
   // Generar las instrucciones para cargar los parametros
-  std::list<SymVar*>::iterator argList = symf->getArguments()->begin();
-  std::list<Expression*>::iterator arg= this->args.begin();
-  for(arg; arg!=this->args.end(); arg++){
+  std::list<SymVar*>::reverse_iterator argList = symf->getArguments()->rbegin();
+  std::list<Expression*>::reverse_iterator arg= this->args.rbegin();
+  for(arg; arg!=this->args.rend(); arg++){
     SymVar* formalp = *argList;
     Expression* actualp = *arg;
 

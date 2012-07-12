@@ -128,6 +128,11 @@ void SymFunction::check() {
     (*it)->setOffset(offset);
     offset += (*it)->getSize();
   }
+  this->args_space = offset;
+}
+
+int SymFunction::getArgsSpace() {
+  return this->args_space;
 }
 
 Label* SymFunction::getLabel() {
