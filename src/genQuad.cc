@@ -1109,3 +1109,52 @@ std::list<Instruction*> CastFtoIQ::gen() {
 
   return l;
 }
+
+std::list<Instruction*> CastItoFQ::gen() {
+  std::list<Instruction*> l;
+  RegSet r, rf;
+
+  switch (argt) {
+  case ArgType::id:
+    rf = rdesc.getFreshReg(true);
+    l.splice(l.end(), rf.stores);
+    r = rdesc.get1Reg(arg.id, false);
+    l.splice(l.end(), r.stores);
+    if (! arg.id->isInReg(r.rx) ) {
+      l.push_back( rdesc.loadVar(r.rx, arg.id) );
+      rdesc.clearReg(r.rx);
+      rdesc.addLocation(r.rx, arg.id);
+    }
+
+    l.push_back( new Mtc1(Reg::f0, r.rx) );
+    l.push_back( new CvtIF(rf.rx, Reg::f0) );
+
+    rdesc.addExclusiveLocation(rf.rx, result);
+
+    break;
+
+  case ArgType::constint:
+    r = rdesc.getFreshReg(true);
+    l.splice(l.end(), r.stores);
+
+    l.push_back( new Li(Reg::a0, arg.constint) );
+    l.push_back( new Mtc1(Reg::f0, Reg::a0) );
+    l.push_back( new CvtIF(r.rx, Reg::f0) );
+
+    rdesc.addExclusiveLocation(r.rx, result);
+    break;
+
+  }
+
+  return l;
+}
+
+std::list<Instruction*> CastCtoIQ::gen() {
+  AsignmentQ a(argt, arg, result);
+  return a.gen();
+}
+
+std::list<Instruction*> CastItoCQ::gen() {
+  AsignmentQ a(argt, arg, result);
+  return a.gen();
+}

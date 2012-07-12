@@ -465,6 +465,7 @@ public:
   virtual void printQuad();
   virtual std::string toString();
   virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
+  virtual std::list<Instruction*> gen();
 };
 
 // a := (char to int) b
@@ -480,6 +481,7 @@ public:
   virtual void printQuad();
   virtual std::string toString();
   virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
+  virtual std::list<Instruction*> gen();
 };
 
 // a := (int to char) b
@@ -495,6 +497,7 @@ public:
   virtual void printQuad();
   virtual std::string toString();
   virtual std::set<SymVar*> recalcIN(std::set<SymVar*> out);
+  virtual std::list<Instruction*> gen();
 };
 
 #endif
