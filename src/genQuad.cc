@@ -1065,3 +1065,47 @@ std::list<Instruction*> WriteQ::gen() {
 
   return l;
 }
+
+
+std::list<Instruction*> CastFtoIQ::gen() {
+  std::list<Instruction*> l;
+  RegSet r, ri;
+
+  switch (argt) {
+  case ArgType::id:
+    r = rdesc.get2RegAs(result, arg.id, true);
+    l.splice(l.end(), r.stores);
+    rdesc.clearReg(r.rx);
+    if (! arg.id->isInReg(r.ry) ) {
+      l.push_back( rdesc.loadVar(r.ry, arg.id) );
+      rdesc.clearReg(r.ry);
+      rdesc.addLocation(r.ry, arg.id);
+    }
+    l.push_back( new CvtFI(r.rx, r.ry) );
+
+    ri = rdesc.getFreshReg(false);
+    l.splice(l.end(), ri.stores);
+    l.push_back( new Mfc1(ri.rx, r.rx) );
+
+    rdesc.addExclusiveLocation(ri.rx, result);
+
+    break;
+
+  case ArgType::constfloat:
+    r = rdesc.getFreshReg(true);
+    rdesc.clearReg(r.rx);
+    l.splice(l.end(), r.stores);
+
+    l.push_back( new LiS(Reg::f0, arg.constfloat) );
+    l.push_back( new CvtFI(r.rx, Reg::f0) );
+
+    ri = rdesc.getFreshReg(false);
+    l.splice(l.end(), ri.stores);
+    l.push_back( new Mfc1(ri.rx, r.rx) );
+
+    rdesc.addExclusiveLocation(ri.rx, result);
+    break;
+  }
+
+  return l;
+}
