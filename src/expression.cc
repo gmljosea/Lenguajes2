@@ -816,7 +816,7 @@ void FunCallExp::check() {
   } else {
     name = this->symf->getId();
   }
-    
+
   if (symf == NULL) {
     program.error("llamada a función no declarada '"+name+"'",
 		  this->fline, this->fcol);

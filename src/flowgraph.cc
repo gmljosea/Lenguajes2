@@ -207,12 +207,12 @@ void BasicBlock::toMIPS() {
 
   for (std::list<Instruction*>::iterator it = insts.begin();
        it != insts.end(); it++) {
-    rdesc.liveTemps = outs.front();
-    outs.pop_front();
     if ((*it)->isJump()) {
       std::list<Instruction*> stores = rdesc.emptyRegs();
       new_insts.splice(new_insts.end(), stores);
     }
+    rdesc.liveTemps = outs.front();
+    outs.pop_front();
     std::list<Instruction*> is = (*it)->gen();
     new_insts.splice(new_insts.end(), is);
   }

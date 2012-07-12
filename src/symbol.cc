@@ -181,6 +181,7 @@ SymVar::SymVar(int idTemp) {
   this->reference=false;
   this->mem = false;
   this->offset = -1;
+  this->isParameter = false;
 }
 
 

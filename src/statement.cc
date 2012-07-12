@@ -537,6 +537,7 @@ void Return::check(){
   Type* tfun = this->symf->getType();
   if (*tfun == ErrorType::getInstance()) return;
   if(this->exp != NULL){
+    this->exp->check();
     Type* texp = this->exp->getType();
     if (*texp == ErrorType::getInstance()) {
       return;
