@@ -210,9 +210,9 @@ Expression* Sum::cfold() {
     return this;
   }
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
-  delete exp1;
-  delete exp2;
-  delete this;
+  /*delete exp1;
+  //delete exp2;
+  //delete this;*/
   return result;
 }
 
@@ -232,9 +232,9 @@ Expression* Substraction::cfold() {
     return this;
   }
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
-  delete exp1;
-  delete exp2;
-  delete this;
+  //delete exp1;
+  //delete exp2;
+  //delete this;
   return result;
 }
 
@@ -255,9 +255,9 @@ Expression* Multiplication::cfold() {
     return this;
   }
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
-  delete exp1;
-  delete exp2;
-  delete this;
+  //delete exp1;
+  //delete exp2;
+  //delete this;
   return result;
 }
 
@@ -277,9 +277,9 @@ Expression* Division::cfold() {
     return this;
   }
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
-  delete exp1;
-  delete exp2;
-  delete this;
+  //delete exp1;
+  //delete exp2;
+  //delete this;
   return result;
 }
 
@@ -320,9 +320,9 @@ Expression* Remainder::cfold() {
     return this;
   }
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
-  delete exp1;
-  delete exp2;
-  delete this;
+  //delete exp1;
+  //delete exp2;
+  //delete this;
   return result;
 }
 
@@ -353,9 +353,9 @@ Expression* Minus::cfold() {
     return this;
   }
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
-  delete exp1;
-  delete exp2;
-  delete this;
+  //delete exp1;
+  //delete exp2;
+  //delete this;
   return result;
 }
 
@@ -399,9 +399,9 @@ Expression* And::cfold() {
     return this;
   }
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
-  delete exp1;
-  delete exp2;
-  delete this;
+  //delete exp1;
+  //delete exp2;
+  //delete this;
   return result;
 }
 
@@ -419,9 +419,9 @@ Expression* Or::cfold() {
     return this;
   }
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
-  delete exp1;
-  delete exp2;
-  delete this;
+  //delete exp1;
+  //delete exp2;
+  //delete this;
   return result;
 }
 
@@ -449,9 +449,9 @@ Expression* Not::cfold() {
     return this;
   }
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
-  delete exp1;
-  delete exp2;
-  delete this;
+  //delete exp1;
+  //delete exp2;
+  //delete this;
   return result;
 }
 
@@ -505,9 +505,9 @@ Expression* Greater::cfold() {
     return this;
   }
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
-  delete exp1;
-  delete exp2;
-  delete this;
+  //delete exp1;
+  //delete exp2;
+  //delete this;
   return result;
 }
 
@@ -530,9 +530,9 @@ Expression* GreaterEq::cfold() {
     return this;
   }
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
-  delete exp1;
-  delete exp2;
-  delete this;
+  //delete exp1;
+  //delete exp2;
+  //delete this;
   return result;
 }
 
@@ -584,9 +584,9 @@ Expression* Equal::cfold() {
     return this;
   }
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
-  delete exp1;
-  delete exp2;
-  delete this;
+  //delete exp1;
+  //delete exp2;
+  //delete this;
   return result;
 }
 
@@ -638,9 +638,9 @@ Expression* NotEqual::cfold() {
     return this;
   }
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
-  delete exp1;
-  delete exp2;
-  delete this;
+  //delete exp1;
+  //delete exp2;
+  //delete this;
   return result;
 }
 
@@ -663,9 +663,9 @@ Expression* Less::cfold() {
     return this;
   }
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
-  delete exp1;
-  delete exp2;
-  delete this;
+  //delete exp1;
+  //delete exp2;
+  //delete this;
   return result;
 }
 
@@ -688,9 +688,9 @@ Expression* LessEq::cfold() {
     return this;
   }
   result->setLocation(exp1->getFirstLine(),exp1->getFirstCol(),0,0);
-  delete exp1;
-  delete exp2;
-  delete this;
+  //delete exp1;
+  //delete exp2;
+  //delete this;
   return result;
 }
 

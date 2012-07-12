@@ -356,10 +356,13 @@ Instruction* RegDesc::loadVar(Args arg,ArgType type,Reg r){
   switch(type){
   case ArgType::id:
     return loadVar(r,arg.id);
+    break;
   case ArgType::constint:
     return new Li(r,arg.constint);
+    break;
   case ArgType::constfloat:
     return new LiS(r,arg.constfloat);
+    break;
   default:
     return NULL;
   }
