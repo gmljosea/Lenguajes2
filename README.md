@@ -35,7 +35,7 @@ puede facilitar la comprension de la estructura que lleva el proyecto.
 Para esta entrega se logró que el compilador Devanix generará codigo MIPS para lo siguiente:
 
 *    Todas las operaciones aritmeticas definidas en el lenguaje, tanto para enteros como flotantes.
-*    Asignación (Copias de una variable a otra).
+*    Asignaciones simples y simultaneas.
 *    Funciones recursivas y correcursivas.
 *    Read y write de enteros y flotantes.
 *    Write de strings.
