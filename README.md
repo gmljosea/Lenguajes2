@@ -53,7 +53,7 @@ a memoria, se implantó un análisis de dataflow para evaluar los temporales viv
 Se genera un grafo de control por cada función y se guarda en una archivo aparte.
 Se genera un grafo con el código TAC (en los archivos prefijados con "tac_f_") y
 uno con el código MIPS generado (en los archivos prefijados con "mips_f_").
-El grafo de MIPS no incluye el código para el pr+ologo y epílogo de cada función.
+El grafo de MIPS no incluye el código para el prologo y epílogo de cada función.
 
 En la carpeta examples hemos agregado algunos ejemplos de programas escritos en Devanix.
 Existe un fibonnaci iterativo, un hello world, un factorial recursivo, potenciación
