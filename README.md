@@ -30,6 +30,33 @@ En la documentación se incluye la representación gráfica
 de la jerarquía de clases utilizadas para la elaboración del compilador de Devanix. Esta 
 puede facilitar la comprension de la estructura que lleva el proyecto.  
 
+## Entrega 4 (Final)
+
+Para esta entrega se logró que el compilador Devanix generará codigo MIPS para lo siguiente:
+
+*    Todas las operaciones aritmeticas definidas en el lenguaje, tanto para enteros como flotantes.
+*    Asignación (Copias de una variable a otra).
+*    Funciones recursivas y correcursivas.
+*    Read y write de enteros y flotantes.
+*    Write de strings.
+*    Instruccion While For If (En el caso del For hay un bug con el acceso a la variable de iteración)
+
+*    No se si los cast funcionan 
+*    Asignacion en las posiciones de un arreglo y acceso a las posiciones del arreglo
+
+El resto de las traducciones han sido implementadas pero no han sido suficientemente probadas como
+para afirmar que funcionan correctamente.
+
+Se realizó el analisis de vida de variables. 
+
+Se genera un grafo de control por cada función el nombre del archivo .dot de  cada uno es 
+prefijado con el string 
+"tac_f_" para el grafo de control de las funciones traducidas a tac y "mips_f_" para las mismas 
+funciones pero traducidas a codigo MIPS.
+
+En la carpeta examples hemos agregado algunos ejemplos de programas escritos en Denanix.  
+
+
 ## Entrega 3
 
 Para esta entrega se implantó lo siguiente:
