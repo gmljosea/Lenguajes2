@@ -1,0 +1,17 @@
+float acc = 0.0;
+float acc2 = 1.0;
+
+int main() {
+  float b;
+  while (true) {
+    writeln "";
+    write "Dame un numero flotante: ";
+    read b;
+    acc,acc2 = acc + b, acc2*b;
+    writeln "";
+    write "Suma: ", acc;
+    writeln "";
+    write "Mult: ", acc2;
+  }
+  return 0;
+}
