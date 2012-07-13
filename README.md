@@ -36,26 +36,29 @@ Para esta entrega se logró que el compilador Devanix generará codigo MIPS para
 
 *    Todas las operaciones aritmeticas definidas en el lenguaje, tanto para enteros como flotantes.
 *    Asignaciones simples y simultaneas.
-*    Funciones recursivas y correcursivas.
+*    Funciones, incluyendo recursión.
 *    Read y write de enteros y flotantes.
-*    Write de strings.
-*    Instruccion While For If (En el caso del For hay un bug con el acceso a la variable de iteración)
+*    Write de strings, enteros, flotantes y booleanos.
+*    Instrucciones while, for e if. En el caso de for hay un bug con el acceso a la variable de iteración.
+*    Técnicamente genera los casts entre enteros, flotantes y caracteres, pero no lo probamos.
+*    Asignacion en las posiciones de un arreglo y acceso a las posiciones del arreglo.
+     Sin embargo aún quedan varios bugs que no nos dejan confiar mucho en el código generado para arreglos.
+*    Técnicamente también debe generarse el código para los tipos box (pues al traducir a código TAC se traduce en accesos a arreglos)
+     pero no los probamos.
 
-*    No se si los cast funcionan 
-*    Asignacion en las posiciones de un arreglo y acceso a las posiciones del arreglo
+Para la asignación de registros se utilizó descriptores. Al final de cada bloque básico
+se vacían todos los descriptores. Para evitar hacer spills innecesarios de temporales
+a memoria, se implantó un análisis de dataflow para evaluar los temporales vivos.
 
-El resto de las traducciones han sido implementadas pero no han sido suficientemente probadas como
-para afirmar que funcionan correctamente.
+Se genera un grafo de control por cada función y se guarda en una archivo aparte.
+Se genera un grafo con el código TAC (en los archivos prefijados con "tac_f_") y
+uno con el código MIPS generado (en los archivos prefijados con "mips_f_").
+El grafo de MIPS no incluye el código para el pr+ologo y epílogo de cada función.
 
-Se realizó el analisis de vida de variables. 
-
-Se genera un grafo de control por cada función el nombre del archivo .dot de  cada uno es 
-prefijado con el string 
-"tac_f_" para el grafo de control de las funciones traducidas a tac y "mips_f_" para las mismas 
-funciones pero traducidas a codigo MIPS.
-
-En la carpeta examples hemos agregado algunos ejemplos de programas escritos en Denanix.  
-
+En la carpeta examples hemos agregado algunos ejemplos de programas escritos en Devanix.
+Existe un fibonnaci iterativo, un hello world, un factorial recursivo, potenciación
+recursiva, una prueba de funciones corecursivas, y un ejemplo sencillo con operaciones
+punto flotante.
 
 ## Entrega 3
 
